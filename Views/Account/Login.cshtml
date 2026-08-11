@@ -1,0 +1,158 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="login-page">
+
+    <div class="login-container">
+
+        <div class="login-left-panel">
+
+            <div class="login-branding">
+
+                <img src="~/images/DUT-logo.jpg"
+                     alt="DUT Campus FIT Gym Logo"
+                     class="login-logo" />
+
+                <h1>DUT Campus FIT Gym</h1>
+
+                <p>
+                    Train. Grow. Achieve.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="login-right-panel">
+
+            <div class="login-card">
+
+                <h2>Welcome Back</h2>
+
+                <p class="login-subtitle">
+                    Sign in to your DUT Campus FIT Gym account.
+                </p>
+
+
+                <form asp-action="Login" method="post">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label asp-for="Email"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="Email"
+                               class="form-control"
+                               placeholder="Enter your email" />
+
+                        <span asp-validation-for="Email"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label asp-for="Password" class="form-label"></label>
+
+                        <div class="password-wrapper">
+
+                            <input asp-for="Password"
+                                   type="password"
+                                   class="form-control"
+                                   id="loginPassword"
+                                   placeholder="Enter your password" />
+
+                            <button type="button"
+                                    class="show-password-btn"
+                                    onclick="togglePassword()">
+                                Show
+                            </button>
+
+                        </div>
+
+                        <span asp-validation-for="Password"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <button type="submit"
+                            class="btn login-btn w-100">
+
+                        Login
+
+                    </button>
+
+                    <div class="text-center mt-4">
+
+                        <span>
+                            Don't have an account?
+                        </span>
+
+                        <a asp-action="Register">
+                            Create Account
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}
+
+<script>
+
+    function togglePassword() {
+
+        const passwordInput =
+            document.getElementById("loginPassword");
+
+        const button =
+            document.querySelector(".show-password-btn");
+
+        if (passwordInput.type === "password") {
+
+            passwordInput.type = "text";
+            button.textContent = "Hide";
+
+        } else {
+
+            passwordInput.type = "password";
+            button.textContent = "Show";
+
+        }
+    }
+
+</script>
+
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/login.css"
+          asp-append-version="true" />
+
+}

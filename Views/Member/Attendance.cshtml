@@ -1,0 +1,215 @@
+﻿@model List<DUT_Campus_FIT_Gym.Models.Attendance>
+
+@{
+    ViewData["Title"] = "Attendance";
+
+    var totalVisits = Model.Count;
+
+    var thisMonth = Model.Count(a =>
+        a.CheckInTime.Month == DateTime.Now.Month &&
+        a.CheckInTime.Year == DateTime.Now.Year);
+
+    var currentlyCheckedIn = Model.Any(a =>
+        a.CheckOutTime == null);
+}
+
+<div class="attendance-page">
+
+    <div class="attendance-header">
+
+        <div>
+            <span class="attendance-label">ACTIVITY</span>
+
+            <h1>Attendance</h1>
+
+            <p>
+                View your gym visit history.
+            </p>
+        </div>
+
+        <a asp-controller="Member"
+           asp-action="Dashboard"
+           class="attendance-back-btn">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="attendance-summary">
+
+        <div class="attendance-stat">
+
+            <div class="attendance-stat-icon">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+
+            <div>
+                <span>Total Visits</span>
+
+                <strong>
+                    @totalVisits
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="attendance-stat">
+
+            <div class="attendance-stat-icon">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
+
+            <div>
+                <span>This Month</span>
+
+                <strong>
+                    @thisMonth
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="attendance-stat">
+
+            <div class="attendance-stat-icon">
+                <i class="fa-solid fa-person-running"></i>
+            </div>
+
+            <div>
+                <span>Current Status</span>
+
+                <strong>
+                    @(currentlyCheckedIn ? "Checked In" : "Not Checked In")
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ATTENDANCE HISTORY -->
+
+    <div class="attendance-card">
+
+        <div class="attendance-card-header">
+
+            <div>
+                <span class="attendance-label">
+                    HISTORY
+                </span>
+
+                <h2>
+                    Recent Visits
+                </h2>
+            </div>
+
+            <i class="fa-solid fa-clock-rotate-left"></i>
+
+        </div>
+
+
+        @if (Model.Any())
+        {
+            <div class="attendance-table-wrapper">
+
+                <table class="attendance-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Date</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Duration</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var record in Model)
+                        {
+                            var duration = record.CheckOutTime.HasValue
+                            ? record.CheckOutTime.Value - record.CheckInTime
+                            : (TimeSpan?)null;
+
+                            <tr>
+
+                                <td>
+                                    @record.CheckInTime.ToString("dd MMM yyyy")
+                                </td>
+
+                                <td>
+                                    @record.CheckInTime.ToString("HH:mm")
+                                </td>
+
+                                <td>
+                                    @if (record.CheckOutTime.HasValue)
+                                    {
+                                        @record.CheckOutTime.Value.ToString("HH:mm")
+                                    }
+                                    else
+                                    {
+                                        <span class="checked-in">
+                                            Currently In
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (duration.HasValue)
+                                    {
+                                        @duration.Value.ToString(@"hh\:mm")
+                                    }
+                                    else
+                                    {
+                                        <span>—</span>
+                                    }
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="no-attendance">
+
+                <i class="fa-solid fa-calendar-xmark"></i>
+
+                <h3>No attendance records</h3>
+
+                <p>
+                    Your gym visits will appear here.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/member-attendance.css"
+          asp-append-version="true" />
+
+}

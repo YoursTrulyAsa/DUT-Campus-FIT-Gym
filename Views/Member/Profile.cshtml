@@ -1,0 +1,175 @@
+﻿@model DUT_Campus_FIT_Gym.Models.Member
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="profile-page">
+
+    <!-- PAGE HEADER -->
+    <div class="profile-header">
+
+        <div>
+            <span class="profile-label">ACCOUNT</span>
+
+            <h1>My Profile</h1>
+
+            <p>
+                View your personal DUT Campus FIT Gym information.
+            </p>
+        </div>
+
+        <a asp-controller="Member"
+           asp-action="Dashboard"
+           class="back-btn">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- PROFILE CONTENT -->
+    <div class="profile-container">
+
+        <!-- PROFILE SUMMARY -->
+        <div class="profile-summary">
+
+            <div class="profile-avatar">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <h2>
+                @Model.FirstName @Model.LastName
+            </h2>
+
+            <span class="role-badge">
+                @Model.Role
+            </span>
+
+            <p>
+                DUT Campus FIT Gym Member
+            </p>
+
+        </div>
+
+
+        <!-- ACCOUNT DETAILS -->
+        <div class="profile-card">
+
+            <div class="profile-card-header">
+
+                <div>
+                    <span class="profile-label">
+                        PERSONAL INFORMATION
+                    </span>
+
+                    <h2>
+                        Account Details
+                    </h2>
+                </div>
+
+                <i class="fa-solid fa-user-pen"></i>
+
+            </div>
+
+
+            <!-- DETAILS -->
+            <div class="profile-details">
+
+                <div class="profile-field">
+
+                    <span>
+                        First Name
+                    </span>
+
+                    <strong>
+                        @Model.FirstName
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-field">
+
+                    <span>
+                        Last Name
+                    </span>
+
+                    <strong>
+                        @Model.LastName
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-field">
+
+                    <span>
+                        Student / Staff Number
+                    </span>
+
+                    <strong>
+                        @Model.StaffStudentNumber
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-field">
+
+                    <span>
+                        Email Address
+                    </span>
+
+                    <strong>
+                        @Model.Email
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-field">
+
+                    <span>
+                        Phone Number
+                    </span>
+
+                    <strong>
+                        @Model.PhoneNumber
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-field">
+
+                    <span>
+                        Account Role
+                    </span>
+
+                    <strong>
+                        @Model.Role
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/member-profile.css"
+          asp-append-version="true" />
+
+}

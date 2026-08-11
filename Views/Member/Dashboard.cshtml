@@ -1,0 +1,333 @@
+﻿@{
+    ViewData["Title"] = "Member Dashboard";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>Member Dashboard - DUT FIT</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <!-- Main site CSS -->
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet"
+          href="~/css/member-dashboard.css"
+          asp-append-version="true" />
+
+</head>
+
+<body>
+
+    <div class="member-dashboard">
+
+<div class="member-dashboard">
+
+    <aside class="dashboard-sidebar">
+
+        <div class="sidebar-brand">
+            <h2>DUT FIT</h2>
+            <span>Campus Gym</span>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a asp-controller="Member"
+               asp-action="Dashboard"
+               class="active">
+                <i class="fa-solid fa-house"></i>
+                Dashboard
+            </a>
+
+            <a asp-controller="Member" asp-action="Profile">
+                <i class="fa-solid fa-user"></i>
+                Profile
+            </a>
+
+            <a asp-controller="Member" asp-action="Membership">
+                <i class="fa-solid fa-id-card"></i>
+                Membership
+            </a>
+
+            <a asp-controller="Member" asp-action="Attendance">
+                <i class="fa-solid fa-calendar-check"></i>
+                Attendance
+            </a>
+
+            <a asp-controller="Member" asp-action="Equipment">
+                <i class="fa-solid fa-dumbbell"></i>
+                Equipment
+            </a>
+
+            <a asp-controller="Member" asp-action="Reservations">
+                <i class="fa-solid fa-calendar"></i>
+                Reservations
+            </a>
+
+            <a asp-controller="Member" asp-action="WorkoutPlan">
+                <i class="fa-solid fa-person-running"></i>
+                Workout Plan
+            </a>
+
+            <a asp-controller="Member" asp-action="Payments">
+                <i class="fa-solid fa-credit-card"></i>
+                Payments
+            </a>
+
+            <a asp-controller="Member" asp-action="Announcements">
+                <i class="fa-solid fa-bullhorn"></i>
+                Announcements
+            </a>
+
+            <a asp-controller="Member" asp-action="Support">
+                <i class="fa-solid fa-circle-question"></i>
+                Support
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <form asp-controller="Account"
+                  asp-action="Logout"
+                  method="post">
+
+                <button type="submit" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
+
+    </aside>
+
+    <main class="dashboard-content">
+
+        <div class="dashboard-topbar">
+
+            <div>
+                <h1>Welcome Back 👋</h1>
+                <p>Here's what's happening with your gym membership.</p>
+            </div>
+
+            <div class="user-badge">
+                <i class="fa-solid fa-user"></i>
+                <span>Student</span>
+            </div>
+
+        </div>
+
+        <div class="dashboard-stats">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+
+                <div>
+                    <span>Membership</span>
+                            <h3>
+                                @(Model.Membership != null ? Model.Membership.Status : "None")
+                            </h3>
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+
+                <div>
+                    <span>Attendance</span>
+                            <h3>@Model.AttendanceCount Visits</h3>
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-dumbbell"></i>
+                </div>
+
+                <div>
+                    <span>Reservations</span>
+                    <h3>3 Active</h3>
+                </div>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    <i class="fa-solid fa-credit-card"></i>
+                </div>
+
+                <div>
+                    <span>Payment</span>
+                    <h3>Paid</h3>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="dashboard-grid">
+
+            <section class="dashboard-card workout-card">
+
+                <div class="card-heading">
+
+                    <div>
+                        <span class="card-label">MY WORKOUT</span>
+                        <h2>Today's Workout</h2>
+                    </div>
+
+                    <i class="fa-solid fa-person-running"></i>
+
+                </div>
+
+                <p class="workout-name">
+                    Chest & Triceps
+                </p>
+
+                <p class="card-description">
+                    Your scheduled workout for today.
+                </p>
+
+                <a asp-controller="Member"
+                   asp-action="WorkoutPlan"
+                   class="dashboard-btn">
+                    View Workout
+                </a>
+
+            </section>
+
+            <section class="dashboard-card">
+
+                <div class="card-heading">
+
+                    <div>
+                        <span class="card-label">MEMBERSHIP</span>
+                        <h2>Active Membership</h2>
+                    </div>
+
+                    <i class="fa-solid fa-id-card"></i>
+
+                </div>
+
+                        @if (Model.Membership != null)
+                        {
+                            <div class="membership-status">
+
+                                <span class="status-dot"></span>
+
+                                @Model.Membership.Status
+
+                            </div>
+
+                            <p class="card-description">
+                                Your gym membership is currently
+                                @Model.Membership.Status.ToLower().
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="membership-status">
+
+                                <span class="status-dot"></span>
+
+                                No Membership
+
+                            </div>
+
+                            <p class="card-description">
+                                You currently do not have a membership.
+                            </p>
+                        }
+
+                <a asp-controller="Member"
+                   asp-action="Membership"
+                   class="dashboard-btn">
+                    View Membership
+                </a>
+
+            </section>
+
+            <section class="dashboard-card quick-actions-card">
+
+                <div class="card-heading">
+
+                    <div>
+                        <span class="card-label">QUICK ACTIONS</span>
+                        <h2>What would you like to do?</h2>
+                    </div>
+
+                </div>
+
+                <div class="quick-actions">
+
+                    <a asp-controller="Member"
+                       asp-action="Reservations">
+                        <i class="fa-solid fa-calendar-plus"></i>
+                        Reserve Equipment
+                    </a>
+
+                    <a asp-controller="Member"
+                       asp-action="Attendance">
+                        <i class="fa-solid fa-clock"></i>
+                        View Attendance
+                    </a>
+
+                    <a asp-controller="Member"
+                       asp-action="Payments">
+                        <i class="fa-solid fa-money-bill"></i>
+                        View Payments
+                    </a>
+
+                    <a asp-controller="Member"
+                       asp-action="Support">
+                        <i class="fa-solid fa-headset"></i>
+                        Get Support
+                    </a>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script src="~/js/site.js" asp-append-version="true"></script>
+
+</body>
+</html>

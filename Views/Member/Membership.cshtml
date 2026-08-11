@@ -1,0 +1,120 @@
+﻿@model DUT_Campus_FIT_Gym.Models.Membership
+
+@{
+    ViewData["Title"] = "My Membership";
+}
+
+<div class="membership-page">
+
+    <div class="membership-header">
+
+        <div>
+            <span class="membership-label">MEMBERSHIP</span>
+
+            <h1>My Membership</h1>
+
+            <p>
+                View your current DUT Campus FIT Gym membership.
+            </p>
+        </div>
+
+        <a asp-controller="Member"
+           asp-action="Dashboard"
+           class="membership-back-btn">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Dashboard
+
+        </a>
+
+    </div>
+
+
+    <div class="membership-card">
+
+        <div class="membership-card-top">
+
+            <div>
+                <span class="membership-label">
+                    CURRENT PLAN
+                </span>
+
+                <h2>
+                    @Model.MembershipType
+                </h2>
+            </div>
+
+            <div class="membership-status">
+                @Model.Status
+            </div>
+
+        </div>
+
+
+        <div class="membership-details">
+
+            <div class="membership-detail">
+
+                <div class="membership-icon">
+                    <i class="fa-solid fa-calendar-plus"></i>
+                </div>
+
+                <div>
+                    <span>Start Date</span>
+
+                    <strong>
+                        @Model.StartDate.ToString("dd MMM yyyy")
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <div class="membership-detail">
+
+                <div class="membership-icon">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+
+                <div>
+                    <span>End Date</span>
+
+                    <strong>
+                        @Model.EndDate.ToString("dd MMM yyyy")
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <div class="membership-detail">
+
+                <div class="membership-icon">
+                    <i class="fa-solid fa-money-bill"></i>
+                </div>
+
+                <div>
+                    <span>Membership Fee</span>
+
+                    <strong>
+                        R @Model.Price.ToString("N2")
+                    </strong>
+                </div>
+
+            </div>
+            
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/member-membership.css"
+          asp-append-version="true" />
+
+}
