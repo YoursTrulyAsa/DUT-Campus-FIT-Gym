@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DUT_Campus_FIT_Gym.Data;
+using DUT_Campus_FIT_Gym.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using DUT_Campus_FIT_Gym.Data;
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
@@ -93,7 +94,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 return NotFound("No membership found for this member.");
             }
-
+             
             return View(membership);
         }
 
@@ -119,10 +120,35 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         public IActionResult Equipment()
         {
-            var equipment = _context.Equipment
-                .ToList();
+            var equipment = _context.Equipment.ToList();
 
             return View(equipment);
         }
+
+        public IActionResult Reservations()
+        {
+            var memberId = int.Parse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier)
+            );
+
+            var reservations = _context.Reservations
+                .Where(r => r.MemberID == memberId)
+                .Join(
+                    _context.Equipment,
+                    reservation => reservation.EquipmentID,
+                    equipment => equipment.EquipmentID,
+                    (reservation, equipment) => new ReservationViewModel
+                    {
+                        ReservationID = reservation.ReservationID,
+                        EquipmentName = equipment.EquipmentName,
+                        ReservationDate = reservation.ReservationDate,
+                        Status = reservation.Status
+                    }
+                )
+                .ToList();
+
+            return View(reservations);
+        }
+
     }
 }

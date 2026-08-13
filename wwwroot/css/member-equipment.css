@@ -1,0 +1,108 @@
+﻿.equipment-page {
+    padding: 30px;
+}
+
+.equipment-header {
+    margin-bottom: 30px;
+}
+
+    .equipment-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .equipment-header p {
+        color: #777;
+        margin: 0;
+    }
+
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
+}
+
+.equipment-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .equipment-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+    }
+
+.equipment-icon {
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eaf4ff;
+    border-radius: 14px;
+    font-size: 26px;
+    margin-bottom: 18px;
+}
+
+.equipment-info h3 {
+    margin: 0 0 6px;
+    font-size: 21px;
+    font-weight: 600;
+}
+
+.equipment-category {
+    color: #777;
+    margin-bottom: 12px;
+}
+
+.equipment-location {
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+    .status.available {
+        background: #e8f7ee;
+        color: #198754;
+    }
+
+    .status.unavailable {
+        background: #fdecec;
+        color: #dc3545;
+    }
+
+.equipment-action {
+    margin-top: 20px;
+}
+
+.reserve-btn {
+    width: 100%;
+    border: none;
+    padding: 11px 16px;
+    border-radius: 9px;
+    background: #0d6efd;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+    .reserve-btn:hover {
+        background: #0b5ed7;
+    }
+
+    .reserve-btn.disabled {
+        background: #adb5bd;
+        cursor: not-allowed;
+    }

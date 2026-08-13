@@ -1,5 +1,50 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Equipment>
+
+<h1 style="color:red;">TEST — EQUIPMENT PAGE</h1>
+
+<p>Equipment found: @ViewBag.EquipmentCount</p>
+
+<h1>Equipment</h1>
+<p>Equipment found: @ViewBag.EquipmentCount</p>
+<a asp-action="Create" class="btn btn-primary mb-3">Add Equipment</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Equipment Name</th>
+            <th>Category</th>
+            <th>Available</th>
+            <th>Location</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.EquipmentName</td>
+                <td>@item.Category</td>
+                <td>
+                    @(item.IsAvailable ? "Available" : "Unavailable")
+                </td>
+                <td>@item.Location</td>
+                <td>
+                    @if (item.IsAvailable)
+                    {
+                        <form asp-action="Reserve" method="post">
+                            <input type="hidden" name="id" value="@item.EquipmentID" />
+                            <button type="submit" class="btn btn-primary">
+                                Reserve
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span>Unavailable</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

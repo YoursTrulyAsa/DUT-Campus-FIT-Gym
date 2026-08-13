@@ -14,5 +14,6 @@ namespace DUT_Campus_FIT_Gym.Data
         public DbSet<Membership> Memberships { get; set; }
         public DbSet<Attendance> Attendances { get; set; }
         public DbSet<Equipment> Equipment { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
     }
 }

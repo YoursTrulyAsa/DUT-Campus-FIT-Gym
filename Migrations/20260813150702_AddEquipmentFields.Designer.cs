@@ -4,6 +4,7 @@ using DUT_Campus_FIT_Gym.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DUT_Campus_FIT_Gym.Migrations
 {
     [DbContext(typeof(GymDbContext))]
-    partial class GymDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260813150702_AddEquipmentFields")]
+    partial class AddEquipmentFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,32 +155,6 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("Memberships");
-                });
-
-            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Reservation", b =>
-                {
-                    b.Property<int>("ReservationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReservationID"));
-
-                    b.Property<int>("EquipmentID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MemberID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ReservationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ReservationID");
-
-                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Attendance", b =>

@@ -114,6 +114,42 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public IActionResult Reserve(int id)
+        {
+            var memberId = int.Parse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier)
+            );
+
+            var equipment = _context.Equipment.Find(id);
+
+            if (equipment == null)
+            {
+                return NotFound();
+            }
+
+            if (!equipment.IsAvailable)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var reservation = new Reservation
+            {
+                MemberID = memberId,
+                EquipmentID = equipment.EquipmentID,
+                ReservationDate = DateTime.Now,
+                Status = "Reserved"
+            };
+
+            equipment.IsAvailable = false;
+
+            _context.Reservations.Add(reservation);
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(

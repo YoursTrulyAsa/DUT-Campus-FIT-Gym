@@ -1,0 +1,31 @@
+﻿@model DUT_Campus_FIT_Gym.Models.Equipment
+
+<h1>Add Equipment</h1>
+
+<form asp-action="Create" method="post">
+
+    <div class="mb-3">
+        <label asp-for="EquipmentName" class="form-label"></label>
+        <input asp-for="EquipmentName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Category" class="form-label"></label>
+        <input asp-for="Category" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="IsAvailable" class="form-label"></label>
+        <input asp-for="IsAvailable" type="checkbox" class="form-check-input" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Location" class="form-label"></label>
+        <input asp-for="Location" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Equipment</button>
+
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+
+</form>

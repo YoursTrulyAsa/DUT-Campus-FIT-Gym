@@ -1,5 +1,91 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Equipment>
+
 @{
+    ViewData["Title"] = "Equipment";
 }
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/member-equipment.css" asp-append-version="true" />
+}
+
+<div class="equipment-page">
+
+    <div class="equipment-header">
+        <div>
+            <h1>Gym Equipment</h1>
+            <p>View available equipment and reserve what you need.</p>
+        </div>
+    </div>
+
+    <div class="equipment-grid">
+
+        @foreach (var item in Model)
+        {
+            <div class="equipment-card">
+
+                <div class="equipment-icon">
+                    🏋️
+                </div>
+
+                <div class="equipment-info">
+                    <h3>@item.EquipmentName</h3>
+
+                    <p class="equipment-category">
+                        @item.Category
+                    </p>
+
+                    <p class="equipment-location">
+                        📍 @item.Location
+                    </p>
+
+                    @if (item.IsAvailable)
+                    {
+                        <span class="status available">
+                            ● Available
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="status unavailable">
+                            ● Unavailable
+                        </span>
+                    }
+                </div>
+
+                <div class="equipment-action">
+
+                    @if (item.IsAvailable)
+                    {
+                        <form asp-controller="Equipment"
+                              asp-action="Reserve"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@item.EquipmentID" />
+
+                            <button type="submit"
+                                    class="reserve-btn">
+                                Reserve Equipment
+                            </button>
+
+                        </form>
+                    }
+                    else
+                    {
+                        <button class="reserve-btn disabled"
+                                disabled>
+                            Currently Reserved
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>

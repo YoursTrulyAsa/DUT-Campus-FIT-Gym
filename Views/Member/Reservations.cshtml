@@ -1,5 +1,104 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.ViewModels.ReservationViewModel>
+
 @{
+    ViewData["Title"] = "My Reservations";
 }
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/member-reservations.css" />
+}
+
+<div class="reservations-page">
+
+    <div class="page-header">
+        <div>
+            <h1>My Reservations</h1>
+            <p>Manage the equipment you have reserved.</p>
+        </div>
+
+        <a asp-controller="Equipment"
+           asp-action="Index"
+           class="btn reserve-more-btn">
+            + Reserve Equipment
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="reservation-grid">
+
+            @foreach (var reservation in Model)
+            {
+                <div class="reservation-card">
+
+                    <div class="reservation-card-top">
+                        <div class="equipment-icon">
+                            🏋️
+                        </div>
+
+                        <span class="status-badge">
+                            @reservation.Status
+                        </span>
+                    </div>
+
+                    <div class="reservation-info">
+                        <h3>@reservation.EquipmentName</h3>
+
+                        <div class="reservation-detail">
+                            <span class="detail-label">Reservation Date</span>
+                            <span class="detail-value">
+                                @reservation.ReservationDate
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="reservation-action">
+
+                        <form asp-controller="Equipment"
+                              asp-action="Unreserve"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@reservation.ReservationID" />
+
+                            <button type="submit"
+                                    class="btn unreserve-btn">
+                                Unreserve
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-reservations">
+
+            <div class="empty-icon">
+                🏋️
+            </div>
+
+            <h2>No Reservations Yet</h2>
+
+            <p>
+                You don't have any equipment reservations at the moment.
+            </p>
+
+            <a asp-controller="Equipment"
+               asp-action="Index"
+               class="btn reserve-more-btn">
+                Reserve Equipment
+            </a>
+
+        </div>
+    }
+
+</div>

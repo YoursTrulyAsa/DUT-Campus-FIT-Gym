@@ -1,5 +1,31 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.ViewModels.ReservationViewModel>
+
+<h1>My Reservations</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Equipment</th>
+            <th>Reservation Date</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reservation in Model)
+        {
+            <tr>
+                <td>@reservation.EquipmentName</td>
+                <td>@reservation.ReservationDate</td>
+                <td>@reservation.Status</td>
+                <td>
+                    <form asp-controller="Equipment" asp-action="Unreserve" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@reservation.ReservationID" />
+                        <button type="submit" class="btn btn-danger">Unreserve</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
