@@ -129,7 +129,8 @@
                         <span>Payments</span>
                     </a>
 
-                    <a href="#"
+                    <a asp-controller="Member"
+                       asp-action="Announcements"
                        class="sidebar-link">
                         <span class="sidebar-icon">
                             <i class="bi bi-megaphone-fill"></i>
@@ -149,14 +150,24 @@
 
                 <div class="sidebar-bottom">
 
-                    <a asp-controller="Account"
-                       asp-action="Logout"
-                       class="sidebar-link logout-link">
-                        <span class="sidebar-icon">
-                            <i class="bi bi-box-arrow-right"></i>
-                        </span>
-                        <span>Logout</span>
-                    </a>
+                    <form asp-controller="Account"
+                          asp-action="Logout"
+                          method="post">
+
+                        <button type="submit"
+                                class="sidebar-link logout-link">
+
+                            <span class="sidebar-icon">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </span>
+
+                            <span>
+                                Logout
+                            </span>
+
+                        </button>
+
+                    </form>
 
                 </div>
 

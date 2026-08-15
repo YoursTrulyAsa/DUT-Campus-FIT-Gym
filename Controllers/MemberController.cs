@@ -150,5 +150,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(reservations);
         }
 
+        public IActionResult Announcements()
+        {
+            var announcements = _context.Announcements
+                .OrderByDescending(a => a.DatePosted)
+                .ToList();
+
+            return View(announcements);
+        }
+
     }
 }

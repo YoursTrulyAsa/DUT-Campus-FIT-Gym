@@ -141,6 +141,22 @@ body {
         color: #ffffff;
     }
 
+.sidebar-bottom form {
+    margin: 0;
+}
+
+.logout-link {
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+}
+
+    .logout-link:hover {
+        background: #1e293b;
+        color: #ffffff;
+    }
+
 .main-content {
     margin-left: 300px;
     width: calc(100% - 300px);

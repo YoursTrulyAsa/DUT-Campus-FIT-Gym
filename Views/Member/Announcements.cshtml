@@ -1,5 +1,235 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Announcement>
+
+<div class="announcements-page">
+
+    <div class="announcements-header">
+        <div>
+            <span class="page-label">GYM UPDATES</span>
+            <h1>Announcements</h1>
+            <p>Stay updated with the latest news, events and gym information.</p>
+        </div>
+
+        <div class="announcement-icon">
+            <i class="bi bi-megaphone-fill"></i>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-announcements">
+            <i class="bi bi-megaphone"></i>
+            <h3>No announcements yet</h3>
+            <p>There are currently no updates from the gym.</p>
+        </div>
+    }
+    else
+    {
+        <div class="announcements-list">
+
+            @foreach (var announcement in Model)
+            {
+                <div class="announcement-card">
+
+                    <div class="announcement-card-top">
+
+                        <div class="announcement-title-section">
+                            <div class="announcement-small-icon">
+                                <i class="bi bi-megaphone-fill"></i>
+                            </div>
+
+                            <div>
+                                <h2>@announcement.Title</h2>
+
+                                <span class="announcement-category">
+                                    @announcement.Category
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="announcement-date">
+                            <i class="bi bi-calendar3"></i>
+                            @announcement.DatePosted.ToString("dd MMM yyyy")
+                        </div>
+
+                    </div>
+
+                    <div class="announcement-message">
+                        @announcement.Message
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+<style>
+    .announcements-page {
+        padding: 38px 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .announcements-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .page-label {
+        color: #3b82f6;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+    }
+
+    .announcements-header h1 {
+        margin: 5px 0;
+        color: #1e3a8a;
+        font-size: 32px;
+        font-weight: 700;
+    }
+
+    .announcements-header p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .announcement-icon {
+        width: 58px;
+        height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #dbeafe;
+        color: #2563eb;
+        border-radius: 15px;
+        font-size: 23px;
+    }
+
+    .announcements-list {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .announcement-card {
+        background: #ffffff;
+        border: 1px solid #edf1f5;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.06);
+        transition: 0.2s ease;
+    }
+
+    .announcement-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.09);
+    }
+
+    .announcement-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .announcement-title-section {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .announcement-small-icon {
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #dbeafe;
+        color: #2563eb;
+        border-radius: 11px;
+        flex-shrink: 0;
+    }
+
+    .announcement-title-section h2 {
+        margin: 0 0 7px;
+        color: #1e3a8a;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .announcement-category {
+        display: inline-block;
+        padding: 4px 10px;
+        background: #eff6ff;
+        color: #2563eb;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .announcement-date {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #64748b;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .announcement-message {
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid #edf1f5;
+        color: #475569;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .empty-announcements {
+        text-align: center;
+        padding: 70px 20px;
+        background: #ffffff;
+        border: 1px solid #edf1f5;
+        border-radius: 16px;
+    }
+
+    .empty-announcements > i {
+        font-size: 42px;
+        color: #93c5fd;
+    }
+
+    .empty-announcements h3 {
+        margin: 15px 0 5px;
+        color: #1e3a8a;
+    }
+
+    .empty-announcements p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    @@media (max-width: 768px) {
+        .announcements-page {
+            padding: 25px 20px;
+        }
+
+        .announcements-header {
+            align-items: flex-start;
+        }
+
+        .announcement-card-top {
+            flex-direction: column;
+        }
+
+        .announcement-date {
+            margin-left: 58px;
+        }
+    }
+</style>
