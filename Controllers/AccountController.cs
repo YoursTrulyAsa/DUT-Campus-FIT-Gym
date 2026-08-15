@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Text.RegularExpressions;
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
