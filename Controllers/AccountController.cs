@@ -12,10 +12,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
     public class AccountController : Controller
     {
         private readonly GymDbContext _context;
+        private readonly PasswordHasher<Member> _passwordHasher;
 
         public AccountController(GymDbContext context)
         {
             _context = context;
+            _passwordHasher = new PasswordHasher<Member>();
         }
 
         [HttpGet]
