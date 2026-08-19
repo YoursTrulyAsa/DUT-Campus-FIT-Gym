@@ -12,175 +12,306 @@
             Create Membership
         </h2>
 
+        <form asp-controller="Member"
+              asp-action="Create"
+              method="post">
 
-        <!-- USER DETAILS -->
+            @Html.AntiForgeryToken()
 
-        <div class="membership-section">
+            <!-- USER DETAILS -->
 
-            <h4 class="membership-section-title">
-                User Details
-            </h4>
+            <div class="membership-section">
 
-            <hr class="membership-divider" />
+                <h4 class="membership-section-title">
+                    User Details
+                </h4>
 
-            <div class="user-detail">
-                <label asp-for="Name">Name</label>
-                <input asp-for="Name" readonly />
-            </div>
+                <hr class="membership-divider" />
 
-            <div class="user-detail">
-                <label asp-for="Surname">Surname</label>
-                <input asp-for="Surname" readonly />
-            </div>
-
-            <div class="user-detail">
-                <label asp-for="Email">Email</label>
-                <input asp-for="Email" readonly />
-            </div>
-
-            <div class="user-detail">
-                <label asp-for="StudentNo">Student No</label>
-                <input asp-for="StudentNo" readonly />
-            </div>
-
-        </div>
-
-
-        <!-- PAYMENT TYPE -->
-
-        <div class="membership-section">
-
-            <h4 class="membership-section-title">
-                Payment Type
-            </h4>
-
-            <hr class="membership-divider" />
-
-            <div class="payment-options">
-
-                <div class="payment-option">
-                    <input asp-for="Payment_Method"
-                           type="radio"
-                           value="Cash"
-                           id="cash" />
-
-                    <label for="cash">
-                        Cash
-                    </label>
+                <div class="user-detail">
+                    <label asp-for="Name">Name</label>
+                    <input asp-for="Name" readonly />
                 </div>
 
-                <div class="payment-option">
-                    <input asp-for="Payment_Method"
-                           type="radio"
-                           value="Card"
-                           id="card" />
-
-                    <label for="card">
-                        Card
-                    </label>
+                <div class="user-detail">
+                    <label asp-for="Surname">Surname</label>
+                    <input asp-for="Surname" readonly />
                 </div>
 
-                <div class="payment-option">
-                    <input asp-for="Payment_Method"
-                           type="radio"
-                           value="EFT"
-                           id="eft" />
+                <div class="user-detail">
+                    <label asp-for="Email">Email</label>
+                    <input asp-for="Email" readonly />
+                </div>
 
-                    <label for="eft">
-                        EFT
-                    </label>
+                <div class="user-detail">
+                    <label asp-for="StudentNo">Student No</label>
+                    <input asp-for="StudentNo" readonly />
                 </div>
 
             </div>
 
-        </div>
 
+            <!-- PAYMENT TYPE -->
 
-        <!-- PAYMENT PLAN -->
+            <div class="membership-section">
 
-        <div class="membership-section payment-plan">
+                <h4 class="membership-section-title">
+                    Payment Type
+                </h4>
 
-            <h4 class="membership-section-title">
-                Payment Plan
-            </h4>
+                <hr class="membership-divider" />
 
-            <hr class="membership-divider" />
+                <div class="payment-options">
 
-            <select asp-for="payments_plan">
+                    <div class="payment-option">
 
-                <option value="Monthly">
-                    Monthly
-                </option>
+                        <input asp-for="Payment_Method"
+                               type="radio"
+                               value="Cash"
+                               id="cash"
+                               required />
 
-                <option value="Half_Yearly">
-                    Half Yearly
-                </option>
+                        <label for="cash">
+                            Cash
+                        </label>
 
-                <option value="Quarterly">
-                    Quarterly
-                </option>
+                    </div>
 
-                <option value="Annually">
-                    Annually
-                </option>
+                    <div class="payment-option">
 
-            </select>
+                        <input asp-for="Payment_Method"
+                               type="radio"
+                               value="Card"
+                               id="card" />
 
-        </div>
+                        <label for="card">
+                            Card
+                        </label>
 
+                    </div>
 
-        <!-- FIRST TIME MEMBERSHIP -->
+                    <div class="payment-option">
 
-        <div class="membership-section">
+                        <input asp-for="Payment_Method"
+                               type="radio"
+                               value="EFT"
+                               id="eft" />
 
-            <h4 class="membership-section-title">
-                First Time Membership?
-            </h4>
+                        <label for="eft">
+                            EFT
+                        </label>
 
-            <hr class="membership-divider" />
-
-            <div class="first-time-options">
-
-                <div class="first-time-option">
-
-                    <input asp-for="First_Time_Member"
-                           type="radio"
-                           value="true"
-                           id="firstYes" />
-
-                    <label for="firstYes">
-                        Yes
-                    </label>
-
-                </div>
-
-                <div class="first-time-option">
-
-                    <input asp-for="First_Time_Member"
-                           type="radio"
-                           value="false"
-                           id="firstNo" />
-
-                    <label for="firstNo">
-                        No
-                    </label>
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
+
+            <!-- PAYMENT PLAN -->
+
+            <div class="membership-section payment-plan">
+
+                <h4 class="membership-section-title">
+                    Payment Plan
+                </h4>
+
+                <hr class="membership-divider" />
+
+                <select asp-for="payments_plan"
+                        id="paymentPlan">
+
+                    <option value="Monthly">
+                        Monthly
+                    </option>
+
+                    <option value="Quarterly">
+                        Quarterly
+                    </option>
+
+                    <option value="Half_Yearly">
+                        Half Yearly
+                    </option>
+
+                    <option value="Annually">
+                        Annually
+                    </option>
+
+                </select>
+
+            </div>
 
 
-        <!-- CREATE -->
+            <!-- FIRST TIME MEMBERSHIP -->
 
-        <button type="submit"
-                class="create-membership-button">
+            <div class="membership-section">
 
-            Create Membership
+                <h4 class="membership-section-title">
+                    First Time Membership?
+                </h4>
 
-        </button>
+                <hr class="membership-divider" />
+
+                <div class="first-time-options">
+
+                    <div class="first-time-option">
+
+                        <input asp-for="First_Time_Member"
+                               type="radio"
+                               value="true"
+                               id="firstYes" />
+
+                        <label for="firstYes">
+                            Yes
+                        </label>
+
+                    </div>
+
+                    <div class="first-time-option">
+
+                        <input asp-for="First_Time_Member"
+                               type="radio"
+                               value="false"
+                               id="firstNo"
+                               checked />
+
+                        <label for="firstNo">
+                            No
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PRICE -->
+
+            <div class="membership-price-box">
+
+                <div class="price-row">
+                    <span>Membership Price</span>
+                    <strong id="basePrice">R150.00</strong>
+                </div>
+
+                <div class="price-row discount-row">
+
+                    <span>First-Time Discount</span>
+
+                    <strong id="discount">
+                        R0.00
+                    </strong>
+
+                </div>
+
+                <hr />
+
+                <div class="price-total">
+
+                    <span>Total To Pay</span>
+
+                    <strong id="finalPrice">
+                        R150.00
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- CREATE -->
+
+            <button type="submit"
+                    class="create-membership-button">
+
+                Create Membership
+
+            </button>
+
+        </form>
 
     </div>
 
 </div>
+
+
+<script>
+
+    const prices = {
+        Monthly: 150,
+        Quarterly: 400,
+        Half_Yearly: 700,
+        Annually: 1200
+    };
+
+    const paymentPlan =
+        document.getElementById("paymentPlan");
+
+    const firstTimeOptions =
+        document.querySelectorAll(
+            'input[name="First_Time_Member"]'
+        );
+
+    const basePrice =
+        document.getElementById("basePrice");
+
+    const discount =
+        document.getElementById("discount");
+
+    const finalPrice =
+        document.getElementById("finalPrice");
+
+
+    function calculatePrice() {
+
+        const plan = paymentPlan.value;
+
+        const price = prices[plan];
+
+        const firstTime =
+            document.querySelector(
+                'input[name="First_Time_Member"]:checked'
+            );
+
+        let discountAmount = 0;
+
+        if (firstTime && firstTime.value === "true") {
+
+            discountAmount = price * 0.10;
+
+        }
+
+        const total = price - discountAmount;
+
+
+        basePrice.textContent =
+            "R" + price.toFixed(2);
+
+        discount.textContent =
+            "- R" + discountAmount.toFixed(2);
+
+        finalPrice.textContent =
+            "R" + total.toFixed(2);
+    }
+
+
+    paymentPlan.addEventListener(
+        "change",
+        calculatePrice
+    );
+
+
+    firstTimeOptions.forEach(option => {
+
+        option.addEventListener(
+            "change",
+            calculatePrice
+        );
+
+    });
+
+
+    calculatePrice();
+
+</script>

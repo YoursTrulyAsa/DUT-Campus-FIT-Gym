@@ -118,7 +118,7 @@
 
     .payment-option input:checked + label {
         background: #212529;
-        color: white;
+        color: #1683ff;
         border-color: #212529;
     }
 
@@ -180,7 +180,7 @@
     }
 
     .first-time-option input:checked + label {
-        background: #212529;
+        background: #1683ff;
         color: white;
         border-color: #212529;
     }
@@ -253,3 +253,114 @@
         width: 100%;
     }
 }
+
+/* ================================
+   MEMBERSHIP PRICE
+================================ */
+
+.membership-price-box {
+    margin-top: 25px;
+    padding: 22px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+    .price-row strong {
+        color: #0f2f57;
+        font-size: 15px;
+    }
+
+.discount-row strong {
+    color: #16a34a;
+}
+
+.membership-price-box hr {
+    margin: 18px 0;
+    border: none;
+    border-top: 1px solid #e2e8f0;
+}
+
+.price-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .price-total span {
+        color: #0f2f57;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .price-total strong {
+        color: #1683ff;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+
+/* ================================
+   CREATE MEMBERSHIP BUTTON
+================================ */
+
+.create-membership-button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #1683ff !important;
+    color: #ffffff !important;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 5px 15px rgba(22, 131, 255, 0.20);
+}
+
+    .create-membership-button:hover {
+        background: #0f6ed4 !important;
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 18px rgba(22, 131, 255, 0.25);
+    }
+
+    .create-membership-button:active {
+        transform: translateY(0);
+    }
+
+.membership-card .create-membership-button {
+    width: 100% !important;
+    margin-top: 20px !important;
+    padding: 14px 20px !important;
+    background-color: #1683ff !important;
+    background: #1683ff !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    box-shadow: 0 5px 15px rgba(22, 131, 255, 0.20) !important;
+    transition: all 0.2s ease !important;
+}
+
+    .membership-card .create-membership-button:hover {
+        background-color: #0f6ed4 !important;
+        background: #0f6ed4 !important;
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 18px rgba(22, 131, 255, 0.25) !important;
+    }

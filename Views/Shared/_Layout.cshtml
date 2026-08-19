@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="utf-8" />
 
     <meta name="viewport"
@@ -9,20 +9,21 @@
 
     <title>@ViewData["Title"] - DUT Campus FIT Gym</title>
 
+    <!-- Bootstrap -->
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
-    <link rel="stylesheet" href="~/css/Member-Create.css" />
 
     <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
 
+    <link rel="stylesheet"
+          href="~/css/Member-Create.css"
+          asp-append-version="true" />
+
+    <!-- Google Fonts -->
     <link rel="preconnect"
           href="https://fonts.googleapis.com" />
-
-    <link rel="icon" type="image/png" 
-          href="~/images/DUT_Campus_FIT_Gym_Emblem.png" />
 
     <link rel="preconnect"
           href="https://fonts.gstatic.com"
@@ -31,10 +32,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
           rel="stylesheet" />
 
+    <!-- Website Favicon -->
+    <link rel="icon"
+          type="image/png"
+          href="~/images/DUT_Campus_FIT_Gym_Emblem.png" />
+
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
     @await RenderSectionAsync("Styles", required: false)
+
 </head>
 
 <body>
@@ -43,8 +55,10 @@
     {
         <div class="app-layout">
 
+            <!-- SIDEBAR -->
             <aside class="sidebar">
 
+                <!-- SIDEBAR BRAND -->
                 <div class="sidebar-brand">
 
                     <img src="~/images/DUT-logo.jpg"
@@ -52,111 +66,187 @@
                          class="gym-logo" />
 
                     <div class="brand-text">
-                        <h4>DUT Campus <span>FIT Gym</span></h4>
+
+                        <h4>
+                            DUT Campus
+                            <span>FIT Gym</span>
+                        </h4>
+
                     </div>
 
                 </div>
 
+
+                <!-- NAVIGATION -->
                 <nav class="sidebar-nav">
 
                     <div class="nav-title">
                         MAIN MENU
                     </div>
 
+
+                    <!-- DASHBOARD -->
                     <a asp-controller="Member"
                        asp-action="Dashboard"
-                       class="sidebar-link">
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-house-fill"></i>
                         </span>
+
                         <span>Dashboard</span>
+
                     </a>
 
+
+                    <!-- PROFILE -->
                     <a asp-controller="Member"
                        asp-action="Profile"
-                       class="sidebar-link">
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-person-fill"></i>
                         </span>
+
                         <span>Profile</span>
+
                     </a>
 
+
+                    <!-- CREATE MEMBERSHIP -->
+                    <a asp-controller="Member"
+                       asp-action="Create"
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "active" : "")">
+
+                        <span class="sidebar-icon">
+                            <i class="fa-solid fa-plus-circle"></i>
+                        </span>
+
+                        <span>Create Membership</span>
+
+                    </a>
+
+
+                    <!-- MEMBERSHIP -->
                     <a asp-controller="Member"
                        asp-action="Membership"
-                       class="sidebar-link">
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Membership" ? "active" : "")">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-person-vcard-fill"></i>
                         </span>
+
                         <span>Membership</span>
+
                     </a>
 
+
+                    <!-- ATTENDANCE -->
                     <a asp-controller="Member"
                        asp-action="Attendance"
-                       class="sidebar-link">
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Attendance" ? "active" : "")">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-calendar-check-fill"></i>
                         </span>
+
                         <span>Attendance</span>
+
                     </a>
 
+
+                    <!-- EQUIPMENT -->
                     <a asp-controller="Member"
                        asp-action="Equipment"
-                       class="sidebar-link">
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Equipment" ? "active" : "")">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-universal-access"></i>
                         </span>
+
                         <span>Equipment</span>
+
                     </a>
 
+
+                    <!-- RESERVATIONS -->
                     <a asp-controller="Member"
                        asp-action="Reservations"
-                       class="sidebar-link">
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Reservations" ? "active" : "")">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-calendar-fill"></i>
                         </span>
+
                         <span>Reservations</span>
+
                     </a>
 
-                    <a href="#"
-                       class="sidebar-link">
+
+                    <!-- WORKOUT PLAN -->
+                    <a asp-controller="Member"
+                       asp-action="WorkoutPlan"
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "WorkoutPlan" ? "active" : "")">
+
                         <span class="sidebar-icon">
-                            <i class="bi bi-person-running"></i>
+                            <i class="fa-solid fa-person-running"></i>
                         </span>
+
                         <span>Workout Plan</span>
+
                     </a>
 
+
+                    <!-- PAYMENTS -->
                     <a href="#"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-credit-card-fill"></i>
                         </span>
+
                         <span>Payments</span>
+
                     </a>
 
+
+                    <!-- ANNOUNCEMENTS -->
                     <a asp-controller="Member"
                        asp-action="Announcements"
-                       class="sidebar-link">
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Announcements" ? "active" : "")">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-megaphone-fill"></i>
                         </span>
+
                         <span>Announcements</span>
+
                     </a>
 
+
+                    <!-- SUPPORT -->
                     <a href="#"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-question-circle-fill"></i>
                         </span>
+
                         <span>Support</span>
+
                     </a>
 
                 </nav>
 
+
+                <!-- LOGOUT -->
                 <div class="sidebar-bottom">
 
                     <form asp-controller="Account"
                           asp-action="Logout"
                           method="post">
+
+                        @Html.AntiForgeryToken()
 
                         <button type="submit"
                                 class="sidebar-link logout-link">
@@ -177,8 +267,12 @@
 
             </aside>
 
+
+            <!-- MAIN CONTENT -->
             <main class="main-content">
+
                 @RenderBody()
+
             </main>
 
         </div>
@@ -188,6 +282,8 @@
         @RenderBody()
     }
 
+
+    <!-- JavaScript -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

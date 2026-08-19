@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using DUT_Campus_FIT_Gym.Data;
 using DUT_Campus_FIT_Gym.Models;
+using DUT_Campus_FIT_Gym.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,11 +16,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             _context = context;
         }
-
-
-        // =========================
-        // DASHBOARD
-        // =========================
 
         public IActionResult Dashboard()
         {
@@ -61,11 +57,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(dashboardData);
         }
 
-
-        // =========================
-        // PROFILE
-        // =========================
-
         public IActionResult Profile()
         {
             var memberIdClaim = User.FindFirstValue(
@@ -88,11 +79,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(member);
         }
-
-
-        // =========================
-        // MEMBERSHIP
-        // =========================
 
         public IActionResult Membership()
         {
@@ -118,11 +104,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(membership);
         }
 
-
-        // =========================
-        // ATTENDANCE
-        // =========================
-
         public IActionResult Attendance()
         {
             var memberIdClaim = User.FindFirstValue(
@@ -143,11 +124,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(attendance);
         }
 
-
-        // =========================
-        // CREATE MEMBERSHIP - GET
-        // =========================
-
         [HttpGet]
         public IActionResult Create()
         {
@@ -161,7 +137,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             int memberId = int.Parse(memberIdClaim);
 
-            // Get the currently logged-in member
             var member = _context.Members
                 .FirstOrDefault(m => m.MemberId == memberId);
 
@@ -170,8 +145,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return NotFound();
             }
 
-            // Automatically display the user's
-            // account details on the membership page
             var membershipPage = new MembershipPage
             {
                 Name = member.FirstName,
@@ -182,11 +155,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(membershipPage);
         }
-
-
-        // =========================
-        // CREATE MEMBERSHIP - POST
-        // =========================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -202,7 +170,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             int memberId = int.Parse(memberIdClaim);
 
-            // Get the member from the database
             var member = _context.Members
                 .FirstOrDefault(m => m.MemberId == memberId);
 
@@ -212,10 +179,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // =========================
-            // CHECK IF MEMBER ALREADY
-            // HAS A MEMBERSHIP
-            // =========================
+            // Check if member already has a membership
 
             var existingMembership = _context.Memberships
                 .FirstOrDefault(m => m.MemberId == memberId);
@@ -227,7 +191,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "You already have a membership."
                 );
 
-                // Refill the user's details
                 membershipPage.Name = member.FirstName;
                 membershipPage.Surname = member.LastName;
                 membershipPage.Email = member.Email;
@@ -238,14 +201,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // =========================
-            // VALIDATE FORM
-            // =========================
+            // Validate form
 
             if (!ModelState.IsValid)
             {
-                // Refill user details because
-                // they are not entered manually
                 membershipPage.Name = member.FirstName;
                 membershipPage.Surname = member.LastName;
                 membershipPage.Email = member.Email;
@@ -256,59 +215,65 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // =========================
-            // CREATE MEMBERSHIP
-            // =========================
+            // Determine membership price
 
-            var membership = new Membership
+            decimal price = membershipPage.payments_plan switch
             {
-                // Connect membership to
-                // currently logged-in member
-                MemberId = memberId,
+                MembershipPage.PAY.Monthly => 150m,
 
-                // Payment plan
-                MembershipType =
-                    membershipPage.payments_plan.ToString(),
+                MembershipPage.PAY.Quarterly => 400m,
 
-                // Payment method
-                PaymentMethod =
-                    membershipPage.Payment_Method,
+                MembershipPage.PAY.Half_Yearly => 700m,
 
-                // First time membership
-                FirstTimeMember =
-                    membershipPage.First_Time_Member,
+                MembershipPage.PAY.Annually => 1200m,
 
-                // Membership starts today
-                StartDate = DateTime.Now,
-
-                // Status
-                Status = "Active",
-
-                // Price
-                Price = 0
+                _ => 0m
             };
 
 
-            // =========================
-            // SAVE MEMBERSHIP
-            // =========================
+            // First-time member gets 10% discount
+
+            decimal discount = 0m;
+
+            if (membershipPage.First_Time_Member)
+            {
+                discount = price * 0.10m;
+            }
+
+
+            decimal finalPrice = price - discount;
+
+
+            // Create membership
+
+            var membership = new Membership
+            {
+                MemberId = memberId,
+
+                MembershipType =
+                    membershipPage.payments_plan.ToString(),
+
+                PaymentMethod =
+                    membershipPage.Payment_Method,
+
+                FirstTimeMember =
+                    membershipPage.First_Time_Member,
+
+                StartDate = DateTime.Now,
+
+                Status = "Active",
+
+                Price = finalPrice
+            };
+
 
             _context.Memberships.Add(membership);
 
             _context.SaveChanges();
 
 
-            // =========================
-            // REDIRECT TO MEMBERSHIP
-            // =========================
-
             return RedirectToAction("Membership");
         }
-
-
-        // =========================
-        // EQUIPMENT
-        // =========================
 
         public IActionResult Equipment()
         {

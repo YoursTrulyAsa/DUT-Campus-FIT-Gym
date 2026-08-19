@@ -1,14 +1,198 @@
-﻿.member-dashboard {
-    min-height: 100vh;
-    background: #f5f7fb;
-    font-family: 'Poppins', sans-serif;
-}
+﻿/* ==============================
+   MEMBER DASHBOARD
+   ============================== */
 
-.dashboard-content {
-    width: 100%;
-    padding: 35px 40px;
+* {
     box-sizing: border-box;
 }
+
+.member-dashboard {
+    min-height: 100vh;
+    width: 100%;
+    background: #f5f7fb;
+    font-family: 'Poppins', sans-serif;
+    color: #1e293b;
+    display: flex;
+}
+
+
+.dashboard-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.dashboard-logo {
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+}
+
+/* ==============================
+   SIDEBAR
+   ============================== */
+
+.dashboard-sidebar {
+    width: 300px;
+    min-height: 100vh;
+    background: #0f172a;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    padding: 24px 19px;
+    z-index: 1000;
+}
+
+
+/* BRAND */
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    padding: 8px 17px 25px;
+    border-bottom: 1px solid #334155;
+    margin-bottom: 18px;
+}
+
+.gym-logo {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+}
+
+    .brand-text h2 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .brand-text span {
+        margin-top: 2px;
+        color: #60a5fa;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+
+/* NAVIGATION */
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        min-height: 47px;
+        padding: 12px 17px;
+        border-radius: 10px;
+        color: #cbd5e1;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: 0.2s ease;
+    }
+
+        .sidebar-nav a i {
+            width: 20px;
+            min-width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-nav a:hover {
+            background: #1e293b;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .sidebar-nav a.active {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.25);
+        }
+
+            .sidebar-nav a.active:hover {
+                background: #2563eb;
+            }
+
+
+/* LOGOUT */
+
+.sidebar-bottom {
+    border-top: 1px solid #334155;
+    padding-top: 14px;
+    margin-top: 15px;
+}
+
+    .sidebar-bottom form {
+        margin: 0;
+    }
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    min-height: 47px;
+    padding: 12px 17px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #cbd5e1;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s ease;
+}
+
+    .logout-btn i {
+        width: 20px;
+        text-align: center;
+    }
+
+    .logout-btn:hover {
+        background: #1e293b;
+        color: #ffffff;
+    }
+
+
+/* ==============================
+   MAIN CONTENT
+   ============================== */
+
+.dashboard-content {
+    margin-left: 300px;
+    width: calc(100% - 300px);
+    min-height: 100vh;
+    padding: 38px 40px;
+}
+
+
+/* ==============================
+   TOP BAR
+   ============================== */
 
 .dashboard-topbar {
     display: flex;
@@ -30,26 +214,11 @@
         font-size: 14px;
     }
 
-.dashboard-stat-link {
-    text-decoration: none;
-    color: inherit;
-    transition: 0.2s ease;
-}
-
-    .dashboard-stat-link:hover {
-        transform: translateY(-2px);
-        text-decoration: none;
-    }
-
-        .dashboard-stat-link:hover h3 {
-            color: #1683ff;
-        }
-
 .user-badge {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 16px;
+    padding: 11px 18px;
     background: #ffffff;
     border-radius: 30px;
     color: #0f2f57;
@@ -61,6 +230,11 @@
     .user-badge i {
         color: #1683ff;
     }
+
+
+/* ==============================
+   DASHBOARD STATS
+   ============================== */
 
 .dashboard-stats {
     display: grid;
@@ -76,8 +250,8 @@
     padding: 20px;
     background: #ffffff;
     border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.06);
     border: 1px solid #edf1f5;
+    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.06);
 }
 
 .stat-icon {
@@ -107,6 +281,29 @@
     font-weight: 600;
 }
 
+
+/* ANNOUNCEMENT STAT */
+
+.dashboard-stat-link {
+    text-decoration: none;
+    color: inherit;
+    transition: 0.2s ease;
+}
+
+    .dashboard-stat-link:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+        .dashboard-stat-link:hover h3 {
+            color: #1683ff;
+        }
+
+
+/* ==============================
+   DASHBOARD CARDS
+   ============================== */
+
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -116,14 +313,17 @@
 .dashboard-card {
     background: #ffffff;
     border-radius: 16px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.06);
+    padding: 26px;
     border: 1px solid #edf1f5;
+    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.06);
 }
 
 .quick-actions-card {
     grid-column: 1 / -1;
 }
+
+
+/* CARD HEADING */
 
 .card-heading {
     display: flex;
@@ -151,6 +351,9 @@
     letter-spacing: 1px;
 }
 
+
+/* WORKOUT */
+
 .workout-name {
     color: #0f2f57;
     font-size: 24px;
@@ -163,6 +366,9 @@
     font-size: 14px;
     margin-bottom: 20px;
 }
+
+
+/* MEMBERSHIP */
 
 .membership-status {
     display: inline-flex;
@@ -184,6 +390,9 @@
     background: #22c55e;
 }
 
+
+/* BUTTON */
+
 .dashboard-btn {
     display: inline-block;
     padding: 10px 18px;
@@ -201,6 +410,11 @@
         color: #ffffff;
         transform: translateY(-1px);
     }
+
+
+/* ==============================
+   QUICK ACTIONS
+   ============================== */
 
 .quick-actions {
     display: grid;
@@ -233,7 +447,13 @@
             border-color: #93c5fd;
         }
 
-@media (max-width: 1000px) {
+
+/* ==============================
+   RESPONSIVE
+   ============================== */
+
+@media (max-width: 1100px) {
+
     .dashboard-stats {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -243,8 +463,56 @@
     }
 }
 
+
 @media (max-width: 768px) {
+
+    .dashboard-sidebar {
+        width: 75px;
+        padding: 20px 10px;
+    }
+
+    .sidebar-brand {
+        justify-content: center;
+        align-items: center;
+        padding: 10px 0 25px;
+    }
+
+    .gym-logo {
+        width: 42px;
+        height: 42px;
+        margin-right: 0;
+    }
+
+    .brand-text {
+        display: none;
+    }
+
+    .sidebar-nav a {
+        justify-content: center;
+        padding: 13px 5px;
+    }
+
+        .sidebar-nav a span {
+            display: none;
+        }
+
+        .sidebar-nav a i {
+            font-size: 18px;
+        }
+
+    .logout-btn {
+        justify-content: center;
+        padding: 13px 5px;
+        font-size: 0;
+    }
+
+        .logout-btn i {
+            font-size: 18px;
+        }
+
     .dashboard-content {
+        margin-left: 75px;
+        width: calc(100% - 75px);
         padding: 25px 20px;
     }
 
@@ -273,3 +541,20 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+@media (max-width: 576px) {
+
+    .dashboard-content {
+        padding: 20px 15px;
+    }
+
+    .dashboard-topbar {
+        flex-direction: column;
+    }
+
+    .user-badge {
+        align-self: flex-start;
+    }
+}
+ 
