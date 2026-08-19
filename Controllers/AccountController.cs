@@ -6,16 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Identity;
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
     public class AccountController : Controller
     {
         private readonly GymDbContext _context;
+        private readonly PasswordHasher<Member> _passwordHasher;
 
         public AccountController(GymDbContext context)
         {
             _context = context;
+            _passwordHasher = new PasswordHasher<Member>();
         }
 
         [HttpGet]
@@ -31,6 +35,26 @@ namespace DUT_Campus_FIT_Gym.Controllers
             if (!ModelState.IsValid)
             {
                 return View(model);
+            } 
+            if (model.Role == "Student")
+            {
+                string studentPattern = @"^[0-9]{8}@dut4life\.ac\.za$";
+                if (!Regex.IsMatch(model.Email, studentPattern, RegexOptions.IgnoreCase))
+                {
+                    ModelState.AddModelError("Email",
+                        "Student email must start with an 8-digit student number and end with @dut4life.ac.za");
+                    return View(model);
+                }
+            }
+            else if (model.Role == "Staff")
+            {
+                string staffPattern = @"^[A-Za-z]+@dut\.ac\.za$";
+                if (!Regex.IsMatch(model.Email, staffPattern, RegexOptions.IgnoreCase))
+                {
+                    ModelState.AddModelError("Email",
+                        "Staff email must start with a name and end with @dut.ac.za");
+                    return View(model);
+                }
             }
 
             var member = new Member
