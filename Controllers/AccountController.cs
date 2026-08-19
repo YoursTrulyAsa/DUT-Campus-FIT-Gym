@@ -148,6 +148,82 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var member = _context.Members
+                .FirstOrDefault(m => m.Email == model.Email);
+
+            if (member == null)
+            {
+                ModelState.AddModelError("", "No account was found with that email address.");
+                return View(model);
+            }
+
+            TempData["ResetEmail"] = member.Email;
+
+            return RedirectToAction("ResetPassword");
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword()
+        {
+            if (TempData["ResetEmail"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ResetPassword(
+            string email,
+            string newPassword,
+            string confirmPassword)
+        {
+            if (string.IsNullOrWhiteSpace(newPassword))
+            {
+                ModelState.AddModelError("", "Please enter a new password.");
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                ModelState.AddModelError("", "Passwords do not match.");
+                return View();
+            }
+
+            var member = _context.Members
+                .FirstOrDefault(m => m.Email == email);
+
+            if (member == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            member.PasswordHash = newPassword;
+
+            _context.SaveChanges();
+
+            TempData["PasswordResetSuccess"] = "Your password has been reset successfully.";
+
+            return RedirectToAction("Login");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
