@@ -28,6 +28,13 @@ namespace DUT_Campus_FIT_Gym.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal Price { get; set; }
 
+        // Payment method selected during membership creation
+        [Required]
+        public string PaymentMethod { get; set; }
+
+        // Whether this is the member's first membership
+        public bool FirstTimeMember { get; set; }
+
         public Member Member { get; set; }
     }
 }

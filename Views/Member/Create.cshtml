@@ -1,0 +1,186 @@
+﻿@model DUT_Campus_FIT_Gym.Models.MembershipPage
+
+@{
+    ViewData["Title"] = "Create Membership";
+}
+
+<div class="membership-page">
+
+    <div class="membership-card">
+
+        <h2 class="membership-title">
+            Create Membership
+        </h2>
+
+
+        <!-- USER DETAILS -->
+
+        <div class="membership-section">
+
+            <h4 class="membership-section-title">
+                User Details
+            </h4>
+
+            <hr class="membership-divider" />
+
+            <div class="user-detail">
+                <label asp-for="Name">Name</label>
+                <input asp-for="Name" readonly />
+            </div>
+
+            <div class="user-detail">
+                <label asp-for="Surname">Surname</label>
+                <input asp-for="Surname" readonly />
+            </div>
+
+            <div class="user-detail">
+                <label asp-for="Email">Email</label>
+                <input asp-for="Email" readonly />
+            </div>
+
+            <div class="user-detail">
+                <label asp-for="StudentNo">Student No</label>
+                <input asp-for="StudentNo" readonly />
+            </div>
+
+        </div>
+
+
+        <!-- PAYMENT TYPE -->
+
+        <div class="membership-section">
+
+            <h4 class="membership-section-title">
+                Payment Type
+            </h4>
+
+            <hr class="membership-divider" />
+
+            <div class="payment-options">
+
+                <div class="payment-option">
+                    <input asp-for="Payment_Method"
+                           type="radio"
+                           value="Cash"
+                           id="cash" />
+
+                    <label for="cash">
+                        Cash
+                    </label>
+                </div>
+
+                <div class="payment-option">
+                    <input asp-for="Payment_Method"
+                           type="radio"
+                           value="Card"
+                           id="card" />
+
+                    <label for="card">
+                        Card
+                    </label>
+                </div>
+
+                <div class="payment-option">
+                    <input asp-for="Payment_Method"
+                           type="radio"
+                           value="EFT"
+                           id="eft" />
+
+                    <label for="eft">
+                        EFT
+                    </label>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PAYMENT PLAN -->
+
+        <div class="membership-section payment-plan">
+
+            <h4 class="membership-section-title">
+                Payment Plan
+            </h4>
+
+            <hr class="membership-divider" />
+
+            <select asp-for="payments_plan">
+
+                <option value="Monthly">
+                    Monthly
+                </option>
+
+                <option value="Half_Yearly">
+                    Half Yearly
+                </option>
+
+                <option value="Quarterly">
+                    Quarterly
+                </option>
+
+                <option value="Annually">
+                    Annually
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- FIRST TIME MEMBERSHIP -->
+
+        <div class="membership-section">
+
+            <h4 class="membership-section-title">
+                First Time Membership?
+            </h4>
+
+            <hr class="membership-divider" />
+
+            <div class="first-time-options">
+
+                <div class="first-time-option">
+
+                    <input asp-for="First_Time_Member"
+                           type="radio"
+                           value="true"
+                           id="firstYes" />
+
+                    <label for="firstYes">
+                        Yes
+                    </label>
+
+                </div>
+
+                <div class="first-time-option">
+
+                    <input asp-for="First_Time_Member"
+                           type="radio"
+                           value="false"
+                           id="firstNo" />
+
+                    <label for="firstNo">
+                        No
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CREATE -->
+
+        <button type="submit"
+                class="create-membership-button">
+
+            Create Membership
+
+        </button>
+
+    </div>
+
+</div>

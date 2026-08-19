@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using DUT_Campus_FIT_Gym.Data;
+using DUT_Campus_FIT_Gym.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
@@ -14,6 +15,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             _context = context;
         }
+
+
+        // =========================
+        // DASHBOARD
+        // =========================
 
         public IActionResult Dashboard()
         {
@@ -51,28 +57,38 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(dashboardData);
         }
 
+
+        // =========================
+        // PROFILE
+        // =========================
+
         public IActionResult Profile()
         {
-            var memberIdCalim = User.FindFirstValue(
-            ClaimTypes.NameIdentifier);
+            var memberIdClaim = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
 
-            if(memberIdCalim == null)
+            if (memberIdClaim == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int memberId = int.Parse(memberIdCalim);
+            int memberId = int.Parse(memberIdClaim);
 
             var member = _context.Members
                 .FirstOrDefault(m => m.MemberId == memberId);
 
-            if(member == null)
+            if (member == null)
             {
                 return NotFound();
             }
 
             return View(member);
         }
+
+
+        // =========================
+        // MEMBERSHIP
+        // =========================
 
         public IActionResult Membership()
         {
@@ -91,11 +107,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             if (membership == null)
             {
-                return NotFound("No membership found for this member.");
+                return NotFound(
+                    "No membership found for this member.");
             }
 
             return View(membership);
         }
+
+
+        // =========================
+        // ATTENDANCE
+        // =========================
 
         public IActionResult Attendance()
         {
@@ -116,6 +138,173 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(attendance);
         }
+
+
+        // =========================
+        // CREATE MEMBERSHIP - GET
+        // =========================
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            var memberIdClaim = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (memberIdClaim == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            int memberId = int.Parse(memberIdClaim);
+
+            // Get the currently logged-in member
+            var member = _context.Members
+                .FirstOrDefault(m => m.MemberId == memberId);
+
+            if (member == null)
+            {
+                return NotFound();
+            }
+
+            // Automatically display the user's
+            // account details on the membership page
+            var membershipPage = new MembershipPage
+            {
+                Name = member.FirstName,
+                Surname = member.LastName,
+                Email = member.Email,
+                StudentNo = member.StaffStudentNumber
+            };
+
+            return View(membershipPage);
+        }
+
+
+        // =========================
+        // CREATE MEMBERSHIP - POST
+        // =========================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(MembershipPage membershipPage)
+        {
+            var memberIdClaim = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (memberIdClaim == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            int memberId = int.Parse(memberIdClaim);
+
+            // Get the member from the database
+            var member = _context.Members
+                .FirstOrDefault(m => m.MemberId == memberId);
+
+            if (member == null)
+            {
+                return NotFound();
+            }
+
+
+            // =========================
+            // CHECK IF MEMBER ALREADY
+            // HAS A MEMBERSHIP
+            // =========================
+
+            var existingMembership = _context.Memberships
+                .FirstOrDefault(m => m.MemberId == memberId);
+
+            if (existingMembership != null)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "You already have a membership."
+                );
+
+                // Refill the user's details
+                membershipPage.Name = member.FirstName;
+                membershipPage.Surname = member.LastName;
+                membershipPage.Email = member.Email;
+                membershipPage.StudentNo =
+                    member.StaffStudentNumber;
+
+                return View(membershipPage);
+            }
+
+
+            // =========================
+            // VALIDATE FORM
+            // =========================
+
+            if (!ModelState.IsValid)
+            {
+                // Refill user details because
+                // they are not entered manually
+                membershipPage.Name = member.FirstName;
+                membershipPage.Surname = member.LastName;
+                membershipPage.Email = member.Email;
+                membershipPage.StudentNo =
+                    member.StaffStudentNumber;
+
+                return View(membershipPage);
+            }
+
+
+            // =========================
+            // CREATE MEMBERSHIP
+            // =========================
+
+            var membership = new Membership
+            {
+                // Connect membership to
+                // currently logged-in member
+                MemberId = memberId,
+
+                // Payment plan
+                MembershipType =
+                    membershipPage.payments_plan.ToString(),
+
+                // Payment method
+                PaymentMethod =
+                    membershipPage.Payment_Method,
+
+                // First time membership
+                FirstTimeMember =
+                    membershipPage.First_Time_Member,
+
+                // Membership starts today
+                StartDate = DateTime.Now,
+
+                // Status
+                Status = "Active",
+
+                // Price
+                Price = 0
+            };
+
+
+            // =========================
+            // SAVE MEMBERSHIP
+            // =========================
+
+            _context.Memberships.Add(membership);
+
+            _context.SaveChanges();
+
+
+            // =========================
+            // REDIRECT TO MEMBERSHIP
+            // =========================
+
+            return RedirectToAction("Membership");
+        }
+
+
+        // =========================
+        // EQUIPMENT
+        // =========================
 
         public IActionResult Equipment()
         {
