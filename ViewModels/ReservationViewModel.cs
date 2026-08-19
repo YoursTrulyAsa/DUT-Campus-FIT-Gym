@@ -5,11 +5,15 @@
         public string EquipmentName { get; set; }
         public int ReservationID { get; set; }
         public int MemberID { get; set; }
+        public string EquipmentName { get; set; } = "";
 
         public DateTime ReservationDate { get; set; }
 
        
+        public string Status { get; set; } = "Reserved";
 
         public string Status { get; set; } = "Reserved";
+        public int ReservationID { get; set; }
+        
     }
 }
