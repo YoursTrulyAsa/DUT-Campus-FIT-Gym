@@ -1,33 +1,35 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
+
 
 namespace DUT_Campus_FIT_Gym.ViewModels
 {
     public class RegisterViewModel
     {
         [Required]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = "";
 
         [Required]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = "";
 
         [Required]
-        public string StaffStudentNumber { get; set; }
+        public string StaffStudentNumber { get; set; } = "";
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = "";
 
         [Required]
         [Phone]
-        public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; } = "";
 
         [Required]
-        public string Role { get; set; }
+        public string Role { get; set; } = "";
 
         [Required]
         [DataType(DataType.Password)]
         [MinLength(8)]
-        public string Password { get; set; }
+        public string Password { get; set; } = "";
 
         [Required]
         [Compare("Password")]
