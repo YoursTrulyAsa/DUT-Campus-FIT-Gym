@@ -5,7 +5,8 @@ VisualStudioVersion = 18.9.12023.133 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUT Campus FIT Gym", "DUT Campus FIT Gym.csproj", "{DFDE87E9-B18D-476D-87C2-A834F6ADE9FA}"
 EndProject
-
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUTCampusFITGymTest", "..\DUTCampusFITGymTest\DUTCampusFITGymTest.csproj", "{C129C96B-9EB6-4622-BD64-68B04BFD5F7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
