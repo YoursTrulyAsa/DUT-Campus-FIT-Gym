@@ -18,6 +18,9 @@
     <link rel="preconnect"
           href="https://fonts.googleapis.com" />
 
+    <link rel="icon" type="image/png" 
+          href="~/images/DUT_Campus_FIT_Gym_Emblem.png" />
+
     <link rel="preconnect"
           href="https://fonts.gstatic.com"
           crossorigin />
@@ -41,13 +44,12 @@
 
                 <div class="sidebar-brand">
 
-                    <div class="brand-icon">
-                        FIT
-                    </div>
+                    <img src="~/images/DUT-logo.jpg"
+                         alt="DUT Campus FIT Gym"
+                         class="gym-logo" />
 
                     <div class="brand-text">
-                        <h4>DUT FIT</h4>
-                        <span>Campus Gym</span>
+                        <h4>DUT Campus <span>FIT Gym</span></h4>
                     </div>
 
                 </div>
@@ -168,9 +170,8 @@
 
                     </a>
 
-
-                    <!-- Announcements -->
-                    <a href="#"
+                    <a asp-controller="Member"
+                       asp-action="Announcements"
                        class="sidebar-link">
 
                         <span class="sidebar-icon">
@@ -200,25 +201,14 @@
                 <!-- Logout -->
                 <div class="sidebar-bottom">
 
-                    <form asp-controller="Account"
-                          asp-action="Logout"
-                          method="post">
-
-                        @Html.AntiForgeryToken()
-
-                        <button type="submit"
-                                class="sidebar-link logout-link"
-                                style="border: none; background: none; width: 100%; text-align: left;">
-
-                            <span class="sidebar-icon">
-                                <i class="bi bi-box-arrow-right"></i>
-                            </span>
-
-                            <span>Logout</span>
-
-                        </button>
-
-                    </form>
+                    <a asp-controller="Account"
+                       asp-action="Logout"
+                       class="sidebar-link logout-link">
+                        <span class="sidebar-icon">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </span>
+                        <span>Logout</span>
+                    </a>
 
                 </div>
 

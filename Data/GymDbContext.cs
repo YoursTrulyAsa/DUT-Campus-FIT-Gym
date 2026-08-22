@@ -18,5 +18,6 @@ namespace DUT_Campus_FIT_Gym.Data
         public DbSet<WorkoutPlan> WorkoutPlans { get; set; }
         public DbSet<WorkoutProfile> WorkoutProfiles { get; set; }
         public DbSet<Trainer> Trainers { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
     }
 }

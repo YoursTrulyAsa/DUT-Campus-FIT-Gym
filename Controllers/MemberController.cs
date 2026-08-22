@@ -44,11 +44,15 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var attendanceCount = _context.Attendances
                 .Count(a => a.MemberId == memberId);
 
+            var reservationCount = _context.Reservations
+               .Count(r => r.MemberID == memberId && r.Status == "Reserved");
+
             var dashboardData = new
             {
                 Member = member,
                 Membership = membership,
-                AttendanceCount = attendanceCount
+                AttendanceCount = attendanceCount,
+                ReservationCount = reservationCount
             };
 
             return View(dashboardData);
