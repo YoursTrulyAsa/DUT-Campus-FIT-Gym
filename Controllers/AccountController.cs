@@ -109,6 +109,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 principal
             );
 
+            if (member.Role == "Admin")
+            {
+                return RedirectToAction("Dashboard", "Admin");
+            }
+
             return RedirectToAction("Dashboard", "Member");
         }
 

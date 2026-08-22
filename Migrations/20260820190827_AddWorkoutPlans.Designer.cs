@@ -4,6 +4,7 @@ using DUT_Campus_FIT_Gym.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DUT_Campus_FIT_Gym.Migrations
 {
     [DbContext(typeof(GymDbContext))]
-    partial class GymDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260820190827_AddWorkoutPlans")]
+    partial class AddWorkoutPlans
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -182,26 +185,6 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasKey("ReservationID");
 
                     b.ToTable("Reservations");
-                });
-
-            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Trainer", b =>
-                {
-                    b.Property<int>("TrainerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TrainerId"));
-
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("TrainerId");
-
-                    b.ToTable("Trainers");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutPlan", b =>

@@ -1,5 +1,28 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
 }
+
+<div class="container mt-5">
+
+    <h1>Admin Dashboard</h1>
+
+    <p>Welcome to the Campus FIT Gym administration area.</p>
+
+    <div class="row mt-4">
+
+        <div class="col-md-4">
+            <div class="card p-4">
+                <h3>Membership Applications</h3>
+                <p>View and manage membership applications.</p>
+
+                <a asp-controller="Admin"
+                   asp-action="MembershipApplications"
+                   class="btn btn-primary">
+                    View Applications
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</div>

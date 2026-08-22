@@ -1,5 +1,4 @@
 ﻿<!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -59,111 +58,177 @@
                         MAIN MENU
                     </div>
 
+                    <!-- Dashboard -->
                     <a asp-controller="Member"
                        asp-action="Dashboard"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-house-fill"></i>
                         </span>
+
                         <span>Dashboard</span>
+
                     </a>
 
+
+                    <!-- Profile -->
                     <a asp-controller="Member"
                        asp-action="Profile"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-person-fill"></i>
                         </span>
+
                         <span>Profile</span>
+
                     </a>
 
+
+                    <!-- Membership -->
                     <a asp-controller="Member"
                        asp-action="Membership"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-person-vcard-fill"></i>
                         </span>
+
                         <span>Membership</span>
+
                     </a>
 
+
+                    <!-- Attendance -->
                     <a asp-controller="Member"
                        asp-action="Attendance"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-calendar-check-fill"></i>
                         </span>
+
                         <span>Attendance</span>
+
                     </a>
 
+
+                    <!-- Equipment -->
                     <a asp-controller="Member"
                        asp-action="Equipment"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-universal-access"></i>
                         </span>
+
                         <span>Equipment</span>
+
                     </a>
 
+
+                    <!-- Reservations -->
                     <a asp-controller="Member"
                        asp-action="Reservations"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-calendar-fill"></i>
                         </span>
+
                         <span>Reservations</span>
+
                     </a>
 
-                    <a href="#"
+
+                    <!-- Workout Plan -->
+                    <a asp-controller="Member"
+                       asp-action="WorkoutPlan"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-person-running"></i>
                         </span>
+
                         <span>Workout Plan</span>
+
                     </a>
 
+
+                    <!-- Payments -->
                     <a href="#"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-credit-card-fill"></i>
                         </span>
+
                         <span>Payments</span>
+
                     </a>
 
+
+                    <!-- Announcements -->
                     <a href="#"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-megaphone-fill"></i>
                         </span>
+
                         <span>Announcements</span>
+
                     </a>
 
+
+                    <!-- Support -->
                     <a href="#"
                        class="sidebar-link">
+
                         <span class="sidebar-icon">
                             <i class="bi bi-question-circle-fill"></i>
                         </span>
+
                         <span>Support</span>
+
                     </a>
 
                 </nav>
 
+
+                <!-- Logout -->
                 <div class="sidebar-bottom">
 
-                    <a asp-controller="Account"
-                       asp-action="Logout"
-                       class="sidebar-link logout-link">
-                        <span class="sidebar-icon">
-                            <i class="bi bi-box-arrow-right"></i>
-                        </span>
-                        <span>Logout</span>
-                    </a>
+                    <form asp-controller="Account"
+                          asp-action="Logout"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="sidebar-link logout-link"
+                                style="border: none; background: none; width: 100%; text-align: left;">
+
+                            <span class="sidebar-icon">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </span>
+
+                            <span>Logout</span>
+
+                        </button>
+
+                    </form>
 
                 </div>
 
             </aside>
 
+
             <main class="main-content">
+
                 @RenderBody()
+
             </main>
 
         </div>
@@ -172,6 +237,7 @@
     {
         @RenderBody()
     }
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 

@@ -1,0 +1,47 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Trainer>
+
+@{
+    ViewData["Title"] = "Trainers";
+}
+
+<div class="container mt-4">
+
+    <h1>Trainers</h1>
+
+    <p>Manage trainers assigned to gym members.</p>
+
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-bordered table-striped">
+
+            <thead>
+                <tr>
+                    <th>Trainer ID</th>
+                    <th>Trainer Name</th>
+                    <th>Member ID</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var trainer in Model)
+                {
+                    <tr>
+                        <td>@trainer.TrainerId</td>
+                        <td>@trainer.Name</td>
+                        <td>@trainer.MemberId</td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No trainers have been added yet.
+        </div>
+    }
+
+</div>

@@ -1,0 +1,21 @@
+﻿<form asp-controller="Member"
+      asp-action="ApplyMembership"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label class="form-label">Membership Type</label>
+
+        <select name="membershipType" class="form-select" required>
+            <option value="">-- Select Membership --</option>
+            <option value="Monthly">Monthly Membership</option>
+            <option value="Annual">Annual Membership</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Apply for Membership
+    </button>
+
+</form>

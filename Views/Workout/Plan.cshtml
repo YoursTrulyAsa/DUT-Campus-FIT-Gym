@@ -1,0 +1,63 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.WorkoutPlan>
+
+@{
+    ViewData["Title"] = "My Workout Plan";
+}
+
+<div class="container mt-4">
+
+    <h1>My Workout Plan</h1>
+
+    <p>
+        Here is your personalised workout plan.
+    </p>
+
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-bordered table-striped">
+
+            <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Workout</th>
+                    <th>Exercise</th>
+                    <th>Sets</th>
+                    <th>Repetitions</th>
+                    <th>Rest Time</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var workout in Model)
+                {
+                    <tr>
+                        <td>@workout.WorkoutDay</td>
+                        <td>@workout.WorkoutName</td>
+                        <td>@workout.ExerciseName</td>
+                        <td>@workout.Sets</td>
+                        <td>@workout.Repetitions</td>
+                        <td>@workout.RestTime seconds</td>
+                        <td>@workout.Description</td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            You do not have a workout plan yet.
+        </div>
+    }
+
+    <a asp-controller="Member"
+       asp-action="Dashboard"
+       class="btn btn-secondary">
+        Back to Dashboard
+    </a>
+
+</div>

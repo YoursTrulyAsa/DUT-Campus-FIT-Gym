@@ -1,13 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DUT_Campus_FIT_Gym.Data;
+using DUT_Campus_FIT_Gym.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class TrainerController : Controller
     {
-        public IActionResult Index()
+        private readonly GymDbContext _context;
+
+        public TrainerController(GymDbContext context)
         {
-            return View();
+            _context = context;
         }
+
+        public async Task<IActionResult> Index()
+        {
+            var trainers = await _context.Trainers
+                .ToListAsync();
+
+            return View(trainers);
+        }
+        
     }
 }
  

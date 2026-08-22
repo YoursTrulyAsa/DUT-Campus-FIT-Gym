@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Workout Plan";
+}
+
+<div class="container mt-4">
+
+    <h2>Workout Plan</h2>
+
+    <p>Create your workout profile to generate your workout plan.</p>
+
+    <a asp-controller="Workout"
+       asp-action="CreateProfile"
+       asp-route-memberId="1"
+       class="btn btn-primary">
+        Create Workout Plan
+    </a>
+
+</div>

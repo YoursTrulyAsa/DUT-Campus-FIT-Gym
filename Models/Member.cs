@@ -16,20 +16,29 @@ namespace DUT_Campus_FIT_Gym.Models
         public string LastName { get; set; }
 
         [Required]
+        [StringLength(20)]
         public string StaffStudentNumber { get; set; }
 
         [Required]
         [EmailAddress]
+        [StringLength(100)]
         public string Email { get; set; }
 
         [Required]
         [Phone]
+        [StringLength(20)]
         public string PhoneNumber { get; set; }
 
         [Required]
+        [StringLength(20)]
         public string Role { get; set; }
 
+        [Required]
         public string PasswordHash { get; set; }
+
+        // Navigation property
+        public ICollection<WorkoutPlan> WorkoutPlans { get; set; }
+            = new List<WorkoutPlan>();
 
 
     }

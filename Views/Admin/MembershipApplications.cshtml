@@ -1,0 +1,80 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Membership>
+
+@{
+    ViewData["Title"] = "Membership Applications";
+}
+
+<div class="container mt-5">
+
+    <h1>Membership Applications</h1>
+
+    <p>Pending membership applications from gym members.</p>
+
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-bordered mt-4">
+
+            <thead>
+                <tr>
+                    <th>Member Name</th>
+                    <th>Student/Staff Number</th>
+                    <th>Email</th>
+                    <th>Membership Type</th>
+                    <th>Application Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var application in Model)
+                {
+                    <tr>
+                        <td>
+                            @application.Member.FirstName
+                            @application.Member.LastName
+                        </td>
+
+                        <td>
+                            @application.Member.StaffStudentNumber
+                        </td>
+
+                        <td>
+                            @application.Member.Email
+                        </td>
+
+                        <td>
+                            @application.MembershipType
+                        </td>
+
+                        <td>
+                            @application.StartDate.ToString("dd MMM yyyy")
+                        </td>
+
+                        <td>
+                            <span class="badge bg-warning">
+                                @application.Status
+                            </span>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info mt-4">
+            There are currently no pending membership applications.
+        </div>
+    }
+
+    <a asp-controller="Admin"
+       asp-action="Das hboard"
+       class="btn btn-secondary mt-3">
+        Back to Dashboard
+    </a>
+
+</div>{
+}
