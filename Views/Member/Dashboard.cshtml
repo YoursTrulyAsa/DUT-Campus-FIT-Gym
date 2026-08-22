@@ -1,27 +1,42 @@
 ﻿@{
     ViewData["Title"] = "Member Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="member-dashboard">
 
-    <main class="dashboard-content">
+    <div class="dashboard-content">
 
+        <!-- TOP BAR -->
         <div class="dashboard-topbar">
 
             <div>
-                <h1>Welcome Back, @Model.Member.FirstName 👋</h1>
-                <p>Here's what's happening with your gym membership.</p>
+
+                <h1>
+                    Welcome Back, @Model.Member.FirstName 👋
+                </h1>
+
+                <p>
+                    Here's what's happening with your gym membership.
+                </p>
+
             </div>
 
             <div class="user-badge">
+
                 <i class="fa-solid fa-user"></i>
+
                 <span>Student</span>
+
             </div>
 
         </div>
 
+
+        <!-- DASHBOARD STATS -->
         <div class="dashboard-stats">
 
+            <!-- MEMBERSHIP -->
             <div class="stat-card">
 
                 <div class="stat-icon">
@@ -29,15 +44,21 @@
                 </div>
 
                 <div>
+
                     <span>Membership</span>
 
                     <h3>
-                        @(Model.Membership != null ? Model.Membership.Status : "None")
+                        @(Model.Membership != null
+                                                ? Model.Membership.Status
+                                                : "None")
                     </h3>
+
                 </div>
 
             </div>
 
+
+            <!-- ATTENDANCE -->
             <div class="stat-card">
 
                 <div class="stat-icon">
@@ -45,15 +66,19 @@
                 </div>
 
                 <div>
+
                     <span>Attendance</span>
 
                     <h3>
                         @Model.AttendanceCount Visits
                     </h3>
+
                 </div>
 
             </div>
 
+
+            <!-- RESERVATIONS -->
             <div class="stat-card">
 
                 <div class="stat-icon">
@@ -61,12 +86,19 @@
                 </div>
 
                 <div>
+
                     <span>Reservations</span>
-                    <h3>@Model.ReservationCount Active</h3>
+
+                    <h3>
+                        @Model.ReservationCount Active
+                    </h3>
+
                 </div>
 
             </div>
 
+
+            <!-- ANNOUNCEMENTS -->
             <a asp-controller="Member"
                asp-action="Announcements"
                class="stat-card dashboard-stat-link">
@@ -76,23 +108,39 @@
                 </div>
 
                 <div>
+
                     <span>Announcements</span>
-                    <h3>Latest Updates</h3>
+
+                    <h3>
+                        Latest Updates
+                    </h3>
+
                 </div>
 
             </a>
 
         </div>
 
+
+        <!-- DASHBOARD GRID -->
         <div class="dashboard-grid">
 
+
+            <!-- WORKOUT -->
             <section class="dashboard-card workout-card">
 
                 <div class="card-heading">
 
                     <div>
-                        <span class="card-label">WORKOUT PLAN</span>
-                        <h2>My Workout</h2>
+
+                        <span class="card-label">
+                            WORKOUT PLAN
+                        </span>
+
+                        <h2>
+                            My Workout
+                        </h2>
+
                     </div>
 
                     <i class="fa-solid fa-person-running"></i>
@@ -104,8 +152,17 @@
                 </p>
 
                 <p class="card-description">
-                    Your personalized workout plan will appear here once it has been created.
+                    Your personalized workout plan will appear here
+                    once it has been created.
                 </p>
+
+                <a asp-controller="Member"
+                   asp-action="WorkoutPlan"
+                   class="dashboard-btn">
+
+                    View Workout
+
+                </a>
 
                 <a asp-controller="Member"
                    asp-action="WorkoutPlan"
@@ -115,18 +172,28 @@
 
             </section>
 
+
+            <!-- MEMBERSHIP -->
             <section class="dashboard-card">
 
                 <div class="card-heading">
 
                     <div>
-                        <span class="card-label">MEMBERSHIP</span>
-                        <h2>Active Membership</h2>
+
+                        <span class="card-label">
+                            MEMBERSHIP
+                        </span>
+
+                        <h2>
+                            Active Membership
+                        </h2>
+
                     </div>
 
                     <i class="fa-solid fa-id-card"></i>
 
                 </div>
+
 
                 @if (Model.Membership != null)
                 {
@@ -139,8 +206,10 @@
                     </div>
 
                     <p class="card-description">
+
                         Your gym membership is currently
                         @Model.Membership.Status.ToLower().
+
                     </p>
                 }
                 else
@@ -154,14 +223,19 @@
                     </div>
 
                     <p class="card-description">
+
                         You currently do not have a membership.
+
                     </p>
                 }
+
 
                 <a asp-controller="Member"
                    asp-action="Membership"
                    class="dashboard-btn">
+
                     View Membership
+
                 </a>
 
                 <a asp-controller="Member"
@@ -172,19 +246,52 @@
 
             </section> 
 
+
+            <!-- QUICK ACTIONS -->
             <section class="dashboard-card quick-actions-card">
 
                 <div class="card-heading">
 
                     <div>
-                        <span class="card-label">QUICK ACTIONS</span>
-                        <h2>What would you like to do?</h2>
+
+                        <span class="card-label">
+                            QUICK ACTIONS
+                        </span>
+
+                        <h2>
+                            What would you like to do?
+                        </h2>
+
                     </div>
 
                 </div>
 
+
                 <div class="quick-actions">
 
+                    <!-- CHECK-IN -->
+                    <a asp-controller="Member"
+                       asp-action="CheckIn">
+
+                        <i class="fa-solid fa-qrcode"></i>
+
+                        Check-In
+
+                    </a>
+
+
+                    <!-- VIRTUAL GYM CARD -->
+                    <a asp-controller="Member"
+                       asp-action="GymCard">
+
+                        <i class="fa-solid fa-id-card"></i>
+
+                        Virtual Gym Card
+
+                    </a>
+
+
+                    <!-- RESERVATIONS -->
                     <a asp-controller="Member"
                        asp-action="Reservations">
 
@@ -194,6 +301,8 @@
 
                     </a>
 
+
+                    <!-- ATTENDANCE -->
                     <a asp-controller="Member"
                        asp-action="Attendance">
 
@@ -203,35 +312,12 @@
 
                     </a>
 
-                    <a asp-controller="Member"
-                       asp-action="Membership">
-
-                        <i class="fa-solid fa-id-card"></i>
-
-                        View Membership
-
-                    </a>
-
-                    <a asp-controller="Member"
-                       asp-action="Announcements">
-
-                        <i class="fa-solid fa-bullhorn"></i>
-
-                        Announcements
-
-                    </a>
-
                 </div>
 
             </section>
 
         </div>
 
-    </main>
+    </div>
 
 </div>
-
-@section Styles {
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-}

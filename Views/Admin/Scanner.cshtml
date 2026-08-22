@@ -1,0 +1,194 @@
+﻿@{
+    ViewData["Title"] = "Gym Entrance Scanner";
+}
+
+<div class="scanner-page">
+
+    <div class="scanner-header">
+        <span class="scanner-label">DUT CAMPUS FIT GYM</span>
+
+        <h1>Gym Entrance Scanner</h1>
+
+        <p>
+            Scan a member's Virtual Gym Card to verify
+            their membership and record attendance.
+        </p>
+    </div>
+
+    <div class="scanner-card">
+
+        <div class="scanner-icon">
+            ◉
+        </div>
+
+        <h2>Scan Member QR Code</h2>
+
+        <p>
+            Position the member's QR code inside
+            the scanning area.
+        </p>
+
+        <form id="scannerTokenForm">
+            @Html.AntiForgeryToken()
+        </form>
+
+        <button type="button"
+                id="startScanner"
+                class="scanner-button">
+            Start Scanner
+        </button>
+
+        <div id="qr-reader"></div>
+
+        <div id="scannerStatus"
+             class="scanner-status">
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"
+        type="text/javascript">
+</script>
+
+<script>
+
+    const startScanner =
+        document.getElementById("startScanner");
+
+    const reader =
+        document.getElementById("qr-reader");
+
+    const status =
+        document.getElementById("scannerStatus");
+
+    let qrScanner = null;
+
+    startScanner.addEventListener(
+        "click",
+        startQrScanner
+    );
+
+    function startQrScanner() {
+
+        reader.style.display = "block";
+
+        startScanner.disabled = true;
+
+        startScanner.textContent =
+            "Scanner Starting...";
+
+        status.textContent =
+            "Opening camera...";
+
+        qrScanner =
+            new Html5Qrcode("qr-reader");
+
+        qrScanner.start(
+            {
+                facingMode: "environment"
+            },
+            {
+                fps: 10,
+                qrbox: {
+                    width: 250,
+                    height: 250
+                }
+            },
+            function (decodedText) {
+
+                status.textContent =
+                    "QR code detected. Verifying member...";
+
+                qrScanner.stop()
+                    .then(function () {
+
+                        verifyMember(decodedText);
+
+                    })
+                    .catch(function () {
+
+                        verifyMember(decodedText);
+
+                    });
+
+            },
+            function () {
+
+            }
+        )
+        .catch(function () {
+
+            status.textContent =
+                "Unable to access the camera.";
+
+            startScanner.disabled = false;
+
+            startScanner.textContent =
+                "Try Again";
+
+        });
+
+    }
+
+    function verifyMember(qrData) {
+
+        const form =
+            document.createElement("form");
+
+        form.method = "POST";
+
+        form.action =
+            "@Url.Action("VerifyQrCheckIn", "Admin")";
+
+        const token =
+            document.querySelector(
+                'input[name="__RequestVerificationToken"]'
+            );
+
+        if (token) {
+
+            const tokenInput =
+                document.createElement("input");
+
+            tokenInput.type = "hidden";
+
+            tokenInput.name =
+                "__RequestVerificationToken";
+
+            tokenInput.value =
+                token.value;
+
+            form.appendChild(tokenInput);
+
+        }
+
+        const qrInput =
+            document.createElement("input");
+
+        qrInput.type = "hidden";
+
+        qrInput.name =
+            "qrData";
+
+        qrInput.value =
+            qrData;
+
+        form.appendChild(qrInput);
+
+        document.body.appendChild(form);
+
+        form.submit();
+
+    }
+
+</script>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/scanner.css"
+          asp-append-version="true" />
+
+}

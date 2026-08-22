@@ -1,0 +1,186 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.GymCardViewModel
+
+@{
+    ViewData["Title"] = "My Gym Card";
+}
+
+<div class="gym-card-page">
+
+    <div class="gym-card-container">
+
+        <div class="gym-card-header">
+            <div>
+                <span class="header-icon">🛡</span>
+                <strong>MEMBER DETAILS</strong>
+            </div>
+
+            <span class="gym-brand">
+                DUT CAMPUS FIT GYM
+            </span>
+        </div>
+
+        <div class="member-info">
+
+            <div class="member-name">
+                <h2>@Model.FullName</h2>
+
+                <span class="role-badge">
+                    @Model.Role.ToUpper()
+                </span>
+            </div>
+
+            <div class="details-grid">
+
+                <div class="detail-row">
+                    <span>🪪</span>
+                    <strong>Membership ID</strong>
+                    <span>@Model.MembershipId</span>
+                </div>
+
+                <div class="detail-row">
+                    <span>🎓</span>
+                    <strong>Student Number</strong>
+                    <span>@Model.StaffStudentNumber</span>
+                </div>
+
+                <div class="detail-row">
+                    <span>📋</span>
+                    <strong>Membership Type</strong>
+                    <span>@Model.MembershipType</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        @if (Model.MembershipId != 0)
+        {
+            <div class="membership-dates">
+
+                <div class="date-box">
+                    <span>📅</span>
+                    <small>START DATE</small>
+                    <strong>
+                        @Model.StartDate.ToString("dd MMM yyyy")
+                    </strong>
+                </div>
+
+                <div class="date-box">
+                    <span>📅</span>
+                    <small>EXPIRY DATE</small>
+                    <strong>
+                        @Model.EndDate.ToString("dd MMM yyyy")
+                    </strong>
+                </div>
+
+                <div class="date-box">
+                    <span>⏱</span>
+                    <small>DAYS REMAINING</small>
+                    <strong>
+                        @Model.DaysRemaining days
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="membership-status
+                        @(Model.Status == "ACTIVE" ? "active" : "expired")">
+
+                <div class="status-left">
+
+                    <span class="status-icon">
+                        @(Model.Status == "ACTIVE" ? "✓" : "!")
+                    </span>
+
+                    <div>
+                        <small>MEMBERSHIP STATUS</small>
+
+                        <strong>
+                            @Model.Status
+                        </strong>
+                    </div>
+
+                </div>
+
+                <span class="status-message">
+                    @(Model.Status == "ACTIVE"
+                                    ? "Member is in good standing"
+                                    : "Membership has expired")
+            </span>
+
+            </div>
+
+            <div class="gym-card-verification">
+
+                <div class="verification-icon">
+                    ✓
+                </div>
+
+                <div>
+                    <strong>VERIFIED DUT MEMBER</strong>
+
+                    <p>
+                        This digital card confirms your DUT Campus FIT Gym membership.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- BARCODE -->
+
+            <div class="gym-card-barcode">
+
+                <div class="barcode-header">
+
+                    <div>
+                        <span class="barcode-icon">▥</span>
+
+                        <div>
+                            <strong>GYM ACCESS BARCODE</strong>
+
+                            <p>
+                                Present this barcode at the gym entrance.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="barcode-image">
+
+                    <img src="data:image/png;base64,@Model.Barcode"
+                         alt="Gym Membership Barcode" />
+
+                </div>
+
+                <div class="barcode-number">
+
+                    <span>@Model.StaffStudentNumber</span>
+
+                </div>
+
+                <small>
+                    Scan this barcode to verify your gym membership.
+                </small>
+
+            </div>
+
+                }
+        else
+        {
+            <div class="no-membership">
+                You currently don't have an active membership.
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/gym-card.css"
+          asp-append-version="true" />
+
+}

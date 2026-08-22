@@ -1,0 +1,366 @@
+﻿/* =========================================
+   MEMBER MEMBERSHIP PAGE
+   ========================================= */
+
+.membership-page {
+    min-height: 100vh;
+    padding: 40px 20px;
+    background: #f4f6f8;
+}
+
+
+/* =========================================
+   MAIN CARD
+   ========================================= */
+
+.membership-card {
+    max-width: 700px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 35px 40px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================
+   PAGE TITLE
+   ========================================= */
+
+.membership-title {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 35px;
+    text-transform: uppercase;
+}
+
+
+/* =========================================
+   SECTION
+   ========================================= */
+
+.membership-section {
+    margin-bottom: 30px;
+}
+
+.membership-section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.membership-divider {
+    height: 2px;
+    background: #e5e5e5;
+    border: none;
+    margin-bottom: 20px;
+}
+
+
+/* =========================================
+   USER DETAILS
+   ========================================= */
+
+.user-detail {
+    margin-bottom: 15px;
+}
+
+    .user-detail label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .user-detail input {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1px solid #d6d6d6;
+        border-radius: 8px;
+        background: #f5f5f5;
+        color: #555;
+    }
+
+
+/* =========================================
+   PAYMENT OPTIONS
+   ========================================= */
+
+.payment-options {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.payment-option {
+    flex: 1;
+    min-width: 120px;
+}
+
+    .payment-option input {
+        display: none;
+    }
+
+    .payment-option label {
+        display: block;
+        text-align: center;
+        padding: 13px 20px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+
+    /* Selected payment option */
+
+    .payment-option input:checked + label {
+        background: #212529;
+        color: #1683ff;
+        border-color: #212529;
+    }
+
+
+    /* Hover */
+
+    .payment-option label:hover {
+        border-color: #212529;
+    }
+
+
+/* =========================================
+   PAYMENT PLAN
+   ========================================= */
+
+.payment-plan select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d6d6d6;
+    border-radius: 8px;
+    font-size: 15px;
+    background: white;
+    cursor: pointer;
+}
+
+    .payment-plan select:focus {
+        outline: none;
+        border-color: #212529;
+        box-shadow: 0 0 0 2px rgba(33, 37, 41, 0.1);
+    }
+
+
+/* =========================================
+   FIRST TIME MEMBERSHIP
+   ========================================= */
+
+.first-time-options {
+    display: flex;
+    gap: 15px;
+}
+
+.first-time-option {
+    flex: 1;
+}
+
+    .first-time-option input {
+        display: none;
+    }
+
+    .first-time-option label {
+        display: block;
+        text-align: center;
+        padding: 13px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .first-time-option input:checked + label {
+        background: #1683ff;
+        color: white;
+        border-color: #212529;
+    }
+
+    .first-time-option label:hover {
+        border-color: #212529;
+    }
+
+
+/* =========================================
+   CREATE BUTTON
+   ========================================= */
+
+.create-membership-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #212529;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+    .create-membership-button:hover {
+        background: #000000;
+        transform: translateY(-1px);
+    }
+
+
+/* =========================================
+   VALIDATION
+   ========================================= */
+
+.validation-error {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
+
+    .membership-page {
+        padding: 20px 10px;
+    }
+
+    .membership-card {
+        padding: 25px 20px;
+    }
+
+    .membership-title {
+        font-size: 24px;
+    }
+
+    .payment-options,
+    .first-time-options {
+        flex-direction: column;
+    }
+
+    .payment-option,
+    .first-time-option {
+        width: 100%;
+    }
+}
+
+/* ================================
+   MEMBERSHIP PRICE
+================================ */
+
+.membership-price-box {
+    margin-top: 25px;
+    padding: 22px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+    .price-row strong {
+        color: #0f2f57;
+        font-size: 15px;
+    }
+
+.discount-row strong {
+    color: #16a34a;
+}
+
+.membership-price-box hr {
+    margin: 18px 0;
+    border: none;
+    border-top: 1px solid #e2e8f0;
+}
+
+.price-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .price-total span {
+        color: #0f2f57;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .price-total strong {
+        color: #1683ff;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+
+/* ================================
+   CREATE MEMBERSHIP BUTTON
+================================ */
+
+.create-membership-button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #1683ff !important;
+    color: #ffffff !important;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 5px 15px rgba(22, 131, 255, 0.20);
+}
+
+    .create-membership-button:hover {
+        background: #0f6ed4 !important;
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 18px rgba(22, 131, 255, 0.25);
+    }
+
+    .create-membership-button:active {
+        transform: translateY(0);
+    }
+
+.membership-card .create-membership-button {
+    width: 100% !important;
+    margin-top: 20px !important;
+    padding: 14px 20px !important;
+    background-color: #1683ff !important;
+    background: #1683ff !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    box-shadow: 0 5px 15px rgba(22, 131, 255, 0.20) !important;
+    transition: all 0.2s ease !important;
+}
+
+    .membership-card .create-membership-button:hover {
+        background-color: #0f6ed4 !important;
+        background: #0f6ed4 !important;
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 18px rgba(22, 131, 255, 0.25) !important;
+    }

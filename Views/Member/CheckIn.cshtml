@@ -1,0 +1,288 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.CheckInViewModel
+
+@{
+    ViewData["Title"] = "Gym Check-In";
+}
+
+<div class="checkin-page">
+
+    <div class="checkin-header">
+
+        <div>
+            <span class="checkin-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>Gym Check-In</h1>
+
+            <p>
+                Welcome back,
+                <strong>@Model.FullName</strong>
+            </p>
+        </div>
+
+        <div class="membership-indicator
+             @(Model.MembershipActive ? "active" : "inactive")">
+
+            <span></span>
+
+            @(Model.MembershipActive
+                        ? "Membership Active"
+                        : "Membership Inactive")
+
+        </div>
+
+    </div>
+
+
+    @if (TempData["CheckInError"] != null)
+    {
+        <div class="checkin-alert error">
+
+            <span>!</span>
+
+            <div>
+                <strong>Check-In Unavailable</strong>
+
+                <p>
+                    @TempData["CheckInError"]
+                </p>
+            </div>
+
+        </div>
+    }
+
+    @if (TempData["CheckInSuccess"] != null)
+    {
+        <div class="checkin-alert success">
+
+            <span>✓</span>
+
+            <div>
+                <strong>Access Granted</strong>
+
+                <p>
+                    @TempData["CheckInSuccess"]
+                </p>
+            </div>
+
+        </div>
+    }
+
+
+    @if (!Model.MembershipActive)
+    {
+        <div class="checkin-disabled">
+
+            <div class="disabled-icon">
+                🔒
+            </div>
+
+            <h2>Access Unavailable</h2>
+
+            <p>
+                You need an active gym membership
+                to access the gym.
+            </p>
+
+            <a asp-action="Membership">
+                View Membership
+            </a>
+
+        </div>
+    }
+    else if (Model.IsCheckedIn)
+    {
+        <div class="already-checked-in">
+
+            <div class="success-icon">
+                ✓
+            </div>
+
+            <h2>
+                You are currently checked in
+            </h2>
+
+            <p>
+                Check-in time:
+                <strong>
+                    @Model.CheckInTime?.ToString("dd MMM yyyy, HH:mm")
+                </strong>
+            </p>
+
+            <form asp-action="CheckOut"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="checkout-button">
+
+                    Check Out
+
+                </button>
+
+            </form>
+
+        </div>
+    }
+    else
+    {
+    <div class="checkin-ready">
+
+        <div class="ready-icon">
+            <i class="bi bi-door-open-fill"></i>
+        </div>
+
+        <h2>Ready to Check In</h2>
+
+        <p>
+            Choose how you would like to check in
+            at the gym entrance.
+        </p>
+
+
+        <!-- CHECK-IN OPTIONS -->
+
+        <div class="checkin-options">
+
+
+            <!-- QR CODE -->
+
+            <div class="checkin-option">
+
+                <div class="option-icon">
+                    <i class="bi bi-qr-code-scan"></i>
+                </div>
+
+                <h3>
+                    Scan QR Code
+                </h3>
+
+                <p>
+                    Scan your gym QR code using
+                    the entrance scanner.
+                </p>
+
+                <button type="button"
+                        id="startScanner"
+                        class="primary-checkin-button">
+
+                    <i class="bi bi-camera-fill"></i>
+
+                    Scan QR Code
+
+                </button>
+
+            </div>
+
+
+            <!-- OR -->
+
+            <div class="checkin-or">
+                <span>OR</span>
+            </div>
+
+
+            <!-- VIRTUAL CARD -->
+
+            <div class="checkin-option">
+
+                <div class="option-icon">
+                    <i class="bi bi-person-vcard-fill"></i>
+                </div>
+
+                <h3>
+                    Use Virtual Card
+                </h3>
+
+                <p>
+                    Display your Virtual Gym Card
+                    and present its barcode at
+                    the entrance scanner.
+                </p>
+
+                <a asp-action="GymCard"
+                   class="secondary-checkin-button">
+
+                    <i class="bi bi-credit-card-2-front-fill"></i>
+
+                    Use Virtual Card
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- QR SCANNER -->
+
+            <div id="scannerSection"
+                 class="scanner-section"
+                 style="display:none;">
+
+                @Html.AntiForgeryToken()
+
+                <div class="scanner-header">
+
+                    <div>
+                        <span>DUT CAMPUS FIT GYM</span>
+
+                        <h3>Scan QR Code</h3>
+                    </div>
+
+                    <button type="button"
+                            id="closeScanner"
+                            class="close-scanner">
+
+                        <i class="bi bi-x-lg"></i>
+
+                    </button>
+
+                </div>
+
+                <div id="qr-reader"></div>
+
+                <p id="scannerStatus">
+                    Position the QR code inside the scanner.
+                </p>
+
+            </div>
+
+
+        <!-- INFORMATION -->
+
+        <div class="checkin-info">
+
+            <div>
+                <strong>How it works</strong>
+            </div>
+
+            <p>
+                Your QR code identifies your gym account.
+                The system checks your membership status
+                before granting access and recording your
+                attendance.
+            </p>
+
+        </div>
+
+    </div>
+    }
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/checkin.css"
+          asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="https://unpkg.com/html5-qrcode"
+            type="text/javascript"></script>
+
+    <script src="~/js/checkin.js"
+            asp-append-version="true"></script>
+}
