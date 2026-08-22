@@ -126,7 +126,6 @@
 
                     </a>
 
-
                     <!-- MEMBERSHIP -->
                     <a asp-controller="Member"
                        asp-action="Membership"
@@ -137,6 +136,34 @@
                         </span>
 
                         <span>Membership</span>
+
+                    </a>
+
+
+                    <!-- VIRTUAL GYM CARD -->
+                    <a asp-controller="Member"
+                       asp-action="GymCard"
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "GymCard" ? "active" : "")">
+
+                        <span class="sidebar-icon">
+                            <i class="bi bi-person-vcard"></i>
+                        </span>
+
+                        <span>Virtual Gym Card</span>
+
+                    </a>
+
+
+                    <!-- CHECK-IN -->
+                    <a asp-controller="Member"
+                       asp-action="CheckIn"
+                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CheckIn" ? "active" : "")">
+
+                        <span class="sidebar-icon">
+                            <i class="bi bi-qr-code-scan"></i>
+                        </span>
+
+                        <span>Check-In</span>
 
                     </a>
 

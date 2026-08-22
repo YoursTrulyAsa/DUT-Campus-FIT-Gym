@@ -1,0 +1,376 @@
+﻿.checkin-page {
+    min-height: 100vh;
+    padding: 45px;
+    background: #f5f7fb;
+    font-family: 'Poppins', sans-serif;
+}
+
+
+/* ================================
+   HEADER
+================================ */
+
+.checkin-header {
+    max-width: 1100px;
+    margin: 0 auto 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.checkin-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #3978c7;
+}
+
+.checkin-header h1 {
+    margin: 6px 0;
+    color: #071b36;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.checkin-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* ================================
+   MEMBERSHIP INDICATOR
+================================ */
+
+.membership-indicator {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 16px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+    .membership-indicator span {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+    }
+
+    .membership-indicator.active {
+        background: #e8f7ef;
+        color: #16834b;
+    }
+
+        .membership-indicator.active span {
+            background: #20b26b;
+        }
+
+    .membership-indicator.inactive {
+        background: #fdecec;
+        color: #c0392b;
+    }
+
+        .membership-indicator.inactive span {
+            background: #e74c3c;
+        }
+
+
+/* ================================
+   MAIN CARD
+================================ */
+
+.checkin-ready {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 22px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 20px 45px rgba(7, 27, 54, 0.08);
+}
+
+.ready-icon {
+    width: 65px;
+    height: 65px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: #eaf3ff;
+    color: #2874c6;
+    font-size: 26px;
+}
+
+.checkin-ready h2 {
+    margin: 0;
+    color: #071b36;
+    font-size: 24px;
+}
+
+.checkin-ready > p {
+    max-width: 560px;
+    margin: 10px auto 30px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* ================================
+   OPTIONS
+================================ */
+
+.checkin-options {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    align-items: center;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.checkin-option {
+    padding: 28px 22px;
+    border: 1px solid #e5eaf1;
+    border-radius: 18px;
+    transition: 0.25s ease;
+}
+
+    .checkin-option:hover {
+        transform: translateY(-4px);
+        border-color: #b8d4f5;
+        box-shadow: 0 12px 30px rgba(7, 27, 54, 0.08);
+    }
+
+.option-icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: #edf5ff;
+    color: #2874c6;
+    font-size: 22px;
+}
+
+.checkin-option h3 {
+    margin: 0 0 8px;
+    color: #071b36;
+    font-size: 17px;
+}
+
+.checkin-option p {
+    min-height: 45px;
+    margin-bottom: 20px;
+    color: #7a8494;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+/* ================================
+   BUTTONS
+================================ */
+
+.primary-checkin-button,
+.secondary-checkin-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.primary-checkin-button {
+    border: none;
+    background: #0b315f;
+    color: white;
+}
+
+    .primary-checkin-button:hover {
+        background: #164a82;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+.secondary-checkin-button {
+    background: #edf5ff;
+    color: #2168ae;
+}
+
+    .secondary-checkin-button:hover {
+        background: #dcecff;
+        color: #2168ae;
+    }
+
+
+/* ================================
+   OR
+================================ */
+
+.checkin-or {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .checkin-or span {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #f3f5f8;
+        color: #8b95a5;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+
+/* ================================
+   SCANNER
+================================ */
+
+.scanner-section {
+    max-width: 650px;
+    margin: 30px auto 0;
+    padding: 25px;
+    border-radius: 18px;
+    background: #071b36;
+    color: white;
+    box-shadow: 0 18px 40px rgba(7, 27, 54, 0.2);
+}
+
+.scanner-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+    .scanner-header span {
+        font-size: 9px;
+        letter-spacing: 1.5px;
+        opacity: 0.6;
+    }
+
+    .scanner-header h3 {
+        margin: 4px 0 0;
+        font-size: 19px;
+    }
+
+.close-scanner {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    cursor: pointer;
+}
+
+    .close-scanner:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+#qr-reader {
+    overflow: hidden;
+    width: 100%;
+    border-radius: 14px;
+    background: black;
+}
+
+    #qr-reader video {
+        border-radius: 14px;
+    }
+
+#scannerStatus {
+    margin: 15px 0 0;
+    text-align: center;
+    color: rgba(255,255,255,0.65);
+    font-size: 11px;
+}
+
+
+/* ================================
+   INFORMATION
+================================ */
+
+.checkin-info {
+    max-width: 700px;
+    margin: 30px auto 0;
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: #f5f8fc;
+    text-align: left;
+}
+
+    .checkin-info strong {
+        color: #071b36;
+        font-size: 12px;
+    }
+
+    .checkin-info p {
+        margin: 5px 0 0;
+        color: #737d8c;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+
+/* ================================
+   DISABLED
+================================ */
+
+.checkin-disabled,
+.already-checked-in {
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 45px;
+    background: white;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 45px rgba(7, 27, 54, 0.08);
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 750px) {
+
+    .checkin-page {
+        padding: 25px 15px;
+    }
+
+    .checkin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .checkin-options {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .checkin-or {
+        margin: -5px 0;
+    }
+
+    .checkin-ready {
+        padding: 25px 18px;
+    }
+}
