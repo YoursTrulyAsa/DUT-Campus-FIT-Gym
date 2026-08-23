@@ -1,0 +1,296 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model List<DUT_Campus_FIT_Gym.Models.Equipment>
+
+@{
+    ViewData["Title"] = "Equipment";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>DUT FIT - Equipment</title>
+
+</head>
+
+<body>
+
+    <div class="page">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <h1>DUT FIT</h1>
+                <p>Campus Gym</p>
+            </div>
+
+            <ul class="menu">
+
+                <li>
+                    <a href="/Dashboard">
+                        🏠 Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Profile">
+                        👤 Profile
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Membership">
+                        ▣ Membership
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Attendance">
+                        📅 Attendance
+                    </a>
+                </li>
+
+                <li>
+                    <a class="active" href="/Equipment">
+                        🏋 Equipment
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Reservations">
+                        ▣ Reservations
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/WorkoutPlan">
+                        🏃 Workout Plan
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Payments">
+                        💳 Payments
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Announcements">
+                        📢 Announcements
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/Support">
+                        ❔ Support
+                    </a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+        <!-- Main content -->
+        <main class="content">
+
+            <div class="container">
+
+                <div class="header">
+
+                    <div>
+                        <h2>Equipment</h2>
+                        <p>Browse and reserve gym equipment.</p>
+                    </div>
+
+                    <div class="available-box">
+                        <span>Equipment Available</span>
+                        <strong>
+                            @Model.Count(x => x.IsAvailable == "Available")
+                        </strong>
+                    </div>
+
+                </div>
+
+                <!-- Search and filters -->
+                <div class="filters">
+
+                    <input type="text"
+                           id="search"
+                           class="search"
+                           placeholder="🔍 Search equipment..."
+                           onkeyup="searchEquipment()" />
+
+                    <div class="categories">
+
+                        <button class="category active"
+                                onclick="filterCategory('All', this)">
+                            All
+                        </button>
+
+                        <button class="category"
+                                onclick="filterCategory('Cardio', this)">
+                            Cardio
+                        </button>
+
+                        <button class="category"
+                                onclick="filterCategory('Strength', this)">
+                            Strength
+                        </button>
+
+                        <button class="category"
+                                onclick="filterCategory('Free Weights', this)">
+                            Free Weights
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- Equipment -->
+                <div class="equipment-grid" id="equipmentGrid">
+
+                    @foreach (var item in Model)
+                    {
+                        string statusClass = item.IsAvailable switch
+                        {
+                            "Available" => "available",
+                            "In Use" => "inuse",
+                            "Maintenance" => "maintenance",
+                            _ => ""
+                        };
+
+                        string icon = item.Category switch
+                        {
+                            "Cardio" => "🏃",
+                            "Strength" => "🏋️",
+                            "Free Weights" => "💪",
+                            _ => "🏋️"
+                        };
+
+                        <div class="card equipment-card"
+                             data-name="@item.EquipmentName.ToLower()"
+                             data-category="@item.Category">
+
+                            <div class="equipment-image">
+                                @icon
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="card-header">
+
+                                    <div>
+                                        <h3>@item.EquipmentName</h3>
+
+                                        <p class="category-name">
+                                            @item.Category
+                                        </p>
+                                    </div>
+
+                                    <span class="status @statusClass">
+                                        @item.IsAvailable
+                                    </span>
+
+                                </div>
+
+                                <div class="location">
+                                    📍 @item.Location
+                                </div>
+
+                                @if (item.IsAvailable == "Available")
+                                {
+                                    <button class="reserve"
+                                            onclick="reserveEquipment('@item.EquipmentName')">
+                                        Reserve Equipment
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="reserve" disabled>
+                                        @item.IsAvailable
+                                    </button>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+
+        function filterCategory(category, button) {
+
+            document.querySelectorAll(".category")
+                .forEach(btn => btn.classList.remove("active"));
+
+            button.classList.add("active");
+
+            document.querySelectorAll(".equipment-card")
+                .forEach(card => {
+
+                    if (category === "All" ||
+                        card.dataset.category === category) {
+
+                        card.style.display = "block";
+
+                    } else {
+
+                        card.style.display = "none";
+
+                    }
+
+                });
+        }
+
+        function searchEquipment() {
+
+            const search =
+                document.getElementById("search")
+                    .value.toLowerCase();
+
+            document.querySelectorAll(".equipment-card")
+                .forEach(card => {
+
+                    const name = card.dataset.name;
+
+                    card.style.display =
+                        name.includes(search)
+                            ? "block"
+                            : "none";
+                });
+        }
+
+        function reserveEquipment(name) {
+
+            if (confirm(
+                "Would you like to reserve " + name + "?"
+            )) {
+
+                alert(
+                    name + " has been added to your reservations."
+                );
+
+                // Later you can replace this with:
+                // window.location.href =
+                // "/Reservations/Create?equipment=" +
+                // encodeURIComponent(name);
+            }
+        }
+
+    </script>
+
+</body>
+</html>
