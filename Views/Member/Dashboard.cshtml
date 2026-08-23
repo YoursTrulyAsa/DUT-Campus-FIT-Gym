@@ -147,17 +147,35 @@
 
                 </div>
 
-                <p class="workout-name">
-                    No workout plan yet
-                </p>
+                @if (Model.Workouts != null && Model.Workouts.Count > 0)
+                {
+                    var latestWorkout = Model.Workouts[0];
 
-                <p class="card-description">
-                    Your personalized workout plan will appear here
-                    once it has been created.
-                </p>
+                    <p class="workout-name">
+                        @latestWorkout.WorkoutName
+                    </p>
 
-                <a asp-controller="Member"
-                   asp-action="WorkoutPlan"
+                    <p class="card-description">
+                        <strong>Exercise:</strong> @latestWorkout.ExerciseName<br />
+                        <strong>Day:</strong> @latestWorkout.WorkoutDay<br />
+                        <strong>Sets:</strong> @latestWorkout.Sets |
+                        <strong>Reps:</strong> @latestWorkout.Repetitions
+                    </p>
+                }
+                else
+                {
+                    <p class="workout-name">
+                        No workout plan yet
+                    </p>
+
+                    <p class="card-description">
+                        Your personalized workout plan will appear here
+                        once it has been created.
+                    </p>
+                }
+
+                <a asp-controller="Workout"
+                   asp-action="MyWorkout"
                    class="dashboard-btn">
 
                     View Workout
@@ -166,7 +184,78 @@
 
             </section>
 
+            <!-- WORKOUT PROFILE -->
+            <section class="dashboard-card">
 
+                <div class="card-heading">
+
+                    <div>
+
+                        <span class="card-label">
+                            WORKOUT PROFILE
+                        </span>
+
+                        <h2>
+                            My Fitness Profile
+                        </h2>
+
+                    </div>
+
+                    <i class="fa-solid fa-clipboard-user"></i>
+
+                </div>
+
+
+                @if (Model.WorkoutProfile != null)
+                {
+                    <div class="card-description">
+
+                        <p>
+                            <strong>Age:</strong>
+                            @Model.WorkoutProfile.Age
+                        </p>
+
+                        <p>
+                            <strong>Weight:</strong>
+                            @Model.WorkoutProfile.Weight kg
+                        </p>
+
+                        <p>
+                            <strong>Height:</strong>
+                            @Model.WorkoutProfile.Height cm
+                        </p>
+
+                        <p>
+                            <strong>Goal:</strong>
+                            @Model.WorkoutProfile.Goal
+                        </p>
+
+                    </div>
+                }
+                else
+                {
+                    <p class="workout-name">
+                        No workout profile yet
+                    </p>
+
+                    <p class="card-description">
+                        Create your workout profile to help personalize
+                        your fitness experience.
+                    </p>
+                }
+
+
+                <a asp-controller="WorkoutProfile"
+                   asp-action="Index"
+                   class="dashboard-btn">
+
+                    @(Model.WorkoutProfile != null
+                        ? "View Profile"
+                        : "Create Profile")
+
+                </a>
+
+            </section>
             <!-- MEMBERSHIP -->
             <section class="dashboard-card">
 
@@ -297,6 +386,17 @@
                         <i class="fa-solid fa-clock"></i>
 
                         View Attendance
+
+                    </a>
+
+
+                    <!-- REQUEST TRAINER -->
+                    <a asp-controller="Member"
+                       asp-action="RequestTrainer">
+
+                        <i class="fa-solid fa-user-plus"></i>
+
+                        Request Trainer
 
                     </a>
 

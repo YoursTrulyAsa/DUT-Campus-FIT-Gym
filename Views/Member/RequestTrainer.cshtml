@@ -1,0 +1,107 @@
+﻿@{
+    ViewData["Title"] = "Request Trainer";
+}
+
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-7">
+
+            <div class="card shadow">
+
+                <div class="card-header">
+                    <h3>Request Trainer Assistance</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        Choose a trainer and explain how they can
+                        assist you with your fitness goals.
+                    </p>
+
+                    <form asp-controller="Member"
+                          asp-action="RequestTrainer"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="All"
+                             class="text-danger mb-3">
+                        </div>
+
+                        <!-- TRAINER -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Select Trainer
+                            </label>
+
+                            <select name="trainerId"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    -- Select Trainer --
+                                </option>
+
+                                @foreach (var trainer in ViewBag.Trainers)
+                                {
+                                    <option value="@trainer.MemberId">
+
+                                        @trainer.FirstName
+                                        @trainer.LastName
+
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- MESSAGE -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                What do you need help with?
+                            </label>
+
+                            <textarea name="requestMessage"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="Example: I would like help creating a workout plan based on my fitness goal."
+                                      required></textarea>
+
+                        </div>
+
+
+                        <button type="submit"
+                                class="btn btn-success">
+
+                            Request Trainer
+
+                        </button>
+
+                        <a asp-controller="Member"
+                           asp-action="Dashboard"
+                           class="btn btn-secondary">
+
+                            Cancel
+
+                        </a>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

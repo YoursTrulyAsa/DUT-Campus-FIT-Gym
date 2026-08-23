@@ -1,5 +1,129 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.WorkoutPlan>
+
 @{
+    ViewData["Title"] = "Trainer Workout Plans";
 }
+
+<div class="workout-page">
+
+    <div class="workout-header">
+
+        <div>
+            <span class="page-label">TRAINER</span>
+
+            <h1>Workout Plans</h1>
+
+            <p>
+                View workout plans created for gym members.
+            </p>
+        </div>
+
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="workout-empty">
+
+            <div class="empty-icon">
+                <i class="fa-solid fa-person-running"></i>
+            </div>
+
+            <h2>No Workout Plans</h2>
+
+            <p>
+                There are currently no workout plans available.
+            </p>
+
+        </div>
+    }
+    else
+    {
+        <div class="workout-grid">
+
+            @foreach (var workout in Model)
+            {
+                <div class="workout-card">
+
+                    <div class="workout-card-header">
+
+                        <div>
+
+                            <span class="workout-day">
+                                @workout.WorkoutDay
+                            </span>
+
+                            <h2>
+                                @workout.WorkoutName
+                            </h2>
+
+                        </div>
+
+                        <i class="fa-solid fa-dumbbell workout-card-icon"></i>
+
+                    </div>
+
+                    <div class="workout-section">
+
+                        <span class="workout-label">
+                            EXERCISE
+                        </span>
+
+                        <h3>
+                            @workout.ExerciseName
+                        </h3>
+
+                    </div>
+
+                    <div class="workout-details">
+
+                        <div class="workout-detail">
+                            <i class="fa-solid fa-layer-group"></i>
+
+                            <div>
+                                <span>Sets</span>
+                                <strong>@workout.Sets</strong>
+                            </div>
+                        </div>
+
+                        <div class="workout-detail">
+                            <i class="fa-solid fa-repeat"></i>
+
+                            <div>
+                                <span>Repetitions</span>
+                                <strong>@workout.Repetitions</strong>
+                            </div>
+                        </div>
+
+                        <div class="workout-detail">
+                            <i class="fa-solid fa-clock"></i>
+
+                            <div>
+                                <span>Rest</span>
+                                <strong>@workout.RestTime</strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(workout.Description))
+                    {
+                        <div class="workout-description">
+
+                            <span class="workout-label">
+                                DESCRIPTION
+                            </span>
+
+                            <p>
+                                @workout.Description
+                            </p>
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

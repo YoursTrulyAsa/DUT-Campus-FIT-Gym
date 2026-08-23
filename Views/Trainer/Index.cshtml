@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Trainer Dashboard";
+}
+
+<div class="container mt-5">
+
+    <h1 class="mb-4">Trainer Dashboard</h1>
+
+    <p class="lead">
+        Welcome to the Trainer Dashboard.
+    </p>
+
+    <div class="row mt-4">
+
+        <!-- Equipment -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h4 class="card-title">Manage Equipment</h4>
+
+                    <p class="card-text">
+                        Add and view gym equipment.
+                    </p>
+
+                    <a asp-controller="Trainer"
+                       asp-action="Equipment"
+                       class="btn btn-primary">
+                        Manage Equipment
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Equipment -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h4 class="card-title">Add Equipment</h4>
+
+                    <p class="card-text">
+                        Add new equipment to the gym.
+                    </p>
+
+                    <a asp-controller="Trainer"
+                       asp-action="AddEquipment"
+                       class="btn btn-success">
+                        Add Equipment
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workouts -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h4 class="card-title">Manage Workouts</h4>
+
+                    <p class="card-text">
+                        View and manage workout plans assigned to members.
+                    </p>
+
+                    <a asp-controller="Trainer"
+                       asp-action="Workouts"
+                       class="btn btn-warning">
+                        Manage Workouts
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

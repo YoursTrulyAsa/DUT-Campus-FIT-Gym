@@ -1,0 +1,110 @@
+﻿@model DUT_Campus_FIT_Gym.Models.Equipment
+
+@{
+    ViewData["Title"] = "Add Equipment";
+}
+
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-7">
+
+            <div class="card shadow">
+
+                <div class="card-header">
+                    <h3>Add Equipment</h3>
+                </div>
+
+                <div class="card-body">
+
+                    <form asp-controller="Trainer"
+                          asp-action="AddEquipment"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="EquipmentName"
+                                   class="form-label">
+                                Equipment Name
+                            </label>
+
+                            <input asp-for="EquipmentName"
+                                   class="form-control" />
+
+                            <span asp-validation-for="EquipmentName"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Category"
+                                   class="form-label">
+                                Category
+                            </label>
+
+                            <input asp-for="Category"
+                                   class="form-control" />
+
+                            <span asp-validation-for="Category"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Location"
+                                   class="form-label">
+                                Location
+                            </label>
+
+                            <input asp-for="Location"
+                                   class="form-control" />
+
+                            <span asp-validation-for="Location"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="form-check mb-3">
+
+                            <input asp-for="IsAvailable"
+                                   class="form-check-input" />
+
+                            <label asp-for="IsAvailable"
+                                   class="form-check-label">
+                                Equipment is available
+                            </label>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-success">
+                            Add Equipment
+                        </button>
+
+                        <a asp-controller="Trainer"
+                           asp-action="Equipment"
+                           class="btn btn-secondary">
+                            Cancel
+                        </a>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

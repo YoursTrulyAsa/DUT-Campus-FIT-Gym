@@ -21,6 +21,13 @@
           href="~/css/Member-Create.css"
           asp-append-version="true" />
 
+    <link rel="stylesheet"
+      href="~/css/Workout.css"
+      asp-append-version="true" />
+
+
+
+
     <!-- Google Fonts -->
     <link rel="preconnect"
           href="https://fonts.googleapis.com" />
@@ -126,6 +133,7 @@
 
                     </a>
 
+
                     <!-- MEMBERSHIP -->
                     <a asp-controller="Member"
                        asp-action="Membership"
@@ -211,9 +219,9 @@
 
 
                     <!-- WORKOUT PLAN -->
-                    <a asp-controller="Member"
-                       asp-action="WorkoutPlan"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "WorkoutPlan" ? "active" : "")">
+                    <a asp-controller="Workout"
+                       asp-action="MyWorkout"
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Workout" ? "active" : "")">
 
                         <span class="sidebar-icon">
                             <i class="fa-solid fa-person-running"></i>
@@ -222,6 +230,20 @@
                         <span>Workout Plan</span>
 
                     </a>
+
+                    <!-- WORKOUT PROFILE -->
+<a asp-controller="WorkoutProfile"
+   asp-action="Index"
+   class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "WorkoutProfile" ? "active" : "")">
+
+    <span class="sidebar-icon">
+        <i class="fa-solid fa-clipboard-user"></i>
+    </span>
+
+    <span>Workout Profile</span>
+
+</a>
+
 
 
                     <!-- PAYMENTS -->

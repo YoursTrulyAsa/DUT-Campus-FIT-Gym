@@ -1,0 +1,103 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.WorkoutPlan>
+
+@{
+    ViewData["Title"] = "Manage Workouts";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h1>Manage Workout Plans</h1>
+
+        <a asp-controller="Trainer"
+           asp-action="CreateWorkout"
+           class="btn btn-success">
+            Assign Workout
+        </a>
+
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No workout plans have been assigned yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-striped">
+
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Workout</th>
+                        <th>Exercise</th>
+                        <th>Day</th>
+                        <th>Sets</th>
+                        <th>Repetitions</th>
+                        <th>Rest Time</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var workout in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                @workout.Member.FirstName
+                                @workout.Member.LastName
+                            </td>
+
+                            <td>
+                                @workout.WorkoutName
+                            </td>
+
+                            <td>
+                                @workout.ExerciseName
+                            </td>
+
+                            <td>
+                                @workout.WorkoutDay
+                            </td>
+
+                            <td>
+                                @workout.Sets
+                            </td>
+
+                            <td>
+                                @workout.Repetitions
+                            </td>
+
+                            <td>
+                                @workout.RestTime
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+    <a asp-controller="Trainer"
+       asp-action="Index"
+       class="btn btn-secondary mt-3">
+        Back to Dashboard
+    </a>
+
+</div>
