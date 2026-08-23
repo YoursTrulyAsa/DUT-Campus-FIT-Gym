@@ -1,5 +1,219 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.WorkoutPlan>
+
 @{
+    ViewData["Title"] = "My Workout Plan";
 }
+
+<div class="workout-page">
+
+    <!-- PAGE HEADER -->
+    <div class="workout-header">
+
+        <div>
+            <span class="page-label">FITNESS</span>
+
+            <h1>My Workout Plan</h1>
+
+            <p>
+                View and manage your personalized workout exercises.
+            </p>
+        </div>
+
+        <a asp-controller="Workout"
+           asp-action="Create"
+           class="workout-create-btn">
+
+            <i class="fa-solid fa-plus"></i>
+
+            Create Workout
+
+        </a>
+
+    </div>
+
+
+    @if (Model == null || !Model.Any())
+    {
+        <!-- EMPTY STATE -->
+
+        <div class="workout-empty">
+
+            <div class="empty-icon">
+                <i class="fa-solid fa-person-running"></i>
+            </div>
+
+            <h2>No Workout Plan Yet</h2>
+
+            <p>
+                You currently don't have any workout plans.
+                Create your first workout to get started.
+            </p>
+
+            <a asp-controller="Workout"
+               asp-action="Create"
+               class="workout-create-btn">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Create Workout
+
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <!-- WORKOUT CARDS -->
+
+        <div class="workout-grid">
+
+            @foreach (var workout in Model)
+            {
+                <div class="workout-card">
+
+                    <!-- CARD HEADER -->
+
+                    <div class="workout-card-header">
+
+                        <div>
+
+                            <span class="workout-day">
+                                @workout.WorkoutDay
+                            </span>
+
+                            <h2>
+                                @workout.WorkoutName
+                            </h2>
+
+                        </div>
+
+                        <i class="fa-solid fa-dumbbell workout-card-icon"></i>
+
+                    </div>
+
+
+                    <!-- EXERCISE -->
+
+                    <div class="workout-section">
+
+                        <span class="workout-label">
+                            EXERCISE
+                        </span>
+
+                        <h3>
+                            @workout.ExerciseName
+                        </h3>
+
+                    </div>
+
+
+                    <!-- WORKOUT DETAILS -->
+
+                    <div class="workout-details">
+
+                        <div class="workout-detail">
+
+                            <i class="fa-solid fa-layer-group"></i>
+
+                            <div>
+
+                                <span>Sets</span>
+
+                                <strong>
+                                    @workout.Sets
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="workout-detail">
+
+                            <i class="fa-solid fa-repeat"></i>
+
+                            <div>
+
+                                <span>Repetitions</span>
+
+                                <strong>
+                                    @workout.Repetitions
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="workout-detail">
+
+                            <i class="fa-solid fa-clock"></i>
+
+                            <div>
+
+                                <span>Rest</span>
+
+                                <strong>
+                                    @workout.RestTime
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+                    @if (!string.IsNullOrWhiteSpace(workout.Description))
+                    {
+                        <div class="workout-description">
+
+                            <span class="workout-label">
+                                DESCRIPTION
+                            </span>
+
+                            <p>
+                                @workout.Description
+                            </p>
+
+                        </div>
+                    }
+
+
+                    <!-- ACTIONS -->
+
+                    <div class="workout-actions">
+
+                        <a asp-controller="Workout"
+                           asp-action="Edit"
+                           asp-route-id="@workout.WorkoutPlanId"
+                           class="workout-edit-btn">
+
+                            <i class="fa-solid fa-pen"></i>
+
+                            Edit
+
+                        </a>
+
+
+                        <a asp-controller="Workout"
+                           asp-action="Delete"
+                           asp-route-id="@workout.WorkoutPlanId"
+                           class="workout-delete-btn">
+
+                            <i class="fa-solid fa-trash"></i>
+
+                            Delete
+
+                        </a>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

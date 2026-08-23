@@ -58,12 +58,24 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     r.MemberID == memberId &&
                     r.Status == "Reserved");
 
+
+            // Get this member's workout plans
+            var workouts = _context.WorkoutPlans
+                .Where(w => w.MemberId == memberId)
+                .OrderByDescending(w => w.WorkoutPlanId)
+                .ToList();
+
+            var workoutProfile = _context.WorkoutProfiles
+    .FirstOrDefault(p => p.MemberId == memberId);
+
             var dashboardData = new
             {
                 Member = member,
                 Membership = membership,
                 AttendanceCount = attendanceCount,
-                ReservationCount = reservationCount
+                ReservationCount = reservationCount,
+                Workouts = workouts,
+                WorkoutProfile = workoutProfile
             };
 
             return View(dashboardData);
@@ -831,6 +843,121 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "You have successfully checked out. See you next time!";
 
             return RedirectToAction(nameof(CheckIn));
+        }
+        // ==========================================
+        // REQUEST TRAINER - GET
+        // ==========================================
+
+        [HttpGet]
+        public IActionResult RequestTrainer()
+        {
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(memberIdClaim))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var trainers = _context.Members
+                .Where(m => m.Role == "Trainer")
+                .ToList();
+
+            ViewBag.Trainers = trainers;
+
+            return View();
+        }
+
+
+        // ==========================================
+        // REQUEST TRAINER - POST
+        // ==========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RequestTrainer(
+            int trainerId,
+            string requestMessage)
+        {
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(memberIdClaim))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            int studentId = int.Parse(memberIdClaim);
+
+            // Check that selected trainer exists
+            var trainer = _context.Members
+                .FirstOrDefault(m =>
+                    m.MemberId == trainerId &&
+                    m.Role == "Trainer");
+
+            if (trainer == null)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Please select a valid trainer.");
+
+                ViewBag.Trainers = _context.Members
+                    .Where(m => m.Role == "Trainer")
+                    .ToList();
+
+                return View();
+            }
+
+            if (string.IsNullOrWhiteSpace(requestMessage))
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Please explain what assistance you need.");
+
+                ViewBag.Trainers = _context.Members
+                    .Where(m => m.Role == "Trainer")
+                    .ToList();
+
+                return View();
+            }
+
+            // Check if there is already a pending request
+            var existingRequest = _context.TrainerRequests
+                .FirstOrDefault(r =>
+                    r.StudentId == studentId &&
+                    r.TrainerId == trainerId &&
+                    r.Status == "Pending");
+
+            if (existingRequest != null)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "You already have a pending request with this trainer.");
+
+                ViewBag.Trainers = _context.Members
+                    .Where(m => m.Role == "Trainer")
+                    .ToList();
+
+                return View();
+            }
+
+            var request = new TrainerRequest
+            {
+                StudentId = studentId,
+                TrainerId = trainerId,
+                RequestMessage = requestMessage,
+                Status = "Pending",
+                RequestDate = DateTime.Now
+            };
+
+            _context.TrainerRequests.Add(request);
+
+            _context.SaveChanges();
+
+            TempData["TrainerRequestSuccess"] =
+                "Your trainer assistance request has been sent.";
+
+            return RedirectToAction("Dashboard");
         }
     }
 }

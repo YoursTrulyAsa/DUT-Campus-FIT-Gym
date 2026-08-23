@@ -1,0 +1,59 @@
+﻿@model DUT_Campus_FIT_Gym.Models.WorkoutPlan
+
+<h2>Edit Workout Plan</h2>
+
+<form asp-action="Edit" method="post">
+
+    <input type="hidden" asp-for="WorkoutPlanId" />
+
+    <div class="mb-3">
+        <label asp-for="WorkoutName" class="form-label"></label>
+        <input asp-for="WorkoutName" class="form-control" />
+        <span asp-validation-for="WorkoutName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ExerciseName" class="form-label"></label>
+        <input asp-for="ExerciseName" class="form-control" />
+        <span asp-validation-for="ExerciseName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="WorkoutDay" class="form-label"></label>
+        <input asp-for="WorkoutDay" class="form-control" />
+        <span asp-validation-for="WorkoutDay" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Sets" class="form-label"></label>
+        <input asp-for="Sets" class="form-control" />
+        <span asp-validation-for="Sets" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Repetitions" class="form-label"></label>
+        <input asp-for="Repetitions" class="form-control" />
+        <span asp-validation-for="Repetitions" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RestTime" class="form-label"></label>
+        <input asp-for="RestTime" class="form-control" />
+        <span asp-validation-for="RestTime" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        Save Changes
+    </button>
+
+    <a asp-action="MyWorkout" class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>

@@ -64,7 +64,23 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            // Check if email already exists
+            {
+                string staffPattern =
+                    @"^[A-Za-z]+@dut\.ac\.za$";
+
+                if (!Regex.IsMatch(
+                    model.Email,
+                    staffPattern,
+                    RegexOptions.IgnoreCase))
+                {
+                    ModelState.AddModelError(
+                        "Email",
+                        "Staff email must start with a name and end with @dut.ac.za");
+
+                    return View(model);
+                }
+            }
+
             bool emailExists = _context.Members
                 .Any(m =>
                     m.Email.ToLower() ==
@@ -85,7 +101,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     m.StudentNumber ==
                     model.StudentNumber);
 
-            if (numberExists)
+                Role = "Student"
             {
                 ModelState.AddModelError(
                     "StudentNumber",
@@ -102,10 +118,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 StudentNumber = model.StudentNumber,
                 Email = model.Email.Trim().ToLower(),
                 PhoneNumber = model.PhoneNumber,
-
-                // Role is automatically assigned.
-                // The student does NOT choose this.
-                Role = "Student"
+                Role = model.Role
             };
 
             // Hash password
@@ -257,9 +270,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 principal);
 
-            return RedirectToAction(
-                "Dashboard",
-                "Member");
+            if (member.Role == "Admin")
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
+            if (member.Role == "Trainer")
+            {
+                return RedirectToAction("Index", "Trainer");
+            }
+
+            return RedirectToAction("Dashboard", "Member");
         }
 
 

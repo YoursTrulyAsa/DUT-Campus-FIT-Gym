@@ -1,6 +1,8 @@
 using DUT_Campus_FIT_Gym.Data;
-using Microsoft.EntityFrameworkCore;
+using DUT_Campus_FIT_Gym.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +38,48 @@ app.UseRouting();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+
+// =========================================================
+// CREATE INITIAL ADMIN ACCOUNT
+// =========================================================
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider
+        .GetRequiredService<GymDbContext>();
+
+    var passwordHasher = new PasswordHasher<Member>();
+
+    var adminEmail = "admin@dut.ac.za";
+
+    var existingAdmin = context.Members
+        .FirstOrDefault(m => m.Email == adminEmail);
+
+    if (existingAdmin == null)
+    {
+        var admin = new Member
+        {
+            FirstName = "System",
+            LastName = "Administrator",
+            StaffStudentNumber = "ADMIN001",
+            Email = adminEmail,
+            PhoneNumber = "0000000000",
+            Role = "Admin"
+        };
+
+        admin.PasswordHash =
+            passwordHasher.HashPassword(
+                admin,
+                "Admin@123"
+            );
+
+        context.Members.Add(admin);
+
+        context.SaveChanges();
+    }
+}
+
 
 app.MapControllerRoute(
     name: "default",

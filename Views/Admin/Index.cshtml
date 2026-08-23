@@ -1,0 +1,105 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-4">
+
+    <h1>Admin Dashboard</h1>
+
+    <p>Welcome to the DUT Campus FIT Gym Administration Dashboard.</p>
+
+    <hr />
+
+    <div class="row">
+
+        <!-- Members -->
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Members</h5>
+                    <p class="card-text">
+                        Manage registered gym members.
+                    </p>
+
+                    <a href="#"
+                       class="btn btn-primary">
+                        Manage Members
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equipment -->
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Equipment</h5>
+                    <p class="card-text">
+                        Manage gym equipment.
+                    </p>
+
+                    <a href="#"
+                       class="btn btn-primary">
+                        Manage Equipment
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservations -->
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Reservations</h5>
+                    <p class="card-text">
+                        View equipment reservations.
+                    </p>
+
+                    <a href="#"
+                       class="btn btn-primary">
+                        View Reservations
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trainers -->
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Trainers</h5>
+
+                    <p class="card-text">
+                        Create and manage trainer accounts.
+                    </p>
+
+                    <a asp-controller="Admin"
+                       asp-action="AddTrainer"
+                       class="btn btn-success">
+                        Add Trainer
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff -->
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Staff</h5>
+
+                    <p class="card-text">
+                        Create and manage staff accounts.
+                    </p>
+
+                    <a href="#"
+                       class="btn btn-info">
+                        Manage Staff
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
