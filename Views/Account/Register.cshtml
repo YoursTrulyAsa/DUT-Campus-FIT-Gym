@@ -26,6 +26,7 @@
 
         </div>
 
+
         <div class="right-panel">
 
             <div class="register-card">
@@ -33,6 +34,7 @@
                 <h2>Create Account</h2>
 
                 <p>Join the DUT Campus FIT Gym today.</p>
+
 
                 <form asp-controller="Account"
                       asp-action="Register"
@@ -43,33 +45,36 @@
                     </div>
 
 
+                    <!-- NAME + SURNAME -->
+
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
 
-                            <label asp-for="FirstName"
+                            <label asp-for="Name"
                                    class="form-label">
                             </label>
 
-                            <input asp-for="FirstName"
+                            <input asp-for="Name"
                                    class="form-control" />
 
-                            <span asp-validation-for="FirstName"
+                            <span asp-validation-for="Name"
                                   class="text-danger">
                             </span>
 
                         </div>
 
+
                         <div class="col-md-6 mb-3">
 
-                            <label asp-for="LastName"
+                            <label asp-for="Surname"
                                    class="form-label">
                             </label>
 
-                            <input asp-for="LastName"
+                            <input asp-for="Surname"
                                    class="form-control" />
 
-                            <span asp-validation-for="LastName"
+                            <span asp-validation-for="Surname"
                                   class="text-danger">
                             </span>
 
@@ -77,20 +82,26 @@
 
                     </div>
 
+
+                    <!-- STUDENT NUMBER -->
+
                     <div class="mb-3">
 
-                        <label asp-for="StaffStudentNumber"
+                        <label asp-for="StudentNumber"
                                class="form-label">
                         </label>
 
-                        <input asp-for="StaffStudentNumber"
+                        <input asp-for="StudentNumber"
                                class="form-control" />
 
-                        <span asp-validation-for="StaffStudentNumber"
+                        <span asp-validation-for="StudentNumber"
                               class="text-danger">
                         </span>
 
                     </div>
+
+
+                    <!-- EMAIL -->
 
                     <div class="mb-3">
 
@@ -107,6 +118,9 @@
 
                     </div>
 
+
+                    <!-- PHONE NUMBER -->
+
                     <div class="mb-3">
 
                         <label asp-for="PhoneNumber"
@@ -122,65 +136,43 @@
 
                     </div>
 
-                    <div class="mb-3">
 
-                        <label asp-for="Role"
-                               class="form-label">
-                        </label>
-
-                        <select asp-for="Role"
-                                class="form-select">
-
-                            <option value="">
-                                Select Role
-                            </option>
-
-                            <option value="Student">
-                                Student
-                            </option>
-
-                            <option value="Staff">
-                                Staff
-                            </option>
-
-                        </select>
-
-                        <span asp-validation-for="Role"
-                              class="text-danger">
-                        </span>
-
-                    </div>
+                    <!-- PASSWORDS -->
 
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
 
-                          <label asp-for="Password" class="form-label"></label>
+                            <label asp-for="Password"
+                                   class="form-label">
+                            </label>
 
-                          <div class="password-wrapper">
+                            <div class="password-wrapper">
 
-                              <input asp-for="Password"
+                                <input asp-for="Password"
                                        class="form-control"
                                        id="passwordInput" />
 
-                               <button type="button"
-                                           class="password-toggle"
-                                            onclick="togglePassword('passwordInput', this)">
-                                      Show
-                               </button>
+                                <button type="button"
+                                        class="password-toggle"
+                                        onclick="togglePassword('passwordInput', this)">
+                                    Show
+                                </button>
 
-                    </div>
+                            </div>
 
-                       <span asp-validation-for="Password"
-                           class="text-danger">
-                          </span>
+                            <span asp-validation-for="Password"
+                                  class="text-danger">
+                            </span>
 
-                    </div>
+                        </div>
 
 
                         <div class="col-md-6 mb-4">
 
-                            <label asp-for="ConfirmPassword" class="form-label"></label>
+                            <label asp-for="ConfirmPassword"
+                                   class="form-label">
+                            </label>
 
                             <div class="password-wrapper">
 
@@ -200,9 +192,12 @@
                                   class="text-danger">
                             </span>
 
-                        </div> 
+                        </div>
 
                     </div>
+
+
+                    <!-- CREATE ACCOUNT -->
 
                     <button type="submit"
                             class="btn register-btn w-100">
@@ -211,6 +206,8 @@
 
                     </button>
 
+
+                    <!-- LOGIN -->
 
                     <div class="text-center mt-4">
 
@@ -234,6 +231,7 @@
     </div>
 
 </div>
+
 
 @section Scripts {
 
