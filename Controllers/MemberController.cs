@@ -191,10 +191,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var membershipPage = new MembershipPage
             {
-                Name = member.Name,
-                Surname = member.Surname,
+                Name = member.FirstName,
+                Surname = member.LastName,
                 Email = member.Email,
-                StudentNo = member.StudentNumber
+                StudentNo = member.StaffStudentNumber
             };
 
             return View(membershipPage);
@@ -238,10 +238,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "",
                     "You already have a membership.");
 
-                membershipPage.Name = member.Name;
-                membershipPage.Surname = member.Surname;
+                membershipPage.Name = member.FirstName;
+                membershipPage.Surname = member.LastName;
                 membershipPage.Email = member.Email;
-                membershipPage.StudentNo = member.StudentNumber;
+                membershipPage.StudentNo = member.StaffStudentNumber;
 
                 return View(membershipPage);
             }
@@ -251,10 +251,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             if (!ModelState.IsValid)
             {
-                membershipPage.Name = member.Name;
-                membershipPage.Surname = member.Surname;
+                membershipPage.Name = member.FirstName;
+                membershipPage.Surname = member.LastName;
                 membershipPage.Email = member.Email;
-                membershipPage.StudentNo = member.StudentNumber;
+                membershipPage.StudentNo = member.StaffStudentNumber;
 
                 return View(membershipPage);
             }
@@ -403,7 +403,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         public IActionResult Announcements()
         {
-            var announcements = _context.Announcement
+            var announcements = _context.Announcements
                 .OrderByDescending(a => a.DatePosted)
                 .ToList();
 
@@ -451,10 +451,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     MemberId = member.MemberId,
 
                     FullName =
-                        $"{member.Name} {member.Surname}",
+                        $"{member.FirstName} {member.LastName}",
 
                     StaffStudentNumber =
-                        member.StudentNumber,
+                        member.StaffStudentNumber,
 
                     Email =
                         member.Email,
@@ -559,10 +559,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     member.MemberId,
 
                 FullName =
-                    $"{member.Name} {member.Surname}",
+                    $"{member.FirstName} {member.LastName}",
 
                 StaffStudentNumber =
-                    member.StudentNumber,
+                    member.StaffStudentNumber,
 
                 Email =
                     member.Email,
@@ -640,7 +640,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var viewModel = new CheckInViewModel
             {
                 FullName =
-                    $"{member.Name} {member.Surname}",
+                    $"{member.FirstName} {member.LastName}",
 
                 MembershipActive =
                     membershipActive,
@@ -706,7 +706,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var member = _context.Members
                 .FirstOrDefault(m =>
-                    m.StudentNumber == studentNumber);
+                    m.StaffStudentNumber == studentNumber);
 
             if (member == null)
             {
@@ -783,7 +783,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             // SUCCESS
 
             TempData["CheckInSuccess"] =
-                $"ACCESS GRANTED — Welcome {member.Name}!";
+                $"ACCESS GRANTED — Welcome {member.FirstName}!";
 
             return RedirectToAction(nameof(CheckIn));
         }

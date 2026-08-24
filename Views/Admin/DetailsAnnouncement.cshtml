@@ -1,0 +1,30 @@
+﻿@model DUT_Campus_FIT_Gym.Models.Announcement
+
+@{
+    ViewData["Title"] = "Announcement Details";
+}
+
+<h2>Announcement Details</h2>
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">@Model.Title</h4>
+        <p class="card-text">@Model.Message</p>
+        <p><strong>Date Posted:</strong> @Model.DatePosted.ToString("yyyy-MM-dd HH:mm")</p>
+        @if (!string.IsNullOrEmpty(Model.Category))
+        {
+            <p><strong>Category:</strong> @Model.Category</p>
+        }
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="EditAnnouncement" asp-route-id="@Model.AnnouncementID" class="btn btn-warning">Edit</a>
+
+    <form asp-action="DeleteAnnouncement" asp-route-id="@Model.AnnouncementID" method="post" style="display:inline">
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+
+    <a asp-action="AnnouncementList" class="btn btn-secondary">Back to List</a>
+</div>
+

@@ -136,8 +136,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        
 
                     b.Property<string>("Surname")
                         .IsRequired()

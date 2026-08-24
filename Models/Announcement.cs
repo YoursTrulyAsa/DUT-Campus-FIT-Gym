@@ -12,12 +12,12 @@ namespace DUT_Campus_FIT_Gym.Models
         [Key]
         public int AnnouncementID { get; set; }
 
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
 
-        public string Message { get; set; }
+        public string Message { get; set; } = "";
 
         public DateTime DatePosted { get; set; }
 
-        public string Category { get; set; }
+        public string Category { get; set; } = "";
     }
 }

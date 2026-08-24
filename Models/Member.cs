@@ -9,14 +9,14 @@ namespace DUT_Campus_FIT_Gym.Models
 
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public string FirstName { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Surname { get; set; }
+        public string LastName { get; set; }
 
         [Required]
-        public string StudentNumber { get; set; }
+        public string StaffStudentNumber { get; set; }
 
         [Required]
         [EmailAddress]

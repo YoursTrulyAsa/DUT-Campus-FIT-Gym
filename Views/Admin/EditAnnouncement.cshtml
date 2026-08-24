@@ -1,0 +1,21 @@
+﻿@model DUT_Campus_FIT_Gym.Models.Announcement
+
+<h2>Edit Announcement</h2>
+
+<form asp-action="EditAnnouncement" method="post">
+    <input type="hidden" asp-for="AnnouncementID" />
+
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Message"></label>
+        <textarea asp-for="Message" class="form-control"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save Changes</button>
+    <a asp-action="AnnouncementList" class="btn btn-secondary">Cancel</a>
+</form>
+

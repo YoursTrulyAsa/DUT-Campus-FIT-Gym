@@ -102,7 +102,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             // Check if student number already exists
             bool numberExists = _context.Members
                 .Any(m =>
-                    m.StudentNumber ==
+                    m.StaffStudentNumber ==
                     model.StudentNumber);
 
             if (numberExists)
@@ -117,9 +117,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             // Create student account
             var member = new Member
             {
-                Name = model.Name,
-                Surname = model.Surname,
-                StudentNumber = model.StudentNumber,
+                FirstName = model.Name,
+                LastName = model.Surname,
+                StaffStudentNumber = model.StudentNumber,
                 Email = model.Email.Trim().ToLower(),
                 PhoneNumber = model.PhoneNumber,
                 Role = model.Role
@@ -163,7 +163,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             message.To.Add(
                 new MailboxAddress(
-                    $"{member.Name} {member.Surname}",
+                    $"{member.FirstName} {member.LastName}",
                     member.Email));
 
             message.Subject =
@@ -172,12 +172,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var builder = new BodyBuilder();
 
             builder.TextBody =
-                $"Hello {member.Name},\n\n" +
+                $"Hello {member.FirstName},\n\n" +
                 "Welcome to DUT Campus FIT Gym!\n\n" +
                 "Your account has been successfully created.\n\n" +
                 $"Member ID: {member.MemberId}\n" +
-                $"Name: {member.Name} {member.Surname}\n" +
-                $"Student Number: {member.StudentNumber}\n" +
+                $"Name: {member.FirstName} {member.LastName}\n" +
+                $"Student Number: {member.StaffStudentNumber}\n" +
                 $"Email: {member.Email}\n\n" +
                 "You can now log in to the DUT Campus FIT Gym system using your registered email address and password.\n\n" +
                 "Your Virtual Gym Card will be available from your account after logging in.\n\n" +
@@ -252,7 +252,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 new Claim(
                     ClaimTypes.Name,
-                    member.Name),
+                    member.PhoneNumber),
 
                 new Claim(
                     ClaimTypes.Email,
@@ -414,7 +414,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             message.To.Add(
                 new MailboxAddress(
-                    $"{member.Name} {member.Surname}",
+                    $"{member.FirstName} {member.LastName}",
                     member.Email));
 
             message.Subject =
@@ -423,7 +423,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var builder = new BodyBuilder();
 
             builder.TextBody =
-                $"Hello {member.Name},\n\n" +
+                $"Hello {member.FirstName},\n\n" +
                 "We received a request to reset your DUT Campus FIT Gym password.\n\n" +
                 $"Your verification code is: {otp}\n\n" +
                 "This code will expire in 10 minutes.\n\n" +

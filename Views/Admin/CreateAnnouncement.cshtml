@@ -6,6 +6,20 @@
 
 <h2>Create Announcement</h2>
 
+<!-- TempData Alerts -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
 <form asp-action="CreateAnnouncement" method="post">
     <div class="form-group">
         <label asp-for="Title" class="control-label"></label>
@@ -20,6 +34,7 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Post Announcement</button>
+    <a asp-action="AnnouncementList" class="btn btn-secondary">Cancel</a>
 </form>
 
 @section Scripts {
