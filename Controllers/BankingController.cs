@@ -32,7 +32,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
         public IActionResult Index(int membershipId)
         {
             var membership = _context.Memberships
-                .FirstOrDefault(m => m.MembershipId == membershipId);
+                .FirstOrDefault(m =>
+                    m.MembershipId == membershipId);
 
             if (membership == null)
             {
@@ -63,7 +64,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
             int membershipId)
         {
             var membership = _context.Memberships
-                .FirstOrDefault(m => m.MembershipId == membershipId);
+                .FirstOrDefault(m =>
+                    m.MembershipId == membershipId);
 
             if (membership == null)
             {
@@ -128,15 +130,21 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 // GENERATE UNIQUE PAYMENT ID
                 // =================================================
 
-                var paymentId = Guid.NewGuid().ToString();
+                var paymentId =
+                    Guid.NewGuid().ToString();
 
                 // =================================================
                 // SAVE PAYMENT REFERENCE
                 // =================================================
 
-                membership.PaymentReference = paymentId;
-                membership.PaymentStatus = "Pending";
-                membership.PaymentDate = DateTime.Now;
+                membership.PaymentReference =
+                    paymentId;
+
+                membership.PaymentStatus =
+                    "Pending";
+
+                membership.PaymentDate =
+                    DateTime.Now;
 
                 _context.SaveChanges();
 
@@ -144,47 +152,56 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 // BUILD PAYFAST DATA
                 // =================================================
 
-                var paymentData = new Dictionary<string, string>
-                {
-                    ["merchant_id"] = _payFast.MerchantId,
+                var paymentData =
+                    new Dictionary<string, string>
+                    {
+                        ["merchant_id"] =
+                            _payFast.MerchantId,
 
-                    ["merchant_key"] = _payFast.MerchantKey,
+                        ["merchant_key"] =
+                            _payFast.MerchantKey,
 
-                    ["return_url"] =
-                        "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentSuccess?membershipId="
-                        + membershipId,
+                        ["return_url"] =
+                            "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentSuccess?membershipId="
+                            + membershipId,
 
-                    ["cancel_url"] =
-                        "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentCancelled?membershipId="
-                        + membershipId,
+                        ["cancel_url"] =
+                            "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentCancelled?membershipId="
+                            + membershipId,
 
-                    ["notify_url"] =
-                        "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentNotify",
+                        ["notify_url"] =
+                            "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentNotify",
 
-                    ["name_first"] = "Test",
+                        ["name_first"] =
+                            "Test",
 
-                    ["name_last"] = "Customer",
+                        ["name_last"] =
+                            "Customer",
 
-                    ["email_address"] = "test@test.com",
+                        ["email_address"] =
+                            "test@test.com",
 
-                    ["m_payment_id"] = paymentId,
+                        ["m_payment_id"] =
+                            paymentId,
 
-                    ["amount"] =
-                        membership.Price.ToString(
-                            "0.00",
-                            CultureInfo.InvariantCulture),
+                        ["amount"] =
+                            membership.Price.ToString(
+                                "0.00",
+                                CultureInfo.InvariantCulture),
 
-                    ["item_name"] =
-                        "DUT Campus FIT Gym Membership"
-                };
+                        ["item_name"] =
+                            "DUT Campus FIT Gym Membership"
+                    };
 
                 // =================================================
                 // GENERATE CHECKOUT SIGNATURE
                 // =================================================
 
-                var signature = GenerateSignature(paymentData);
+                var signature =
+                    GenerateSignature(paymentData);
 
-                paymentData["signature"] = signature;
+                paymentData["signature"] =
+                    signature;
 
                 _logger.LogInformation(
                     "PayFast payment initiated for Membership: {MembershipId}, Payment ID: {PaymentId}",
@@ -226,7 +243,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
         private string GenerateSignature(
             Dictionary<string, string> data)
         {
-            var parameterString = new StringBuilder();
+            var parameterString =
+                new StringBuilder();
 
             foreach (var item in data)
             {
@@ -235,14 +253,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     continue;
                 }
 
-                var value = item.Value.Trim();
+                var value =
+                    item.Value.Trim();
 
-                value = Uri.EscapeDataString(value)
-                    .Replace("%20", "+");
+                value =
+                    Uri.EscapeDataString(value)
+                        .Replace("%20", "+");
 
-                parameterString.Append(item.Key);
+                parameterString.Append(
+                    item.Key);
+
                 parameterString.Append("=");
+
                 parameterString.Append(value);
+
                 parameterString.Append("&");
             }
 
@@ -265,14 +289,53 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "PAYFAST CHECKOUT SIGNATURE STRING: {SignatureString}",
                 signatureString);
 
-            using var md5 = MD5.Create();
+            using var md5 =
+                MD5.Create();
 
-            var hash = md5.ComputeHash(
-                Encoding.UTF8.GetBytes(
-                    signatureString));
+            var hash =
+                md5.ComputeHash(
+                    Encoding.UTF8.GetBytes(
+                        signatureString));
 
             return Convert.ToHexString(hash)
                 .ToLowerInvariant();
+        }
+
+        // =========================================================
+        // GET MEMBERSHIP DURATION
+        // =========================================================
+        //
+        // This determines how long the membership should last
+        // based on the plan the student purchased.
+        //
+        // Monthly      = 1 month
+        // Quarterly    = 3 months
+        // Half-Yearly  = 6 months
+        // Annually     = 12 months
+        // =========================================================
+
+        private int GetMembershipDurationMonths(
+            string? membershipType)
+        {
+            return membershipType?.Trim().ToLowerInvariant()
+                switch
+            {
+                "monthly" => 1,
+
+                "quarterly" => 3,
+
+                "half_yearly" => 6,
+
+                "half-yearly" => 6,
+
+                "half yearly" => 6,
+
+                "annually" => 12,
+
+                "annual" => 12,
+
+                _ => 1
+            };
         }
 
         // =========================================================
@@ -280,17 +343,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
-        public IActionResult PaymentSuccess(int membershipId)
+        public IActionResult PaymentSuccess(
+            int membershipId)
         {
             try
             {
-                _logger.LogInformation(
-                    "PaymentSuccess reached for Membership ID: {MembershipId}",
-                    membershipId);
-
-                var membership = _context.Memberships
-                    .FirstOrDefault(m =>
-                        m.MembershipId == membershipId);
+                var membership =
+                    _context.Memberships
+                        .FirstOrDefault(
+                            m =>
+                                m.MembershipId ==
+                                membershipId);
 
                 if (membership == null)
                 {
@@ -301,17 +364,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     return NotFound();
                 }
 
-                // If ITN already activated membership
+                // ITN has already activated membership
                 if (membership.Status == "Active")
                 {
                     return RedirectToAction(
                         "PaymentComplete",
-                        new { membershipId });
+                        new
+                        {
+                            membershipId
+                        });
                 }
 
-                // Payment was successful on PayFast,
-                // but ITN has not updated the database yet.
-                ViewBag.MembershipId = membershipId;
+                // ITN is still being processed
+                ViewBag.MembershipId =
+                    membershipId;
 
                 ViewBag.Message =
                     "Your payment was successful. We are confirming your payment with PayFast.";
@@ -332,35 +398,41 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         // =========================================================
-        // PAYMENT NOTIFY / PAYFAST ITN
+        // PAYFAST ITN / PAYMENT NOTIFICATION
         // =========================================================
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> PaymentNotify()
         {
             try
             {
+                // -------------------------------------------------
+                // READ RAW REQUEST BODY
+                // -------------------------------------------------
+
+                Request.EnableBuffering();
+
+                using var reader =
+                    new StreamReader(
+                        Request.Body,
+                        Encoding.UTF8,
+                        leaveOpen: true);
+
+                var rawBody =
+                    await reader.ReadToEndAsync();
+
+                Request.Body.Position = 0;
+
                 _logger.LogInformation(
-                    "========== PAYFAST ITN RECEIVED ==========");
+                    "PAYFAST RAW ITN BODY: {RawBody}",
+                    rawBody);
 
                 // -------------------------------------------------
-                // READ FORM
+                // READ FORM VALUES
                 // -------------------------------------------------
 
-                var form = await Request.ReadFormAsync();
-
-                foreach (var key in form.Keys)
-                {
-                    _logger.LogInformation(
-                        "ITN FIELD: {Key} = [{Value}]",
-                        key,
-                        form[key].ToString());
-                }
-
-                // -------------------------------------------------
-                // GET RECEIVED SIGNATURE
-                // -------------------------------------------------
+                var form =
+                    await Request.ReadFormAsync();
 
                 var receivedSignature =
                     form["signature"]
@@ -373,7 +445,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     receivedSignature);
 
                 // -------------------------------------------------
-                // BUILD SIGNATURE STRING
+                // BUILD ITN SIGNATURE STRING
                 // -------------------------------------------------
 
                 var signatureParts =
@@ -394,7 +466,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     var encodedValue =
                         Uri.EscapeDataString(
                             value.Trim())
-                        .Replace("%20", "+");
+                            .Replace(
+                                "%20",
+                                "+");
 
                     signatureParts.Add(
                         $"{key}={encodedValue}");
@@ -415,7 +489,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     var encodedPassphrase =
                         Uri.EscapeDataString(
                             _payFast.Passphrase.Trim())
-                        .Replace("%20", "+");
+                        .Replace(
+                            "%20",
+                            "+");
 
                     signatureString +=
                         $"&passphrase={encodedPassphrase}";
@@ -429,7 +505,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 // CALCULATE MD5
                 // -------------------------------------------------
 
-                using var md5 = MD5.Create();
+                using var md5 =
+                    MD5.Create();
 
                 var calculatedSignature =
                     Convert.ToHexString(
@@ -509,14 +586,50 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     return Ok();
                 }
 
-                // -------------------------------------------------
+                // =================================================
                 // PAYMENT COMPLETE
-                // -------------------------------------------------
+                // =================================================
 
                 if (paymentStatus.Equals(
                     "COMPLETE",
                     StringComparison.OrdinalIgnoreCase))
                 {
+                    // -------------------------------------------------
+                    // GET THE ACTUAL MEMBERSHIP DURATION
+                    // -------------------------------------------------
+
+                    var durationMonths =
+                        GetMembershipDurationMonths(
+                            membership.MembershipType);
+
+                    // -------------------------------------------------
+                    // SET START DATE
+                    // -------------------------------------------------
+
+                    var startDate =
+                        DateTime.Now;
+
+                    // -------------------------------------------------
+                    // CALCULATE END DATE
+                    // -------------------------------------------------
+                    //
+                    // Monthly:
+                    //     1 month
+                    //
+                    // Quarterly:
+                    //     3 months
+                    //
+                    // Half-Yearly:
+                    //     6 months
+                    //
+                    // Annually:
+                    //     12 months
+                    // -------------------------------------------------
+
+                    var endDate =
+                        startDate.AddMonths(
+                            durationMonths);
+
                     membership.Status =
                         "Active";
 
@@ -527,10 +640,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         DateTime.Now;
 
                     membership.StartDate =
-                        DateTime.Now;
+                        startDate;
 
                     membership.EndDate =
-                        DateTime.Now.AddMonths(1);
+                        endDate;
 
                     await _context.SaveChangesAsync();
 
@@ -548,6 +661,22 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         membership.MembershipId);
 
                     _logger.LogInformation(
+                        "Membership Type: {MembershipType}",
+                        membership.MembershipType);
+
+                    _logger.LogInformation(
+                        "Duration: {DurationMonths} month(s)",
+                        durationMonths);
+
+                    _logger.LogInformation(
+                        "Start Date: {StartDate}",
+                        startDate);
+
+                    _logger.LogInformation(
+                        "End Date: {EndDate}",
+                        endDate);
+
+                    _logger.LogInformation(
                         "Payment ID: {PaymentId}",
                         mPaymentId);
 
@@ -555,9 +684,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         "========================================");
                 }
 
-                // -------------------------------------------------
+                // =================================================
                 // PAYMENT FAILED / CANCELLED
-                // -------------------------------------------------
+                // =================================================
 
                 else if (
                     paymentStatus.Equals(
@@ -579,9 +708,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         paymentStatus);
                 }
 
-                _logger.LogInformation(
-                    "========== END PAYFAST ITN ==========");
-
                 return Ok();
             }
             catch (Exception ex)
@@ -590,7 +716,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     ex,
                     "Error processing PayFast ITN");
 
-                // Return OK so PayFast does not keep retrying
+                // PayFast should receive an HTTP response
+                // even when an internal error occurs.
                 return Ok();
             }
         }
@@ -693,51 +820,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(
                 "~/Views/Banking/Processing.cshtml");
-        }
-
-        // =========================================================
-        // PAYMENT CANCELLED
-        // =========================================================
-
-        [HttpGet]
-        public IActionResult PaymentCancelled(
-            int membershipId)
-        {
-            try
-            {
-                var membership =
-                    _context.Memberships
-                        .FirstOrDefault(
-                            m =>
-                                m.MembershipId ==
-                                membershipId);
-
-                if (membership != null)
-                {
-                    membership.PaymentStatus =
-                        "Cancelled";
-
-                    _context.SaveChanges();
-                }
-
-                TempData["Error"] =
-                    "Your PayFast payment was cancelled.";
-
-                return RedirectToAction(
-                    "Membership",
-                    "Member");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error in PaymentCancelled for Membership: {MembershipId}",
-                    membershipId);
-
-                return RedirectToAction(
-                    "Membership",
-                    "Member");
-            }
         }
     }
 }

@@ -2,65 +2,354 @@
 
 @{
     ViewData["Title"] = "My Membership";
+
+    string statusClass = Model?.Status switch
+    {
+        "Active" => "status-active",
+        "WaitingForPayment" => "status-payment",
+        "Pending" => "status-pending",
+        "Rejected" => "status-rejected",
+        _ => "status-inactive"
+    };
 }
 
-<div class="container mt-4">
-    <h2>My Gym Membership</h2>
+<div class="membership-page">
+
+    <!-- PAGE HEADER -->
+    <div class="membership-header">
+
+        <div>
+            <span class="membership-label">
+                MEMBERSHIP
+            </span>
+
+            <h1>
+                My Gym Membership
+            </h1>
+
+            <p>
+                View your membership details and payment status.
+            </p>
+        </div>
+
+        <div class="membership-header-icon">
+            <i class="fa-solid fa-id-card"></i>
+        </div>
+
+    </div>
+
 
     @if (Model == null)
     {
-        <div class="alert alert-warning">
-            <p>You don't have an active membership.</p>
-            <a href="@Url.Action("Create", "Member")" class="btn btn-primary">Purchase Membership</a>
+        <!-- NO MEMBERSHIP -->
+        <div class="membership-empty">
+
+            <div class="empty-icon">
+                <i class="fa-solid fa-id-card"></i>
+            </div>
+
+            <h2>
+                No Membership Yet
+            </h2>
+
+            <p>
+                You don't currently have a gym membership.
+                Apply for a membership to get access to the DUT Campus FIT Gym.
+            </p>
+
+            <a asp-controller="Member"
+               asp-action="Create"
+               class="membership-btn">
+
+                <i class="fa-solid fa-plus"></i>
+
+                <span>
+                    Apply for Membership
+                </span>
+
+            </a>
+
         </div>
     }
     else
     {
-        <div class="card">
-            <div class="card-header @(Model.Status == "Active" ? "bg-success" : Model.Status == "WaitingForPayment" ? "bg-warning" : "bg-danger")">
-                <h4 class="mb-0 text-white">Membership Status: @Model.Status</h4>
+        <!-- MEMBERSHIP HERO CARD -->
+        <div class="membership-card">
+
+            <div class="membership-card-top">
+
+                <div>
+
+                    <span class="card-small-label">
+                        DUT CAMPUS FIT GYM
+                    </span>
+
+                    <h2>
+                        @Model.MembershipType
+                    </h2>
+
+                    <p>
+                        Gym Membership
+                    </p>
+
+                </div>
+
+
+                <div class="membership-logo-icon">
+                    <i class="fa-solid fa-dumbbell"></i>
+                </div>
+
             </div>
-            <div class="card-body">
-                <dl class="row">
-                    <dt class="col-sm-4">Membership Type</dt>
-                    <dd class="col-sm-8">@Model.MembershipType</dd>
 
-                    <dt class="col-sm-4">Price</dt>
-                    <dd class="col-sm-8">R @Model.Price.ToString("0.00")</dd>
 
-                    <dt class="col-sm-4">Start Date</dt>
-                    <dd class="col-sm-8">
-                        @(Model.StartDate.HasValue? Model.StartDate.Value.ToString("MMMM dd, yyyy") : "Not yet active")
-                    </dd>
+            <!-- STATUS -->
+            <div class="membership-status-row">
 
-                    <dt class="col-sm-4">End Date</dt>
-                    <dd class="col-sm-8">
-                        @(Model.EndDate.HasValue? Model.EndDate.Value.ToString("MMMM dd, yyyy") : "Not yet active")
-                    </dd>
+                <span class="membership-status @statusClass">
 
-                    @if (Model.Status == "WaitingForPayment")
-                    {
-                        <dt class="col-sm-4">Action</dt>
-                        <dd class="col-sm-8">
-                            <a href="@Url.Action("Index", "Banking", new { membershipId = Model.MembershipId })"
-                               class="btn btn-success">
-                                <i class="fas fa-credit-card"></i> Pay Now
-                            </a>
-                            <span class="text-muted ml-2">Complete your payment to activate membership</span>
-                        </dd>
-                    }
-                    else if (Model.Status == "Active" && Model.EndDate.HasValue)
-                    {
-                        <dt class="col-sm-4">Days Remaining</dt>
-                        <dd class="col-sm-8">
-                            @{
-                                var daysRemaining = (Model.EndDate.Value - DateTime.Today).Days;
-                                <span>@daysRemaining days</span>
-                            }
-                        </dd>
-                    }
-                </dl>
+                    <span class="status-dot"></span>
+
+                    @Model.Status
+
+                </span>
+
             </div>
+
+
+            <!-- PRICE -->
+            <div class="membership-price">
+
+                <span>
+                    Membership Fee
+                </span>
+
+                <strong>
+                    R @Model.Price.ToString("0.00")
+                </strong>
+
+            </div>
+
         </div>
+
+
+        <!-- MEMBERSHIP INFORMATION -->
+        <div class="membership-info-grid">
+
+            <!-- START DATE -->
+            <div class="membership-info-card">
+
+                <div class="info-icon">
+                    <i class="fa-regular fa-calendar-plus"></i>
+                </div>
+
+                <div>
+                    <span>
+                        Start Date
+                    </span>
+
+                    <strong>
+                        @(Model.StartDate.HasValue
+                                            ? Model.StartDate.Value.ToString("dd MMM yyyy")
+                                            : "Not yet active")
+                                                           </strong>
+                                                       </div>
+
+            </div>
+
+
+            <!-- END DATE -->
+            <div class="membership-info-card">
+
+                <div class="info-icon">
+                    <i class="fa-regular fa-calendar-xmark"></i>
+                </div>
+
+                <div>
+                    <span>
+                        End Date
+                    </span>
+
+                    <strong>
+                        @(Model.EndDate.HasValue
+                                            ? Model.EndDate.Value.ToString("dd MMM yyyy")
+                                            : "Not yet active")
+                </strong>
+            </div>
+
+            </div>
+
+
+            <!-- DAYS REMAINING -->
+        @if (Model.Status == "Active" && Model.EndDate.HasValue)
+            {
+                var daysRemaining =
+                Math.Max(0, (Model.EndDate.Value.Date - DateTime.Today).Days);
+
+                <div class="membership-info-card">
+
+                    <div class="info-icon">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+
+                    <div>
+                        <span>
+                            Days Remaining
+                        </span>
+
+                        <strong>
+                            @daysRemaining days
+                        </strong>
+                    </div>
+
+                </div>
+            }
+
+
+            <!-- MEMBERSHIP TYPE -->
+            <div class="membership-info-card">
+
+                <div class="info-icon">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+
+                <div>
+                    <span>
+                        Membership Type
+                    </span>
+
+                    <strong>
+                        @Model.MembershipType
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PAYMENT SECTION -->
+        @if (Model.Status == "WaitingForPayment")
+        {
+            <div class="payment-card">
+
+                <div class="payment-icon">
+                    <i class="fa-solid fa-credit-card"></i>
+                </div>
+
+                <div class="payment-content">
+
+                    <span class="payment-label">
+                        PAYMENT REQUIRED
+                    </span>
+
+                    <h3>
+                        Complete Your Membership Payment
+                    </h3>
+
+                    <p>
+                        Your membership application has been approved.
+                        Complete your payment to activate your membership.
+                    </p>
+
+                </div>
+
+                <a asp-controller="Banking"
+                   asp-action="Index"
+                   asp-route-membershipId="@Model.MembershipId"
+                   class="payment-btn">
+
+                    <i class="fa-solid fa-credit-card"></i>
+
+                    Pay Now
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+            </div>
+        }
+
+
+        <!-- PENDING -->
+        @if (Model.Status == "Pending")
+        {
+            <div class="notice-card notice-pending">
+
+                <div class="notice-icon">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+
+                <div>
+                    <strong>
+                        Membership Under Review
+                    </strong>
+
+                    <p>
+                        Your membership application has been submitted
+                        and is currently waiting for administrator approval.
+                    </p>
+                </div>
+
+            </div>
+        }
+
+
+        <!-- ACTIVE -->
+        @if (Model.Status == "Active")
+        {
+            <div class="notice-card notice-active">
+
+                <div class="notice-icon">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+
+                <div>
+                    <strong>
+                        Your Membership Is Active
+                    </strong>
+
+                    <p>
+                        You're all set! You can use your gym membership
+                        and access the available gym facilities.
+                    </p>
+                </div>
+
+            </div>
+        }
+
+
+        <!-- REJECTED -->
+        @if (Model.Status == "Rejected")
+        {
+            <div class="notice-card notice-rejected">
+
+                <div class="notice-icon">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+
+                <div>
+                    <strong>
+                        Membership Application Rejected
+                    </strong>
+
+                    <p>
+                        Your membership application was not approved.
+                        Please contact gym administration for assistance.
+                    </p>
+                </div>
+
+            </div>
+        }
+
     }
+
 </div>
+
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/membership.css"
+          asp-append-version="true" />
+
+}

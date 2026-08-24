@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="utf-8" />
@@ -9,26 +10,55 @@
 
     <title>@ViewData["Title"] - DUT Campus FIT Gym</title>
 
-    <!-- Bootstrap -->
+
+    <!-- =========================================
+         BOOTSTRAP
+         ========================================= -->
+
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+
+    <!-- =========================================
+         SITE CSS
+         ========================================= -->
 
     <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
 
+
+    <!-- =========================================
+         MEMBER CREATE CSS
+         ========================================= -->
+
     <link rel="stylesheet"
           href="~/css/Member-Create.css"
           asp-append-version="true" />
 
+
+    <!-- =========================================
+         WORKOUT CSS
+         ========================================= -->
+
     <link rel="stylesheet"
-      href="~/css/Workout.css"
-      asp-append-version="true" />
+          href="~/css/Workout.css"
+          asp-append-version="true" />
 
 
+    <!-- =========================================
+         MEMBERSHIP CSS
+         ========================================= -->
+
+    <link rel="stylesheet"
+          href="~/css/membership.css"
+          asp-append-version="true" />
 
 
-    <!-- Google Fonts -->
+    <!-- =========================================
+         GOOGLE FONT
+         ========================================= -->
+
     <link rel="preconnect"
           href="https://fonts.googleapis.com" />
 
@@ -39,37 +69,61 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
           rel="stylesheet" />
 
-    <!-- Website Favicon -->
+
+    <!-- =========================================
+         FAVICON
+         ========================================= -->
+
     <link rel="icon"
           type="image/png"
           href="~/images/DUT_Campus_FIT_Gym_Emblem.png" />
 
-    <!-- Bootstrap Icons -->
+
+    <!-- =========================================
+         BOOTSTRAP ICONS
+         ========================================= -->
+
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-    <!-- Font Awesome -->
+
+    <!-- =========================================
+         FONT AWESOME
+         ========================================= -->
+
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
+
+    <!-- =========================================
+         PAGE-SPECIFIC STYLES
+         ========================================= -->
     @await RenderSectionAsync("Styles", required: false)
 
 </head>
 
+
 <body>
 
-    @if (ViewContext.RouteData.Values["controller"]?.ToString() != "Account")
+    @if (User.IsInRole("Student"))
     {
         <div class="app-layout">
 
-            <!-- SIDEBAR -->
-            <aside class="sidebar">
+            <!-- =========================================
+                 STUDENT SIDEBAR
+                 ========================================= -->
 
-                <!-- SIDEBAR BRAND -->
+            <aside class="sidebar" id="studentSidebar">
+
+
+                <!-- =====================================
+                     SIDEBAR BRAND + TOGGLE
+                     ===================================== -->
+
                 <div class="sidebar-brand">
 
                     <img src="~/images/DUT-logo.jpg"
-                         alt="DUT Campus FIT Gym"
+                         alt="DUT Logo"
                          class="gym-logo" />
 
                     <div class="brand-text">
@@ -81,10 +135,26 @@
 
                     </div>
 
+
+                    <!-- SIDEBAR TOGGLE -->
+
+                    <button type="button"
+                            class="sidebar-toggle"
+                            id="sidebarToggle"
+                            aria-label="Toggle sidebar"
+                            title="Collapse sidebar">
+
+                        <i class="fa-solid fa-bars"></i>
+
+                    </button>
+
                 </div>
 
 
-                <!-- NAVIGATION -->
+                <!-- =====================================
+                     NAVIGATION
+                     ===================================== -->
+
                 <nav class="sidebar-nav">
 
                     <div class="nav-title">
@@ -93,202 +163,255 @@
 
 
                     <!-- DASHBOARD -->
+
                     <a asp-controller="Member"
                        asp-action="Dashboard"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Member" &&
+                                                                    ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard"
+                                                                    ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="bi bi-house-fill"></i>
+                    <span class="sidebar-icon">
+                        <i class="bi bi-house-fill"></i>
+                    </span>
+
+                        <span>
+                            Dashboard
                         </span>
-
-                        <span>Dashboard</span>
 
                     </a>
 
 
                     <!-- PROFILE -->
+
                     <a asp-controller="Member"
                        asp-action="Profile"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Member" &&
+                                                                ViewContext.RouteData.Values["action"]?.ToString() == "Profile"
+                                                                ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="bi bi-person-fill"></i>
+                    <span class="sidebar-icon">
+                        <i class="bi bi-person-fill"></i>
+                    </span>
+
+                        <span>
+                            Profile
                         </span>
-
-                        <span>Profile</span>
 
                     </a>
 
 
                     <!-- CREATE MEMBERSHIP -->
+
                     <a asp-controller="Member"
                        asp-action="Create"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Member" &&
+                                                                ViewContext.RouteData.Values["action"]?.ToString() == "Create"
+                                                                ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="fa-solid fa-plus-circle"></i>
+                    <span class="sidebar-icon">
+                        <i class="fa-solid fa-plus-circle"></i>
+                    </span>
+
+                        <span>
+                            Create Membership
                         </span>
-
-                        <span>Create Membership</span>
 
                     </a>
 
 
                     <!-- MEMBERSHIP -->
+
                     <a asp-controller="Member"
                        asp-action="Membership"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Membership" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Member" &&
+                                                                ViewContext.RouteData.Values["action"]?.ToString() == "Membership"
+                                                                ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="bi bi-person-vcard-fill"></i>
+                    <span class="sidebar-icon">
+                        <i class="bi bi-person-vcard-fill"></i>
+                    </span>
+
+                        <span>
+                            Membership
                         </span>
-
-                        <span>Membership</span>
 
                     </a>
 
 
                     <!-- VIRTUAL GYM CARD -->
+
                     <a asp-controller="Member"
                        asp-action="GymCard"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "GymCard" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Member" &&
+                                                                ViewContext.RouteData.Values["action"]?.ToString() == "GymCard"
+                                                                ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="bi bi-person-vcard"></i>
+                    <span class="sidebar-icon">
+                        <i class="bi bi-person-vcard"></i>
+                    </span>
+
+                        <span>
+                            Virtual Gym Card
                         </span>
-
-                        <span>Virtual Gym Card</span>
 
                     </a>
 
 
                     <!-- CHECK-IN -->
+
                     <a asp-controller="Member"
                        asp-action="CheckIn"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CheckIn" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Member" &&
+                                                                ViewContext.RouteData.Values["action"]?.ToString() == "CheckIn"
+                                                                ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="bi bi-qr-code-scan"></i>
+                    <span class="sidebar-icon">
+                        <i class="bi bi-qr-code-scan"></i>
+                    </span>
+
+                        <span>
+                            Check-In
                         </span>
-
-                        <span>Check-In</span>
 
                     </a>
 
 
                     <!-- ATTENDANCE -->
+
                     <a asp-controller="Member"
                        asp-action="Attendance"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Attendance" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Member" &&
+                                                                ViewContext.RouteData.Values["action"]?.ToString() == "Attendance"
+                                                                ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="bi bi-calendar-check-fill"></i>
+                    <span class="sidebar-icon">
+                        <i class="bi bi-calendar-check-fill"></i>
+                    </span>
+
+                        <span>
+                            Attendance
                         </span>
-
-                        <span>Attendance</span>
 
                     </a>
 
 
                     <!-- EQUIPMENT -->
+
                     <a asp-controller="Member"
                        asp-action="Equipment"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Equipment" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Member" &&
+                                                                ViewContext.RouteData.Values["action"]?.ToString() == "Equipment"
+                                                                ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="bi bi-universal-access"></i>
+                    <span class="sidebar-icon">
+                        <i class="bi bi-universal-access"></i>
+                    </span>
+
+                        <span>
+                            Equipment
                         </span>
-
-                        <span>Equipment</span>
 
                     </a>
 
 
                     <!-- RESERVATIONS -->
+
                     <a asp-controller="Member"
                        asp-action="Reservations"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Reservations" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Member" &&
+                                                                ViewContext.RouteData.Values["action"]?.ToString() == "Reservations"
+                                                                ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="bi bi-calendar-fill"></i>
+                    <span class="sidebar-icon">
+                        <i class="bi bi-calendar-fill"></i>
+                    </span>
+
+                        <span>
+                            Reservations
                         </span>
-
-                        <span>Reservations</span>
 
                     </a>
 
 
                     <!-- WORKOUT PLAN -->
+
                     <a asp-controller="Workout"
                        asp-action="MyWorkout"
-                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Workout" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Workout"
+                                                                ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="fa-solid fa-person-running"></i>
+                    <span class="sidebar-icon">
+                        <i class="fa-solid fa-person-running"></i>
+                    </span>
+
+                        <span>
+                            Workout Plan
                         </span>
-
-                        <span>Workout Plan</span>
 
                     </a>
 
+
                     <!-- WORKOUT PROFILE -->
-<a asp-controller="WorkoutProfile"
-   asp-action="Index"
-   class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "WorkoutProfile" ? "active" : "")">
 
-    <span class="sidebar-icon">
-        <i class="fa-solid fa-clipboard-user"></i>
-    </span>
+                    <a asp-controller="WorkoutProfile"
+                       asp-action="Index"
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "WorkoutProfile"
+                                                                ? "active" : "")">
 
-    <span>Workout Profile</span>
+                    <span class="sidebar-icon">
+                        <i class="fa-solid fa-clipboard-user"></i>
+                    </span>
 
-</a>
+                        <span>
+                            Workout Profile
+                        </span>
 
+                    </a>
 
 
                     <!-- PAYMENTS -->
-                    <a href="#"
-                       class="sidebar-link">
 
-                        <span class="sidebar-icon">
-                            <i class="bi bi-credit-card-fill"></i>
+                    <a asp-controller="Member"
+                       asp-action="Membership"
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Banking"
+                                                                ? "active" : "")">
+
+                    <span class="sidebar-icon">
+                        <i class="bi bi-credit-card-fill"></i>
+                    </span>
+
+                        <span>
+                            Payments
                         </span>
-
-                        <span>Payments</span>
 
                     </a>
 
 
                     <!-- ANNOUNCEMENTS -->
+
                     <a asp-controller="Member"
                        asp-action="Announcements"
-                       class="sidebar-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Announcements" ? "active" : "")">
+                       class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Member" &&
+                                                                ViewContext.RouteData.Values["action"]?.ToString() == "Announcements"
+                                                                ? "active" : "")">
 
-                        <span class="sidebar-icon">
-                            <i class="bi bi-megaphone-fill"></i>
+                    <span class="sidebar-icon">
+                        <i class="bi bi-megaphone-fill"></i>
+                    </span>
+
+                        <span>
+                            Announcements
                         </span>
-
-                        <span>Announcements</span>
-
-                    </a>
-
-
-                    <!-- SUPPORT -->
-                    <a href="#"
-                       class="sidebar-link">
-
-                        <span class="sidebar-icon">
-                            <i class="bi bi-question-circle-fill"></i>
-                        </span>
-
-                        <span>Support</span>
 
                     </a>
 
                 </nav>
 
 
-                <!-- LOGOUT -->
+                <!-- =========================================
+                     LOGOUT
+                     ========================================= -->
+
                 <div class="sidebar-bottom">
 
                     <form asp-controller="Account"
@@ -317,7 +440,10 @@
             </aside>
 
 
-            <!-- MAIN CONTENT -->
+            <!-- =========================================
+                 MAIN CONTENT
+                 ========================================= -->
+
             <main class="main-content">
 
                 @RenderBody()
@@ -325,14 +451,22 @@
             </main>
 
         </div>
-    }
+        }
     else
     {
+        <!-- =========================================
+             ADMIN / STAFF / ACCOUNT PAGES
+
+             NO STUDENT SIDEBAR
+             ========================================= -->
         @RenderBody()
     }
 
 
-    <!-- JavaScript -->
+    <!-- =============================================
+         JAVASCRIPT
+         ============================================= -->
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -340,7 +474,69 @@
     <script src="~/js/site.js"
             asp-append-version="true"></script>
 
+
+    <!-- =============================================
+         PAGE-SPECIFIC SCRIPTS
+         ============================================= -->
     @await RenderSectionAsync("Scripts", required: false)
 
+
+    <!-- =============================================
+         SIDEBAR TOGGLE
+         ============================================= -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const sidebar =
+                document.getElementById("studentSidebar");
+
+            const toggleButton =
+                document.getElementById("sidebarToggle");
+
+            if (!sidebar || !toggleButton) {
+                return;
+            }
+
+
+            /* =========================================
+               RESTORE SIDEBAR STATE
+               ========================================= */
+
+            const collapsed =
+                localStorage.getItem("fitGymSidebarCollapsed") === "true";
+
+
+            if (collapsed) {
+
+                document.body.classList.add("sidebar-collapsed");
+
+            }
+
+
+            /* =========================================
+               TOGGLE SIDEBAR
+               ========================================= */
+
+            toggleButton.addEventListener("click", function () {
+
+                document.body.classList.toggle("sidebar-collapsed");
+
+                const isCollapsed =
+                    document.body.classList.contains("sidebar-collapsed");
+
+                localStorage.setItem(
+                    "fitGymSidebarCollapsed",
+                    isCollapsed
+                );
+
+            });
+
+        });
+
+    </script>
+
 </body>
+
 </html>

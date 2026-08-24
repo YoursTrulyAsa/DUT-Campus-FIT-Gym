@@ -10,7 +10,11 @@
         <!-- TOP BAR -->
         <div class="dashboard-topbar">
 
-            <div>
+            <div class="dashboard-welcome">
+
+                <span class="dashboard-label">
+                    MEMBER DASHBOARD
+                </span>
 
                 <h1>
                     Welcome Back, @Model.Member.Name 👋
@@ -24,9 +28,19 @@
 
             <div class="user-badge">
 
-                <i class="fa-solid fa-user"></i>
+                <div class="user-badge-icon">
+                    <i class="fa-solid fa-user"></i>
+                </div>
 
-                <span>Student</span>
+                <div>
+                    <strong>
+                        @Model.Member.Name @Model.Member.Surname
+                    </strong>
+
+                    <span>
+                        Student
+                    </span>
+                </div>
 
             </div>
 
@@ -37,15 +51,19 @@
         <div class="dashboard-stats">
 
             <!-- MEMBERSHIP -->
-            <div class="stat-card">
+            <a asp-controller="Member"
+               asp-action="Membership"
+               class="stat-card stat-card-link">
 
                 <div class="stat-icon">
                     <i class="fa-solid fa-id-card"></i>
                 </div>
 
-                <div>
+                <div class="stat-content">
 
-                    <span>Membership</span>
+                    <span>
+                        Membership
+                    </span>
 
                     <h3>
                         @(Model.Membership != null
@@ -55,39 +73,52 @@
 
                 </div>
 
-            </div>
+                <i class="fa-solid fa-chevron-right stat-arrow"></i>
+
+            </a>
 
 
             <!-- ATTENDANCE -->
-            <div class="stat-card">
+            <a asp-controller="Member"
+               asp-action="Attendance"
+               class="stat-card stat-card-link">
 
                 <div class="stat-icon">
                     <i class="fa-solid fa-calendar-check"></i>
                 </div>
 
-                <div>
+                <div class="stat-content">
 
-                    <span>Attendance</span>
+                    <span>
+                        Attendance
+                    </span>
 
                     <h3>
-                        @Model.AttendanceCount Visits
+                        @Model.AttendanceCount
+                        @(Model.AttendanceCount == 1 ? "Visit" : "Visits")
                     </h3>
 
                 </div>
 
-            </div>
+                <i class="fa-solid fa-chevron-right stat-arrow"></i>
+
+            </a>
 
 
             <!-- RESERVATIONS -->
-            <div class="stat-card">
+            <a asp-controller="Member"
+               asp-action="Reservations"
+               class="stat-card stat-card-link">
 
                 <div class="stat-icon">
                     <i class="fa-solid fa-dumbbell"></i>
                 </div>
 
-                <div>
+                <div class="stat-content">
 
-                    <span>Reservations</span>
+                    <span>
+                        Reservations
+                    </span>
 
                     <h3>
                         @Model.ReservationCount Active
@@ -95,21 +126,25 @@
 
                 </div>
 
-            </div>
+                <i class="fa-solid fa-chevron-right stat-arrow"></i>
+
+            </a>
 
 
             <!-- ANNOUNCEMENTS -->
             <a asp-controller="Member"
                asp-action="Announcements"
-               class="stat-card dashboard-stat-link">
+               class="stat-card stat-card-link">
 
                 <div class="stat-icon">
                     <i class="fa-solid fa-bullhorn"></i>
                 </div>
 
-                <div>
+                <div class="stat-content">
 
-                    <span>Announcements</span>
+                    <span>
+                        Announcements
+                    </span>
 
                     <h3>
                         Latest Updates
@@ -117,12 +152,14 @@
 
                 </div>
 
+                <i class="fa-solid fa-chevron-right stat-arrow"></i>
+
             </a>
 
         </div>
 
 
-        <!-- DASHBOARD GRID -->
+        <!-- MAIN DASHBOARD GRID -->
         <div class="dashboard-grid">
 
 
@@ -143,48 +180,93 @@
 
                     </div>
 
-                    <i class="fa-solid fa-person-running"></i>
+                    <div class="card-icon">
+                        <i class="fa-solid fa-person-running"></i>
+                    </div>
 
                 </div>
 
-                @if (Model.Workouts != null && Model.Workouts.Count > 0)
+
+                @if (Model.Workouts != null &&
+                                Model.Workouts.Count > 0)
                 {
                     var latestWorkout = Model.Workouts[0];
 
-                    <p class="workout-name">
-                        @latestWorkout.WorkoutName
-                    </p>
+                    <div class="workout-preview">
 
-                    <p class="card-description">
-                        <strong>Exercise:</strong> @latestWorkout.ExerciseName<br />
-                        <strong>Day:</strong> @latestWorkout.WorkoutDay<br />
-                        <strong>Sets:</strong> @latestWorkout.Sets |
-                        <strong>Reps:</strong> @latestWorkout.Repetitions
-                    </p>
+                        <p class="workout-name">
+                            @latestWorkout.WorkoutName
+                        </p>
+
+                        <div class="workout-details">
+
+                            <div>
+                                <span>Exercise</span>
+                                <strong>
+                                    @latestWorkout.ExerciseName
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Day</span>
+                                <strong>
+                                    @latestWorkout.WorkoutDay
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Sets</span>
+                                <strong>
+                                    @latestWorkout.Sets
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Reps</span>
+                                <strong>
+                                    @latestWorkout.Repetitions
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
                 }
                 else
                 {
-                    <p class="workout-name">
-                        No workout plan yet
-                    </p>
+                    <div class="empty-state">
 
-                    <p class="card-description">
-                        Your personalized workout plan will appear here
-                        once it has been created.
-                    </p>
+                        <div class="empty-state-icon">
+                            <i class="fa-solid fa-person-running"></i>
+                        </div>
+
+                        <p>
+                            No workout plan yet.
+                        </p>
+
+                        <span>
+                            Your personalized workout plan will appear
+                            here once it has been created.
+                        </span>
+
+                    </div>
                 }
+
 
                 <a asp-controller="Workout"
                    asp-action="MyWorkout"
                    class="dashboard-btn">
 
-                    View Workout
+                    <span>View Workout</span>
+
+                    <i class="fa-solid fa-arrow-right"></i>
 
                 </a>
 
             </section>
 
-            <!-- WORKOUT PROFILE -->
+
+            <!-- FITNESS PROFILE -->
             <section class="dashboard-card">
 
                 <div class="card-heading">
@@ -196,52 +278,90 @@
                         </span>
 
                         <h2>
-                            My Fitness Profile
+                            Fitness Profile
                         </h2>
 
                     </div>
 
-                    <i class="fa-solid fa-clipboard-user"></i>
+                    <div class="card-icon">
+                        <i class="fa-solid fa-clipboard-user"></i>
+                    </div>
 
                 </div>
 
 
                 @if (Model.WorkoutProfile != null)
                 {
-                    <div class="card-description">
+                    <div class="fitness-profile">
 
-                        <p>
-                            <strong>Age:</strong>
-                            @Model.WorkoutProfile.Age
-                        </p>
+                        <div class="fitness-item">
 
-                        <p>
-                            <strong>Weight:</strong>
-                            @Model.WorkoutProfile.Weight kg
-                        </p>
+                            <span>
+                                Age
+                            </span>
 
-                        <p>
-                            <strong>Height:</strong>
-                            @Model.WorkoutProfile.Height cm
-                        </p>
+                            <strong>
+                                @Model.WorkoutProfile.Age
+                            </strong>
 
-                        <p>
-                            <strong>Goal:</strong>
-                            @Model.WorkoutProfile.Goal
-                        </p>
+                        </div>
+
+                        <div class="fitness-item">
+
+                            <span>
+                                Weight
+                            </span>
+
+                            <strong>
+                                @Model.WorkoutProfile.Weight kg
+                            </strong>
+
+                        </div>
+
+                        <div class="fitness-item">
+
+                            <span>
+                                Height
+                            </span>
+
+                            <strong>
+                                @Model.WorkoutProfile.Height cm
+                            </strong>
+
+                        </div>
+
+                        <div class="fitness-item">
+
+                            <span>
+                                Goal
+                            </span>
+
+                            <strong>
+                                @Model.WorkoutProfile.Goal
+                            </strong>
+
+                        </div>
 
                     </div>
                 }
                 else
                 {
-                    <p class="workout-name">
-                        No workout profile yet
-                    </p>
+                    <div class="empty-state">
 
-                    <p class="card-description">
-                        Create your workout profile to help personalize
-                        your fitness experience.
-                    </p>
+                        <div class="empty-state-icon">
+                            <i class="fa-solid fa-clipboard-user"></i>
+                        </div>
+
+                        <p>
+                            No fitness profile yet.
+                        </p>
+
+                        <span>
+                            Create your fitness profile to help
+                            personalize your gym experience.
+                        </span>
+
+                    </div>
                 }
 
 
@@ -249,15 +369,21 @@
                    asp-action="Index"
                    class="dashboard-btn">
 
-                    @(Model.WorkoutProfile != null
-                        ? "View Profile"
-                        : "Create Profile")
+                    <span>
+                        @(Model.WorkoutProfile != null
+                                                ? "View Profile"
+                                                : "Create Profile")
+                    </span>
+
+                    <i class="fa-solid fa-arrow-right"></i>
 
                 </a>
 
             </section>
+
+
             <!-- MEMBERSHIP -->
-            <section class="dashboard-card">
+            <section class="dashboard-card membership-dashboard-card">
 
                 <div class="card-heading">
 
@@ -268,47 +394,100 @@
                         </span>
 
                         <h2>
-                            Active Membership
+                            My Membership
                         </h2>
 
                     </div>
 
-                    <i class="fa-solid fa-id-card"></i>
+                    <div class="card-icon">
+                        <i class="fa-solid fa-id-card"></i>
+                    </div>
 
                 </div>
 
 
                 @if (Model.Membership != null)
                 {
-                    <div class="membership-status">
+                    var membershipStatus =
+                    Model.Membership.Status?.ToString() ?? "Unknown";
+
+                    var statusClass =
+                    membershipStatus == "Active"
+                    ? "active"
+                    : membershipStatus == "Pending"
+                    ? "pending"
+                    : membershipStatus == "WaitingForPayment"
+                    ? "waiting"
+                    : membershipStatus == "Rejected"
+                    ? "rejected"
+                    : "inactive";
+
+                    <div class="membership-status @statusClass">
 
                         <span class="status-dot"></span>
 
-                        @Model.Membership.Status
+                        <span>
+                            @membershipStatus
+                        </span>
 
                     </div>
 
                     <p class="card-description">
 
-                        Your gym membership is currently
-                        @Model.Membership.Status.ToLower().
+                        @if (membershipStatus == "Active")
+                        {
+                            <text>
+                                Your gym membership is active.
+                                You can access the gym and use your
+                                membership benefits.
+                            </text>
+                        }
+                        else if (membershipStatus == "WaitingForPayment")
+                        {
+                            <text>
+                                Your membership has been approved.
+                                Complete your payment to activate it.
+                            </text>
+                        }
+                        else if (membershipStatus == "Pending")
+                        {
+                            <text>
+                                Your membership application is waiting
+                                for admin approval.
+                            </text>
+                        }
+                        else if (membershipStatus == "Rejected")
+                        {
+                            <text>
+                                Your membership application was rejected.
+                                Please contact gym administration for
+                                more information.
+                            </text>
+                        }
+                        else
+                        {
+                            <text>
+                                Your membership is currently
+                                @membershipStatus.ToLower().
+                            </text>
+                        }
 
                     </p>
                 }
                 else
                 {
-                    <div class="membership-status">
+                    <div class="membership-status inactive">
 
                         <span class="status-dot"></span>
 
-                        No Membership
+                        <span>
+                            No Membership
+                        </span>
 
                     </div>
 
                     <p class="card-description">
-
-                        You currently do not have a membership.
-
+                        You currently do not have a gym membership.
                     </p>
                 }
 
@@ -317,7 +496,11 @@
                    asp-action="Membership"
                    class="dashboard-btn">
 
-                    View Membership
+                    <span>
+                        View Membership
+                    </span>
+
+                    <i class="fa-solid fa-arrow-right"></i>
 
                 </a>
 
@@ -332,13 +515,21 @@
                     <div>
 
                         <span class="card-label">
-                            QUICK ACTIONS
+                            QUICK ACCESS
                         </span>
 
                         <h2>
-                            What would you like to do?
+                            Gym Access
                         </h2>
 
+                        <p class="quick-actions-description">
+                            Access the features you use most.
+                        </p>
+
+                    </div>
+
+                    <div class="card-icon">
+                        <i class="fa-solid fa-bolt"></i>
                     </div>
 
                 </div>
@@ -346,57 +537,98 @@
 
                 <div class="quick-actions">
 
-                    <!-- CHECK-IN -->
+                    <!-- CHECK IN -->
                     <a asp-controller="Member"
-                       asp-action="CheckIn">
+                       asp-action="CheckIn"
+                       class="quick-action">
 
-                        <i class="fa-solid fa-qrcode"></i>
+                        <div class="quick-action-icon">
+                            <i class="fa-solid fa-qrcode"></i>
+                        </div>
 
-                        Check-In
+                        <div>
+                            <strong>
+                                Check-In
+                            </strong>
+
+                            <span>
+                                Enter the gym
+                            </span>
+                        </div>
+
+                        <i class="fa-solid fa-arrow-right action-arrow"></i>
 
                     </a>
 
 
-                    <!-- VIRTUAL GYM CARD -->
+                    <!-- GYM CARD -->
                     <a asp-controller="Member"
-                       asp-action="GymCard">
+                       asp-action="GymCard"
+                       class="quick-action">
 
-                        <i class="fa-solid fa-id-card"></i>
+                        <div class="quick-action-icon">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
 
-                        Virtual Gym Card
+                        <div>
+                            <strong>
+                                Gym Card
+                            </strong>
+
+                            <span>
+                                View your digital card
+                            </span>
+                        </div>
+
+                        <i class="fa-solid fa-arrow-right action-arrow"></i>
 
                     </a>
 
 
-                    <!-- RESERVATIONS -->
+                    <!-- EQUIPMENT -->
                     <a asp-controller="Member"
-                       asp-action="Reservations">
+                       asp-action="Equipment"
+                       class="quick-action">
 
-                        <i class="fa-solid fa-calendar-plus"></i>
+                        <div class="quick-action-icon">
+                            <i class="fa-solid fa-dumbbell"></i>
+                        </div>
 
-                        Reserved Equipment
+                        <div>
+                            <strong>
+                                Equipment
+                            </strong>
+
+                            <span>
+                                Check gym equipment
+                            </span>
+                        </div>
+
+                        <i class="fa-solid fa-arrow-right action-arrow"></i>
 
                     </a>
 
 
-                    <!-- ATTENDANCE -->
+                    <!-- TRAINER -->
                     <a asp-controller="Member"
-                       asp-action="Attendance">
+                       asp-action="RequestTrainer"
+                       class="quick-action">
 
-                        <i class="fa-solid fa-clock"></i>
+                        <div class="quick-action-icon">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
 
-                        View Attendance
+                        <div>
+                            <strong>
+                                Request Trainer
+                            </strong>
 
-                    </a>
+                            <span>
+                                Get fitness assistance
+                            </span>
+                        </div>
 
-
-                    <!-- REQUEST TRAINER -->
-                    <a asp-controller="Member"
-                       asp-action="RequestTrainer">
-
-                        <i class="fa-solid fa-user-plus"></i>
-
-                        Request Trainer
+                        <i class="fa-solid fa-arrow-right action-arrow"></i>
 
                     </a>
 
@@ -409,3 +641,14 @@
     </div>
 
 </div>
+
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/member-dashboard.css"
+          asp-append-version="true" />
+
+}
+
+

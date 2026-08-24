@@ -82,9 +82,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
 
         // =========================================================
-        // PROFILE
+        // PROFILE - GET
         // =========================================================
 
+        [HttpGet]
         public IActionResult Profile()
         {
             var memberIdClaim = User.FindFirstValue(
@@ -106,6 +107,88 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             return View(member);
+        }
+
+
+        // =========================================================
+        // PROFILE - POST / UPDATE
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Profile(
+            string name,
+            string surname,
+            string phoneNumber)
+        {
+            var memberIdClaim = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (memberIdClaim == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            int memberId = int.Parse(memberIdClaim);
+
+            var member = _context.Members
+                .FirstOrDefault(m => m.MemberId == memberId);
+
+            if (member == null)
+            {
+                return NotFound();
+            }
+
+            // =====================================================
+            // VALIDATE EDITABLE FIELDS
+            // =====================================================
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                ModelState.AddModelError(
+                    "Name",
+                    "Name is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(surname))
+            {
+                ModelState.AddModelError(
+                    "Surname",
+                    "Surname is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+            {
+                ModelState.AddModelError(
+                    "PhoneNumber",
+                    "Phone number is required.");
+            }
+
+            // =====================================================
+            // IF INVALID
+            // =====================================================
+
+            if (!ModelState.IsValid)
+            {
+                return View(member);
+            }
+
+            // =====================================================
+            // UPDATE ONLY ALLOWED FIELDS
+            // =====================================================
+
+            member.Name = name.Trim();
+
+            member.Surname = surname.Trim();
+
+            member.PhoneNumber = phoneNumber.Trim();
+
+            _context.SaveChanges();
+
+            TempData["ProfileSuccess"] =
+                "Your profile has been updated successfully.";
+
+            return RedirectToAction(nameof(Profile));
         }
 
 
@@ -229,26 +312,62 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             // =====================================================
-            // CHECK IF MEMBER ALREADY HAS A MEMBERSHIP
+            // CHECK CURRENT MEMBERSHIP
             // =====================================================
 
-            var existingMembership = _context.Memberships
-                .FirstOrDefault(m => m.MemberId == memberId);
+            var currentMembership = _context.Memberships
+                .Where(m => m.MemberId == memberId)
+                .OrderByDescending(m => m.MembershipId)
+                .FirstOrDefault();
 
-            if (existingMembership != null)
+            if (currentMembership != null)
             {
-                ModelState.AddModelError(
-                    "",
-                    "You already have a membership.");
+                // Active membership
+                if (currentMembership.Status == "Active" &&
+                    currentMembership.EndDate.HasValue &&
+                    currentMembership.EndDate.Value.Date >= DateTime.Today)
+                {
+                    TempData["MembershipError"] =
+                        "You already have an active membership.";
 
-                membershipPage.Name = member.Name;
-                membershipPage.Surname = member.Surname;
-                membershipPage.Email = member.Email;
-                membershipPage.StudentNo = member.StudentNumber;
+                    return RedirectToAction(
+                        nameof(Membership));
+                }
 
-                return View(membershipPage);
+                // Pending membership
+                if (currentMembership.Status == "Pending")
+                {
+                    TempData["MembershipError"] =
+                        "You already have a membership application awaiting admin approval.";
+
+                    return RedirectToAction(
+                        nameof(Membership));
+                }
+
+                // Waiting for payment
+                if (currentMembership.Status == "WaitingForPayment")
+                {
+                    TempData["MembershipError"] =
+                        "You already have an approved membership waiting for payment.";
+
+                    return RedirectToAction(
+                        nameof(Membership));
+                }
             }
 
+            // =====================================================
+            // CHECK WHETHER STUDENT HAS EVER HAD A MEMBERSHIP
+            // =====================================================
+
+            var hasPreviousMembership = _context.Memberships
+                .Any(m => m.MemberId == memberId);
+
+            // =====================================================
+            // FIRST-TIME MEMBER VALUE COMES FROM DATABASE
+            // =====================================================
+
+            membershipPage.First_Time_Member =
+                !hasPreviousMembership;
 
             // =====================================================
             // VALIDATE FORM
@@ -264,7 +383,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(membershipPage);
             }
 
-
             // =====================================================
             // DETERMINE MEMBERSHIP PRICE
             // =====================================================
@@ -278,7 +396,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 _ => 0m
             };
 
-
             // =====================================================
             // FIRST-TIME MEMBER DISCOUNT
             // =====================================================
@@ -291,7 +408,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             decimal finalPrice = price - discount;
-
 
             // =====================================================
             // CREATE MEMBERSHIP
@@ -310,20 +426,18 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 FirstTimeMember =
                     membershipPage.First_Time_Member,
 
-                // IMPORTANT:
-                // Membership has NOT been approved yet.
                 StartDate = null,
+
                 EndDate = null,
 
-                // IMPORTANT:
-                // Student creates application first.
-                // Admin must approve it before payment.
                 Status = "Pending",
 
                 Price = finalPrice,
 
                 PaymentStatus = null,
+
                 PaymentReference = null,
+
                 PaymentDate = null
             };
 
@@ -331,33 +445,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             _context.SaveChanges();
 
-
-            // =====================================================
-            // AFTER CREATING MEMBERSHIP
-            // =====================================================
-            // DO NOT send the student to Banking/Payment.
-            //
-            // The correct flow is:
-            //
-            // Student creates membership
-            //             ↓
-            //          Pending
-            //             ↓
-            //       Admin approves
-            //             ↓
-            //     WaitingForPayment
-            //             ↓
-            //        Student pays
-            //             ↓
-            //          PayFast
-            //             ↓
-            //           Active
-            // =====================================================
-
             TempData["MembershipSuccess"] =
                 "Your membership application has been submitted and is awaiting admin approval.";
 
-            return RedirectToAction("Membership", "Member");
+            return RedirectToAction(
+                nameof(Membership));
         }
 
 

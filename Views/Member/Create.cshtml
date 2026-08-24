@@ -12,6 +12,20 @@
             Create Membership
         </h2>
 
+        @if (Model.IsRenewal)
+        {
+            <div class="alert alert-info">
+                <strong>Membership Renewal</strong>
+                <br />
+                You have previously registered for a gym membership.
+                The first-time membership discount is therefore not available.
+            </div>
+        }
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-3">
+        </div>
+
         <form asp-controller="Member"
               asp-action="Create"
               method="post">
@@ -30,22 +44,26 @@
 
                 <div class="user-detail">
                     <label asp-for="Name">Name</label>
-                    <input asp-for="Name" readonly />
+                    <input asp-for="Name"
+                           readonly />
                 </div>
 
                 <div class="user-detail">
                     <label asp-for="Surname">Surname</label>
-                    <input asp-for="Surname" readonly />
+                    <input asp-for="Surname"
+                           readonly />
                 </div>
 
                 <div class="user-detail">
                     <label asp-for="Email">Email</label>
-                    <input asp-for="Email" readonly />
+                    <input asp-for="Email"
+                           readonly />
                 </div>
 
                 <div class="user-detail">
                     <label asp-for="StudentNo">Student No</label>
-                    <input asp-for="StudentNo" readonly />
+                    <input asp-for="StudentNo"
+                           readonly />
                 </div>
 
             </div>
@@ -67,22 +85,9 @@
 
                         <input asp-for="Payment_Method"
                                type="radio"
-                               value="Cash"
-                               id="cash"
-                               required />
-
-                        <label for="cash">
-                            Cash
-                        </label>
-
-                    </div>
-
-                    <div class="payment-option">
-
-                        <input asp-for="Payment_Method"
-                               type="radio"
                                value="Card"
-                               id="card" />
+                               id="card"
+                               required />
 
                         <label for="card">
                             Card
@@ -104,6 +109,10 @@
                     </div>
 
                 </div>
+
+                <span asp-validation-for="Payment_Method"
+                      class="text-danger">
+                </span>
 
             </div>
 
@@ -152,36 +161,58 @@
 
                 <hr class="membership-divider" />
 
-                <div class="first-time-options">
+                @if (Model.CanClaimFirstTimeDiscount)
+                {
+                    <div class="first-time-options">
 
-                    <div class="first-time-option">
+                        <div class="first-time-option">
 
-                        <input asp-for="First_Time_Member"
-                               type="radio"
-                               value="true"
-                               id="firstYes" />
+                            <input asp-for="First_Time_Member"
+                                   type="radio"
+                                   value="true"
+                                   id="firstYes" />
 
-                        <label for="firstYes">
-                            Yes
-                        </label>
+                            <label for="firstYes">
+                                Yes
+                            </label>
+
+                        </div>
+
+                        <div class="first-time-option">
+
+                            <input asp-for="First_Time_Member"
+                                   type="radio"
+                                   value="false"
+                                   id="firstNo"
+                                   checked />
+
+                            <label for="firstNo">
+                                No
+                            </label>
+
+                        </div>
 
                     </div>
 
-                    <div class="first-time-option">
+                    <small class="text-muted">
+                        First-time members receive a 10% discount.
+                    </small>
+                }
+                else
+                {
+                    <div class="alert alert-secondary mb-0">
 
-                        <input asp-for="First_Time_Member"
-                               type="radio"
-                               value="false"
-                               id="firstNo"
-                               checked />
+                        You have previously registered for a gym membership.
 
-                        <label for="firstNo">
-                            No
-                        </label>
+                        <br />
+
+                        <strong>
+                            First-time membership discount:
+                            Not available
+                        </strong>
 
                     </div>
-
-                </div>
+                }
 
             </div>
 
@@ -191,13 +222,22 @@
             <div class="membership-price-box">
 
                 <div class="price-row">
-                    <span>Membership Price</span>
-                    <strong id="basePrice">R150.00</strong>
+
+                    <span>
+                        Membership Price
+                    </span>
+
+                    <strong id="basePrice">
+                        R150.00
+                    </strong>
+
                 </div>
 
                 <div class="price-row discount-row">
 
-                    <span>First-Time Discount</span>
+                    <span>
+                        First-Time Discount
+                    </span>
 
                     <strong id="discount">
                         R0.00
@@ -209,7 +249,9 @@
 
                 <div class="price-total">
 
-                    <span>Total To Pay</span>
+                    <span>
+                        Total To Pay
+                    </span>
 
                     <strong id="finalPrice">
                         R150.00
@@ -262,27 +304,37 @@
     const finalPrice =
         document.getElementById("finalPrice");
 
+    const canClaimFirstTimeDiscount =
+        @(Model.CanClaimFirstTimeDiscount ? "true" : "false");
+
 
     function calculatePrice() {
 
-        const plan = paymentPlan.value;
+        const plan =
+            paymentPlan.value;
 
-        const price = prices[plan];
-
-        const firstTime =
-            document.querySelector(
-                'input[name="First_Time_Member"]:checked'
-            );
+        const price =
+            prices[plan];
 
         let discountAmount = 0;
 
-        if (firstTime && firstTime.value === "true") {
+        if (canClaimFirstTimeDiscount) {
 
-            discountAmount = price * 0.10;
+            const firstTime =
+                document.querySelector(
+                    'input[name="First_Time_Member"]:checked'
+                );
 
+            if (firstTime &&
+                firstTime.value === "true") {
+
+                discountAmount =
+                    price * 0.10;
+            }
         }
 
-        const total = price - discountAmount;
+        const total =
+            price - discountAmount;
 
 
         basePrice.textContent =

@@ -10,16 +10,24 @@
             Annually
         }
 
-        public string Name { get; set; }
-        public string Surname { get; set; }
-        public string Email { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public string StudentNo { get; set; }
+        public string Surname { get; set; } = string.Empty;
 
-        public string Payment_Method { get; set; }
+        public string Email { get; set; } = string.Empty;
+
+        public string StudentNo { get; set; } = string.Empty;
+
+        public string Payment_Method { get; set; } = string.Empty;
 
         public PAY payments_plan { get; set; }
 
         public bool First_Time_Member { get; set; }
+
+        // Server-controlled values
+        // These are NOT trusted from the browser.
+        public bool CanClaimFirstTimeDiscount { get; set; }
+
+        public bool IsRenewal { get; set; }
     }
 }

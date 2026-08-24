@@ -1,3 +1,7 @@
+/* =========================================
+   GLOBAL
+   ========================================= */
+
 * {
     box-sizing: border-box;
 }
@@ -19,177 +23,262 @@ body {
     width: 100%;
 }
 
+
+/* =========================================
+   SIDEBAR
+   STUDENT / MEMBER ONLY
+   ========================================= */
+
 .sidebar {
-    width: 300px;
+    width: 280px;
     min-height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
     background: #0f172a;
     color: #ffffff;
     display: flex;
     flex-direction: column;
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    padding: 24px 19px;
+    padding: 20px 16px;
     z-index: 1000;
 }
 
+
+/* =========================================
+   SIDEBAR BRAND
+   ========================================= */
+
 .sidebar-brand {
+    min-height: 70px;
     display: flex;
     align-items: center;
-    padding: 8px 17px 30px;
-    border-bottom: 1px solid #475569;
-    margin-bottom: 18px;
+    padding: 8px 10px 20px;
+    border-bottom: 1px solid #334155;
+    margin-bottom: 15px;
 }
 
 .gym-logo {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
     object-fit: contain;
     flex-shrink: 0;
     margin-right: 12px;
 }
 
-.brand-icon {
-    display: none;
-}
-
 .brand-text {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
     .brand-text h4 {
         margin: 0;
         color: #ffffff;
-        font-size: 26px;
+        font-size: 18px;
         font-weight: 700;
-        letter-spacing: -0.5px;
-    }
-
-    .brand-text h4 {
-        margin: 0;
-        color: #ffffff;
-        font-size: 22px;
-        font-weight: 700;
-        letter-spacing: -0.5px;
+        line-height: 1.2;
     }
 
         .brand-text h4 span {
+            display: block;
             color: #60a5fa;
-            font-size: 22px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 3px;
         }
 
+
+/* =========================================
+   NAVIGATION
+   ========================================= */
+
 .sidebar-nav {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    flex: 1;
+    gap: 5px;
+    min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .nav-title {
-    padding: 0 17px;
-    margin: 0 0 8px;
     color: #64748b;
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 1.2px;
+    padding: 8px 15px 7px;
+    white-space: nowrap;
 }
+
+
+/* =========================================
+   SIDEBAR LINKS
+   ========================================= */
 
 .sidebar-link {
+    width: 100%;
+    min-height: 45px;
     display: flex;
     align-items: center;
-    gap: 14px;
-    width: 100%;
-    min-height: 47px;
-    padding: 12px 17px;
-    border-radius: 10px;
+    gap: 13px;
+    padding: 11px 14px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
     color: #cbd5e1;
-    text-decoration: none;
-    font-size: 14px;
+    text-decoration: none !important;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
     font-weight: 500;
-    transition: 0.2s ease;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
-    .sidebar-link:hover {
-        background: #1e293b;
-        color: #ffffff;
-        text-decoration: none;
+
+    /* Remove link underline in every state */
+
+    .sidebar-link,
+    .sidebar-link:visited,
+    .sidebar-link:hover,
+    .sidebar-link:focus,
+    .sidebar-link:active {
+        text-decoration: none !important;
+        border-bottom: none !important;
     }
 
-    .sidebar-link.active {
-        background: #2563eb;
-        color: #ffffff;
-        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.25);
-    }
 
-        .sidebar-link.active:hover {
+        /* Hover */
+
+        .sidebar-link:hover {
+            background: #1e293b;
+            color: #ffffff;
+            outline: none;
+        }
+
+
+        /* Active */
+
+        .sidebar-link.active {
             background: #2563eb;
             color: #ffffff;
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.25);
         }
+
+            .sidebar-link.active:hover {
+                background: #2563eb;
+                color: #ffffff;
+            }
+
+
+/* =========================================
+   SIDEBAR ICON
+   ========================================= */
 
 .sidebar-icon {
     width: 20px;
     min-width: 20px;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     font-size: 16px;
 }
 
+
+/* =========================================
+   LOGOUT
+   ========================================= */
+
 .sidebar-bottom {
-    border-top: 1px solid #475569;
-    padding-top: 14px;
-    margin-top: 15px;
+    padding-top: 12px;
+    margin-top: 12px;
+    /* No line above Logout */
+    border-top: none;
 }
 
-.logout-link {
-    color: #cbd5e1;
-}
-
-    .logout-link:hover {
-        background: #1e293b;
-        color: #ffffff;
+    .sidebar-bottom form {
+        margin: 0;
+        padding: 0;
     }
 
-.sidebar-bottom form {
-    margin: 0;
-}
+
+/* Logout button */
 
 .logout-link {
-    border: none;
-    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    border: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+    background: transparent;
+    color: #cbd5e1;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    font-family: 'Poppins', sans-serif;
     cursor: pointer;
     text-align: left;
 }
 
-    .logout-link:hover {
+
+    /* Logout hover/focus */
+
+    .logout-link:hover,
+    .logout-link:focus,
+    .logout-link:active {
         background: #1e293b;
         color: #ffffff;
+        text-decoration: none !important;
+        border: none !important;
+        border-bottom: none !important;
+        outline: none !important;
+        box-shadow: none !important;
     }
 
-.main-content {
-    margin-left: 300px;
-    width: calc(100% - 300px);
-    min-height: 100vh;
-    background: #f5f7fb;
-}
 
-.sidebar::-webkit-scrollbar {
+    /* Prevent pseudo-elements */
+
+    .logout-link::before,
+    .logout-link::after {
+        display: none !important;
+        content: none !important;
+    }
+
+
+/* =========================================
+   SIDEBAR SCROLLBAR
+   ========================================= */
+
+.sidebar-nav::-webkit-scrollbar {
     width: 4px;
 }
 
-.sidebar::-webkit-scrollbar-track {
+.sidebar-nav::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.sidebar::-webkit-scrollbar-thumb {
+.sidebar-nav::-webkit-scrollbar-thumb {
     background: #334155;
     border-radius: 10px;
 }
+
+
+/* =========================================
+   MAIN CONTENT
+   ========================================= */
+
+.main-content {
+    min-height: 100vh;
+    margin-left: 280px;
+    width: calc(100% - 280px);
+    background: #f5f7fb;
+}
+
+
+/* =========================================
+   MEMBER DASHBOARD
+   ========================================= */
 
 .member-dashboard {
     min-height: 100vh;
@@ -201,6 +290,11 @@ body {
     width: 100%;
     padding: 38px 40px;
 }
+
+
+/* =========================================
+   DASHBOARD TOP BAR
+   ========================================= */
 
 .dashboard-topbar {
     display: flex;
@@ -238,6 +332,11 @@ body {
     .user-badge i {
         color: #3b82f6;
     }
+
+
+/* =========================================
+   DASHBOARD STATS
+   ========================================= */
 
 .dashboard-stats {
     display: grid;
@@ -284,6 +383,11 @@ body {
     font-weight: 600;
 }
 
+
+/* =========================================
+   DASHBOARD GRID
+   ========================================= */
+
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -301,6 +405,11 @@ body {
 .quick-actions-card {
     grid-column: 1 / -1;
 }
+
+
+/* =========================================
+   CARD HEADING
+   ========================================= */
 
 .card-heading {
     display: flex;
@@ -328,6 +437,11 @@ body {
     letter-spacing: 1px;
 }
 
+
+/* =========================================
+   WORKOUT
+   ========================================= */
+
 .workout-name {
     color: #1e3a8a;
     font-size: 24px;
@@ -340,6 +454,11 @@ body {
     font-size: 14px;
     margin-bottom: 20px;
 }
+
+
+/* =========================================
+   MEMBERSHIP STATUS
+   ========================================= */
 
 .membership-status {
     display: inline-flex;
@@ -361,13 +480,18 @@ body {
     background: #22c55e;
 }
 
+
+/* =========================================
+   DASHBOARD BUTTON
+   ========================================= */
+
 .dashboard-btn {
     display: inline-block;
     padding: 10px 18px;
     background: #3b82f6;
     border-radius: 9px;
     color: #ffffff;
-    text-decoration: none;
+    text-decoration: none !important;
     font-size: 13px;
     font-weight: 600;
     transition: 0.2s ease;
@@ -376,8 +500,14 @@ body {
     .dashboard-btn:hover {
         background: #2563eb;
         color: #ffffff;
+        text-decoration: none !important;
         transform: translateY(-1px);
     }
+
+
+/* =========================================
+   QUICK ACTIONS
+   ========================================= */
 
 .quick-actions {
     display: grid;
@@ -395,22 +525,44 @@ body {
         border: 1px solid #e2e8f0;
         border-radius: 10px;
         color: #1e3a8a;
-        text-decoration: none;
+        text-decoration: none !important;
         font-size: 13px;
         font-weight: 600;
         transition: 0.2s ease;
     }
 
+        .quick-actions a:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+            color: #1e3a8a;
+            text-decoration: none !important;
+        }
+
         .quick-actions a i {
             color: #3b82f6;
         }
 
-        .quick-actions a:hover {
-            background: #dbeafe;
-            border-color: #93c5fd;
-        }
+
+/* =========================================
+   GENERAL SIDEBAR UNDERLINE PROTECTION
+   ========================================= */
+
+.sidebar a,
+.sidebar a:visited,
+.sidebar a:hover,
+.sidebar a:focus,
+.sidebar a:active {
+    text-decoration: none !important;
+    border-bottom: none !important;
+}
+
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
 
 @media (max-width: 1100px) {
+
     .dashboard-stats {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -420,15 +572,25 @@ body {
     }
 }
 
+
 @media (max-width: 768px) {
+
+    /* Smaller student sidebar */
+
     .sidebar {
-        width: 75px;
-        padding: 20px 10px;
+        width: 78px;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
     .sidebar-brand {
         justify-content: center;
-        padding: 10px 0 25px;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .gym-logo {
+        margin-right: 0;
     }
 
     .brand-text {
@@ -441,10 +603,11 @@ body {
 
     .sidebar-link {
         justify-content: center;
-        padding: 13px 5px;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
-        .sidebar-link span:last-child {
+        .sidebar-link > span:last-child {
             display: none;
         }
 
@@ -452,10 +615,24 @@ body {
         font-size: 18px;
     }
 
-    .main-content {
-        margin-left: 75px;
-        width: calc(100% - 75px);
+    .logout-link {
+        justify-content: center;
     }
+
+        .logout-link > span:last-child {
+            display: none;
+        }
+
+
+    /* Main content */
+
+    .main-content {
+        margin-left: 78px;
+        width: calc(100% - 78px);
+    }
+
+
+    /* Dashboard */
 
     .dashboard-content {
         padding: 25px 20px;
@@ -487,7 +664,9 @@ body {
     }
 }
 
+
 @media (max-width: 576px) {
+
     .dashboard-content {
         padding: 20px 15px;
     }
@@ -500,3 +679,115 @@ body {
         align-self: flex-start;
     }
 }
+
+/* =========================================
+   SIDEBAR TOGGLE
+   ========================================= */
+
+.sidebar-brand {
+    position: relative;
+}
+
+.sidebar-toggle {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: auto;
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+    .sidebar-toggle:hover {
+        background: #1e293b;
+        color: #ffffff;
+    }
+
+    .sidebar-toggle:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+
+/* =========================================
+   COLLAPSED SIDEBAR
+   ========================================= */
+
+body.sidebar-collapsed .sidebar {
+    width: 78px;
+}
+
+body.sidebar-collapsed .main-content {
+    margin-left: 78px;
+    width: calc(100% - 78px);
+}
+
+body.sidebar-collapsed .brand-text {
+    display: none;
+}
+
+body.sidebar-collapsed .sidebar-brand {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body.sidebar-collapsed .gym-logo {
+    margin-right: 0;
+}
+
+body.sidebar-collapsed .sidebar-toggle {
+    position: absolute;
+    right: -5px;
+    top: 8px;
+}
+
+body.sidebar-collapsed .sidebar-link {
+    justify-content: center;
+}
+
+    body.sidebar-collapsed .sidebar-link > span:last-child {
+        display: none;
+    }
+
+body.sidebar-collapsed .nav-title {
+    display: none;
+}
+
+/* =========================================
+   SIDEBAR TOGGLE
+   ========================================= */
+
+.sidebar-brand {
+    position: relative;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    top: 8px;
+    right: 4px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+    .sidebar-toggle:hover {
+        background: #1e293b;
+        color: #ffffff;
+    }

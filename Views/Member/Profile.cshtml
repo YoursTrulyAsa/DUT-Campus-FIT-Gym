@@ -15,7 +15,7 @@
             <h1>My Profile</h1>
 
             <p>
-                View your personal DUT Campus FIT Gym information.
+                View and update your personal DUT Campus FIT Gym information.
             </p>
         </div>
 
@@ -32,6 +32,15 @@
     </div>
 
 
+    <!-- SUCCESS MESSAGE -->
+    @if (TempData["ProfileSuccess"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["ProfileSuccess"]
+        </div>
+    }
+
+
     <!-- PROFILE CONTENT -->
     <div class="profile-container">
 
@@ -43,7 +52,7 @@
             </div>
 
             <h2>
-                @Model.Name @Model.Name
+                @Model.Name @Model.Surname
             </h2>
 
             <span class="role-badge">
@@ -77,87 +86,141 @@
             </div>
 
 
-            <!-- DETAILS -->
-            <div class="profile-details">
+            <!-- EDIT FORM -->
+            <form asp-controller="Member"
+                  asp-action="Profile"
+                  method="post">
 
-                <div class="profile-field">
+                @Html.AntiForgeryToken()
 
-                    <span>
-                        First Name
-                    </span>
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
 
-                    <strong>
-                        @Model.Name
-                    </strong>
+
+                <!-- EDITABLE DETAILS -->
+                <div class="profile-details">
+
+                    <div class="profile-field">
+
+                        <label for="name">
+                            First Name
+                        </label>
+
+                        <input type="text"
+                               id="name"
+                               name="name"
+                               value="@Model.Name"
+                               class="form-control"
+                               required />
+
+                        <span class="text-danger"
+                              asp-validation-for="Name">
+                        </span>
+
+                    </div>
+
+
+                    <div class="profile-field">
+
+                        <label for="surname">
+                            Last Name
+                        </label>
+
+                        <input type="text"
+                               id="surname"
+                               name="surname"
+                               value="@Model.Surname"
+                               class="form-control"
+                               required />
+
+                        <span class="text-danger"
+                              asp-validation-for="Surname">
+                        </span>
+
+                    </div>
+
+
+                    <!-- READ-ONLY STUDENT NUMBER -->
+                    <div class="profile-field">
+
+                        <span>
+                            Student / Staff Number
+                        </span>
+
+                        <strong>
+                            @Model.StudentNumber
+                        </strong>
+
+                    </div>
+
+
+                    <!-- READ-ONLY EMAIL -->
+                    <div class="profile-field">
+
+                        <span>
+                            Email Address
+                        </span>
+
+                        <strong>
+                            @Model.Email
+                        </strong>
+
+                    </div>
+
+
+                    <!-- EDITABLE PHONE NUMBER -->
+                    <div class="profile-field">
+
+                        <label for="phoneNumber">
+                            Phone Number
+                        </label>
+
+                        <input type="text"
+                               id="phoneNumber"
+                               name="phoneNumber"
+                               value="@Model.PhoneNumber"
+                               class="form-control"
+                               required />
+
+                        <span class="text-danger"
+                              asp-validation-for="PhoneNumber">
+                        </span>
+
+                    </div>
+
+
+                    <!-- READ-ONLY ROLE -->
+                    <div class="profile-field">
+
+                        <span>
+                            Account Role
+                        </span>
+
+                        <strong>
+                            @Model.Role
+                        </strong>
+
+                    </div>
 
                 </div>
 
 
-                <div class="profile-field">
+                <!-- SAVE BUTTON -->
+                <div class="mt-4">
 
-                    <span>
-                        Last Name
-                    </span>
+                    <button type="submit"
+                            class="btn btn-primary">
 
-                    <strong>
-                        @Model.Name
-                    </strong>
+                        <i class="fa-solid fa-floppy-disk"></i>
 
-                </div>
+                        Save Changes
 
-
-                <div class="profile-field">
-
-                    <span>
-                        Student / Staff Number
-                    </span>
-
-                    <strong>
-                        @Model.StudentNumber
-                    </strong>
+                    </button>
 
                 </div>
 
-
-                <div class="profile-field">
-
-                    <span>
-                        Email Address
-                    </span>
-
-                    <strong>
-                        @Model.Email
-                    </strong>
-
-                </div>
-
-
-                <div class="profile-field">
-
-                    <span>
-                        Phone Number
-                    </span>
-
-                    <strong>
-                        @Model.PhoneNumber
-                    </strong>
-
-                </div>
-
-
-                <div class="profile-field">
-
-                    <span>
-                        Account Role
-                    </span>
-
-                    <strong>
-                        @Model.Role
-                    </strong>
-
-                </div>
-
-            </div>
+            </form>
 
         </div>
 
