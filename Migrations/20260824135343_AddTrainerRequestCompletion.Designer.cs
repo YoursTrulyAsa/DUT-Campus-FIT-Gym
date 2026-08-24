@@ -4,6 +4,7 @@ using DUT_Campus_FIT_Gym.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DUT_Campus_FIT_Gym.Migrations
 {
     [DbContext(typeof(GymDbContext))]
-    partial class GymDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260824135343_AddTrainerRequestCompletion")]
+    partial class AddTrainerRequestCompletion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -196,9 +199,6 @@ namespace DUT_Campus_FIT_Gym.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReservationID"));
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("EquipmentID")
                         .HasColumnType("int");
@@ -404,7 +404,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutPlan", b =>
                 {
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
-                        .WithMany("WorkoutPlans")
+                        .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -415,19 +415,12 @@ namespace DUT_Campus_FIT_Gym.Migrations
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutProfile", b =>
                 {
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
-                        .WithMany("WorkoutProfiles")
+                        .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Member");
-                });
-
-            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Member", b =>
-                {
-                    b.Navigation("WorkoutPlans");
-
-                    b.Navigation("WorkoutProfiles");
                 });
 #pragma warning restore 612, 618
         }

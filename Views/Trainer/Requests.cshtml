@@ -1,5 +1,359 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.TrainerRequest>
+
 @{
+    ViewData["Title"] = "Trainer Requests";
 }
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h1>
+            Trainer Requests
+        </h1>
+
+        <a asp-controller="Trainer"
+           asp-action="Index"
+           class="btn btn-secondary">
+
+            Back to Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- SUCCESS MESSAGE -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+
+    <!-- ERROR MESSAGE -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+
+    <!-- ACTIVE REQUEST -->
+    @if (ViewBag.ActiveRequest != null)
+    {
+        <div class="card shadow border-success mb-4">
+
+            <div class="card-header bg-success text-white">
+
+                <h4 class="mb-0">
+                    Current Active Workout
+                </h4>
+
+            </div>
+
+            <div class="card-body">
+
+                <h5>
+                    Student:
+                    @ViewBag.ActiveRequest.Student.FirstName
+                    @ViewBag.ActiveRequest.Student.LastName
+                </h5>
+
+                <p>
+                    <strong>Email:</strong>
+                    @ViewBag.ActiveRequest.Student.Email
+                </p>
+
+                <p>
+                    <strong>Request:</strong>
+                    @ViewBag.ActiveRequest.RequestMessage
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+
+                    <span class="badge bg-success">
+                        Accepted / In Progress
+                    </span>
+                </p>
+
+
+                <!-- COMPLETE BUTTON -->
+
+                <form asp-controller="Trainer"
+                      asp-action="CompleteRequest"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="id"
+                           value="@ViewBag.ActiveRequest.TrainerRequestId" />
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        ✓ Complete Workout
+
+                    </button>
+
+                </form>
+
+                <small class="text-muted d-block mt-2">
+
+                    Complete this workout before accepting
+                    another student request.
+
+                </small>
+
+            </div>
+
+        </div>
+    }
+
+
+    <!-- ALL REQUESTS -->
+
+    <div class="card shadow">
+
+        <div class="card-header">
+
+            <h4 class="mb-0">
+                Student Requests
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Student
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Request
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var request in Model)
+                            {
+                                <tr>
+
+                                    <td>
+
+                                        @request.Student.FirstName
+                                        @request.Student.LastName
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @request.Student.Email
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @request.RequestMessage
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @request.RequestDate.ToString(
+                                            "dd/MM/yyyy HH:mm")
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @if (request.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        }
+                                        else if (request.Status == "Accepted")
+                                        {
+                                            <span class="badge bg-success">
+                                                In Progress
+                                            </span>
+                                        }
+                                        else if (request.Status == "Completed")
+                                        {
+                                            <span class="badge bg-primary">
+                                                Completed
+                                            </span>
+                                        }
+                                        else if (request.Status == "Rejected")
+                                        {
+                                            <span class="badge bg-danger">
+                                                Rejected
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                @request.Status
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <!-- PENDING -->
+                                        @if (request.Status == "Pending")
+                                        {
+                                            @if (ViewBag.ActiveRequest == null)
+                                            {
+                                                <form asp-controller="Trainer"
+                                                      asp-action="AcceptRequest"
+                                                      method="post"
+                                                      style="display:inline;">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@request.TrainerRequestId" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-success btn-sm">
+
+                                                        Accept
+
+                                                    </button>
+
+                                                </form>
+
+
+                                                <form asp-controller="Trainer"
+                                                      asp-action="RejectRequest"
+                                                      method="post"
+                                                      style="display:inline;">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@request.TrainerRequestId" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-danger btn-sm">
+
+                                                        Reject
+
+                                                    </button>
+
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">
+
+                                                    Finish current workout
+                                                    first.
+
+                                                </span>
+                                            }
+                                        }
+
+
+                                        <!-- ACCEPTED -->
+                                        else if (request.Status == "Accepted")
+                                        {
+                                        <span class="badge bg-success">
+
+                                            Current Workout
+
+                                        </span>
+                                        }
+
+
+                                        <!-- COMPLETED -->
+                                        else if (request.Status == "Completed")
+                                        {
+                                        <span class="badge bg-primary">
+
+                                            Completed
+
+                                        </span>
+                                        }
+
+
+                                        <!-- REJECTED -->
+                                        else if (request.Status == "Rejected")
+                                        {
+                                        <span class="badge bg-danger">
+
+                                            Rejected
+
+                                        </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+
+                    There are currently no trainer requests.
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>

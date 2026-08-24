@@ -862,8 +862,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var trainers = _context.Members
-                .Where(m => m.Role == "Trainer")
+            var trainers = _context.Trainers
+                .OrderBy(t => t.TrainerName)
                 .ToList();
 
             ViewBag.Trainers = trainers;
@@ -892,24 +892,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             int studentId = int.Parse(memberIdClaim);
 
-            // Check that selected trainer exists
-            var trainer = _context.Members
-                .FirstOrDefault(m =>
-                    m.MemberId == trainerId &&
-                    m.Role == "Trainer");
 
-            if (trainer == null)
-            {
-                ModelState.AddModelError(
-                    "",
-                    "Please select a valid trainer.");
-
-                ViewBag.Trainers = _context.Members
-                    .Where(m => m.Role == "Trainer")
-                    .ToList();
-
-                return View();
-            }
+            // ==========================================
+            // VALIDATE MESSAGE
+            // ==========================================
 
             if (string.IsNullOrWhiteSpace(requestMessage))
             {
@@ -917,19 +903,46 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "",
                     "Please explain what assistance you need.");
 
-                ViewBag.Trainers = _context.Members
-                    .Where(m => m.Role == "Trainer")
+                ViewBag.Trainers = _context.Trainers
+                    .OrderBy(t => t.TrainerName)
                     .ToList();
 
                 return View();
             }
 
-            // Check if there is already a pending request
-            var existingRequest = _context.TrainerRequests
-                .FirstOrDefault(r =>
-                    r.StudentId == studentId &&
-                    r.TrainerId == trainerId &&
-                    r.Status == "Pending");
+
+            // ==========================================
+            // FIND TRAINER
+            // ==========================================
+
+            var trainer = _context.Trainers
+                .FirstOrDefault(t =>
+                    t.TrainerId == trainerId);
+
+            if (trainer == null)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Please select a valid trainer.");
+
+                ViewBag.Trainers = _context.Trainers
+                    .OrderBy(t => t.TrainerName)
+                    .ToList();
+
+                return View();
+            }
+
+
+            // ==========================================
+            // CHECK EXISTING PENDING REQUEST
+            // ==========================================
+
+            var existingRequest =
+                _context.TrainerRequests
+                    .FirstOrDefault(r =>
+                        r.StudentId == studentId &&
+                        r.TrainerId == trainerId &&
+                        r.Status == "Pending");
 
             if (existingRequest != null)
             {
@@ -937,25 +950,40 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "",
                     "You already have a pending request with this trainer.");
 
-                ViewBag.Trainers = _context.Members
-                    .Where(m => m.Role == "Trainer")
+                ViewBag.Trainers = _context.Trainers
+                    .OrderBy(t => t.TrainerName)
                     .ToList();
 
                 return View();
             }
 
+
+            // ==========================================
+            // CREATE REQUEST
+            // ==========================================
+
             var request = new TrainerRequest
             {
                 StudentId = studentId,
-                TrainerId = trainerId,
-                RequestMessage = requestMessage,
+
+                TrainerId = trainer.TrainerId,
+
+                RequestMessage = requestMessage.Trim(),
+
                 Status = "Pending",
+
                 RequestDate = DateTime.Now
             };
+
 
             _context.TrainerRequests.Add(request);
 
             _context.SaveChanges();
+
+
+            // ==========================================
+            // SUCCESS
+            // ==========================================
 
             TempData["TrainerRequestSuccess"] =
                 "Your trainer assistance request has been sent.";

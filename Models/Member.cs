@@ -32,5 +32,14 @@ namespace DUT_Campus_FIT_Gym.Models
         public string PasswordHash { get; set; }
 
 
+        // =====================================================
+        // WORKOUT RELATIONSHIPS
+        // =====================================================
+
+        public ICollection<WorkoutPlan> WorkoutPlans { get; set; }
+            = new List<WorkoutPlan>();
+
+        public ICollection<WorkoutProfile> WorkoutProfiles { get; set; }
+            = new List<WorkoutProfile>();
     }
 }
