@@ -1,285 +1,66 @@
-﻿@model DUT_Campus_FIT_Gym.Models.Membership
+﻿@model Membership
 
 @{
     ViewData["Title"] = "My Membership";
-
-    var daysRemaining = Math.Max(
-        0,
-        (Model.EndDate.Date - DateTime.Today).Days
-    );
-
-    var isActive = Model.EndDate.Date >= DateTime.Today;
 }
 
-<div class="membership-page">
+<div class="container mt-4">
+    <h2>My Gym Membership</h2>
 
-    <div class="membership-container">
-
-        <!-- HEADER -->
-
-        <div class="membership-header">
-
-            <div>
-
-                <span class="membership-label">
-                    DUT CAMPUS FIT GYM
-                </span>
-
-                <h1>
-                    My Membership
-                </h1>
-
-                <p>
-                    View your current gym membership details.
-                </p>
-
-            </div>
-
-            <div class="membership-status-badge
-                 @(isActive ? "active" : "expired")">
-
-                <span></span>
-
-                @(isActive ? "ACTIVE" : "EXPIRED")
-
-            </div>
-
+    @if (Model == null)
+    {
+        <div class="alert alert-warning">
+            <p>You don't have an active membership.</p>
+            <a href="@Url.Action("Create", "Member")" class="btn btn-primary">Purchase Membership</a>
         </div>
-
-
-        <!-- MEMBERSHIP CARD -->
-
-        <div class="membership-card">
-
-            <!-- CARD HEADER -->
-
-            <div class="membership-card-header">
-
-                <div>
-
-                    <span class="card-small-label">
-                        MEMBERSHIP PLAN
-                    </span>
-
-                    <h2>
-                        @Model.MembershipType
-                    </h2>
-
-                </div>
-
-                <div class="membership-icon">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header @(Model.Status == "Active" ? "bg-success" : Model.Status == "WaitingForPayment" ? "bg-warning" : "bg-danger")">
+                <h4 class="mb-0 text-white">Membership Status: @Model.Status</h4>
             </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Membership Type</dt>
+                    <dd class="col-sm-8">@Model.MembershipType</dd>
 
+                    <dt class="col-sm-4">Price</dt>
+                    <dd class="col-sm-8">R @Model.Price.ToString("0.00")</dd>
 
-            <!-- MEMBER INFO -->
+                    <dt class="col-sm-4">Start Date</dt>
+                    <dd class="col-sm-8">
+                        @(Model.StartDate.HasValue? Model.StartDate.Value.ToString("MMMM dd, yyyy") : "Not yet active")
+                    </dd>
 
-            <div class="membership-member">
+                    <dt class="col-sm-4">End Date</dt>
+                    <dd class="col-sm-8">
+                        @(Model.EndDate.HasValue? Model.EndDate.Value.ToString("MMMM dd, yyyy") : "Not yet active")
+                    </dd>
 
-                <div class="member-avatar">
-                    <i class="bi bi-person-fill"></i>
-                </div>
-
-                <div>
-
-                    <span>
-                        MEMBER ID
-                    </span>
-
-                    <strong>
-                        @Model.MemberId
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <!-- DATES -->
-
-            <div class="membership-details-grid">
-
-                <div class="membership-detail">
-
-                    <div class="detail-icon">
-                        <i class="bi bi-calendar-check"></i>
-                    </div>
-
-                    <div>
-
-                        <span>
-                            START DATE
-                        </span>
-
-                        <strong>
-                            @Model.StartDate.ToString("dd MMM yyyy")
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="membership-detail">
-
-                    <div class="detail-icon">
-                        <i class="bi bi-calendar-x"></i>
-                    </div>
-
-                    <div>
-
-                        <span>
-                            EXPIRY DATE
-                        </span>
-
-                        <strong>
-                            @Model.EndDate.ToString("dd MMM yyyy")
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="membership-detail">
-
-                    <div class="detail-icon">
-                        <i class="bi bi-clock"></i>
-                    </div>
-
-                    <div>
-
-                        <span>
-                            DAYS REMAINING
-                        </span>
-
-                        <strong>
-                            @daysRemaining days
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="membership-detail">
-
-                    <div class="detail-icon">
-                        <i class="bi bi-credit-card"></i>
-                    </div>
-
-                    <div>
-
-                        <span>
-                            PAYMENT METHOD
-                        </span>
-
-                        <strong>
-                            @Model.PaymentMethod
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- PRICE -->
-
-            <div class="membership-price">
-
-                <div>
-
-                    <span>
-                        MEMBERSHIP PRICE
-                    </span>
-
-                    <strong>
-                        R @Model.Price.ToString("N2")
-                    </strong>
-
-                </div>
-
-                @if (Model.FirstTimeMember)
-                {
-                    <span class="discount-badge">
-                        10% FIRST-TIME DISCOUNT
-                    </span>
-                }
-
-            </div>
-
-
-            <!-- STATUS -->
-
-            <div class="membership-status-panel
-                 @(isActive ? "active" : "expired")">
-
-                <div class="status-icon">
-
-                    @if (isActive)
+                    @if (Model.Status == "WaitingForPayment")
                     {
-                        <i class="bi bi-check-lg"></i>
+                        <dt class="col-sm-4">Action</dt>
+                        <dd class="col-sm-8">
+                            <a href="@Url.Action("Index", "Banking", new { membershipId = Model.MembershipId })"
+                               class="btn btn-success">
+                                <i class="fas fa-credit-card"></i> Pay Now
+                            </a>
+                            <span class="text-muted ml-2">Complete your payment to activate membership</span>
+                        </dd>
                     }
-                    else
+                    else if (Model.Status == "Active" && Model.EndDate.HasValue)
                     {
-                        <i class="bi bi-exclamation-lg"></i>
+                        <dt class="col-sm-4">Days Remaining</dt>
+                        <dd class="col-sm-8">
+                            @{
+                                var daysRemaining = (Model.EndDate.Value - DateTime.Today).Days;
+                                <span>@daysRemaining days</span>
+                            }
+                        </dd>
                     }
-
-                </div>
-
-                <div>
-
-                    <span>
-                        MEMBERSHIP STATUS
-                    </span>
-
-                    <strong>
-                        @(isActive
-                                                ? "Membership Active"
-                                                : "Membership Expired")
-                    </strong>
-
-                    <p>
-                        @(isActive
-                                                ? "Your membership is currently active and you have access to the gym."
-                                                : "Your membership has expired. Please renew your membership to regain access.")
-                    </p>
-
-                </div>
-
+                </dl>
             </div>
-
         </div>
-
-
-        <!-- ACTIONS -->
-
-        <div class="membership-actions">
-
-            <a asp-action="Dashboard"
-               class="membership-back-btn">
-
-                <i class="bi bi-arrow-left"></i>
-
-                Back to Dashboard
-
-            </a>
-
-        </div>
-
-    </div>
-
+    }
 </div>
-
-
-@section Styles {
-
-    <link rel="stylesheet"
-          href="~/css/member-membership.css"
-          asp-append-version="true" />
-
-}

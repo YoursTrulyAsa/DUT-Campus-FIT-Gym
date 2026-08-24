@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "PayFast Payment";
+
+    var paymentData =
+        (Dictionary<string, string>)ViewBag.PaymentData;
+}
+
+<div class="banking-page">
+
+    <div class="banking-right">
+
+        <h1>PayFast Payment</h1>
+
+        <p>Redirecting you to PayFast Sandbox...</p>
+
+        <form id="payfastForm"
+              method="post"
+              action="@ViewBag.PaymentUrl">
+
+            @foreach (var item in paymentData)
+            {
+                <input type="hidden"
+                       name="@item.Key"
+                       value="@item.Value" />
+            }
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    document.getElementById("payfastForm").submit();
+</script>

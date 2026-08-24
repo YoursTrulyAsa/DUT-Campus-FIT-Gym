@@ -3,10 +3,14 @@ using DUT_Campus_FIT_Gym.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.Configure<PayFastSettings>(
+    builder.Configuration.GetSection("PayFast"));
 
 builder.Services.AddAuthentication(
     CookieAuthenticationDefaults.AuthenticationScheme)
@@ -60,9 +64,9 @@ using (var scope = app.Services.CreateScope())
     {
         var admin = new Member
         {
-            FirstName = "System",
-            LastName = "Administrator",
-            StaffStudentNumber = "ADMIN001",
+            Name = "System",
+            Surname = "Administrator",
+            StudentNumber = "ADMIN001",
             Email = adminEmail,
             PhoneNumber = "0000000000",
             Role = "Admin"

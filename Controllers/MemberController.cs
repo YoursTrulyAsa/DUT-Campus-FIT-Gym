@@ -22,7 +22,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context = context;
         }
 
-
         // =========================================================
         // DASHBOARD
         // =========================================================
@@ -48,7 +47,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             var membership = _context.Memberships
-                .FirstOrDefault(m => m.MemberId == memberId);
+                .Where(m => m.MemberId == memberId)
+                .OrderByDescending(m => m.MembershipId)
+                .FirstOrDefault();
 
             var attendanceCount = _context.Attendances
                 .Count(a => a.MemberId == memberId);
@@ -58,15 +59,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     r.MemberID == memberId &&
                     r.Status == "Reserved");
 
-
-            // Get this member's workout plans
             var workouts = _context.WorkoutPlans
                 .Where(w => w.MemberId == memberId)
                 .OrderByDescending(w => w.WorkoutPlanId)
                 .ToList();
 
             var workoutProfile = _context.WorkoutProfiles
-    .FirstOrDefault(p => p.MemberId == memberId);
+                .FirstOrDefault(p => p.MemberId == memberId);
 
             var dashboardData = new
             {
@@ -127,7 +126,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             int memberId = int.Parse(memberIdClaim);
 
             var membership = _context.Memberships
-                .FirstOrDefault(m => m.MemberId == memberId);
+                .Where(m => m.MemberId == memberId)
+                .OrderByDescending(m => m.MembershipId)
+                .FirstOrDefault();
 
             if (membership == null)
             {
@@ -227,7 +228,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return NotFound();
             }
 
-            // Check if member already has membership
+            // =====================================================
+            // CHECK IF MEMBER ALREADY HAS A MEMBERSHIP
+            // =====================================================
 
             var existingMembership = _context.Memberships
                 .FirstOrDefault(m => m.MemberId == memberId);
@@ -247,7 +250,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // Validate form
+            // =====================================================
+            // VALIDATE FORM
+            // =====================================================
 
             if (!ModelState.IsValid)
             {
@@ -260,23 +265,23 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // Determine membership price
+            // =====================================================
+            // DETERMINE MEMBERSHIP PRICE
+            // =====================================================
 
             decimal price = membershipPage.payments_plan switch
             {
                 MembershipPage.PAY.Monthly => 150m,
-
                 MembershipPage.PAY.Quarterly => 400m,
-
                 MembershipPage.PAY.Half_Yearly => 700m,
-
                 MembershipPage.PAY.Annually => 1200m,
-
                 _ => 0m
             };
 
 
-            // First-time member discount
+            // =====================================================
+            // FIRST-TIME MEMBER DISCOUNT
+            // =====================================================
 
             decimal discount = 0m;
 
@@ -288,29 +293,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             decimal finalPrice = price - discount;
 
 
-            // Membership dates
-
-            var startDate = DateTime.Today;
-
-            var endDate = membershipPage.payments_plan switch
-            {
-                MembershipPage.PAY.Monthly =>
-                    startDate.AddMonths(1).AddDays(-1),
-
-                MembershipPage.PAY.Quarterly =>
-                    startDate.AddMonths(3).AddDays(-1),
-
-                MembershipPage.PAY.Half_Yearly =>
-                    startDate.AddMonths(6).AddDays(-1),
-
-                MembershipPage.PAY.Annually =>
-                    startDate.AddYears(1).AddDays(-1),
-
-                _ => startDate
-            };
-
-
-            // Create membership
+            // =====================================================
+            // CREATE MEMBERSHIP
+            // =====================================================
 
             var membership = new Membership
             {
@@ -325,20 +310,54 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 FirstTimeMember =
                     membershipPage.First_Time_Member,
 
-                StartDate = startDate,
+                // IMPORTANT:
+                // Membership has NOT been approved yet.
+                StartDate = null,
+                EndDate = null,
 
-                EndDate = endDate,
+                // IMPORTANT:
+                // Student creates application first.
+                // Admin must approve it before payment.
+                Status = "Pending",
 
-                Status = "Active",
+                Price = finalPrice,
 
-                Price = finalPrice
+                PaymentStatus = null,
+                PaymentReference = null,
+                PaymentDate = null
             };
 
             _context.Memberships.Add(membership);
 
             _context.SaveChanges();
 
-            return RedirectToAction("Membership");
+
+            // =====================================================
+            // AFTER CREATING MEMBERSHIP
+            // =====================================================
+            // DO NOT send the student to Banking/Payment.
+            //
+            // The correct flow is:
+            //
+            // Student creates membership
+            //             ↓
+            //          Pending
+            //             ↓
+            //       Admin approves
+            //             ↓
+            //     WaitingForPayment
+            //             ↓
+            //        Student pays
+            //             ↓
+            //          PayFast
+            //             ↓
+            //           Active
+            // =====================================================
+
+            TempData["MembershipSuccess"] =
+                "Your membership application has been submitted and is awaiting admin approval.";
+
+            return RedirectToAction("Membership", "Member");
         }
 
 
@@ -438,68 +457,47 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var membership = _context.Memberships
                 .Where(m => m.MemberId == memberId)
-                .OrderByDescending(m => m.EndDate)
+                .OrderByDescending(m => m.MembershipId)
                 .FirstOrDefault();
-
-
-            // NO MEMBERSHIP
 
             if (membership == null)
             {
                 return View(new GymCardViewModel
                 {
                     MemberId = member.MemberId,
-
-                    FullName =
-                        $"{member.Name} {member.Surname}",
-
-                    StaffStudentNumber =
-                        member.StudentNumber,
-
-                    Email =
-                        member.Email,
-
-                    Role =
-                        member.Role,
-
-                    Status =
-                        "NO MEMBERSHIP"
+                    FullName = $"{member.Name} {member.Surname}",
+                    StaffStudentNumber = member.StudentNumber,
+                    Email = member.Email,
+                    Role = member.Role,
+                    Status = "NO MEMBERSHIP"
                 });
             }
 
-
-            // MEMBERSHIP STATUS
-
             var status =
-                membership.EndDate.Date >= DateTime.Today
+                membership.Status == "Active" &&
+                membership.EndDate.HasValue &&
+                membership.EndDate.Value.Date >= DateTime.Today
                     ? "ACTIVE"
                     : "EXPIRED";
 
+            var daysRemaining = 0;
 
-            // DAYS REMAINING
-
-            var daysRemaining =
-                Math.Max(
+            if (membership.EndDate.HasValue)
+            {
+                daysRemaining = Math.Max(
                     0,
                     (
-                        membership.EndDate.Date -
+                        membership.EndDate.Value.Date -
                         DateTime.Today
-                    ).Days
-                );
-
-
-            // BARCODE DATA
+                    ).Days);
+            }
 
             var barcodeData =
                 $"DUTGYM:{member.MemberId}";
 
-
-            // CREATE CODE 128 BARCODE
-
             var writer = new BarcodeWriterPixelData
             {
                 Format = BarcodeFormat.CODE_128,
-
                 Options = new EncodingOptions
                 {
                     Width = 500,
@@ -508,26 +506,21 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 }
             };
 
-            var pixelData =
-                writer.Write(barcodeData);
-
-
-            // CREATE IMAGE
+            var pixelData = writer.Write(barcodeData);
 
             using var bitmap = new Bitmap(
                 pixelData.Width,
                 pixelData.Height,
                 PixelFormat.Format32bppRgb);
 
-            var bitmapData =
-                bitmap.LockBits(
-                    new Rectangle(
-                        0,
-                        0,
-                        pixelData.Width,
-                        pixelData.Height),
-                    ImageLockMode.WriteOnly,
-                    PixelFormat.Format32bppRgb);
+            var bitmapData = bitmap.LockBits(
+                new Rectangle(
+                    0,
+                    0,
+                    pixelData.Width,
+                    pixelData.Height),
+                ImageLockMode.WriteOnly,
+                PixelFormat.Format32bppRgb);
 
             System.Runtime.InteropServices.Marshal.Copy(
                 pixelData.Pixels,
@@ -536,9 +529,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 pixelData.Pixels.Length);
 
             bitmap.UnlockBits(bitmapData);
-
-
-            // CONVERT TO BASE64
 
             using var stream = new MemoryStream();
 
@@ -550,46 +540,24 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 Convert.ToBase64String(
                     stream.ToArray());
 
-
-            // CREATE VIEW MODEL
-
             var viewModel = new GymCardViewModel
             {
-                MemberId =
-                    member.MemberId,
-
-                FullName =
-                    $"{member.Name} {member.Surname}",
-
-                StaffStudentNumber =
-                    member.StudentNumber,
-
-                Email =
-                    member.Email,
-
-                Role =
-                    member.Role,
-
-                MembershipId =
-                    membership.MembershipId,
-
-                MembershipType =
-                    membership.MembershipType,
-
+                MemberId = member.MemberId,
+                FullName = $"{member.Name} {member.Surname}",
+                StaffStudentNumber = member.StudentNumber,
+                Email = member.Email,
+                Role = member.Role,
+                MembershipId = membership.MembershipId,
+                MembershipType = membership.MembershipType,
                 StartDate =
-                    membership.StartDate,
-
+                    membership.StartDate ??
+                    DateTime.MinValue,
                 EndDate =
-                    membership.EndDate,
-
-                Status =
-                    status,
-
-                DaysRemaining =
-                    daysRemaining,
-
-                Barcode =
-                    barcodeBase64
+                    membership.EndDate ??
+                    DateTime.MinValue,
+                Status = status,
+                DaysRemaining = daysRemaining,
+                Barcode = barcodeBase64
             };
 
             return View(viewModel);
@@ -623,12 +591,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var membership = _context.Memberships
                 .Where(m => m.MemberId == memberId)
-                .OrderByDescending(m => m.EndDate)
+                .OrderByDescending(m => m.MembershipId)
                 .FirstOrDefault();
 
             bool membershipActive =
                 membership != null &&
-                membership.EndDate.Date >= DateTime.Today;
+                membership.EndDate.HasValue &&
+                membership.EndDate.Value.Date >= DateTime.Today &&
+                membership.Status == "Active";
 
             var attendance = _context.Attendances
                 .Where(a =>
@@ -672,9 +642,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(CheckIn));
             }
 
-
-            // TEMPORARY QR TEST
-
             var numberLine = qrData
                 .Split('\n')
                 .FirstOrDefault(x =>
@@ -701,9 +668,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(CheckIn));
             }
 
-
-            // FIND MEMBER
-
             var member = _context.Members
                 .FirstOrDefault(m =>
                     m.StudentNumber == studentNumber);
@@ -716,12 +680,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(CheckIn));
             }
 
-
-            // FIND MEMBERSHIP
-
             var membership = _context.Memberships
                 .Where(m => m.MemberId == member.MemberId)
-                .OrderByDescending(m => m.EndDate)
+                .OrderByDescending(m => m.MembershipId)
                 .FirstOrDefault();
 
             if (membership == null)
@@ -732,25 +693,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(CheckIn));
             }
 
-
-            // CHECK MEMBERSHIP
-
-            if (membership.EndDate.Date < DateTime.Today)
+            if (membership.Status != "Active" ||
+                !membership.EndDate.HasValue ||
+                membership.EndDate.Value.Date < DateTime.Today)
             {
                 TempData["CheckInError"] =
-                    "Your gym membership has expired.";
+                    "Your gym membership is not active.";
 
                 return RedirectToAction(nameof(CheckIn));
             }
 
-
-            // CHECK ALREADY CHECKED IN
-
-            var existingAttendance =
-                _context.Attendances
-                    .FirstOrDefault(a =>
-                        a.MemberId == member.MemberId &&
-                        a.CheckOutTime == null);
+            var existingAttendance = _context.Attendances
+                .FirstOrDefault(a =>
+                    a.MemberId == member.MemberId &&
+                    a.CheckOutTime == null);
 
             if (existingAttendance != null)
             {
@@ -760,27 +716,16 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(CheckIn));
             }
 
-
-            // CREATE ATTENDANCE
-
             var attendance = new Attendance
             {
-                MemberId =
-                    member.MemberId,
-
-                CheckInTime =
-                    DateTime.Now,
-
-                CheckOutTime =
-                    null
+                MemberId = member.MemberId,
+                CheckInTime = DateTime.Now,
+                CheckOutTime = null
             };
 
             _context.Attendances.Add(attendance);
 
             _context.SaveChanges();
-
-
-            // SUCCESS
 
             TempData["CheckInSuccess"] =
                 $"ACCESS GRANTED — Welcome {member.Name}!";
@@ -807,18 +752,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             int memberId = int.Parse(memberIdClaim);
 
-
-            // Find current attendance
-
             var attendance = _context.Attendances
                 .Where(a =>
                     a.MemberId == memberId &&
                     a.CheckOutTime == null)
                 .OrderByDescending(a => a.CheckInTime)
                 .FirstOrDefault();
-
-
-            // No active check-in
 
             if (attendance == null)
             {
@@ -828,31 +767,28 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(CheckIn));
             }
 
-
-            // Record checkout
-
             attendance.CheckOutTime =
                 DateTime.Now;
 
             _context.SaveChanges();
-
-
-            // Success
 
             TempData["CheckInSuccess"] =
                 "You have successfully checked out. See you next time!";
 
             return RedirectToAction(nameof(CheckIn));
         }
-        // ==========================================
+
+
+        // =========================================================
         // REQUEST TRAINER - GET
-        // ==========================================
+        // =========================================================
 
         [HttpGet]
         public IActionResult RequestTrainer()
         {
             var memberIdClaim =
-                User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(memberIdClaim))
             {
@@ -869,9 +805,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
 
-        // ==========================================
+        // =========================================================
         // REQUEST TRAINER - POST
-        // ==========================================
+        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -880,16 +816,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
             string requestMessage)
         {
             var memberIdClaim =
-                User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(memberIdClaim))
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int studentId = int.Parse(memberIdClaim);
+            int studentId =
+                int.Parse(memberIdClaim);
 
-            // Check that selected trainer exists
             var trainer = _context.Members
                 .FirstOrDefault(m =>
                     m.MemberId == trainerId &&
@@ -921,12 +858,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View();
             }
 
-            // Check if there is already a pending request
-            var existingRequest = _context.TrainerRequests
-                .FirstOrDefault(r =>
-                    r.StudentId == studentId &&
-                    r.TrainerId == trainerId &&
-                    r.Status == "Pending");
+            var existingRequest =
+                _context.TrainerRequests
+                    .FirstOrDefault(r =>
+                        r.StudentId == studentId &&
+                        r.TrainerId == trainerId &&
+                        r.Status == "Pending");
 
             if (existingRequest != null)
             {

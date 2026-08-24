@@ -7,34 +7,24 @@ namespace DUT_Campus_FIT_Gym.Models
     {
         [Key]
         public int MembershipId { get; set; }
+        public int? MemberId { get; set; }
+        public virtual Member? Member { get; set; }
 
-        [Required]
-        public int MemberId { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        public string MembershipType { get; set; }
-
-        [Required]
-        public DateTime StartDate { get; set; }
-
-        [Required]
-        public DateTime EndDate { get; set; }
-
-        [Required]
-        [StringLength(20)]
-        public string Status { get; set; }
-
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal Price { get; set; }
-
-        // Payment method selected during membership creation
-        [Required]
-        public string PaymentMethod { get; set; }
-
-        // Whether this is the member's first membership
+        public string? MembershipType { get; set; }
+        public string? PaymentMethod { get; set; }
         public bool FirstTimeMember { get; set; }
 
-        public Member Member { get; set; }
+        // Make these nullable since they might not be set until payment is complete
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+
+        public string Status { get; set; } = "WaitingForPayment";
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Price { get; set; }
+
+        // Payment tracking fields
+        public string? PaymentReference { get; set; }
+        public DateTime? PaymentDate { get; set; }
+        public string? PaymentStatus { get; set; }
     }
 }

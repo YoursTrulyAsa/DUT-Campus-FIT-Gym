@@ -32,5 +32,6 @@ namespace DUT_Campus_FIT_Gym.ViewModels
         [Compare("Password")]
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
+        public string studentnumber { get; internal set; }
     }
 }

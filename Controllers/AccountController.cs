@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
@@ -47,14 +48,18 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            // Student email must be:
-            // 12345678@dut4life.ac.za
-            string expectedEmail =
+            string email = model.Email.Trim().ToLower();
+
+            // ==========================================
+            // STUDENT EMAIL VALIDATION
+            // ==========================================
+
+            string expectedStudentEmail =
                 $"{model.StudentNumber}@dut4life.ac.za";
 
             if (!string.Equals(
-                model.Email.Trim(),
-                expectedEmail,
+                email,
+                expectedStudentEmail,
                 StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError(
@@ -64,27 +69,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            {
-                string staffPattern =
-                    @"^[A-Za-z]+@dut\.ac\.za$";
-
-                if (!Regex.IsMatch(
-                    model.Email,
-                    staffPattern,
-                    RegexOptions.IgnoreCase))
-                {
-                    ModelState.AddModelError(
-                        "Email",
-                        "Staff email must start with a name and end with @dut.ac.za");
-
-                    return View(model);
-                }
-            }
+            // ==========================================
+            // CHECK EMAIL
+            // ==========================================
 
             bool emailExists = _context.Members
-                .Any(m =>
-                    m.Email.ToLower() ==
-                    model.Email.Trim().ToLower());
+                .Any(m => m.Email.ToLower() == email);
 
             if (emailExists)
             {
@@ -95,13 +85,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            // Check if student number already exists
-            bool numberExists = _context.Members
-                .Any(m =>
-                    m.StudentNumber ==
-                    model.StudentNumber);
+            // ==========================================
+            // CHECK STUDENT NUMBER
+            // ==========================================
 
-                Role = "Student"
+            bool numberExists = _context.Members
+                .Any(m => m.StudentNumber == model.StudentNumber);
+
+            if (numberExists)
             {
                 ModelState.AddModelError(
                     "StudentNumber",
@@ -110,28 +101,42 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            // Create student account
+            // ==========================================
+            // CREATE STUDENT ACCOUNT
+            // ==========================================
+
             var member = new Member
             {
                 Name = model.Name,
                 Surname = model.Surname,
                 StudentNumber = model.StudentNumber,
-                Email = model.Email.Trim().ToLower(),
+                Email = email,
                 PhoneNumber = model.PhoneNumber,
-                Role = model.Role
+
+                // Automatically assign Student role
+                Role = "Student"
             };
 
-            // Hash password
+            // ==========================================
+            // HASH PASSWORD
+            // ==========================================
+
             member.PasswordHash =
                 _passwordHasher.HashPassword(
                     member,
                     model.Password);
 
-            // Save member
+            // ==========================================
+            // SAVE MEMBER
+            // ==========================================
+
             _context.Members.Add(member);
             _context.SaveChanges();
 
-            // Send confirmation email
+            // ==========================================
+            // SEND REGISTRATION EMAIL
+            // ==========================================
+
             SendRegistrationEmail(member);
 
             TempData["RegistrationSuccess"] =
@@ -224,7 +229,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var member = _context.Members
                 .FirstOrDefault(m =>
-                    m.Email == model.Email);
+                    m.Email == model.Email.Trim().ToLower());
 
             if (member == null ||
                 _passwordHasher.VerifyHashedPassword(
@@ -239,6 +244,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return View(model);
             }
+
+            // ==========================================
+            // CREATE CLAIMS
+            // ==========================================
 
             var claims = new List<Claim>
             {
@@ -270,17 +279,27 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 principal);
 
+            // ==========================================
+            // ROLE-BASED REDIRECT
+            // ==========================================
+
             if (member.Role == "Admin")
             {
-                return RedirectToAction("Index", "Admin");
+                return RedirectToAction(
+                    "Index",
+                    "Admin");
             }
 
             if (member.Role == "Trainer")
             {
-                return RedirectToAction("Index", "Trainer");
+                return RedirectToAction(
+                    "Index",
+                    "Trainer");
             }
 
-            return RedirectToAction("Dashboard", "Member");
+            return RedirectToAction(
+                "Dashboard",
+                "Member");
         }
 
 
@@ -292,9 +311,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Reserve(int id)
         {
-            var memberId = int.Parse(
+            var memberIdClaim =
                 User.FindFirstValue(
-                    ClaimTypes.NameIdentifier));
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(memberIdClaim))
+            {
+                return RedirectToAction("Login");
+            }
+
+            int memberId =
+                int.Parse(memberIdClaim);
 
             var equipment =
                 _context.Equipment.Find(id);
@@ -353,7 +380,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var member = _context.Members
                 .FirstOrDefault(m =>
-                    m.Email == model.Email);
+                    m.Email == model.Email.Trim().ToLower());
 
             if (member == null)
             {

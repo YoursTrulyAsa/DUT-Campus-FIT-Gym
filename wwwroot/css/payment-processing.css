@@ -1,0 +1,65 @@
+﻿.payment-processing {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.processing-card {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    border-radius: 18px;
+    padding: 45px;
+    text-align: center;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+}
+
+    .processing-card h2 {
+        margin-top: 25px;
+        color: #123b66;
+    }
+
+    .processing-card p {
+        color: #666;
+        line-height: 1.6;
+    }
+
+.processing-text {
+    font-size: 14px;
+}
+
+.spinner {
+    width: 55px;
+    height: 55px;
+    margin: 0 auto;
+    border: 5px solid #e5e7eb;
+    border-top: 5px solid #1976d2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.payment-info {
+    margin-top: 25px;
+    padding: 15px;
+    background: #f4f7fb;
+    border-radius: 10px;
+    color: #333;
+}
+
+.status {
+    margin-top: 20px;
+    color: #1976d2;
+    font-weight: 600;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

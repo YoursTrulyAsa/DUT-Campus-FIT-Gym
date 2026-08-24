@@ -1,0 +1,152 @@
+﻿@model DUT_Campus_FIT_Gym.Models.BankDetails
+
+@{
+    ViewData["Title"] = "Banking Details";
+}
+
+<div class="banking-page">
+
+    <div class="banking-left">
+
+        <h1>Enter Your Banking Details</h1>
+
+    </div>
+
+    <div class="banking-right">
+
+        <form asp-action="Index" method="post">
+
+            <input type="hidden"
+                   name="membershipId"
+                   value="@ViewBag.MembershipId" />
+
+            <div class="form-group">
+
+                <label asp-for="AccountHolderName">
+                    Account Holder Name
+                </label>
+
+                <input asp-for="AccountHolderName" />
+
+                <span asp-validation-for="AccountHolderName"></span>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label asp-for="Bank">
+                    Bank
+                </label>
+
+                <select asp-for="Bank">
+
+                    <option value="">
+                        -- Select Bank --
+                    </option>
+
+                    <option value="ABSA">
+                        ABSA
+                    </option>
+
+                    <option value="Capitec">
+                        Capitec
+                    </option>
+
+                    <option value="FNB">
+                        FNB
+                    </option>
+
+                    <option value="Nedbank">
+                        Nedbank
+                    </option>
+
+                    <option value="Standard Bank">
+                        Standard Bank
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="Bank"></span>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label asp-for="CardNumber">
+                    Card Number
+                </label>
+
+                <input asp-for="CardNumber" />
+
+                <span asp-validation-for="CardNumber"></span>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label asp-for="ExpiryDate">
+                    Expiry Date
+                </label>
+
+                <input asp-for="ExpiryDate" />
+
+                <span asp-validation-for="ExpiryDate"></span>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label asp-for="cvv">
+                    CVV
+                </label>
+
+                <input asp-for="cvv" />
+
+                <span asp-validation-for="cvv"></span>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label asp-for="AccountType">
+                    Account Type
+                </label>
+
+                <select asp-for="AccountType">
+
+                    <option value="">
+                        -- Select Account Type --
+                    </option>
+
+                    <option value="Savings">
+                        Savings
+                    </option>
+
+                    <option value="Cheque">
+                        Cheque
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="AccountType"></span>
+
+            </div>
+
+
+            <button type="submit"
+                    class="banking-button">
+
+                Submit
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>

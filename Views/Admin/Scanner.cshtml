@@ -10,8 +10,8 @@
         <h1>Gym Entrance Scanner</h1>
 
         <p>
-            Scan a member's Virtual Gym Card to verify
-            their membership and record attendance.
+            Scan a member's Virtual Gym Card barcode or QR code
+            to verify their membership and record attendance.
         </p>
     </div>
 
@@ -21,16 +21,20 @@
             ◉
         </div>
 
-        <h2>Scan Member QR Code</h2>
+        <h2>Scan Member Code</h2>
 
         <p>
-            Position the member's QR code inside
-            the scanning area.
+            Position the member's QR code or Virtual Gym Card
+            barcode inside the scanning area.
         </p>
+
+        <!-- Anti-forgery token -->
 
         <form id="scannerTokenForm">
             @Html.AntiForgeryToken()
         </form>
+
+        <!-- Start Scanner -->
 
         <button type="button"
                 id="startScanner"
@@ -38,7 +42,11 @@
             Start Scanner
         </button>
 
+        <!-- Scanner -->
+
         <div id="qr-reader"></div>
+
+        <!-- Status -->
 
         <div id="scannerStatus"
              class="scanner-status">
@@ -48,11 +56,21 @@
 
 </div>
 
+
+<!-- =========================================================
+     HTML5 QR CODE SCANNER
+     ========================================================= -->
+
 <script src="https://unpkg.com/html5-qrcode"
         type="text/javascript">
 </script>
 
+
 <script>
+
+    // =========================================================
+    // ELEMENTS
+    // =========================================================
 
     const startScanner =
         document.getElementById("startScanner");
@@ -63,50 +81,114 @@
     const status =
         document.getElementById("scannerStatus");
 
+
+    // Scanner object
+
     let qrScanner = null;
+
+
+    // =========================================================
+    // START BUTTON
+    // =========================================================
 
     startScanner.addEventListener(
         "click",
         startQrScanner
     );
 
+
+    // =========================================================
+    // START SCANNER
+    // =========================================================
+
     function startQrScanner() {
 
+        // Show scanner
+
         reader.style.display = "block";
+
+
+        // Disable button
 
         startScanner.disabled = true;
 
         startScanner.textContent =
             "Scanner Starting...";
 
+
+        // Status
+
         status.textContent =
             "Opening camera...";
+
+
+        // Create scanner
 
         qrScanner =
             new Html5Qrcode("qr-reader");
 
+
+        // Scanner configuration
+
+        const config = {
+
+            fps: 10,
+
+            // Rectangular scanning area
+            // Better for Code 128 barcodes
+
+            qrbox: {
+                width: 400,
+                height: 150
+            },
+
+            // Support both QR codes
+            // and Code 128 barcodes
+
+            formatsToSupport: [
+
+                Html5QrcodeSupportedFormats.QR_CODE,
+
+                Html5QrcodeSupportedFormats.CODE_128
+
+            ]
+
+        };
+
+
+        // =====================================================
+        // START CAMERA
+        // =====================================================
+
         qrScanner.start(
+
             {
                 facingMode: "environment"
             },
-            {
-                fps: 10,
-                qrbox: {
-                    width: 250,
-                    height: 250
-                }
-            },
+
+            config,
+
+
+            // =================================================
+            // CODE DETECTED
+            // =================================================
+
             function (decodedText) {
 
                 status.textContent =
-                    "QR code detected. Verifying member...";
+                    "Code detected. Verifying member...";
+
+
+                // Stop scanner
 
                 qrScanner.stop()
+
                     .then(function () {
 
                         verifyMember(decodedText);
 
                     })
+
                     .catch(function () {
 
                         verifyMember(decodedText);
@@ -114,14 +196,33 @@
                     });
 
             },
+
+
+            // =================================================
+            // SCANNING FAILURE
+            // =================================================
+
             function () {
 
+                // Ignore normal scanning failures.
+
             }
+
         )
-        .catch(function () {
+
+
+        // =====================================================
+        // CAMERA ERROR
+        // =====================================================
+
+        .catch(function (error) {
+
+            console.error(error);
+
 
             status.textContent =
                 "Unable to access the camera.";
+
 
             startScanner.disabled = false;
 
@@ -132,58 +233,103 @@
 
     }
 
-    function verifyMember(qrData) {
+
+    // =========================================================
+    // SEND CODE TO SERVER
+    // =========================================================
+
+    function verifyMember(barcodeData) {
+
+
+        // Create form
 
         const form =
             document.createElement("form");
 
-        form.method = "POST";
+
+        form.method =
+            "POST";
+
+
+        // Admin controller action
 
         form.action =
-            "@Url.Action("VerifyQrCheckIn", "Admin")";
+            "@Url.Action("VerifyBarcodeCheckIn", "Admin")";
+
+
+        // =====================================================
+        // ANTI-FORGERY TOKEN
+        // =====================================================
 
         const token =
             document.querySelector(
                 'input[name="__RequestVerificationToken"]'
             );
 
+
         if (token) {
 
             const tokenInput =
                 document.createElement("input");
 
-            tokenInput.type = "hidden";
+
+            tokenInput.type =
+                "hidden";
+
 
             tokenInput.name =
                 "__RequestVerificationToken";
 
+
             tokenInput.value =
                 token.value;
 
-            form.appendChild(tokenInput);
+
+            form.appendChild(
+                tokenInput
+            );
 
         }
 
-        const qrInput =
+
+        // =====================================================
+        // BARCODE DATA
+        // =====================================================
+
+        const barcodeInput =
             document.createElement("input");
 
-        qrInput.type = "hidden";
 
-        qrInput.name =
-            "qrData";
+        barcodeInput.type =
+            "hidden";
 
-        qrInput.value =
-            qrData;
 
-        form.appendChild(qrInput);
+        barcodeInput.name =
+            "barcodeData";
+
+
+        barcodeInput.value =
+            barcodeData;
+
+
+        form.appendChild(
+            barcodeInput
+        );
+
+
+        // Add form to page
 
         document.body.appendChild(form);
+
+
+        // Submit
 
         form.submit();
 
     }
 
 </script>
+
 
 @section Styles {
 
