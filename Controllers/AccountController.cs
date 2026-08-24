@@ -47,10 +47,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 return View(model);
             }
-
-            // Student email must be:
-            // 12345678@dut4life.ac.za
-            string expectedEmail =
+            if (model.Role == "Staff")
+            {
+                // Student email must be:
+                // 12345678@dut4life.ac.za
+                string studentPattern =
                 $"{model.StudentNumber}@dut4life.ac.za";
 
                 if (!Regex.IsMatch(
