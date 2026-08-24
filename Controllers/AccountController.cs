@@ -65,6 +65,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     return View(model);
                 }
             }
+
             else if (model.Role == "Staff")
             {
                 string staffPattern =
