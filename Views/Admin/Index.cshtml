@@ -39,8 +39,17 @@
             <div class="card bg-light mb-3">
                 <div class="card-header">Announcements</div>
                 <div class="card-body">
-                    <p class="card-text">Post important announcements for members.</p>
-                    <a asp-action="CreateAnnouncement" class="btn btn-warning">Post Announcement</a>
+                    <p class="card-text">Manage announcements for members.</p>
+
+                    <!-- Create -->
+                    <a asp-action="CreateAnnouncement" class="btn btn-warning mb-1">Post Announcement</a>
+
+
+                    <!-- View (list all announcements) -->
+                    <a asp-action="AnnouncementList" class="btn btn-info mb-1">View Announcements</a>
+
+                    <!-- Edit/Delete will be handled inside the Announcements list view -->
+                    <!-- Each row in AnnouncementsList.cshtml has Edit and Delete buttons -->
                 </div>
             </div>
         </div>

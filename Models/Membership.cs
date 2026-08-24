@@ -34,7 +34,7 @@ namespace DUT_Campus_FIT_Gym.Models
         public string PaymentMethod { get; set; }
 
         // Whether this is the member's first membership
-        
+        [Required]
         public bool FirstTimeMember { get; set; }
 
         public Member Member { get; set; }

@@ -2,9 +2,11 @@
 using DUT_Campus_FIT_Gym.Models;
 using DUT_Campus_FIT_Gym.ViewModels;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DUT_Campus_FIT_Gym.Models
 {
+    [Table("Announcements")]
     public class Announcement
     {
         [Key]

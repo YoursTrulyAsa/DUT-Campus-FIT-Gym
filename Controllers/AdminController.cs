@@ -131,7 +131,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             TempData["Success"] = "Payment approved successfully.";
             return RedirectToAction("Index");
         }
-
+        //CreateAnnouncement
         [HttpGet]
         public IActionResult CreateAnnouncement()
         {
@@ -145,12 +145,61 @@ namespace DUT_Campus_FIT_Gym.Controllers
             if (!ModelState.IsValid) return View(announcement);
 
             announcement.DatePosted = DateTime.Now;
-            _context.Announcements.Add(announcement);
+            _context.Announcement.Add(announcement);
             _context.SaveChanges();
 
             TempData["Success"] = "Announcement posted successfully.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Announcement");
         }
+        //List announcement
+        [HttpGet]
+        public IActionResult AnnouncementList()
+        {
+            var announcement = _context.Announcement.ToList();
+            return View(announcement);
+        }
+
+        [HttpGet]
+        public IActionResult DetailsAnnouncement(int id)
+        {
+            var announcement = _context.Announcement.FirstOrDefault(a => a.AnnouncementID == id);
+            if (announcement == null) return NotFound();
+            return View(announcement);
+        }
+
+        [HttpGet]
+        public IActionResult EditAnnouncement(int id)
+        {
+            var announcement = _context.Announcement.Find(id);
+            if (announcement == null) return NotFound();
+            return View(announcement);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditAnnouncement(Announcement announcement)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Update(announcement);
+                _context.SaveChanges();
+                return RedirectToAction("Announcements");
+            }
+            return View(announcement);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteAnnouncement(int id)
+        {
+            var announcement = _context.Announcement.Find(id);
+            if (announcement == null) return NotFound();
+
+            _context.Announcement.Remove(announcement);
+            _context.SaveChanges();
+            return RedirectToAction("Announcements");
+        }
+
         public IActionResult ViewRequests()
         {
             var requests = _context.TrainerRequests

@@ -402,7 +402,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         public IActionResult Announcements()
         {
-            var announcements = _context.Announcements
+            var announcements = _context.Announcement
                 .OrderByDescending(a => a.DatePosted)
                 .ToList();
 
