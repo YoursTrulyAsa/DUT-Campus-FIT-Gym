@@ -20,6 +20,7 @@ namespace DUT_Campus_FIT_Gym.Data
         public DbSet<WorkoutPlan> WorkoutPlans { get; set; }
         public DbSet<WorkoutProfile> WorkoutProfiles { get; set; }
         public DbSet<TrainerRequest> TrainerRequests { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)

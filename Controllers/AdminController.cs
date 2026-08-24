@@ -94,5 +94,70 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return RedirectToAction("Index");
         }
+        //Approve Membership
+        [HttpGet]
+        public IActionResult Membership()
+        {
+            var memberships = _context.Memberships.ToList();
+            return View(memberships);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ApproveMembership(int membershipId)
+        {
+            var membership = _context.Memberships.FirstOrDefault(m => m.MembershipId == membershipId);
+            if (membership == null) return NotFound();
+
+            membership.Status = "Approved";
+            _context.SaveChanges();
+
+            TempData["Success"] = "Membership approved successfully.";
+            return RedirectToAction("Membership");
+        }
+
+
+
+
+        [HttpGet]
+        public IActionResult ApprovePayment(int paymentId)
+        {
+            var payment = _context.Payments.FirstOrDefault(p => p.PaymentId == paymentId);
+            if (payment == null) return NotFound();
+
+            payment.Status = "Approved";
+            _context.SaveChanges();
+
+            TempData["Success"] = "Payment approved successfully.";
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult CreateAnnouncement()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CreateAnnouncement(Announcement announcement)
+        {
+            if (!ModelState.IsValid) return View(announcement);
+
+            announcement.DatePosted = DateTime.Now;
+            _context.Announcements.Add(announcement);
+            _context.SaveChanges();
+
+            TempData["Success"] = "Announcement posted successfully.";
+            return RedirectToAction("Index");
+        }
+        public IActionResult ViewRequests()
+        {
+            var requests = _context.TrainerRequests
+                .Where(r => r.Status == "Pending")
+                .ToList();
+
+            return View(requests);
+        }
     }
 }

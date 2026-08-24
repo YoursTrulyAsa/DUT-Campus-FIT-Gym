@@ -1,5 +1,42 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Membership>
+
 @{
+    ViewData["Title"] = "Approve Memberships";
+}
+
+<h2>Approve Memberships</h2>
+
+@if (!Model.Any())
+{
+    <p>No membership requests found.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var membership in Model)
+            {
+                <tr>
+                    <td>@membership.MemberId</td>
+                    <td>@membership.StartDate.ToShortDateString()</td>
+                    <td>@membership.EndDate.ToShortDateString()</td>
+                    <td>@membership.Status</td>
+                    <td>
+                        <form asp-action="ApproveMembership" asp-route-membershipId="@membership.MembershipId" method="post">
+                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }

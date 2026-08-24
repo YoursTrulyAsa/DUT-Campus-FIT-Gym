@@ -29,12 +29,12 @@ namespace DUT_Campus_FIT_Gym.Models
         public decimal Price { get; set; }
 
         // Payment method selected during membership creation
-        [NotMapped]
+       
         [Required]
         public string PaymentMethod { get; set; }
 
         // Whether this is the member's first membership
-        [NotMapped]
+        
         public bool FirstTimeMember { get; set; }
 
         public Member Member { get; set; }

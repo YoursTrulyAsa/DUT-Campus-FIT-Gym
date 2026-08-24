@@ -11,6 +11,39 @@
     <hr />
 
     <div class="row">
+        <!-- Memberships -->
+        <div class="col-md-4">
+            <div class="card bg-light mb-3">
+                <div class="card-header">Memberships</div>
+                <div class="card-body">
+                    <p class="card-text">Approve or manage membership requests.</p>
+                    <!-- Link to Membership list view -->
+                    <a asp-action="Membership" class="btn btn-primary">View Memberships</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approve Payment -->
+        <div class="col-md-4">
+            <div class="card bg-light mb-3">
+                <div class="card-header">Payments</div>
+                <div class="card-body">
+                    <p class="card-text">Approve pending payments.</p>
+                    <a asp-action="ApprovePayment" class="btn btn-primary">Approve Payments</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Announcements -->
+        <div class="col-md-4">
+            <div class="card bg-light mb-3">
+                <div class="card-header">Announcements</div>
+                <div class="card-body">
+                    <p class="card-text">Post important announcements for members.</p>
+                    <a asp-action="CreateAnnouncement" class="btn btn-warning">Post Announcement</a>
+                </div>
+            </div>
+        </div>
 
         <!-- Members -->
         <div class="col-md-4 mb-3">
@@ -96,6 +129,16 @@
                        class="btn btn-info">
                         Manage Staff
                     </a>
+                </div>
+            </div>
+        </div>
+        <!-- Member Requests -->
+        <div class="col-md-4">
+            <div class="card bg-light mb-3">
+                <div class="card-header">Requests</div>
+                <div class="card-body">
+                    <p class="card-text">View and manage member requests.</p>
+                    <a asp-action="ViewRequests" class="btn btn-info">View Requests</a>
                 </div>
             </div>
         </div>
