@@ -1,5 +1,159 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Equipment>
+
 @{
+    ViewData["Title"] = "Manage Equipment";
 }
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1>Manage Equipment</h1>
+
+            <p class="text-muted">
+                View and manage gym equipment.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="AddEquipment"
+           class="btn btn-success">
+
+            <i class="fa-solid fa-plus"></i>
+            Add Equipment
+
+        </a>
+
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            No equipment has been added yet.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+                            <tr>
+
+                                <th>Equipment</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var equipment in Model)
+                            {
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            @equipment.EquipmentName
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        @equipment.Category
+                                    </td>
+
+                                    <td>
+                                        @equipment.Location
+                                    </td>
+
+                                    <td>
+
+                                        @if (equipment.IsAvailable)
+                                        {
+                                            <span class="badge bg-success">
+                                                Available
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                Reserved
+                                            </span>
+                                        }
+
+                                    </td>
+                                    <td>
+
+                                        <form asp-controller="Admin"
+                                              asp-action="RemoveEquipment"
+                                              method="post"
+                                              onsubmit="return confirm('Are you sure you want to remove this equipment?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@equipment.EquipmentID" />
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-danger">
+
+                                                <i class="fa-solid fa-trash"></i>
+                                                Remove
+
+                                            </button>
+
+                                        </form>
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+    <div class="mt-4">
+
+        <a asp-controller="Admin"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Admin Dashboard
+
+        </a>
+
+    </div>
+
+</div>

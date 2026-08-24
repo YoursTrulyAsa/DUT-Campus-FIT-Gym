@@ -30,6 +30,9 @@ namespace DUT_Campus_FIT_Gym.Data
         public DbSet<WorkoutProfile> WorkoutProfiles { get; set; }
 
         public DbSet<TrainerRequest> TrainerRequests { get; set; }
+        public DbSet<MembershipApplication> MembershipApplications { get; set; }
+
+        public DbSet<Payment> Payments { get; set; }
 
 
         protected override void OnModelCreating(
@@ -49,6 +52,21 @@ namespace DUT_Campus_FIT_Gym.Data
                 .HasOne(r => r.Trainer)
                 .WithMany()
                 .HasForeignKey(r => r.TrainerId)
+                .OnDelete(DeleteBehavior.Restrict);
+            // =====================================================
+            // PAYMENT RELATIONSHIPS
+            // =====================================================
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Member)
+                .WithMany()
+                .HasForeignKey(p => p.MemberId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Membership)
+                .WithMany()
+                .HasForeignKey(p => p.MembershipId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

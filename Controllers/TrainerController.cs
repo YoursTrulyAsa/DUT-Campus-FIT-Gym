@@ -498,6 +498,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             request.Status = "Completed";
             request.ResponseDate = DateTime.Now;
+            request.CompletionDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
 

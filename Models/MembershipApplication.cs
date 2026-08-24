@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DUT_Campus_FIT_Gym.Models
 {
-    public class Membership
+    public class MembershipApplication
     {
         [Key]
-        public int MembershipId { get; set; }
+        public int MembershipApplicationId { get; set; }
 
         [Required]
         public int MemberId { get; set; }
@@ -19,27 +19,26 @@ namespace DUT_Campus_FIT_Gym.Models
         public string MembershipType { get; set; } = "";
 
         [Required]
-        public DateTime StartDate { get; set; }
-
-        [Required]
-        public DateTime EndDate { get; set; }
-
-        [Required]
-        [StringLength(20)]
-        public string Status { get; set; } = "Active";
-
-        [Required]
         [Column(TypeName = "decimal(10,2)")]
         public decimal Price { get; set; }
 
         [Required]
+        public DateTime ApplicationDate { get; set; } = DateTime.Now;
+
+        [Required]
+        [StringLength(20)]
+        public string Status { get; set; } = "Pending";
+
+        // Uploaded student/staff card
+        [Required]
+        [StringLength(255)]
+        public string VerificationDocument { get; set; } = "";
+
+        public DateTime? ReviewedDate { get; set; }
+
+        public string? AdminComment { get; set; }
+        [Required]
         [StringLength(50)]
         public string PaymentMethod { get; set; } = "";
-
-        // Links this membership to the payment that created it
-        public int? PaymentId { get; set; }
-
-        // True when this is a renewal
-        public bool IsRenewal { get; set; }
     }
 }

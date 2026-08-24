@@ -1,0 +1,126 @@
+﻿@model DUT_Campus_FIT_Gym.Models.Equipment
+
+@{
+    ViewData["Title"] = "Add Equipment";
+}
+
+<div class="container mt-5">
+
+    <div class="mb-4">
+
+        <h1>Add Equipment</h1>
+
+        <p class="text-muted">
+            Add new equipment to the DUT Campus FIT Gym.
+        </p>
+
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <form asp-controller="Admin"
+                  asp-action="AddEquipment"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+
+                <!-- EQUIPMENT NAME -->
+
+                <div class="mb-3">
+
+                    <label asp-for="EquipmentName"
+                           class="form-label">
+                        Equipment Name
+                    </label>
+
+                    <input asp-for="EquipmentName"
+                           class="form-control"
+                           placeholder="e.g. Treadmill" />
+
+                    <span asp-validation-for="EquipmentName"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- CATEGORY -->
+
+                <div class="mb-3">
+
+                    <label asp-for="Category"
+                           class="form-label">
+                        Category
+                    </label>
+
+                    <input asp-for="Category"
+                           class="form-control"
+                           placeholder="e.g. Cardio" />
+
+                    <span asp-validation-for="Category"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- LOCATION -->
+
+                <div class="mb-3">
+
+                    <label asp-for="Location"
+                           class="form-label">
+                        Location
+                    </label>
+
+                    <input asp-for="Location"
+                           class="form-control"
+                           placeholder="e.g. Gym Floor" />
+
+                    <span asp-validation-for="Location"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- BUTTONS -->
+
+                <div class="mt-4">
+
+                    <button type="submit"
+                            class="btn btn-success">
+
+                        <i class="fa-solid fa-plus"></i>
+                        Add Equipment
+
+                    </button>
+
+                    <a asp-controller="Admin"
+                       asp-action="Equipment"
+                       class="btn btn-outline-secondary ms-2">
+
+                        Cancel
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

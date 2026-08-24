@@ -41,5 +41,14 @@ namespace DUT_Campus_FIT_Gym.Models
 
         public ICollection<WorkoutProfile> WorkoutProfiles { get; set; }
             = new List<WorkoutProfile>();
+
+        public ICollection<Membership> Memberships { get; set; }
+    = new List<Membership>();
+
+        public ICollection<MembershipApplication> MembershipApplications { get; set; }
+            = new List<MembershipApplication>();
+
+        public ICollection<Payment> Payments { get; set; }
+            = new List<Payment>();
     }
 }

@@ -6,7 +6,9 @@
 
     <h1>Admin Dashboard</h1>
 
-    <p>Welcome to the DUT Campus FIT Gym Administration Dashboard.</p>
+    <p>
+        Welcome to the DUT Campus FIT Gym Administration Dashboard.
+    </p>
 
     <hr />
 
@@ -14,60 +16,102 @@
 
         <!-- Members -->
         <div class="col-md-4 mb-3">
+
             <div class="card h-100">
+
                 <div class="card-body">
-                    <h5 class="card-title">Members</h5>
+
+                    <h5 class="card-title">
+                        Members
+                    </h5>
+
                     <p class="card-text">
                         Manage registered gym members.
                     </p>
 
-                    <a href="#"
+                    <a asp-controller="Admin"
+                       asp-action="Members"
                        class="btn btn-primary">
+
                         Manage Members
+
                     </a>
+
                 </div>
+
             </div>
+
         </div>
+
 
         <!-- Equipment -->
         <div class="col-md-4 mb-3">
+
             <div class="card h-100">
+
                 <div class="card-body">
-                    <h5 class="card-title">Equipment</h5>
+
+                    <h5 class="card-title">
+                        Equipment
+                    </h5>
+
                     <p class="card-text">
                         Manage gym equipment.
                     </p>
 
-                    <a href="#"
+                    <a asp-controller="Admin"
+                       asp-action="Equipment"
                        class="btn btn-primary">
                         Manage Equipment
                     </a>
+
                 </div>
+
             </div>
+
         </div>
+
 
         <!-- Reservations -->
         <div class="col-md-4 mb-3">
+
             <div class="card h-100">
+
                 <div class="card-body">
-                    <h5 class="card-title">Reservations</h5>
+
+                    <h5 class="card-title">
+                        Reservations
+                    </h5>
+
                     <p class="card-text">
                         View equipment reservations.
                     </p>
 
-                    <a href="#"
+                    <a asp-controller="Admin"
+                       asp-action="Reservations"
                        class="btn btn-primary">
+
                         View Reservations
+
                     </a>
+
                 </div>
+
             </div>
+
         </div>
+
 
         <!-- Trainers -->
         <div class="col-md-4 mb-3">
+
             <div class="card h-100">
+
                 <div class="card-body">
-                    <h5 class="card-title">Trainers</h5>
+
+                    <h5 class="card-title">
+                        Trainers
+                    </h5>
 
                     <p class="card-text">
                         Create and manage trainer accounts.
@@ -76,17 +120,30 @@
                     <a asp-controller="Admin"
                        asp-action="AddTrainer"
                        class="btn btn-success">
+
+                        <i class="bi bi-person-plus"></i>
+
                         Add Trainer
+
                     </a>
+
                 </div>
+
             </div>
+
         </div>
+
 
         <!-- Staff -->
         <div class="col-md-4 mb-3">
+
             <div class="card h-100">
+
                 <div class="card-body">
-                    <h5 class="card-title">Staff</h5>
+
+                    <h5 class="card-title">
+                        Staff
+                    </h5>
 
                     <p class="card-text">
                         Create and manage staff accounts.
@@ -94,10 +151,52 @@
 
                     <a href="#"
                        class="btn btn-info">
+
                         Manage Staff
+
                     </a>
+
                 </div>
+
             </div>
+
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- MEMBERSHIP APPLICATIONS -->
+        <!-- ========================================== -->
+
+        <div class="col-md-4 mb-3">
+
+            <div class="card h-100 border-primary">
+
+                <div class="card-body">
+
+                    <h5 class="card-title">
+                        Membership Applications
+                    </h5>
+
+                    <p class="card-text">
+                        Review student membership applications,
+                        verify documents, and approve or reject
+                        applications.
+                    </p>
+
+                    <a asp-controller="Admin"
+                       asp-action="MembershipApplications"
+                       class="btn btn-primary">
+
+                        <i class="bi bi-card-checklist"></i>
+
+                        View Applications
+
+                    </a>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>

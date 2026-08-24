@@ -352,7 +352,9 @@
 
                         <i class="fa-solid fa-qrcode"></i>
 
-                        Check-In
+                        <span>
+                            Check-In
+                        </span>
 
                     </a>
 
@@ -363,7 +365,9 @@
 
                         <i class="fa-solid fa-id-card"></i>
 
-                        Virtual Gym Card
+                        <span>
+                            Virtual Gym Card
+                        </span>
 
                     </a>
 
@@ -374,7 +378,9 @@
 
                         <i class="fa-solid fa-calendar-plus"></i>
 
-                        Reserved Equipment
+                        <span>
+                            Reserved Equipment
+                        </span>
 
                     </a>
 
@@ -385,18 +391,34 @@
 
                         <i class="fa-solid fa-clock"></i>
 
-                        View Attendance
+                        <span>
+                            View Attendance
+                        </span>
 
                     </a>
 
 
                     <!-- REQUEST TRAINER -->
                     <a asp-controller="Member"
-                       asp-action="RequestTrainer">
+                       asp-action="RequestTrainer"
+                       class="trainer-request-button">
 
                         <i class="fa-solid fa-user-plus"></i>
 
-                        Request Trainer
+                        <span>
+                            Request Trainer
+                        </span>
+
+                    </a>
+                    <!-- MY TRAINER REQUESTS -->
+                    <a asp-controller="Member"
+                       asp-action="MyTrainerRequests">
+
+                        <i class="fa-solid fa-user-check"></i>
+
+                        <span>
+                            My Trainer Requests
+                        </span>
 
                     </a>
 

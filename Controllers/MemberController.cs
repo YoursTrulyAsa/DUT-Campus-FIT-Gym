@@ -3,9 +3,11 @@ using DUT_Campus_FIT_Gym.Models;
 using DUT_Campus_FIT_Gym.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QRCoder;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Security.Claims;
 using ZXing;
 using ZXing.Common;
@@ -48,7 +50,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             var membership = _context.Memberships
-                .FirstOrDefault(m => m.MemberId == memberId);
+     .Where(m => m.MemberId == memberId)
+     .OrderByDescending(m => m.EndDate)
+     .FirstOrDefault();
 
             var attendanceCount = _context.Attendances
                 .Count(a => a.MemberId == memberId);
@@ -109,36 +113,43 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(member);
         }
 
-
         // =========================================================
         // MEMBERSHIP
         // =========================================================
 
+        [HttpGet]
         public IActionResult Membership()
         {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var memberIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (memberIdClaim == null)
+            if (string.IsNullOrEmpty(memberIdClaim))
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int memberId = int.Parse(memberIdClaim);
-
-            var membership = _context.Memberships
-                .FirstOrDefault(m => m.MemberId == memberId);
-
-            if (membership == null)
+            if (!int.TryParse(memberIdClaim, out int memberId))
             {
-                return NotFound(
-                    "No membership found for this member.");
+                return RedirectToAction("Login", "Account");
             }
+
+            // Get the latest approved membership
+            var membership = _context.Memberships
+                .Where(m => m.MemberId == memberId)
+                .OrderByDescending(m => m.EndDate)
+                .FirstOrDefault();
+
+            // Get the student's latest pending application
+            var pendingApplication = _context.MembershipApplications
+                .Where(a =>
+                    a.MemberId == memberId &&
+                    a.Status == "Pending")
+                .OrderByDescending(a => a.ApplicationDate)
+                .FirstOrDefault();
+
+            ViewBag.PendingApplication = pendingApplication;
 
             return View(membership);
         }
-
-
         // =========================================================
         // ATTENDANCE
         // =========================================================
@@ -165,7 +176,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
 
         // =========================================================
-        // CREATE MEMBERSHIP - GET
+        // MEMBERSHIP APPLICATION - GET
         // =========================================================
 
         [HttpGet]
@@ -174,7 +185,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var memberIdClaim = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
 
-            if (memberIdClaim == null)
+            if (string.IsNullOrEmpty(memberIdClaim))
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -189,7 +200,37 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return NotFound();
             }
 
-            var membershipPage = new MembershipPage
+            // Check if the member already has an active membership
+            var activeMembership = _context.Memberships
+                .FirstOrDefault(m =>
+                    m.MemberId == memberId &&
+                    m.Status == "Active" &&
+                    m.EndDate.Date >= DateTime.Today);
+
+            if (activeMembership != null)
+            {
+                TempData["MembershipError"] =
+                    "You already have an active membership.";
+
+                return RedirectToAction("Membership");
+            }
+
+            // Check if there is already a pending application
+            var pendingApplication =
+                _context.MembershipApplications
+                    .FirstOrDefault(a =>
+                        a.MemberId == memberId &&
+                        a.Status == "Pending");
+
+            if (pendingApplication != null)
+            {
+                TempData["MembershipError"] =
+                    "You already have a pending membership application.";
+
+                return RedirectToAction("Membership");
+            }
+
+            var membershipPage = new DUT_Campus_FIT_Gym.ViewModels.MembershipPage
             {
                 Name = member.FirstName,
                 Surname = member.LastName,
@@ -202,17 +243,18 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
 
         // =========================================================
-        // CREATE MEMBERSHIP - POST
+        // MEMBERSHIP APPLICATION - POST
         // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(MembershipPage membershipPage)
+        public IActionResult Create(
+    DUT_Campus_FIT_Gym.ViewModels.MembershipPage membershipPage)
         {
             var memberIdClaim = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
 
-            if (memberIdClaim == null)
+            if (string.IsNullOrEmpty(memberIdClaim))
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -227,30 +269,47 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return NotFound();
             }
 
+            // ==========================================
+            // CHECK ACTIVE MEMBERSHIP
+            // ==========================================
 
-            // Check if member already has a membership
+            var activeMembership = _context.Memberships
+                .FirstOrDefault(m =>
+                    m.MemberId == memberId &&
+                    m.Status == "Active" &&
+                    m.EndDate.Date >= DateTime.Today);
 
-            var existingMembership = _context.Memberships
-                .FirstOrDefault(m => m.MemberId == memberId);
-
-            if (existingMembership != null)
+            if (activeMembership != null)
             {
-                ModelState.AddModelError(
-                    "",
-                    "You already have a membership."
-                );
+                TempData["MembershipError"] =
+                    "You already have an active membership.";
 
-                membershipPage.Name = member.FirstName;
-                membershipPage.Surname = member.LastName;
-                membershipPage.Email = member.Email;
-                membershipPage.StudentNo =
-                    member.StaffStudentNumber;
-
-                return View(membershipPage);
+                return RedirectToAction("Membership");
             }
 
 
-            // Validate form
+            // ==========================================
+            // CHECK PENDING APPLICATION
+            // ==========================================
+
+            var pendingApplication =
+                _context.MembershipApplications
+                    .FirstOrDefault(a =>
+                        a.MemberId == memberId &&
+                        a.Status == "Pending");
+
+            if (pendingApplication != null)
+            {
+                TempData["MembershipError"] =
+                    "You already have a pending membership application.";
+
+                return RedirectToAction("Membership");
+            }
+
+
+            // ==========================================
+            // VALIDATE FORM
+            // ==========================================
 
             if (!ModelState.IsValid)
             {
@@ -264,85 +323,212 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // Determine membership price
+            // ==========================================
+            // VALIDATE MEMBERSHIP PERIOD
+            // ==========================================
 
-            decimal price = membershipPage.payments_plan switch
+            if (membershipPage.MembershipPeriod != "Semester" &&
+                membershipPage.MembershipPeriod != "Annual")
             {
-                MembershipPage.PAY.Monthly => 150m,
+                ModelState.AddModelError(
+                    "MembershipPeriod",
+                    "Please select a valid membership period.");
 
-                MembershipPage.PAY.Quarterly => 400m,
+                membershipPage.Name = member.FirstName;
+                membershipPage.Surname = member.LastName;
+                membershipPage.Email = member.Email;
+                membershipPage.StudentNo =
+                    member.StaffStudentNumber;
 
-                MembershipPage.PAY.Half_Yearly => 700m,
-
-                MembershipPage.PAY.Annually => 1200m,
-
-                _ => 0m
-            };
-
-
-            // First-time member gets 10% discount
-
-            decimal discount = 0m;
-
-            if (membershipPage.First_Time_Member)
-            {
-                discount = price * 0.10m;
+                return View(membershipPage);
             }
 
-            decimal finalPrice = price - discount;
 
+            // ==========================================
+            // DETERMINE PRICE
+            // ==========================================
 
-            // Create membership
+            decimal price;
 
-            var startDate = DateTime.Today;
-
-            var endDate = membershipPage.payments_plan switch
+            if (member.Role == "Student")
             {
-                MembershipPage.PAY.Monthly =>
-                    startDate.AddMonths(1).AddDays(-1),
+                price = membershipPage.MembershipPeriod == "Semester"
+                    ? 250m
+                    : 500m;
+            }
+            else if (member.Role == "Staff")
+            {
+                price = membershipPage.MembershipPeriod == "Semester"
+                    ? 300m
+                    : 600m;
+            }
+            else
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Your account is not eligible for a membership.");
 
-                MembershipPage.PAY.Quarterly =>
-                    startDate.AddMonths(3).AddDays(-1),
+                membershipPage.Name = member.FirstName;
+                membershipPage.Surname = member.LastName;
+                membershipPage.Email = member.Email;
+                membershipPage.StudentNo = member.StaffStudentNumber;
 
-                MembershipPage.PAY.Half_Yearly =>
-                    startDate.AddMonths(6).AddDays(-1),
-
-                MembershipPage.PAY.Annually =>
-                    startDate.AddYears(1).AddDays(-1),
-
-                _ => startDate
-            };
+                return View(membershipPage);
+            }
 
 
-            var membership = new Membership
+            // ==========================================
+            // VERIFY DOCUMENT
+            // ==========================================
+
+            if (membershipPage.VerificationDocument == null ||
+                membershipPage.VerificationDocument.Length == 0)
+            {
+                ModelState.AddModelError(
+                    "VerificationDocument",
+                    "Please upload your student/staff card.");
+
+                membershipPage.Name = member.FirstName;
+                membershipPage.Surname = member.LastName;
+                membershipPage.Email = member.Email;
+                membershipPage.StudentNo =
+                    member.StaffStudentNumber;
+
+                return View(membershipPage);
+            }
+
+
+            // ==========================================
+            // GET FILE EXTENSION
+            // ==========================================
+
+            string extension = System.IO.Path
+                .GetExtension(
+                    membershipPage.VerificationDocument!.FileName)
+                .ToLowerInvariant();
+
+            // ==========================================
+            // CHECK FILE TYPE
+            // ==========================================
+
+            if (extension != ".jpg" &&
+                extension != ".jpeg" &&
+                extension != ".png" &&
+                extension != ".pdf")
+            {
+                ModelState.AddModelError(
+                    "VerificationDocument",
+                    "Only JPG, JPEG, PNG and PDF files are allowed.");
+
+                membershipPage.Name = member.FirstName;
+                membershipPage.Surname = member.LastName;
+                membershipPage.Email = member.Email;
+                membershipPage.StudentNo = member.StaffStudentNumber;
+
+                return View(membershipPage);
+            }
+
+
+            // ==========================================
+            // CHECK FILE SIZE
+            // Maximum 5 MB
+            // ==========================================
+
+            if (membershipPage.VerificationDocument.Length >
+                5 * 1024 * 1024)
+            {
+                ModelState.AddModelError(
+                    "VerificationDocument",
+                    "The verification document must not exceed 5 MB.");
+
+                membershipPage.Name = member.FirstName;
+                membershipPage.Surname = member.LastName;
+                membershipPage.Email = member.Email;
+                membershipPage.StudentNo =
+                    member.StaffStudentNumber;
+
+                return View(membershipPage);
+            }
+
+
+            // ==========================================
+            // SAVE DOCUMENT
+            // ==========================================
+
+            string uploadsFolder =
+                Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    "uploads",
+                    "verification");
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            string uniqueFileName =
+                Guid.NewGuid().ToString() + extension;
+
+            string filePath =
+                Path.Combine(
+                    uploadsFolder,
+                    uniqueFileName);
+
+            using (var fileStream =
+                   new FileStream(
+                       filePath,
+                       FileMode.Create))
+            {
+                membershipPage.VerificationDocument
+                    .CopyTo(fileStream);
+            }
+
+
+            // ==========================================
+            // CREATE APPLICATION
+            // ==========================================
+
+            var application = new MembershipApplication
             {
                 MemberId = memberId,
 
                 MembershipType =
-                    membershipPage.payments_plan.ToString(),
+                    membershipPage.MembershipPeriod,
 
-                PaymentMethod =
-                    membershipPage.Payment_Method,
+                Price = price,
 
-                FirstTimeMember =
-                    membershipPage.First_Time_Member,
+                ApplicationDate = DateTime.Now,
 
-                StartDate = startDate,
+                Status = "Pending",
 
-                EndDate = endDate,
+                VerificationDocument =
+                    "/uploads/verification/" +
+                    uniqueFileName,
 
-                Status = "Active",
+                ReviewedDate = null,
 
-                Price = finalPrice
+                AdminComment = null
             };
 
 
-            _context.Memberships.Add(membership);
+            _context.MembershipApplications.Add(application);
 
             _context.SaveChanges();
 
+
+            // ==========================================
+            // SUCCESS
+            // ==========================================
+
+            TempData["MembershipSuccess"] =
+                "Your membership application has been submitted successfully. Please wait for admin approval.";
+
             return RedirectToAction("Membership");
         }
+
+
+        
 
 
         // =========================================================
@@ -989,6 +1175,34 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "Your trainer assistance request has been sent.";
 
             return RedirectToAction("Dashboard");
+        }
+        // =========================================================
+        // MY TRAINER REQUESTS
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> MyTrainerRequests()
+        {
+            var memberIdClaim = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(memberIdClaim))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (!int.TryParse(memberIdClaim, out int memberId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var requests = await _context.TrainerRequests
+                .Include(r => r.Trainer)
+                .Where(r => r.StudentId == memberId)
+                .OrderByDescending(r => r.RequestDate)
+                .ToListAsync();
+
+            return View(requests);
         }
     }
 }
