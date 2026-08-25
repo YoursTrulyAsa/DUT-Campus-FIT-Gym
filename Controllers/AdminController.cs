@@ -47,7 +47,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             bool numberExists = _context.Members
                 .Any(m =>
-                    m.StudentNumber ==
+                    m.StaffStudentNumber ==
                     model.StaffStudentNumber);
 
             if (emailExists)
