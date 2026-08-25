@@ -47,7 +47,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             bool numberExists = _context.Members
                 .Any(m =>
-                    m.StaffStudentNumber ==
+                    m.StudentNumber ==
                     model.StaffStudentNumber);
 
             if (emailExists)
@@ -70,9 +70,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var trainer = new Member
             {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                StaffStudentNumber =
+                Name = model.FirstName,
+                Surname = model.LastName,
+                StudentNumber =
                     model.StaffStudentNumber,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber,

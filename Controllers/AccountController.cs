@@ -67,7 +67,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     ModelState.AddModelError("Email", "Student email must start with an 8-digit student number and end with @dut4life.ac.za");
                     return View(model);
                 }
-            }
+            
             else if (model.Role == "Staff")
             {
                 string staffPattern = @"^[A-Za-z]+@dut\.ac\.za$";

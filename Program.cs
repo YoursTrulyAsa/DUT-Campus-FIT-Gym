@@ -60,9 +60,9 @@ using (var scope = app.Services.CreateScope())
     {
         var admin = new Member
         {
-            FirstName = "System",
-            LastName = "Administrator",
-            StaffStudentNumber = "ADMIN001",
+            Name = "System",
+            Surname = "Administrator",
+            StudentNumber = "ADMIN001",
             Email = adminEmail,
             PhoneNumber = "0000000000",
             Role = "Admin"
