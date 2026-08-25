@@ -31,14 +31,14 @@ namespace DUT_Campus_FIT_Gym.Data
             modelBuilder.Entity<TrainerRequest>()
                 .HasOne(r => r.Student)
                 .WithMany()
-                .HasForeignKey(r => r.StudentId)
+                .HasForeignKey(r => r.MemberId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Trainer Request -> Trainer
             modelBuilder.Entity<TrainerRequest>()
                 .HasOne(r => r.Trainer)
                 .WithMany()
-                .HasForeignKey(r => r.TrainerId)
+                .HasForeignKey(r => r.MemberId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

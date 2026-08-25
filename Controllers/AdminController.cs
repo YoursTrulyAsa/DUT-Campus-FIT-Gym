@@ -70,9 +70,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var trainer = new Member
             {
-                Name = model.FirstName,
-                Surname = model.LastName,
-                StudentNumber =
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                StaffStudentNumber =
                     model.StaffStudentNumber,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber,

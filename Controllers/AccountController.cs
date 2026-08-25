@@ -69,74 +69,75 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 }
 
                 else if (model.Role == "Staff")
-            {
-                string staffPattern = @"^[A-Za-z]+@dut\.ac\.za$";
-                if (!Regex.IsMatch(model.Email, staffPattern, RegexOptions.IgnoreCase))
                 {
-                    ModelState.AddModelError("Email", "Staff email must start with a name and end with @dut.ac.za");
+                    string staffPattern = @"^[A-Za-z]+@dut\.ac\.za$";
+                    if (!Regex.IsMatch(model.Email, staffPattern, RegexOptions.IgnoreCase))
+                    {
+                        ModelState.AddModelError("Email", "Staff email must start with a name and end with @dut.ac.za");
+                        return View(model);
+                    }
+                }
+
+                bool emailExists = _context.Members
+                    .Any(m =>
+                        m.Email.ToLower() ==
+                        model.Email.Trim().ToLower());
+
+                if (emailExists)
+                {
+                    ModelState.AddModelError(
+                        "Email",
+                        "This email is already registered.");
+
                     return View(model);
                 }
+
+                // Check if student number already exists
+                bool numberExists = _context.Members
+                    .Any(m =>
+                        m.StaffStudentNumber ==
+                        model.StudentNumber);
+
+                if (numberExists)
+                {
+                    ModelState.AddModelError(
+                        "StudentNumber",
+                        "This Student Number is already registered.");
+
+                    return View(model);
+                }
+
+                // Create student account
+                var member = new Member
+                {
+                    FirstName = model.Name,
+                    LastName = model.Surname,
+                    StaffStudentNumber = model.StudentNumber,
+                    Email = model.Email.Trim().ToLower(),
+                    PhoneNumber = model.PhoneNumber,
+                    Role = model.Role
+                };
+
+                // Hash password
+                member.PasswordHash =
+                    _passwordHasher.HashPassword(
+                        member,
+                        model.Password);
+
+                // Save member
+                _context.Members.Add(member);
+                _context.SaveChanges();
+
+                // Send confirmation email
+                SendRegistrationEmail(member);
+
+                TempData["RegistrationSuccess"] =
+                    "Your account has been created successfully. A confirmation email has been sent to your email address.";
+
+                return RedirectToAction("Login");
             }
-
-            bool emailExists = _context.Members
-                .Any(m =>
-                    m.Email.ToLower() ==
-                    model.Email.Trim().ToLower());
-
-            if (emailExists)
-            {
-                ModelState.AddModelError(
-                    "Email",
-                    "This email is already registered.");
-
-                return View(model);
-            }
-
-            // Check if student number already exists
-            bool numberExists = _context.Members
-                .Any(m =>
-                    m.StaffStudentNumber ==
-                    model.StudentNumber);
-
-            if (numberExists)
-            {
-                ModelState.AddModelError(
-                    "StudentNumber",
-                    "This Student Number is already registered.");
-
-                return View(model);
-            }
-
-            // Create student account
-            var member = new Member
-            {
-                FirstName = model.Name,
-                LastName = model.Surname,
-                StaffStudentNumber = model.StudentNumber,
-                Email = model.Email.Trim().ToLower(),
-                PhoneNumber = model.PhoneNumber,
-                Role = model.Role
-            };
-            
-            // Hash password
-            member.PasswordHash =
-                _passwordHasher.HashPassword(
-                    member,
-                    model.Password);
-
-            // Save member
-            _context.Members.Add(member);
-            _context.SaveChanges();
-
-            // Send confirmation email
-            SendRegistrationEmail(member);
-
-            TempData["RegistrationSuccess"] =
-                "Your account has been created successfully. A confirmation email has been sent to your email address.";
-
-            return RedirectToAction("Login");
+            return RedirectToAction("Login", "Account");
         }
-
 
         // =========================
         // REGISTRATION EMAIL

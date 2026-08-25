@@ -8,10 +8,8 @@ namespace DUT_Campus_FIT_Gym.Models
         public int TrainerRequestId { get; set; }
 
         [Required]
-        public int StudentId { get; set; }
-
-        [Required]
-        public int TrainerId { get; set; }
+ 
+        public int MemberId { get; set; } 
 
         [Required]
         [StringLength(500)]

@@ -924,8 +924,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
             // Check if there is already a pending request
             var existingRequest = _context.TrainerRequests
                 .FirstOrDefault(r =>
-                    r.StudentId == studentId &&
-                    r.TrainerId == trainerId &&
+                    r.MemberId == studentId &&
+                   
                     r.Status == "Pending");
 
             if (existingRequest != null)
@@ -943,8 +943,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var request = new TrainerRequest
             {
-                StudentId = studentId,
-                TrainerId = trainerId,
+                MemberId = studentId,
+                
                 RequestMessage = requestMessage,
                 Status = "Pending",
                 RequestDate = DateTime.Now
