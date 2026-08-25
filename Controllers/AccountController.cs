@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using MimeKit;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
@@ -36,8 +38,18 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [HttpGet]
         public IActionResult Register()
         {
+            ViewBag.Role = new SelectList(
+                new[]
+                {
+                "Student",
+                 "Stuff"
+
+                }
+            );
+
             return View();
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -47,40 +59,21 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 return View(model);
             }
-            if (model.Role == "Staff")
+            if (model.Role == "Student")
             {
-                // Student email must be:
-                // 12345678@dut4life.ac.za
-                string studentPattern =
-                $"{model.StudentNumber}@dut4life.ac.za";
-
-                if (!Regex.IsMatch(
-                    model.Email,
-                    studentPattern,
-                    RegexOptions.IgnoreCase))
+                string studentPattern = @"^[0-9]{8}@dut4life\.ac\.za$";
+                if (!Regex.IsMatch(model.Email, studentPattern, RegexOptions.IgnoreCase))
                 {
-                    ModelState.AddModelError(
-                        "Email",
-                        "Student email must start with an 8-digit student number and end with @dut4life.ac.za");
-
+                    ModelState.AddModelError("Email", "Student email must start with an 8-digit student number and end with @dut4life.ac.za");
                     return View(model);
                 }
             }
-
             else if (model.Role == "Staff")
             {
-                string staffPattern =
-                    @"^[A-Za-z]+@dut\.ac\.za$";
-
-                if (!Regex.IsMatch(
-                    model.Email,
-                    staffPattern,
-                    RegexOptions.IgnoreCase))
+                string staffPattern = @"^[A-Za-z]+@dut\.ac\.za$";
+                if (!Regex.IsMatch(model.Email, staffPattern, RegexOptions.IgnoreCase))
                 {
-                    ModelState.AddModelError(
-                        "Email",
-                        "Staff email must start with a name and end with @dut.ac.za");
-
+                    ModelState.AddModelError("Email", "Staff email must start with a name and end with @dut.ac.za");
                     return View(model);
                 }
             }
@@ -124,7 +117,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 PhoneNumber = model.PhoneNumber,
                 Role = model.Role
             };
-
+            
             // Hash password
             member.PasswordHash =
                 _passwordHasher.HashPassword(
@@ -252,7 +245,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 new Claim(
                     ClaimTypes.Name,
-                    member.PhoneNumber),
+                    $"{member.FirstName} {member.LastName}"),
 
                 new Claim(
                     ClaimTypes.Email,
@@ -260,7 +253,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 new Claim(
                     ClaimTypes.Role,
-                    member.Role)
+                    member.Role),
+
+                new Claim("PhoneNumber", member.PhoneNumber ?? "")
             };
 
             var identity = new ClaimsIdentity(
