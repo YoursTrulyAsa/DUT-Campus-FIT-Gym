@@ -589,6 +589,15 @@
                     <a asp-controller="Member"
                        asp-action="Equipment"
                        class="quick-action">
+                       asp-action="Reservations">
+
+                        <i class="fa-solid fa-calendar-plus"></i>
+
+                        <span>
+                            Reserved Equipment
+                        </span>
+
+                    </a>
 
                         <div class="quick-action-icon">
                             <i class="fa-solid fa-dumbbell"></i>
@@ -605,12 +614,17 @@
                         </div>
 
                         <i class="fa-solid fa-arrow-right action-arrow"></i>
+                        <span>
+                            View Attendance
+                        </span>
 
                     </a>
 
 
                     <!-- TRAINER -->
                     <a asp-controller="Member"
+                       asp-action="RequestTrainer"
+                       class="trainer-request-button">
                        asp-action="RequestTrainer"
                        class="quick-action">
 
@@ -629,6 +643,20 @@
                         </div>
 
                         <i class="fa-solid fa-arrow-right action-arrow"></i>
+                        <span>
+                            Request Trainer
+                        </span>
+
+                    </a>
+                    <!-- MY TRAINER REQUESTS -->
+                    <a asp-controller="Member"
+                       asp-action="MyTrainerRequests">
+
+                        <i class="fa-solid fa-user-check"></i>
+
+                        <span>
+                            My Trainer Requests
+                        </span>
 
                     </a>
 

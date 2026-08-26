@@ -1,8 +1,22 @@
-﻿@model Membership
+﻿@model DUT_Campus_FIT_Gym.Models.Membership?
 
 @{
     ViewData["Title"] = "My Membership";
 
+    int daysRemaining = 0;
+    bool isActive = false;
+
+    if (Model != null)
+    {
+        daysRemaining = Math.Max(
+            0,
+            (Model.EndDate.Date - DateTime.Today).Days
+        );
+
+        isActive =
+            Model.Status == "Active" &&
+            Model.EndDate.Date >= DateTime.Today;
+    }
     string statusClass = Model?.Status switch
     {
         "Active" => "status-active",
@@ -11,6 +25,9 @@
         "Rejected" => "status-rejected",
         _ => "status-inactive"
     };
+}
+
+    var pendingApplication = ViewBag.PendingApplication;
 }
 
 <div class="membership-page">
@@ -27,18 +44,212 @@
                 My Gym Membership
             </h1>
 
-            <p>
-                View your membership details and payment status.
-            </p>
+                <p>
+                    View your current gym membership details.
+                </p>
+
+            </div>
+
         </div>
 
-        <div class="membership-header-icon">
-            <i class="fa-solid fa-id-card"></i>
-        </div>
+
+        <!-- ========================================== -->
+        <!-- SUCCESS MESSAGE -->
+        <!-- ========================================== -->
+        @if (TempData["MembershipSuccess"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["MembershipSuccess"]
+            </div>
+        }
+
+
+        <!-- ========================================== -->
+        <!-- ERROR MESSAGE -->
+        <!-- ========================================== -->
+        @if (TempData["MembershipError"] != null)
+        {
+            <div class="alert alert-warning">
+                @TempData["MembershipError"]
+            </div>
+        }
+
+
+        <!-- ========================================== -->
+        <!-- PENDING APPLICATION -->
+        <!-- ========================================== -->
+        @if (pendingApplication != null)
+        {
+            <div class="membership-card">
+
+                <div class="membership-status-panel active">
+
+                    <div class="status-icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+
+                    <div>
+
+                        <span>
+                            MEMBERSHIP APPLICATION
+                        </span>
+
+                        <strong>
+                            Application Pending
+                        </strong>
+
+                        <p>
+                            Your membership application has been
+                            submitted successfully and is waiting
+                            for admin approval.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="membership-details-grid">
+
+                    <!-- APPLICATION DATE -->
+
+                    <div class="membership-detail">
+
+                        <div class="detail-icon">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+
+                        <div>
+
+                            <span>
+                                APPLICATION DATE
+                            </span>
+
+                            <strong>
+                                @pendingApplication.ApplicationDate.ToString("dd MMM yyyy")
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- MEMBERSHIP PERIOD -->
+
+                    <div class="membership-detail">
+
+                        <div class="detail-icon">
+                            <i class="bi bi-card-checklist"></i>
+                        </div>
+
+                        <div>
+
+                            <span>
+                                MEMBERSHIP PERIOD
+                            </span>
+
+                            <strong>
+                                @pendingApplication.MembershipType
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="membership-detail">
+
+                        <div class="detail-icon">
+                            <i class="bi bi-info-circle"></i>
+                        </div>
+
+                        <div>
+
+                            <span>
+                                STATUS
+                            </span>
+
+                            <strong>
+                                Pending
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+        else if (Model == null)
+        {
+            <!-- ========================================== -->
+            <!-- NO MEMBERSHIP -->
+            <!-- ========================================== -->
+
+            <div class="membership-card">
+
+                <div class="membership-status-panel expired">
+
+                    <div class="status-icon">
+                        <i class="bi bi-exclamation-lg"></i>
+                    </div>
+
+                    <div>
+
+                        <span>
+                            MEMBERSHIP STATUS
+                        </span>
+
+                        <strong>
+                            No Membership
+                        </strong>
+
+                        <p>
+                            You do not currently have a gym membership.
+                            Apply for a membership to access the
+                            DUT Campus FIT Gym.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="membership-actions">
+
+                    <a asp-action="Create"
+                       class="btn btn-primary">
+
+                        <i class="bi bi-plus-circle"></i>
+
+                        Apply for Membership
+
+                    </a>
+
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <!-- ========================================== -->
+            <!-- EXISTING MEMBERSHIP -->
+            <!-- ========================================== -->
+
+            <div class="membership-header">
 
     </div>
+                <div></div>
 
+                <div class="membership-status-badge
+                    @(isActive ? "active" : "expired")">
 
+                    <span></span>
+
+                    @(isActive ? "ACTIVE" : "EXPIRED")
     @if (Model == null)
     {
         <!-- NO MEMBERSHIP -->
@@ -66,9 +277,13 @@
                 <span>
                     Apply for Membership
                 </span>
+                <!-- ========================================== -->
+                <!-- CARD HEADER -->
+                <!-- ========================================== -->
 
             </a>
 
+                    <div>
         </div>
     }
     else
@@ -80,13 +295,16 @@
 
                 <div>
 
+                        <span class="card-small-label">
+                            MEMBERSHIP PLAN
+                        </span>
                     <span class="card-small-label">
                         DUT CAMPUS FIT GYM
                     </span>
 
-                    <h2>
-                        @Model.MembershipType
-                    </h2>
+                        <h2>
+                            @Model.MembershipType
+                        </h2>
 
                     <p>
                         Gym Membership
@@ -99,7 +317,7 @@
                     <i class="fa-solid fa-dumbbell"></i>
                 </div>
 
-            </div>
+                </div>
 
 
             <!-- STATUS -->
@@ -251,7 +469,7 @@
                         Complete your payment to activate your membership.
                     </p>
 
-                </div>
+                    </div>
 
                 <a asp-controller="Banking"
                    asp-action="Index"

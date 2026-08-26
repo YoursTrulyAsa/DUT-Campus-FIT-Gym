@@ -17,6 +17,12 @@ namespace DUT_Campus_FIT_Gym.Models
         // Make these nullable since they might not be set until payment is complete
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        [ForeignKey("MemberId")]
+        public Member? Member { get; set; }
+
+        [Required]
+        [StringLength(20)]
+        public string MembershipType { get; set; } = "";
 
         public string Status { get; set; } = "WaitingForPayment";
         [Column(TypeName = "decimal(18,2)")]

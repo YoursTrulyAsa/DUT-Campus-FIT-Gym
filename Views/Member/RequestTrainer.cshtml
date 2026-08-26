@@ -4,101 +4,91 @@
 
 <div class="container mt-4">
 
-    <div class="row justify-content-center">
+    <div class="card shadow">
 
-        <div class="col-md-7">
+        <div class="card-header">
+            <h3>Request Trainer Assistance</h3>
+        </div>
 
-            <div class="card shadow">
+        <div class="card-body">
 
-                <div class="card-header">
-                    <h3>Request Trainer Assistance</h3>
+            @if (TempData["TrainerRequestSuccess"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["TrainerRequestSuccess"]
                 </div>
+            }
 
-                <div class="card-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    @Html.ValidationSummary(false)
+                </div>
+            }
 
-                    <p class="text-muted">
-                        Choose a trainer and explain how they can
-                        assist you with your fitness goals.
-                    </p>
+            <form asp-action="RequestTrainer"
+                  asp-controller="Member"
+                  method="post">
 
-                    <form asp-controller="Member"
-                          asp-action="RequestTrainer"
-                          method="post">
+                @Html.AntiForgeryToken()
 
-                        @Html.AntiForgeryToken()
+                <div class="mb-3">
 
-                        <div asp-validation-summary="All"
-                             class="text-danger mb-3">
-                        </div>
+                    <label class="form-label">
+                        Select Trainer
+                    </label>
 
-                        <!-- TRAINER -->
+                    <select name="trainerId"
+                            class="form-select"
+                            required>
 
-                        <div class="mb-3">
+                        <option value="">
+                            -- Select a Trainer --
+                        </option>
 
-                            <label class="form-label">
-                                Select Trainer
-                            </label>
+                        @foreach (var trainer in ViewBag.Trainers)
+                        {
+                            <option value="@trainer.TrainerId">
+                                @trainer.TrainerName
+                            </option>
+                        }
 
-                            <select name="trainerId"
-                                    class="form-select"
-                                    required>
-
-                                <option value="">
-                                    -- Select Trainer --
-                                </option>
-
-                                @foreach (var trainer in ViewBag.Trainers)
-                                {
-                                    <option value="@trainer.MemberId">
-
-                                        @trainer.FirstName
-                                        @trainer.LastName
-
-                                    </option>
-                                }
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- MESSAGE -->
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                What do you need help with?
-                            </label>
-
-                            <textarea name="requestMessage"
-                                      class="form-control"
-                                      rows="5"
-                                      placeholder="Example: I would like help creating a workout plan based on my fitness goal."
-                                      required></textarea>
-
-                        </div>
-
-
-                        <button type="submit"
-                                class="btn btn-success">
-
-                            Request Trainer
-
-                        </button>
-
-                        <a asp-controller="Member"
-                           asp-action="Dashboard"
-                           class="btn btn-secondary">
-
-                            Cancel
-
-                        </a>
-
-                    </form>
+                    </select>
 
                 </div>
 
-            </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        What assistance do you need?
+                    </label>
+
+                    <textarea name="requestMessage"
+                              class="form-control"
+                              rows="5"
+                              maxlength="500"
+                              placeholder="Explain what you need help with..."
+                              required></textarea>
+
+                </div>
+
+
+                <button type="submit"
+                        class="btn btn-primary">
+
+                    Send Request
+
+                </button>
+
+                <a asp-action="Dashboard"
+                   class="btn btn-secondary">
+
+                    Cancel
+
+                </a>
+
+            </form>
 
         </div>
 

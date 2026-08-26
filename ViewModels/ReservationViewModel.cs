@@ -7,6 +7,7 @@
         public int ReservationID { get; set; }
 
         public int MemberID { get; set; }
+        public DateTime EndTime { get; set; }
 
         public DateTime ReservationDate { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DUT_Campus_FIT_Gym.Models
 {
@@ -25,10 +26,15 @@ namespace DUT_Campus_FIT_Gym.Models
 
         public DateTime? ResponseDate { get; set; }
 
+        // Date when trainer completed the request
+        public DateTime? CompletionDate { get; set; }
+
         // Student who requested assistance
+        [ForeignKey("StudentId")]
         public Member Student { get; set; }
 
         // Trainer who receives the request
-        public Member Trainer { get; set; }
+        [ForeignKey("TrainerId")]
+        public Trainer Trainer { get; set; }
     }
 }

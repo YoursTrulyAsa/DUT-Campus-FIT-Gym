@@ -1,0 +1,239 @@
+﻿@model DUT_Campus_FIT_Gym.Models.Member
+
+@{
+    ViewData["Title"] = "Student Profile";
+}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Student Profile</h1>
+            <p class="text-muted">
+                View the full workout profile of your accepted student.
+            </p>
+        </div>
+
+        <a asp-controller="Trainer"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+
+    <!-- STUDENT INFORMATION -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                Personal Information
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <strong>First Name</strong>
+                    <p>@Model.FirstName</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Last Name</strong>
+                    <p>@Model.LastName</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Student Number</strong>
+                    <p>@Model.StaffStudentNumber</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Email</strong>
+                    <p>@Model.Email</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Phone Number</strong>
+                    <p>@Model.PhoneNumber</p>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Role</strong>
+                    <p>@Model.Role</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- WORKOUT PROFILE -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">
+                Workout Profile
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.WorkoutProfiles != null &&
+                 Model.WorkoutProfiles.Any())
+            {
+                var profile = Model.WorkoutProfiles.First();
+
+                <div class="row">
+
+                    <div class="col-md-3 mb-3">
+                        <strong>Age</strong>
+                        <p>
+                            @profile.Age
+                        </p>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <strong>Weight</strong>
+                        <p>
+                            @profile.Weight kg
+                        </p>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <strong>Height</strong>
+                        <p>
+                            @profile.Height cm
+                        </p>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <strong>Fitness Goal</strong>
+                        <p>
+                            @profile.Goal
+                        </p>
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    This student has not created a workout profile yet.
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- WORKOUT PLANS -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header bg-warning">
+            <h4 class="mb-0">
+                Assigned Workout Plans
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.WorkoutPlans != null &&
+                 Model.WorkoutPlans.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-striped">
+
+                        <thead class="table-dark">
+
+                            <tr>
+                                <th>Workout</th>
+                                <th>Exercise</th>
+                                <th>Day</th>
+                                <th>Sets</th>
+                                <th>Repetitions</th>
+                                <th>Rest Time</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var workout in Model.WorkoutPlans)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @workout.WorkoutName
+                                    </td>
+
+                                    <td>
+                                        @workout.ExerciseName
+                                    </td>
+
+                                    <td>
+                                        @workout.WorkoutDay
+                                    </td>
+
+                                    <td>
+                                        @workout.Sets
+                                    </td>
+
+                                    <td>
+                                        @workout.Repetitions
+                                    </td>
+
+                                    <td>
+                                        @workout.RestTime
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    No workout plan has been assigned to this student yet.
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTIONS -->
+
+    <div class="mb-5">
+
+        <a asp-controller="Trainer"
+           asp-action="CreateWorkout"
+           asp-route-memberId="@Model.MemberId"
+           class="btn btn-success me-2">
+            Assign Workout Plan
+        </a>
+
+        <a asp-controller="Trainer"
+           asp-action="Requests"
+           class="btn btn-secondary">
+            Manage Trainer Request
+        </a>
+
+    </div>
+
+</div>

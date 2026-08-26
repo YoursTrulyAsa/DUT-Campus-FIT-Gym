@@ -1,7 +1,7 @@
-﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Member>
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.ViewModels.AdminReservationViewModel>
 
 @{
-    ViewData["Title"] = "Manage Members";
+    ViewData["Title"] = "View Reservations";
 }
 
 <div class="container mt-4">
@@ -9,28 +9,25 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-            <h1>Manage Members</h1>
+            <h1>Equipment Reservations</h1>
 
             <p class="text-muted">
-                View all registered gym members.
+                View all equipment reservations made by gym members.
             </p>
         </div>
 
         <a asp-controller="Admin"
            asp-action="Index"
            class="btn btn-outline-secondary">
-
             Back to Dashboard
-
         </a>
 
     </div>
 
-
     @if (Model == null || !Model.Any())
     {
         <div class="alert alert-info">
-            No members have been registered yet.
+            There are currently no equipment reservations.
         </div>
     }
     else
@@ -41,69 +38,65 @@
 
                 <div class="table-responsive">
 
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover">
 
                         <thead>
-
                             <tr>
-                                <th>Name</th>
-                                <th>Student/Staff Number</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Role</th>
+                                <th>Member</th>
+                                <th>Student Number</th>
+                                <th>Equipment</th>
+                                <th>Reservation Date</th>
+                                <th>Status</th>
                             </tr>
-
                         </thead>
 
                         <tbody>
 
-                            @foreach (var member in Model)
+                            @foreach (var reservation in Model)
                             {
                                 <tr>
 
                                     <td>
-                                        <strong>
-                                            @member.FirstName
-                                            @member.LastName
-                                        </strong>
+                                        @reservation.MemberName
                                     </td>
 
                                     <td>
-                                        @member.StaffStudentNumber
+                                        @reservation.StudentNumber
                                     </td>
 
                                     <td>
-                                        @member.Email
+                                        @reservation.EquipmentName
                                     </td>
 
                                     <td>
-                                        @member.PhoneNumber
+                                        @reservation.ReservationDate.ToString(
+                                            "dd MMM yyyy HH:mm")
                                     </td>
 
                                     <td>
 
-                                        @if (member.Role == "Student")
-                                        {
-                                            <span class="badge bg-primary">
-                                                Student
-                                            </span>
-                                        }
-                                        else if (member.Role == "Trainer")
+                                        @if (reservation.Status == "Reserved")
                                         {
                                             <span class="badge bg-success">
-                                                Trainer
+                                                Reserved
                                             </span>
                                         }
-                                        else if (member.Role == "Staff")
+                                        else if (reservation.Status == "Completed")
                                         {
-                                            <span class="badge bg-info text-dark">
-                                                Staff
+                                            <span class="badge bg-primary">
+                                                Completed
+                                            </span>
+                                        }
+                                        else if (reservation.Status == "Cancelled")
+                                        {
+                                            <span class="badge bg-danger">
+                                                Cancelled
                                             </span>
                                         }
                                         else
                                         {
                                             <span class="badge bg-secondary">
-                                                @member.Role
+                                                @reservation.Status
                                             </span>
                                         }
 

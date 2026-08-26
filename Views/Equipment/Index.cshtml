@@ -1,50 +1,300 @@
 ﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Equipment>
 
-<h1 style="color:red;">TEST — EQUIPMENT PAGE</h1>
+@{
+    ViewData["Title"] = "Gym Equipment";
 
-<p>Equipment found: @ViewBag.EquipmentCount</p>
+    var activeReservations =
+        ViewBag.ActiveReservations
+        as List<DUT_Campus_FIT_Gym.Models.Reservation>;
+}
 
-<h1>Equipment</h1>
-<p>Equipment found: @ViewBag.EquipmentCount</p>
-<a asp-action="Create" class="btn btn-primary mb-3">Add Equipment</a>
+<div class="container mt-5">
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Equipment Name</th>
-            <th>Category</th>
-            <th>Available</th>
-            <th>Location</th>
-            <th>Action</th>
-        </tr>
-    </thead>
+    <!-- PAGE HEADER -->
 
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.EquipmentName</td>
-                <td>@item.Category</td>
-                <td>
-                    @(item.IsAvailable ? "Available" : "Unavailable")
-                </td>
-                <td>@item.Location</td>
-                <td>
-                    @if (item.IsAvailable)
-                    {
-                        <form asp-action="Reserve" method="post">
-                            <input type="hidden" name="id" value="@item.EquipmentID" />
-                            <button type="submit" class="btn btn-primary">
-                                Reserve
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <span>Unavailable</span>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="mb-1">Gym Equipment</h1>
+
+            <p class="text-muted mb-0">
+                View equipment availability and reserve equipment for your workout.
+            </p>
+        </div>
+
+        <a asp-controller="Equipment"
+           asp-action="MyReservations"
+           class="btn btn-outline-primary">
+
+            My Reservations
+
+        </a>
+
+    </div>
+
+
+    <!-- SUCCESS MESSAGE -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- ERROR MESSAGE -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- EQUIPMENT TABLE -->
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th class="px-4">
+                                Equipment
+                            </th>
+
+                            <th>
+                                Category
+                            </th>
+
+                            <th>
+                                Location
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th class="text-center">
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                var activeReservation =
+                                    activeReservations?
+                                    .FirstOrDefault(r =>
+                                        r.EquipmentID == item.EquipmentID &&
+                                        r.Status == "Reserved" &&
+                                        r.EndTime > DateTime.Now);
+
+
+                                <tr>
+
+                                    <!-- EQUIPMENT NAME -->
+
+                                    <td class="px-4">
+
+                                        <strong>
+                                            @item.EquipmentName
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- CATEGORY -->
+
+                                    <td>
+                                        @item.Category
+                                    </td>
+
+
+                                    <!-- LOCATION -->
+
+                                    <td>
+                                        @item.Location
+                                    </td>
+
+
+                                    <!-- STATUS -->
+
+                                    <td>
+
+                                        @if (activeReservation == null)
+                                        {
+                                            <span class="badge bg-success">
+                                                Available
+                                            </span>
+
+                                            <div class="small text-success mt-1">
+                                                Ready to use
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                Reserved
+                                            </span>
+
+                                            <div class="small text-danger mt-1">
+
+                                                Available again at
+
+                                                <strong>
+                                                    @activeReservation.EndTime.ToString("HH:mm")
+                                                </strong>
+
+                                            </div>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ACTION -->
+
+                                    <td class="text-center">
+
+                                        @if (activeReservation == null)
+                                        {
+                                            <form asp-controller="Equipment"
+                                                  asp-action="Reserve"
+                                                  method="post"
+                                                  class="d-inline">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@item.EquipmentID" />
+
+                                                <button type="submit"
+                                                        class="btn btn-primary btn-sm">
+
+                                                    Reserve
+
+                                                </button>
+
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger fw-semibold">
+
+                                                Currently Reserved
+
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+
+                                <td colspan="5"
+                                    class="text-center py-5">
+
+                                    <div class="mb-3"
+                                         style="font-size: 40px;">
+                                        🏋️
+                                    </div>
+
+                                    <h5 class="text-muted">
+                                        No Equipment Available
+                                    </h5>
+
+                                    <p class="text-muted mb-0">
+                                        There is currently no gym equipment registered.
+                                    </p>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESERVATION INFORMATION -->
+
+    <div class="alert alert-info mt-4">
+
+        <h5 class="mb-2">
+            Equipment Reservation Rules
+        </h5>
+
+        <ul class="mb-0">
+
+            <li>
+                Each student can reserve only
+                <strong>one piece of equipment</strong>
+                at a time.
+            </li>
+
+            <li>
+                Each reservation lasts for
+                <strong>10 minutes</strong>.
+            </li>
+
+            <li>
+                You can cancel your reservation before
+                the 10 minutes expire.
+            </li>
+
+            <li>
+                Equipment automatically becomes
+                <strong>Available</strong>
+                when the reservation expires.
+            </li>
+
+            <li>
+                Equipment marked
+                <strong>Reserved</strong>
+                cannot be reserved by another student.
+            </li>
+
+        </ul>
+
+    </div>
+
+</div>
