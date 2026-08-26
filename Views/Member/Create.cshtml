@@ -2,6 +2,10 @@
 
 @{
     ViewData["Title"] = "Apply for Membership";
+
+    bool firstTimeMember =
+        ViewBag.FirstTimeMember != null &&
+        (bool)ViewBag.FirstTimeMember;
 }
 
 <div class="membership-page">
@@ -39,42 +43,52 @@
 
         <div class="membership-card">
 
-        <h2 class="membership-title">
-            Create Membership
-        </h2>
+            <h2 class="membership-title">
+                Create Membership
+            </h2>
 
-        @if (Model.IsRenewal)
-        {
-            <div class="alert alert-info">
-                <strong>Membership Renewal</strong>
-                <br />
-                You have previously registered for a gym membership.
-                The first-time membership discount is therefore not available.
+
+            <!-- ========================================== -->
+            <!-- VALIDATION SUMMARY -->
+            <!-- ========================================== -->
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-4">
             </div>
-        }
 
-        <div asp-validation-summary="All"
-             class="text-danger mb-3">
-        </div>
 
-        <form asp-controller="Member"
-              asp-action="Create"
-              method="post">
+            <!-- ========================================== -->
+            <!-- FIRST TIME MEMBER NOTICE -->
+            <!-- ========================================== -->
+            @if (firstTimeMember)
+            {
+                <div class="alert alert-success mb-4">
+
+                    <strong>
+                        🎉 First-Time Member Discount
+                    </strong>
+
+                    <p class="mb-0">
+                        Welcome to DUT Campus FIT Gym!
+                        You qualify for a
+                        <strong>10% discount</strong>
+                        on your first membership.
+                    </p>
+
+                </div>
+            }
+
+
+            <!-- ========================================== -->
+            <!-- FORM -->
+            <!-- ========================================== -->
+
             <form asp-controller="Member"
                   asp-action="Create"
                   method="post"
                   enctype="multipart/form-data">
 
                 @Html.AntiForgeryToken()
-
-
-                <!-- ========================================== -->
-                <!-- VALIDATION -->
-                <!-- ========================================== -->
-
-                <div asp-validation-summary="ModelOnly"
-                     class="text-danger mb-4">
-                </div>
 
 
                 <!-- ========================================== -->
@@ -89,29 +103,104 @@
 
                     <hr class="membership-divider" />
 
-                <div class="user-detail">
-                    <label asp-for="Name">Name</label>
-                    <input asp-for="Name"
-                           readonly />
+
+                    <div class="user-detail">
+
+                        <label asp-for="Name">
+                            Name
+                        </label>
+
+                        <input asp-for="Name"
+                               class="form-control"
+                               readonly />
+
+                    </div>
+
+
+                    <div class="user-detail">
+
+                        <label asp-for="Surname">
+                            Surname
+                        </label>
+
+                        <input asp-for="Surname"
+                               class="form-control"
+                               readonly />
+
+                    </div>
+
+
+                    <div class="user-detail">
+
+                        <label asp-for="Email">
+                            Email
+                        </label>
+
+                        <input asp-for="Email"
+                               class="form-control"
+                               readonly />
+
+                    </div>
+
+
+                    <div class="user-detail">
+
+                        <label asp-for="StudentNo">
+                            Student No
+                        </label>
+
+                        <input asp-for="StudentNo"
+                               class="form-control"
+                               readonly />
+
+                    </div>
+
                 </div>
 
-                <div class="user-detail">
-                    <label asp-for="Surname">Surname</label>
-                    <input asp-for="Surname"
-                           readonly />
-                </div>
 
-                <div class="user-detail">
-                    <label asp-for="Email">Email</label>
-                    <input asp-for="Email"
-                           readonly />
-                </div>
+                <!-- ========================================== -->
+                <!-- MEMBERSHIP PERIOD -->
+                <!-- ========================================== -->
 
-                <div class="user-detail">
-                    <label asp-for="StudentNo">Student No</label>
-                    <input asp-for="StudentNo"
-                           readonly />
-                </div>
+                <div class="membership-section">
+
+                    <h4 class="membership-section-title">
+                        Membership Period
+                    </h4>
+
+                    <hr class="membership-divider" />
+
+
+                    <div class="user-detail">
+
+                        <label asp-for="MembershipPeriod">
+                            Membership Period
+                        </label>
+
+                        <select asp-for="MembershipPeriod"
+                                id="MembershipPeriod"
+                                class="form-control">
+
+                            <option value="">
+                                Select membership period
+                            </option>
+
+                            <option value="Semester">
+                                Semester
+                            </option>
+
+                            <option value="Annual">
+                                Annual
+                            </option>
+
+                        </select>
+
+
+                        <span asp-validation-for="MembershipPeriod"
+                              class="text-danger">
+                        </span>
+
+                    </div>
 
                 </div>
 
@@ -131,18 +220,16 @@
 
                     <div class="payment-options">
 
-
                         <div class="payment-option">
 
-                        <input asp-for="Payment_Method"
-                               type="radio"
-                               value="Card"
-                               id="card"
-                               required />
+                            <input asp-for="PaymentMethod"
+                                   type="radio"
+                                   value="Card"
+                                   id="card" />
 
-                        <label for="card">
-                            Card
-                        </label>
+                            <label for="card">
+                                Card
+                            </label>
 
                         </div>
 
@@ -160,13 +247,7 @@
 
                         </div>
 
-                </div>
-
-                <span asp-validation-for="Payment_Method"
-                      class="text-danger">
-                </span>
-
-            </div>
+                    </div>
 
 
                     <span asp-validation-for="PaymentMethod"
@@ -188,11 +269,7 @@
 
                     <hr class="membership-divider" />
 
-                @if (Model.CanClaimFirstTimeDiscount)
-                {
-                    <div class="first-time-options">
 
-                        <div class="first-time-option">
                     <p>
                         Please upload your DUT student/staff card
                         for verification.
@@ -204,59 +281,25 @@
                         <label asp-for="VerificationDocument">
                             Student / Staff Card
                         </label>
-                            <label for="firstYes">
-                                Yes
-                            </label>
+
 
                         <input asp-for="VerificationDocument"
                                type="file"
                                class="form-control"
                                accept=".jpg,.jpeg,.png,.pdf" />
 
-                    </div>
 
-                        <div class="first-time-option">
-
-                            <input asp-for="First_Time_Member"
-                                   type="radio"
-                                   value="false"
-                                   id="firstNo"
-                                   checked />
-
-                            <label for="firstNo">
-                                No
-                            </label>
-                    <span asp-validation-for="VerificationDocument"
-                          class="text-danger">
-                    </span>
-
-                        </div>
+                        <span asp-validation-for="VerificationDocument"
+                              class="text-danger">
+                        </span>
 
                     </div>
+
 
                     <small class="text-muted">
                         Accepted files: JPG, JPEG, PNG or PDF.
                         Maximum size: 5 MB.
                     </small>
-                    <small class="text-muted">
-                        First-time members receive a 10% discount.
-                    </small>
-                }
-                else
-                {
-                    <div class="alert alert-secondary mb-0">
-
-                        You have previously registered for a gym membership.
-
-                        <br />
-
-                        <strong>
-                            First-time membership discount:
-                            Not available
-                        </strong>
-
-                    </div>
-                }
 
                 </div>
 
@@ -267,26 +310,11 @@
 
                 <div class="membership-price-box">
 
-                <div class="price-row">
-
-                    <span>
-                        Membership Price
-                    </span>
-
-                    <strong id="basePrice">
-                        R150.00
-                    </strong>
-
-                </div>
-
-                <div class="price-row discount-row">
+                    <div class="price-row">
 
                         <span>
                             Membership Price
                         </span>
-                    <span>
-                        First-Time Discount
-                    </span>
 
                         <strong id="membershipPrice">
                             Select a membership period
@@ -294,17 +322,50 @@
 
                     </div>
 
-                <hr />
 
-                <div class="price-total">
+                    @if (firstTimeMember)
+                    {
+                        <div class="price-row">
 
-                    <span>
-                        Total To Pay
-                    </span>
+                            <span>
+                                First-Time Discount
+                            </span>
 
-                    <strong id="finalPrice">
-                        R150.00
-                    </strong>
+                            <strong id="membershipDiscount">
+                                -
+                            </strong>
+
+                        </div>
+                    }
+
+
+                    <hr />
+
+
+                    <div class="price-total">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong id="membershipTotal">
+                            Select a membership period
+                        </strong>
+
+                    </div>
+
+
+                    <div class="price-row mt-2">
+
+                        <span>
+                            Application Status
+                        </span>
+
+                        <strong>
+                            Pending Approval
+                        </strong>
+
+                    </div>
 
                 </div>
 
@@ -325,7 +386,8 @@
                     </button>
 
 
-                    <a asp-action="Membership"
+                    <a asp-controller="Member"
+                       asp-action="Membership"
                        class="membership-back-btn">
 
                         <i class="bi bi-arrow-left"></i>
@@ -346,64 +408,94 @@
 
 
 @section Scripts {
-    const canClaimFirstTimeDiscount =
-        @(Model.CanClaimFirstTimeDiscount ? "true" : "false");
 
+    <partial name="_ValidationScriptsPartial" />
 
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
-        const plan =
-            paymentPlan.value;
-
-        const price =
-            prices[plan];
-
-        let discountAmount = 0;
-
-        if (canClaimFirstTimeDiscount) {
     <script>
 
-            const firstTime =
-                document.querySelector(
-                    'input[name="First_Time_Member"]:checked'
-                );
         const membershipPeriod =
             document.getElementById("MembershipPeriod");
 
         const membershipPrice =
             document.getElementById("membershipPrice");
 
+        const membershipDiscount =
+            document.getElementById("membershipDiscount");
+
+        const membershipTotal =
+            document.getElementById("membershipTotal");
+
+
+        // ==========================================
+        // MEMBERSHIP PRICES
+        // ==========================================
+
+        const prices = {
+            Semester: 150,
+            Annual: 300
+        };
+
+
+        // ==========================================
+        // FIRST-TIME MEMBER
+        // ==========================================
+
+        const firstTimeMember =
+            @(firstTimeMember.ToString().ToLower());
+
+
+        // ==========================================
+        // UPDATE PRICE
+        // ==========================================
 
         function updatePrice() {
-            if (firstTime &&
-                firstTime.value === "true") {
 
-            if (!membershipPeriod) {
+            if (!membershipPeriod ||
+                !membershipPrice ||
+                !membershipTotal) {
+
                 return;
             }
-                discountAmount =
-                    price * 0.10;
-            }
-        }
+
 
             const selected =
                 membershipPeriod.value;
-        const total =
-            price - discountAmount;
 
 
-            if (selected === "Semester") {
+            if (selected &&
+                prices[selected]) {
+
+                const basePrice =
+                    prices[selected];
+
+                let discount = 0;
+
+                if (firstTimeMember) {
+
+                    discount =
+                        basePrice * 0.10;
+
+                }
+
+
+                const finalPrice =
+                    basePrice - discount;
+
 
                 membershipPrice.textContent =
-                    "R250.00";
+                    "R" + basePrice.toFixed(2);
 
-            }
-            else if (selected === "Annual") {
 
-                membershipPrice.textContent =
-                    "R500.00";
+                membershipTotal.textContent =
+                    "R" + finalPrice.toFixed(2);
+
+
+                if (membershipDiscount) {
+
+                    membershipDiscount.textContent =
+                        "-R" + discount.toFixed(2);
+
+                }
 
             }
             else {
@@ -411,15 +503,40 @@
                 membershipPrice.textContent =
                     "Select a membership period";
 
+
+                membershipTotal.textContent =
+                    "Select a membership period";
+
+
+                if (membershipDiscount) {
+
+                    membershipDiscount.textContent =
+                        "-";
+
+                }
+
             }
+
         }
 
 
-        membershipPeriod.addEventListener(
-            "change",
-            updatePrice
-        );
+        // ==========================================
+        // LISTEN FOR MEMBERSHIP CHANGE
+        // ==========================================
 
+        if (membershipPeriod) {
+
+            membershipPeriod.addEventListener(
+                "change",
+                updatePrice
+            );
+
+        }
+
+
+        // ==========================================
+        // INITIAL PRICE
+        // ==========================================
 
         updatePrice();
 

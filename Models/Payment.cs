@@ -8,35 +8,39 @@ namespace DUT_Campus_FIT_Gym.Models
         [Key]
         public int PaymentId { get; set; }
 
-        [Required]
+        // ==========================================
+        // MEMBER
+        // ==========================================
+
         public int MemberId { get; set; }
 
         [ForeignKey("MemberId")]
         public Member? Member { get; set; }
 
-        [Required]
+
+        // ==========================================
+        // MEMBERSHIP
+        // ==========================================
+
         public int MembershipId { get; set; }
 
         [ForeignKey("MembershipId")]
         public Membership? Membership { get; set; }
 
-        [Required]
-        [Column(TypeName = "decimal(10,2)")]
+
+        // ==========================================
+        // PAYMENT DETAILS
+        // ==========================================
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string PaymentMethod { get; set; } = "";
+        public string? PaymentMethod { get; set; }
 
-        [Required]
-        [StringLength(30)]
-        public string PaymentStatus { get; set; } = "Paid";
+        public string? PaymentStatus { get; set; }
 
-        [Required]
-        public DateTime PaymentDate { get; set; } = DateTime.Now;
+        public DateTime PaymentDate { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string ReceiptNumber { get; set; } = "";
+        public string? ReceiptNumber { get; set; }
     }
 }

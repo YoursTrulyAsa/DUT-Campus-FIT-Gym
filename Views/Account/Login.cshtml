@@ -16,7 +16,9 @@
                      alt="DUT Campus FIT Gym Logo"
                      class="login-logo" />
 
-                <h1>DUT Campus FIT Gym</h1>
+                <h1>
+                    DUT Campus FIT Gym
+                </h1>
 
                 <p>
                     Train. Grow. Achieve.
@@ -26,22 +28,49 @@
 
         </div>
 
+
         <div class="login-right-panel">
 
             <div class="login-card">
 
-                <h2>Welcome Back</h2>
+                <h2>
+                    Welcome Back
+                </h2>
 
                 <p class="login-subtitle">
                     Sign in to your DUT Campus FIT Gym account.
                 </p>
 
 
-                <form asp-action="Login" method="post">
+                @if (TempData["PasswordResetSuccess"] != null)
+                {
+                    <div class="alert alert-success">
+                        @TempData["PasswordResetSuccess"]
+                    </div>
+                }
+
+
+                @if (TempData["RegistrationSuccess"] != null)
+                {
+                    <div class="alert alert-success">
+                        @TempData["RegistrationSuccess"]
+                    </div>
+                }
+
+
+                <form asp-controller="Account"
+                      asp-action="Login"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
 
                     <div asp-validation-summary="ModelOnly"
                          class="text-danger mb-3">
                     </div>
+
+
+                    <!-- EMAIL -->
 
                     <div class="mb-4">
 
@@ -51,7 +80,8 @@
 
                         <input asp-for="Email"
                                class="form-control"
-                               placeholder="Enter your email" />
+                               placeholder="Enter your email"
+                               autocomplete="username" />
 
                         <span asp-validation-for="Email"
                               class="text-danger">
@@ -59,9 +89,15 @@
 
                     </div>
 
+
+                    <!-- PASSWORD -->
+
                     <div class="mb-4">
 
-                        <label asp-for="Password" class="form-label"></label>
+                        <label asp-for="Password"
+                               class="form-label">
+                        </label>
+
 
                         <div class="password-wrapper">
 
@@ -69,15 +105,20 @@
                                    type="password"
                                    class="form-control"
                                    id="loginPassword"
-                                   placeholder="Enter your password" />
+                                   placeholder="Enter your password"
+                                   autocomplete="current-password" />
+
 
                             <button type="button"
                                     class="show-password-btn"
                                     onclick="togglePassword()">
+
                                 Show
+
                             </button>
 
                         </div>
+
 
                         <span asp-validation-for="Password"
                               class="text-danger">
@@ -85,11 +126,22 @@
 
                     </div>
 
+
+                    <!-- FORGOT PASSWORD -->
+
                     <div class="forgot-password">
-                        <a asp-action="ForgotPassword">
+
+                        <a asp-controller="Account"
+                           asp-action="ForgotPassword">
+
                             Forgot your password?
+
                         </a>
+
                     </div>
+
+
+                    <!-- LOGIN -->
 
                     <button type="submit"
                             class="btn login-btn w-100">
@@ -98,14 +150,20 @@
 
                     </button>
 
+
+                    <!-- REGISTER -->
+
                     <div class="text-center mt-4">
 
                         <span>
                             Don't have an account?
                         </span>
 
-                        <a asp-action="Register">
+                        <a asp-controller="Account"
+                           asp-action="Register">
+
                             Create Account
+
                         </a>
 
                     </div>
@@ -123,36 +181,44 @@
 
 @section Scripts {
 
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 
-}
+    <script>
 
-<script>
+        function togglePassword() {
 
-    function togglePassword() {
+            const passwordInput =
+                document.getElementById("loginPassword");
 
-        const passwordInput =
-            document.getElementById("loginPassword");
+            const button =
+                document.querySelector(".show-password-btn");
 
-        const button =
-            document.querySelector(".show-password-btn");
 
-        if (passwordInput.type === "password") {
+            if (!passwordInput || !button) {
+                return;
+            }
 
-            passwordInput.type = "text";
-            button.textContent = "Hide";
 
-        } else {
+            if (passwordInput.type === "password") {
 
-            passwordInput.type = "password";
-            button.textContent = "Show";
+                passwordInput.type = "text";
+
+                button.textContent = "Hide";
+
+            }
+            else {
+
+                passwordInput.type = "password";
+
+                button.textContent = "Show";
+
+            }
 
         }
-    }
 
-</script>
+    </script>
+
+}
 
 
 @section Styles {

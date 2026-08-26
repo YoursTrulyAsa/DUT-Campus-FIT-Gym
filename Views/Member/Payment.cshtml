@@ -1,0 +1,364 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Payment>
+
+@{
+    ViewData["Title"] = "Payment";
+}
+
+<div class="payment-history-page">
+
+    <!-- ========================================================= -->
+    <!-- HEADER -->
+    <!-- ========================================================= -->
+
+    <div class="payment-history-header">
+
+        <div>
+
+            <span class="payment-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Payment
+            </h1>
+
+            <p>
+                View your gym membership payments and payment status.
+            </p>
+
+        </div>
+
+
+        <a asp-controller="Member"
+           asp-action="Dashboard"
+           class="back-button">
+
+            ← Back to Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- NO PAYMENTS -->
+    <!-- ========================================================= -->
+    @if (Model == null || !Model.Any())
+    {
+        <div class="payment-empty">
+
+            <div class="empty-icon">
+                <i class="fa-solid fa-credit-card"></i>
+            </div>
+
+            <h2>
+                No Payments Yet
+            </h2>
+
+            <p>
+                You have not made any gym membership payments yet.
+            </p>
+
+            <a asp-controller="Member"
+               asp-action="Membership"
+               class="membership-button">
+
+                View Membership
+
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <!-- ===================================================== -->
+        <!-- SUMMARY -->
+        <!-- ===================================================== -->
+
+        <div class="payment-summary">
+
+            <div class="summary-card">
+
+                <span class="summary-icon">
+                    <i class="fa-solid fa-receipt"></i>
+                </span>
+
+                <div>
+
+                    <small>
+                        TOTAL PAYMENTS
+                    </small>
+
+                    <strong>
+                        @Model.Count()
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-icon">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                </span>
+
+                <div>
+
+                    <small>
+                        TOTAL PAID
+                    </small>
+
+                    <strong>
+                        R @Model
+                        .Where(p =>
+                        p.PaymentStatus != null &&
+                        p.PaymentStatus.Equals(
+                        "Completed",
+                        StringComparison.OrdinalIgnoreCase))
+                        .Sum(p => p.Amount)
+                        .ToString("0.00")
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- PAYMENT TABLE -->
+        <!-- ===================================================== -->
+
+        <div class="payments-card">
+
+            <div class="payments-card-header">
+
+                <div>
+
+                    <span class="payment-label">
+                        TRANSACTION HISTORY
+                    </span>
+
+                    <h2>
+                        My Payments
+                    </h2>
+
+                    <p>
+                        Your gym membership payment records.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="payments-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Receipt
+                            </th>
+
+                            <th>
+                                Membership
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                            <th>
+                                Payment Method
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @foreach (var payment in Model)
+                        {
+                            <tr>
+
+                                <!-- RECEIPT -->
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                                                payment.ReceiptNumber))
+                                    {
+                                        <strong>
+                                            @payment.ReceiptNumber
+                                        </strong>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            —
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- MEMBERSHIP -->
+
+                                <td>
+
+                                    @if (payment.Membership != null)
+                                    {
+                                        @payment.Membership.MembershipType
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            Gym Membership
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- AMOUNT -->
+
+                                <td>
+
+                                    <strong>
+                                        R @payment.Amount.ToString("0.00")
+                                    </strong>
+
+                                </td>
+
+
+                                <!-- PAYMENT METHOD -->
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                                                payment.PaymentMethod))
+                                    {
+                                        @payment.PaymentMethod
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            —
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <!-- DATE -->
+
+                                <td>
+
+                                    @payment.PaymentDate.ToString(
+                                    "dd MMM yyyy, HH:mm")
+
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td>
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                                        payment.PaymentStatus) &&
+                                                        payment.PaymentStatus.Equals(
+                                                        "Completed",
+                                                        StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="payment-status paid">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            Paid
+                                        </span>
+                                    }
+                                    else if (
+                                    !string.IsNullOrWhiteSpace(
+                                    payment.PaymentStatus) &&
+                                    payment.PaymentStatus.Equals(
+                                    "Paid",
+                                    StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="payment-status paid">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            Paid
+                                        </span>
+                                    }
+                                    else if (
+                                    !string.IsNullOrWhiteSpace(
+                                    payment.PaymentStatus) &&
+                                    payment.PaymentStatus.Equals(
+                                    "Pending",
+                                    StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="payment-status pending">
+                                            <i class="fa-solid fa-clock"></i>
+                                            Pending
+                                        </span>
+                                    }
+                                    else if (
+                                    !string.IsNullOrWhiteSpace(
+                                    payment.PaymentStatus) &&
+                                    payment.PaymentStatus.Equals(
+                                    "Failed",
+                                    StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="payment-status failed">
+                                            <i class="fa-solid fa-circle-xmark"></i>
+                                            Failed
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="payment-status">
+                                            @payment.PaymentStatus
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+
+<!-- ========================================================= -->
+<!-- PAGE CSS -->
+<!-- ========================================================= -->
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/payment-history.css"
+          asp-append-version="true" />
+
+}

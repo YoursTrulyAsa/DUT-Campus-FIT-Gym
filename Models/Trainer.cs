@@ -8,9 +8,11 @@ namespace DUT_Campus_FIT_Gym.Models
         public int TrainerId { get; set; }
 
         [Required]
-        public string TrainerName { get; set; }
+        [StringLength(100)]
+        public string TrainerName { get; set; } = "";
 
         [Required]
-        public string Email { get; set; }
+        [EmailAddress]
+        public string Email { get; set; } = "";
     }
 }

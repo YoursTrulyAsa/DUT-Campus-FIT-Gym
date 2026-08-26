@@ -29,7 +29,6 @@ namespace DUT_Campus_FIT_Gym.Models
         [StringLength(20)]
         public string Status { get; set; } = "Pending";
 
-        // Uploaded student/staff card
         [Required]
         [StringLength(255)]
         public string VerificationDocument { get; set; } = "";
@@ -37,8 +36,9 @@ namespace DUT_Campus_FIT_Gym.Models
         public DateTime? ReviewedDate { get; set; }
 
         public string? AdminComment { get; set; }
+
         [Required]
         [StringLength(50)]
-        public string PaymentMethod { get; set; } = "";
+        public string PaymentMethod { get; set; } = "PayFast";
     }
 }

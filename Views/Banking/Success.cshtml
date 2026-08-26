@@ -1,20 +1,349 @@
 ﻿@model BankDetails
+
 @{
-    ViewData["Title"] = "Payment Success";
+    ViewData["Title"] = "Payment Successful";
 }
 
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header bg-success text-white">
-            <h3>Payment Confirmation</h3>
+<div class="payment-success-page">
+
+    <div class="success-card">
+
+        <!-- SUCCESS ICON -->
+        <div class="success-icon">
+            <i class="fa-solid fa-check"></i>
         </div>
-        <div class="card-body">
-            <div class="alert alert-success">
-                <h4>Thank you for your payment!</h4>
-                <p>Your payment of <strong>R @(ViewBag.Amount?.ToString("0.00") ?? "0.00")</strong> has been received.</p>
-                <p>Membership ID: @ViewBag.MembershipId</p>
+
+        <!-- HEADER -->
+        <div class="success-header">
+
+            <span class="success-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Payment Successful
+            </h1>
+
+            <p>
+                Your membership payment has been successfully received.
+            </p>
+
+        </div>
+
+
+        <!-- PAYMENT DETAILS -->
+        <div class="payment-details">
+
+            <div class="payment-detail">
+
+                <span>
+                    PAYMENT STATUS
+                </span>
+
+                <strong class="status-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Successful
+                </strong>
+
             </div>
-            <a href="@Url.Action("Membership", "Member")" class="btn btn-primary">View Membership</a>
+
+
+            <div class="payment-detail">
+
+                <span>
+                    AMOUNT PAID
+                </span>
+
+                <strong>
+                    R @(ViewBag.Amount?.ToString("0.00") ?? "0.00")
+                </strong>
+
+            </div>
+
+
+            <div class="payment-detail">
+
+                <span>
+                    MEMBERSHIP ID
+                </span>
+
+                <strong>
+                    @ViewBag.MembershipId
+                </strong>
+
+            </div>
+
         </div>
+
+
+        <!-- MESSAGE -->
+        <div class="success-message">
+
+            <i class="fa-solid fa-circle-info"></i>
+
+            <div>
+
+                <strong>
+                    Your membership is being activated
+                </strong>
+
+                <p>
+                    Your payment has been received successfully.
+                    You can now return to your membership page
+                    to view your updated membership status.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ACTIONS -->
+        <div class="success-actions">
+
+            <a asp-controller="Member"
+               asp-action="Membership"
+               class="success-btn">
+
+                <i class="fa-solid fa-id-card"></i>
+
+                <span>
+                    View My Membership
+                </span>
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+
+            <a asp-controller="Member"
+               asp-action="Dashboard"
+               class="dashboard-btn">
+
+                <i class="fa-solid fa-house"></i>
+
+                <span>
+                    Go to Dashboard
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <!-- FOOTER -->
+        <div class="success-footer">
+
+            <i class="fa-solid fa-shield-halved"></i>
+
+            <span>
+                Your payment was processed securely.
+            </span>
+
+        </div>
+
     </div>
+
 </div>
+
+
+@section Styles {
+
+    <style>
+
+        .payment-success-page {
+            min-height: calc(100vh - 100px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .success-card {
+            width: 100%;
+            max-width: 720px;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 45px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.10);
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 82px;
+            height: 82px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9f9ef;
+            color: #198754;
+            font-size: 36px;
+        }
+
+        .success-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .success-header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .success-header p {
+            margin-top: 12px;
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .payment-details {
+            margin-top: 35px;
+            border: 1px solid #e9ecef;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .payment-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 22px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+            .payment-detail:last-child {
+                border-bottom: none;
+            }
+
+            .payment-detail span {
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                color: #6c757d;
+            }
+
+            .payment-detail strong {
+                font-size: 16px;
+            }
+
+        .status-success {
+            color: #198754;
+        }
+
+            .status-success i {
+                margin-right: 6px;
+            }
+
+        .success-message {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 14px;
+            background: #f4f8ff;
+            display: flex;
+            gap: 14px;
+            text-align: left;
+        }
+
+            .success-message > i {
+                font-size: 20px;
+                color: #0d6efd;
+                margin-top: 2px;
+            }
+
+            .success-message strong {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .success-message p {
+                margin: 0;
+                color: #6c757d;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+        .success-actions {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .success-btn,
+        .dashboard-btn {
+            min-height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .success-btn {
+            background: #0d6efd;
+            color: #ffffff;
+        }
+
+            .success-btn:hover {
+                color: #ffffff;
+                transform: translateY(-1px);
+                opacity: 0.95;
+            }
+
+        .dashboard-btn {
+            border: 1px solid #dee2e6;
+            color: #212529;
+            background: #ffffff;
+        }
+
+            .dashboard-btn:hover {
+                color: #212529;
+                background: #f8f9fa;
+            }
+
+        .success-footer {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid #eeeeee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+            .success-footer i {
+                color: #198754;
+            }
+
+@@media (max-width: 600px) {
+            .success-card
+
+        {
+            padding: 30px 20px;
+        }
+
+        .success-header h1 {
+            font-size: 26px;
+        }
+
+        .payment-detail {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        }
+    </style>
+}

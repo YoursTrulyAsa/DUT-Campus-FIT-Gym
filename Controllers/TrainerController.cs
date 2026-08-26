@@ -150,8 +150,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     m.Role == "Student" ||
                     m.Role == "Staff")
                 .Include(m => m.WorkoutProfiles)
-                .OrderBy(m => m.FirstName)
-                .ThenBy(m => m.LastName)
+                .OrderBy(m => m.Name)
+                .ThenBy(m => m.Surname)
                 .ToListAsync();
 
             return View(students);

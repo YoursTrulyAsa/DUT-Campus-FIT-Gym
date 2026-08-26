@@ -5,24 +5,88 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/member-reservations.css" />
+    <link rel="stylesheet"
+          href="~/css/member-reservations.css"
+          asp-append-version="true" />
 }
 
 <div class="reservations-page">
 
+    <!-- ========================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ========================================= -->
+
     <div class="page-header">
+
         <div>
-            <h1>My Reservations</h1>
-            <p>Manage the equipment you have reserved.</p>
+
+            <span class="page-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                My Reservations
+            </h1>
+
+            <p>
+                Manage the equipment you have reserved.
+            </p>
+
         </div>
 
-        <a asp-controller="Equipment"
-           asp-action="Index"
+
+        <!-- GO TO EQUIPMENT -->
+
+        <a asp-controller="Member"
+           asp-action="Equipment"
            class="btn reserve-more-btn">
-            + Reserve Equipment
+
+            <i class="fa-solid fa-plus"></i>
+
+            Reserve Equipment
+
         </a>
+
     </div>
 
+
+    <!-- ========================================= -->
+    <!-- SUCCESS MESSAGE -->
+    <!-- ========================================= -->
+    @if (TempData["EquipmentSuccess"] != null)
+    {
+        <div class="alert alert-success">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                @TempData["EquipmentSuccess"]
+            </span>
+
+        </div>
+    }
+
+
+    <!-- ========================================= -->
+    <!-- ERROR MESSAGE -->
+    <!-- ========================================= -->
+    @if (TempData["EquipmentError"] != null)
+    {
+        <div class="alert alert-warning">
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <span>
+                @TempData["EquipmentError"]
+            </span>
+
+        </div>
+    }
+
+
+    <!-- ========================================= -->
+    <!-- RESERVATIONS -->
+    <!-- ========================================= -->
     @if (Model != null && Model.Any())
     {
         <div class="reservation-grid">
@@ -31,71 +95,152 @@
             {
                 <div class="reservation-card">
 
+                    <!-- CARD TOP -->
+
                     <div class="reservation-card-top">
+
                         <div class="equipment-icon">
-                            🏋️
+
+                            <i class="fa-solid fa-dumbbell"></i>
+
                         </div>
+
 
                         <span class="status-badge">
+
                             @reservation.Status
+
                         </span>
+
                     </div>
+
+
+                    <!-- RESERVATION INFORMATION -->
 
                     <div class="reservation-info">
-                        <h3>@reservation.EquipmentName</h3>
+
+                        <span class="card-label">
+                            RESERVED EQUIPMENT
+                        </span>
+
+                        <h3>
+                            @reservation.EquipmentName
+                        </h3>
+
+
+                        <!-- RESERVATION DATE -->
 
                         <div class="reservation-detail">
-                            <span class="detail-label">Reservation Date</span>
-                            <span class="detail-value">
-                                @reservation.ReservationDate
+
+                            <span class="detail-label">
+
+                                <i class="fa-regular fa-calendar"></i>
+
+                                Reservation Date
+
                             </span>
-                        </div>
-                    </div>
 
-                    <div class="reservation-action">
+                            <span class="detail-value">
 
-                        <form asp-controller="Equipment"
-                              asp-action="Unreserve"
-                              method="post">
+                                @reservation.ReservationDate.ToString(
+                                "dd MMM yyyy, HH:mm")
 
-                            @Html.AntiForgeryToken()
-
-                            <input type="hidden"
-                                   name="id"
-                                   value="@reservation.ReservationID" />
-
-                            <button type="submit"
-                                    class="btn unreserve-btn">
-                                Unreserve
-                            </button>
-
-                        </form>
-
-                    </div>
+                    </span>
 
                 </div>
-            }
+
+
+                <!-- STATUS -->
+
+                <div class="reservation-detail">
+
+                    <span class="detail-label">
+
+                        <i class="fa-solid fa-circle-info"></i>
+
+                        Status
+
+                    </span>
+
+                    <span class="detail-value">
+
+                        @reservation.Status
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- UNRESERVE -->
+
+            <div class="reservation-action">
+
+                <form asp-controller="Member"
+                      asp-action="Unreserve"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+
+                    <input type="hidden"
+                           name="reservationId"
+                           value="@reservation.ReservationID" />
+
+
+                    <button type="submit"
+                            class="btn unreserve-btn">
+
+                        <i class="fa-solid fa-xmark"></i>
+
+                        Unreserve
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+                }
 
         </div>
     }
     else
     {
+        <!-- ========================================= -->
+        <!-- NO RESERVATIONS -->
+        <!-- ========================================= -->
+
         <div class="empty-reservations">
 
             <div class="empty-icon">
-                🏋️
+
+                <i class="fa-solid fa-dumbbell"></i>
+
             </div>
 
-            <h2>No Reservations Yet</h2>
+
+            <h2>
+                No Reservations Yet
+            </h2>
+
 
             <p>
-                You don't have any equipment reservations at the moment.
+                You don't have any equipment reservations
+                at the moment.
             </p>
 
-            <a asp-controller="Equipment"
-               asp-action="Index"
+
+            <a asp-controller="Member"
+               asp-action="Equipment"
                class="btn reserve-more-btn">
-                Reserve Equipment
+
+                <i class="fa-solid fa-dumbbell"></i>
+
+                Browse Equipment
+
             </a>
 
         </div>

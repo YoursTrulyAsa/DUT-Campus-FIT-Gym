@@ -4,52 +4,350 @@
 
 <div class="scanner-page">
 
-    <div class="scanner-header">
-        <span class="scanner-label">DUT CAMPUS FIT GYM</span>
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
 
-        <h1>Gym Entrance Scanner</h1>
+    <div class="scanner-header">
+
+        <span class="scanner-label">
+            DUT CAMPUS FIT GYM
+        </span>
+
+        <h1>
+            Gym Entrance Scanner
+        </h1>
 
         <p>
-            Scan a member's Virtual Gym Card barcode or QR code
-            to verify their membership and record attendance.
+            Scan a member's Virtual Gym Card barcode
+            to verify membership and record attendance.
         </p>
+
     </div>
+
+
+    <!-- =====================================================
+         SUCCESS MESSAGE
+         ===================================================== -->
+    @if (TempData["CheckInSuccess"] != null)
+    {
+        <div class="scanner-result success-result">
+
+            <div class="result-icon">
+                ✓
+            </div>
+
+            <div class="result-content">
+
+                <span class="result-label">
+                    ACCESS GRANTED
+                </span>
+
+                <h2>
+                    @TempData["ScannedMemberName"]
+                </h2>
+
+                <p>
+                    Welcome to DUT Campus FIT Gym.
+                    Your attendance has been recorded.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             MEMBER INFORMATION
+             ================================================= -->
+
+        <div class="scanned-member-card">
+
+            <div class="scanned-member-header">
+
+                <div>
+                    <span class="card-label">
+                        VERIFIED MEMBER
+                    </span>
+
+                    <h3>
+                        Member Information
+                    </h3>
+                </div>
+
+                <div class="verified-badge">
+                    ✓ VERIFIED
+                </div>
+
+            </div>
+
+
+            <div class="member-details-grid">
+
+                <div class="member-detail">
+
+                    <span class="detail-label">
+                        MEMBER NAME
+                    </span>
+
+                    <strong>
+                        @TempData["ScannedMemberName"]
+                    </strong>
+
+                </div>
+
+
+                <div class="member-detail">
+
+                    <span class="detail-label">
+                        STUDENT / STAFF NUMBER
+                    </span>
+
+                    <strong>
+                        @TempData["ScannedStudentNumber"]
+                    </strong>
+
+                </div>
+
+
+                <div class="member-detail">
+
+                    <span class="detail-label">
+                        MEMBERSHIP TYPE
+                    </span>
+
+                    <strong>
+                        @TempData["ScannedMembershipType"]
+                    </strong>
+
+                </div>
+
+
+                <div class="member-detail">
+
+                    <span class="detail-label">
+                        MEMBERSHIP STATUS
+                    </span>
+
+                    <strong class="status-active">
+                        @TempData["ScannedMembershipStatus"]
+                    </strong>
+
+                </div>
+
+
+                <div class="member-detail">
+
+                    <span class="detail-label">
+                        EXPIRY DATE
+                    </span>
+
+                    <strong>
+                        @TempData["ScannedExpiryDate"]
+                    </strong>
+
+                </div>
+
+
+                <div class="member-detail">
+
+                    <span class="detail-label">
+                        CHECK-IN TIME
+                    </span>
+
+                    <strong>
+                        @TempData["ScannedCheckInTime"]
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+
+    <!-- =====================================================
+         ERROR MESSAGE
+         ===================================================== -->
+    @if (TempData["CheckInError"] != null)
+    {
+        <div class="scanner-result error-result">
+
+            <div class="result-icon">
+                !
+            </div>
+
+            <div class="result-content">
+
+                <span class="result-label">
+                    ACCESS DENIED
+                </span>
+
+                <h2>
+                    Check-In Unavailable
+                </h2>
+
+                <p>
+                    @TempData["CheckInError"]
+                </p>
+
+            </div>
+
+        </div>
+    }
+
+
+    <!-- =====================================================
+         SCANNER
+         ===================================================== -->
 
     <div class="scanner-card">
 
         <div class="scanner-icon">
-            ◉
+            ▣
         </div>
 
-        <h2>Scan Member Code</h2>
+        <h2>
+            Scan Member Code
+        </h2>
 
         <p>
-            Position the member's QR code or Virtual Gym Card
-            barcode inside the scanning area.
+            Ask the member to display their Virtual Gym Card
+            and position the barcode inside the scanning area.
         </p>
 
-        <!-- Anti-forgery token -->
+
+        <!-- =================================================
+             ANTI-FORGERY TOKEN
+             ================================================= -->
 
         <form id="scannerTokenForm">
+
             @Html.AntiForgeryToken()
+
         </form>
 
-        <!-- Start Scanner -->
+
+        <!-- =================================================
+             START SCANNER
+             ================================================= -->
 
         <button type="button"
                 id="startScanner"
                 class="scanner-button">
+
             Start Scanner
+
         </button>
 
-        <!-- Scanner -->
+
+        <!-- =================================================
+             SCANNER
+             ================================================= -->
 
         <div id="qr-reader"></div>
 
-        <!-- Status -->
+
+        <!-- =================================================
+             STATUS
+             ================================================= -->
 
         <div id="scannerStatus"
              class="scanner-status">
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         INSTRUCTIONS
+         ===================================================== -->
+
+    <div class="scanner-instructions">
+
+        <div class="instruction-title">
+            How staff check-in works
+        </div>
+
+        <div class="instruction-grid">
+
+            <div class="instruction-item">
+
+                <span class="instruction-number">
+                    1
+                </span>
+
+                <div>
+                    <strong>
+                        Start Scanner
+                    </strong>
+
+                    <p>
+                        Open the camera scanner.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="instruction-item">
+
+                <span class="instruction-number">
+                    2
+                </span>
+
+                <div>
+                    <strong>
+                        Scan Virtual Card
+                    </strong>
+
+                    <p>
+                        Scan the member's Code 128 barcode.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="instruction-item">
+
+                <span class="instruction-number">
+                    3
+                </span>
+
+                <div>
+                    <strong>
+                        Verify Membership
+                    </strong>
+
+                    <p>
+                        The system checks membership status
+                        and expiry.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="instruction-item">
+
+                <span class="instruction-number">
+                    4
+                </span>
+
+                <div>
+                    <strong>
+                        Grant Access
+                    </strong>
+
+                    <p>
+                        Attendance is recorded automatically.
+                    </p>
+                </div>
+
+            </div>
+
         </div>
 
     </div>
@@ -82,8 +380,6 @@
         document.getElementById("scannerStatus");
 
 
-    // Scanner object
-
     let qrScanner = null;
 
 
@@ -103,53 +399,35 @@
 
     function startQrScanner() {
 
-        // Show scanner
-
         reader.style.display = "block";
-
-
-        // Disable button
 
         startScanner.disabled = true;
 
         startScanner.textContent =
             "Scanner Starting...";
 
-
-        // Status
-
         status.textContent =
             "Opening camera...";
 
-
-        // Create scanner
 
         qrScanner =
             new Html5Qrcode("qr-reader");
 
 
-        // Scanner configuration
-
         const config = {
 
             fps: 10,
 
-            // Rectangular scanning area
-            // Better for Code 128 barcodes
-
             qrbox: {
-                width: 400,
-                height: 150
+                width: 500,
+                height: 180
             },
-
-            // Support both QR codes
-            // and Code 128 barcodes
 
             formatsToSupport: [
 
-                Html5QrcodeSupportedFormats.QR_CODE,
+                Html5QrcodeSupportedFormats.CODE_128,
 
-                Html5QrcodeSupportedFormats.CODE_128
+                Html5QrcodeSupportedFormats.QR_CODE
 
             ]
 
@@ -176,10 +454,8 @@
             function (decodedText) {
 
                 status.textContent =
-                    "Code detected. Verifying member...";
+                    "Barcode detected. Verifying member...";
 
-
-                // Stop scanner
 
                 qrScanner.stop()
 
@@ -219,10 +495,8 @@
 
             console.error(error);
 
-
             status.textContent =
                 "Unable to access the camera.";
-
 
             startScanner.disabled = false;
 
@@ -235,13 +509,10 @@
 
 
     // =========================================================
-    // SEND CODE TO SERVER
+    // SEND BARCODE TO SERVER
     // =========================================================
 
     function verifyMember(barcodeData) {
-
-
-        // Create form
 
         const form =
             document.createElement("form");
@@ -250,8 +521,6 @@
         form.method =
             "POST";
 
-
-        // Admin controller action
 
         form.action =
             "@Url.Action("VerifyBarcodeCheckIn", "Admin")";
@@ -317,12 +586,11 @@
         );
 
 
-        // Add form to page
+        // =====================================================
+        // SUBMIT
+        // =====================================================
 
         document.body.appendChild(form);
-
-
-        // Submit
 
         form.submit();
 

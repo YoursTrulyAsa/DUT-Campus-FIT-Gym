@@ -6,31 +6,88 @@
 
 <div class="container mt-4">
 
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
             <h1>Manage Members</h1>
 
             <p class="text-muted">
-                View all registered gym members.
+                View registered students, staff and trainers.
             </p>
         </div>
 
-        <a asp-controller="Admin"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
+        <div class="d-flex gap-2">
 
-            Back to Dashboard
+            <!-- ADD STAFF -->
 
-        </a>
+            <a asp-controller="Admin"
+               asp-action="AddStaff"
+               class="btn btn-primary">
+
+                <i class="bi bi-person-plus-fill"></i>
+                Add Staff
+
+            </a>
+
+
+            <!-- BACK TO DASHBOARD -->
+
+            <a asp-controller="Admin"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+
+                Back to Dashboard
+
+            </a>
+
+        </div>
 
     </div>
 
 
+    <!-- =========================================================
+         SUCCESS MESSAGE
+         ========================================================= -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+
+            <strong>Success!</strong>
+
+            @TempData["Success"]
+
+        </div>
+    }
+
+
+    <!-- =========================================================
+         ERROR MESSAGE
+         ========================================================= -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+
+            <strong>Error!</strong>
+
+            @TempData["Error"]
+
+        </div>
+    }
+
+
+    <!-- =========================================================
+         MEMBERS TABLE
+         ========================================================= -->
     @if (Model == null || !Model.Any())
     {
         <div class="alert alert-info">
+
             No members have been registered yet.
+
         </div>
     }
     else
@@ -46,14 +103,21 @@
                         <thead>
 
                             <tr>
+
                                 <th>Name</th>
+
                                 <th>Student/Staff Number</th>
+
                                 <th>Email</th>
+
                                 <th>Phone</th>
+
                                 <th>Role</th>
+
                             </tr>
 
                         </thead>
+
 
                         <tbody>
 
@@ -61,49 +125,89 @@
                             {
                                 <tr>
 
+                                    <!-- NAME -->
+
                                     <td>
+
                                         <strong>
-                                            @member.FirstName
-                                            @member.LastName
+
+                                            @member.Name
+                                            @member.Surname
+
                                         </strong>
+
                                     </td>
 
-                                    <td>
-                                        @member.StaffStudentNumber
-                                    </td>
+
+                                    <!-- STUDENT / STAFF NUMBER -->
 
                                     <td>
+
+                                        @member.StudentNumber
+
+                                    </td>
+
+
+                                    <!-- EMAIL -->
+
+                                    <td>
+
                                         @member.Email
+
                                     </td>
 
+
+                                    <!-- PHONE -->
+
                                     <td>
+
                                         @member.PhoneNumber
+
                                     </td>
+
+
+                                    <!-- ROLE -->
 
                                     <td>
 
                                         @if (member.Role == "Student")
                                         {
                                             <span class="badge bg-primary">
+
                                                 Student
+
                                             </span>
                                         }
                                         else if (member.Role == "Trainer")
                                         {
                                             <span class="badge bg-success">
+
                                                 Trainer
+
                                             </span>
                                         }
                                         else if (member.Role == "Staff")
                                         {
                                             <span class="badge bg-info text-dark">
+
                                                 Staff
+
+                                            </span>
+                                        }
+                                        else if (member.Role == "Admin")
+                                        {
+                                            <span class="badge bg-danger">
+
+                                                Admin
+
                                             </span>
                                         }
                                         else
                                         {
                                             <span class="badge bg-secondary">
+
                                                 @member.Role
+
                                             </span>
                                         }
 

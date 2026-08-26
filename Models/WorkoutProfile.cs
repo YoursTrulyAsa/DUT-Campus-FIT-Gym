@@ -28,6 +28,6 @@ namespace DUT_Campus_FIT_Gym.Models
 
         [Required]
         [StringLength(100)]
-        public string Goal { get; set; }
+        public string Goal { get; set; } = "";
     }
 }

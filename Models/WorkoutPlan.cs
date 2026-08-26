@@ -14,14 +14,17 @@ namespace DUT_Campus_FIT_Gym.Models
         [ForeignKey("MemberId")]
         public Member? Member { get; set; }
 
+        [Required]
         [StringLength(100)]
-        public string WorkoutName { get; set; }
+        public string WorkoutName { get; set; } = "";
 
+        [Required]
         [StringLength(100)]
-        public string ExerciseName { get; set; }
+        public string ExerciseName { get; set; } = "";
 
+        [Required]
         [StringLength(50)]
-        public string WorkoutDay { get; set; }
+        public string WorkoutDay { get; set; } = "";
 
         public int Sets { get; set; }
 
@@ -30,6 +33,6 @@ namespace DUT_Campus_FIT_Gym.Models
         public int RestTime { get; set; }
 
         [StringLength(500)]
-        public string Description { get; set; }
+        public string Description { get; set; } = "";
     }
 }

@@ -26,15 +26,12 @@ namespace DUT_Campus_FIT_Gym.Models
 
         public DateTime? ResponseDate { get; set; }
 
-        // Date when trainer completed the request
         public DateTime? CompletionDate { get; set; }
 
-        // Student who requested assistance
         [ForeignKey("StudentId")]
-        public Member Student { get; set; }
+        public Member? Student { get; set; }
 
-        // Trainer who receives the request
         [ForeignKey("TrainerId")]
-        public Trainer Trainer { get; set; }
+        public Trainer? Trainer { get; set; }
     }
 }

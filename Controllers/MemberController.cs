@@ -5,16 +5,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QRCoder;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
 using System.Security.Claims;
 using ZXing;
 using ZXing.Common;
+using ZXing.Rendering;
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
-    [Authorize(Roles = "Student")]
+    [Authorize(Roles = "Student,Staff")]
     public class MemberController : Controller
     {
         private readonly GymDbContext _context;
@@ -25,54 +23,80 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         // =========================================================
+        // GET MEMBER ID
+        // =========================================================
+
+        private int? GetMemberId()
+        {
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(memberIdClaim))
+            {
+                return null;
+            }
+
+            if (!int.TryParse(memberIdClaim, out int memberId))
+            {
+                return null;
+            }
+
+            return memberId;
+        }
+
+        // =========================================================
         // DASHBOARD
         // =========================================================
 
+        [HttpGet]
         public IActionResult Dashboard()
         {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (memberIdClaim == null)
+            if (memberId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int memberId = int.Parse(memberIdClaim);
-
             var member = _context.Members
-                .FirstOrDefault(m => m.MemberId == memberId);
+                .FirstOrDefault(m => m.MemberId == memberId.Value);
 
             if (member == null)
             {
                 return NotFound();
             }
 
-            var membership = _context.Memberships
-     .Where(m => m.MemberId == memberId)
-     .OrderByDescending(m => m.EndDate)
-     .FirstOrDefault();
+            var latestMembership = _context.Memberships
+                .Where(m => m.MemberId == memberId.Value)
+                .OrderByDescending(m => m.MembershipId)
+                .FirstOrDefault();
+
+            var latestApplication = _context.MembershipApplications
+                .Where(a => a.MemberId == memberId.Value)
+                .OrderByDescending(a => a.MembershipApplicationId)
+                .FirstOrDefault();
 
             var attendanceCount = _context.Attendances
-                .Count(a => a.MemberId == memberId);
+                .Count(a => a.MemberId == memberId.Value);
 
             var reservationCount = _context.Reservations
                 .Count(r =>
-                    r.MemberID == memberId &&
+                    r.MemberID == memberId.Value &&
                     r.Status == "Reserved");
 
             var workouts = _context.WorkoutPlans
-                .Where(w => w.MemberId == memberId)
-                .OrderByDescending(w => w.WorkoutPlanId)
+                .Where(w => w.MemberId == memberId.Value)
+                .OrderBy(w => w.WorkoutDay)
                 .ToList();
 
             var workoutProfile = _context.WorkoutProfiles
-                .FirstOrDefault(p => p.MemberId == memberId);
+                .FirstOrDefault(w => w.MemberId == memberId.Value);
 
             var dashboardData = new
             {
                 Member = member,
-                Membership = membership,
+                Membership = latestMembership,
+                LatestApplication = latestApplication,
                 AttendanceCount = attendanceCount,
                 ReservationCount = reservationCount,
                 Workouts = workouts,
@@ -82,26 +106,23 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(dashboardData);
         }
 
-
         // =========================================================
-        // PROFILE - GET
+        // PROFILE
         // =========================================================
 
         [HttpGet]
         public IActionResult Profile()
         {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (memberIdClaim == null)
+            if (memberId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int memberId = int.Parse(memberIdClaim);
-
             var member = _context.Members
-                .FirstOrDefault(m => m.MemberId == memberId);
+                .FirstOrDefault(m =>
+                    m.MemberId == memberId.Value);
 
             if (member == null)
             {
@@ -112,148 +133,137 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         // =========================================================
-        // PROFILE - POST / UPDATE
-        // =========================================================
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Profile(
-            string name,
-            string surname,
-            string phoneNumber)
-        {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
-
-            if (memberIdClaim == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            int memberId = int.Parse(memberIdClaim);
-
-            var member = _context.Members
-                .FirstOrDefault(m => m.MemberId == memberId);
-
-            if (member == null)
-            {
-                return NotFound();
-            }
-
-            // =====================================================
-            // VALIDATE EDITABLE FIELDS
-            // =====================================================
-
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                ModelState.AddModelError(
-                    "Name",
-                    "Name is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(surname))
-            {
-                ModelState.AddModelError(
-                    "Surname",
-                    "Surname is required.");
-            }
-
-            if (string.IsNullOrWhiteSpace(phoneNumber))
-            {
-                ModelState.AddModelError(
-                    "PhoneNumber",
-                    "Phone number is required.");
-            }
-
-            // =====================================================
-            // IF INVALID
-            // =====================================================
-
-            if (!ModelState.IsValid)
-            {
-                return View(member);
-            }
-
-            // =====================================================
-            // UPDATE ONLY ALLOWED FIELDS
-            // =====================================================
-
-            member.Name = name.Trim();
-
-            member.Surname = surname.Trim();
-
-            member.PhoneNumber = phoneNumber.Trim();
-
-            _context.SaveChanges();
-
-            TempData["ProfileSuccess"] =
-                "Your profile has been updated successfully.";
-
-            return RedirectToAction(nameof(Profile));
-        }
-
-
-        // =========================================================
-        // MEMBERSHIP
-        // =========================================================
-
-        [HttpGet]
-        public IActionResult Membership()
-        {
-            var memberIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(memberIdClaim))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            if (!int.TryParse(memberIdClaim, out int memberId))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            // Get the latest approved membership
-            var membership = _context.Memberships
-                .Where(m => m.MemberId == memberId)
-                .OrderByDescending(m => m.EndDate)
-                .FirstOrDefault();
-
-            // Get the student's latest pending application
-            var pendingApplication = _context.MembershipApplications
-                .Where(a =>
-                    a.MemberId == memberId &&
-                    a.Status == "Pending")
-                .OrderByDescending(a => a.ApplicationDate)
-                .FirstOrDefault();
-
-            ViewBag.PendingApplication = pendingApplication;
-
-            return View(membership);
-        }
-        // =========================================================
         // ATTENDANCE
         // =========================================================
 
+        [HttpGet]
         public IActionResult Attendance()
         {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (memberIdClaim == null)
+            if (memberId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int memberId = int.Parse(memberIdClaim);
-
             var attendance = _context.Attendances
-                .Where(a => a.MemberId == memberId)
-                .OrderByDescending(a => a.CheckInTime)
+                .Where(a =>
+                    a.MemberId == memberId.Value)
+                .OrderByDescending(a =>
+                    a.CheckInTime)
                 .ToList();
 
             return View(attendance);
         }
 
+        // =========================================================
+        // PAYMENT HISTORY
+        // =========================================================
+
+        [HttpGet]
+        public IActionResult PaymentHistory()
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var payments = _context.Payments
+                .Include(p => p.Membership)
+                .Where(p => p.MemberId == memberId.Value)
+                .OrderByDescending(p => p.PaymentDate)
+                .ToList();
+
+            return View(payments);
+        }
+
+        // =========================================================
+        // ANNOUNCEMENTS
+        // =========================================================
+
+        [HttpGet]
+        public IActionResult Announcements()
+        {
+            var announcements = _context.Announcements
+                .OrderByDescending(a =>
+                    a.DatePosted)
+                .ToList();
+
+            return View(announcements);
+        }
+
+        // =========================================================
+        // MEMBERSHIP PAGE
+        // =========================================================
+
+        [HttpGet]
+        public IActionResult Membership()
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var latestMembership = _context.Memberships
+                .Where(m => m.MemberId == memberId.Value)
+                .OrderByDescending(m => m.MembershipId)
+                .FirstOrDefault();
+
+            var latestApplication = _context.MembershipApplications
+                .Where(a => a.MemberId == memberId.Value)
+                .OrderByDescending(a => a.MembershipApplicationId)
+                .FirstOrDefault();
+
+            if (latestMembership != null &&
+                latestMembership.Status == "WaitingForPayment")
+            {
+                ViewBag.PendingApplication = null;
+
+                return View(latestMembership);
+            }
+
+            if (latestMembership != null &&
+                latestMembership.Status == "Active")
+            {
+                ViewBag.PendingApplication = null;
+
+                return View(latestMembership);
+            }
+
+            if (latestApplication != null &&
+                latestApplication.Status == "Pending")
+            {
+                ViewBag.PendingApplication = latestApplication;
+
+                return View(null);
+            }
+
+            if (latestApplication != null &&
+                latestApplication.Status == "Approved")
+            {
+                ViewBag.PendingApplication = latestApplication;
+
+                return View(latestMembership);
+            }
+
+            if (latestApplication != null &&
+                latestApplication.Status == "Rejected")
+            {
+                ViewBag.PendingApplication = latestApplication;
+
+                return View(null);
+            }
+
+            ViewBag.PendingApplication = null;
+
+            return View(null);
+        }
 
         // =========================================================
         // MEMBERSHIP APPLICATION - GET
@@ -262,65 +272,80 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (string.IsNullOrEmpty(memberIdClaim))
+            if (memberId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int memberId = int.Parse(memberIdClaim);
-
             var member = _context.Members
-                .FirstOrDefault(m => m.MemberId == memberId);
+                .FirstOrDefault(m => m.MemberId == memberId.Value);
 
             if (member == null)
             {
                 return NotFound();
             }
 
-            // Check if the member already has an active membership
-            var activeMembership = _context.Memberships
-                .FirstOrDefault(m =>
-                    m.MemberId == memberId &&
-                    m.Status == "Active" &&
-                    m.EndDate.Date >= DateTime.Today);
+            var latestMembership = _context.Memberships
+                .Where(m => m.MemberId == memberId.Value)
+                .OrderByDescending(m => m.MembershipId)
+                .FirstOrDefault();
 
-            if (activeMembership != null)
+            if (latestMembership != null &&
+                latestMembership.Status == "Active" &&
+                latestMembership.EndDate.HasValue &&
+                latestMembership.EndDate.Value.Date >= DateTime.Today)
             {
-                Name = member.Name,
-                Surname = member.Surname,
                 TempData["MembershipError"] =
                     "You already have an active membership.";
 
-                return RedirectToAction("Membership");
+                return RedirectToAction(nameof(Membership));
             }
 
-            // Check if there is already a pending application
-            var pendingApplication =
-                _context.MembershipApplications
-                    .FirstOrDefault(a =>
-                        a.MemberId == memberId &&
-                        a.Status == "Pending");
+            if (latestMembership != null &&
+                latestMembership.Status == "WaitingForPayment")
+            {
+                TempData["MembershipError"] =
+                    "Your membership has been approved and is waiting for payment.";
+
+                return RedirectToAction(nameof(Membership));
+            }
+
+            var pendingApplication = _context.MembershipApplications
+                .Where(a =>
+                    a.MemberId == memberId.Value &&
+                    a.Status == "Pending")
+                .OrderByDescending(a => a.MembershipApplicationId)
+                .FirstOrDefault();
 
             if (pendingApplication != null)
             {
                 TempData["MembershipError"] =
                     "You already have a pending membership application.";
 
-                return RedirectToAction("Membership");
+                return RedirectToAction(nameof(Membership));
             }
 
-            var membershipPage = new DUT_Campus_FIT_Gym.ViewModels.MembershipPage
+            bool isFirstTimeMember =
+                !_context.MembershipApplications
+                    .Any(a => a.MemberId == memberId.Value)
+                &&
+                !_context.Memberships
+                    .Any(m => m.MemberId == memberId.Value);
+
+            ViewBag.IsFirstTimeMember = isFirstTimeMember;
+
+            var membershipPage = new MembershipPage
             {
+                Name = member.Name,
+                Surname = member.Surname,
                 Email = member.Email,
                 StudentNo = member.StudentNumber
             };
 
             return View(membershipPage);
         }
-
 
         // =========================================================
         // MEMBERSHIP APPLICATION - POST
@@ -329,203 +354,185 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(
-    DUT_Campus_FIT_Gym.ViewModels.MembershipPage membershipPage)
+            MembershipPage membershipPage)
         {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (string.IsNullOrEmpty(memberIdClaim))
+            if (memberId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int memberId = int.Parse(memberIdClaim);
-
             var member = _context.Members
-                .FirstOrDefault(m => m.MemberId == memberId);
+                .FirstOrDefault(m =>
+                    m.MemberId == memberId.Value);
 
             if (member == null)
             {
                 return NotFound();
             }
 
-            // ==========================================
-            // CHECK ACTIVE MEMBERSHIP
-            // ==========================================
+            var activeMembership =
+                _context.Memberships
+                    .FirstOrDefault(m =>
+                        m.MemberId == memberId.Value &&
+                        m.Status == "Active" &&
+                        m.EndDate.HasValue &&
+                        m.EndDate.Value.Date >= DateTime.Today);
 
-            var activeMembership = _context.Memberships
-                .FirstOrDefault(m =>
-                    m.MemberId == memberId &&
-                    m.Status == "Active" &&
-                    m.EndDate.Date >= DateTime.Today);
-
-            if (currentMembership != null)
+            if (activeMembership != null)
             {
-                // Active membership
-                if (currentMembership.Status == "Active" &&
-                    currentMembership.EndDate.HasValue &&
-                    currentMembership.EndDate.Value.Date >= DateTime.Today)
-                {
-                    TempData["MembershipError"] =
-                        "You already have an active membership.";
+                TempData["MembershipError"] =
+                    "You already have an active membership.";
 
-                    return RedirectToAction(
-                        nameof(Membership));
-                }
+                return RedirectToAction(nameof(Membership));
+            }
 
-                // Pending membership
-                if (currentMembership.Status == "Pending")
+            var existingApplication =
+                _context.MembershipApplications
+                    .FirstOrDefault(a =>
+                        a.MemberId == memberId.Value &&
+                        (
+                            a.Status == "Pending" ||
+                            a.Status == "WaitingForPayment"
+                        ));
+
+            if (existingApplication != null)
+            {
+                if (existingApplication.Status ==
+                    "Pending")
                 {
                     TempData["MembershipError"] =
                         "You already have a membership application awaiting admin approval.";
-
-                    return RedirectToAction(
-                        nameof(Membership));
                 }
-
-                // Waiting for payment
-                if (currentMembership.Status == "WaitingForPayment")
+                else
                 {
                     TempData["MembershipError"] =
-                        "You already have an approved membership waiting for payment.";
-
-                    return RedirectToAction(
-                        nameof(Membership));
+                        "Your membership has already been approved and is waiting for payment.";
                 }
+
+                return RedirectToAction(nameof(Membership));
             }
 
-            // =====================================================
-            // CHECK WHETHER STUDENT HAS EVER HAD A MEMBERSHIP
-            // =====================================================
-
-            var hasPreviousMembership = _context.Memberships
-                .Any(m => m.MemberId == memberId);
-            // ==========================================
-            // VALIDATE MEMBERSHIP PERIOD
-            // ==========================================
-
-            // =====================================================
-            // FIRST-TIME MEMBER VALUE COMES FROM DATABASE
-            // =====================================================
-
-            membershipPage.First_Time_Member =
-                !hasPreviousMembership;
-
-            // =====================================================
-            // VALIDATE FORM
-            // =====================================================
-
-            if (!ModelState.IsValid)
-            if (membershipPage.MembershipPeriod != "Semester" &&
-                membershipPage.MembershipPeriod != "Annual")
+            if (membershipPage.MembershipPeriod !=
+                    "Semester" &&
+                membershipPage.MembershipPeriod !=
+                    "Annual")
             {
-                membershipPage.Name = member.Name;
-                membershipPage.Surname = member.Surname;
                 ModelState.AddModelError(
                     "MembershipPeriod",
                     "Please select a valid membership period.");
-
-                membershipPage.Name = member.FirstName;
-                membershipPage.Surname = member.LastName;
-                membershipPage.Email = member.Email;
-                membershipPage.StudentNo = member.StudentNumber;
-
-                return View(membershipPage);
             }
 
-            // =====================================================
-            // DETERMINE MEMBERSHIP PRICE
-            // =====================================================
-
-            decimal price = membershipPage.payments_plan switch
+            if (string.IsNullOrWhiteSpace(
+                membershipPage.PaymentMethod))
             {
-                MembershipPage.PAY.Monthly => 150m,
-                MembershipPage.PAY.Quarterly => 400m,
-                MembershipPage.PAY.Half_Yearly => 700m,
-                MembershipPage.PAY.Annually => 1200m,
-                _ => 0m
-            };
+                ModelState.AddModelError(
+                    "PaymentMethod",
+                    "Please select a payment method.");
+            }
 
-            // =====================================================
-            // FIRST-TIME MEMBER DISCOUNT
-            // =====================================================
-            if (membershipPage.VerificationDocument == null ||
-                membershipPage.VerificationDocument.Length == 0)
+            bool isFirstTimeMember =
+                !_context.MembershipApplications
+                    .Any(a =>
+                        a.MemberId == memberId.Value)
+                &&
+                !_context.Memberships
+                    .Any(m =>
+                        m.MemberId == memberId.Value);
+
+            decimal basePrice = 0m;
+
+            switch (membershipPage.MembershipPeriod)
+            {
+                case "Semester":
+                    basePrice = 150m;
+                    break;
+
+                case "Annual":
+                    basePrice = 300m;
+                    break;
+            }
+
+            decimal discount = 0m;
+            decimal price = basePrice;
+
+            if (isFirstTimeMember &&
+                basePrice > 0)
+            {
+                discount =
+                    basePrice * 0.10m;
+
+                price =
+                    basePrice - discount;
+            }
+
+            if (price <= 0)
+            {
+                ModelState.AddModelError(
+                    "MembershipPeriod",
+                    "Please select a valid membership period.");
+            }
+
+            if (membershipPage.VerificationDocument ==
+                null ||
+                membershipPage.VerificationDocument.Length ==
+                0)
             {
                 ModelState.AddModelError(
                     "VerificationDocument",
                     "Please upload your student/staff card.");
+            }
+            else
+            {
+                string extension =
+                    Path.GetExtension(
+                        membershipPage.VerificationDocument.FileName)
+                        .ToLowerInvariant();
 
-            decimal discount = 0m;
-                membershipPage.Name = member.FirstName;
-                membershipPage.Surname = member.LastName;
-                membershipPage.Email = member.Email;
+                if (extension != ".jpg" &&
+                    extension != ".jpeg" &&
+                    extension != ".png" &&
+                    extension != ".pdf")
+                {
+                    ModelState.AddModelError(
+                        "VerificationDocument",
+                        "Only JPG, JPEG, PNG and PDF files are allowed.");
+                }
+
+                if (membershipPage.VerificationDocument.Length >
+                    5 * 1024 * 1024)
+                {
+                    ModelState.AddModelError(
+                        "VerificationDocument",
+                        "The verification document must not exceed 5 MB.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                membershipPage.Name =
+                    member.Name;
+
+                membershipPage.Surname =
+                    member.Surname;
+
+                membershipPage.Email =
+                    member.Email;
+
                 membershipPage.StudentNo =
-                    member.StaffStudentNumber;
+                    member.StudentNumber;
+
+                ViewBag.IsFirstTimeMember =
+                    isFirstTimeMember;
 
                 return View(membershipPage);
             }
 
-
-            // ==========================================
-            // GET FILE EXTENSION
-            // ==========================================
-
-            string extension = System.IO.Path
-                .GetExtension(
+            string documentExtension =
+                Path.GetExtension(
                     membershipPage.VerificationDocument!.FileName)
-                .ToLowerInvariant();
-
-            // ==========================================
-            // CHECK FILE TYPE
-            // ==========================================
-
-            if (extension != ".jpg" &&
-                extension != ".jpeg" &&
-                extension != ".png" &&
-                extension != ".pdf")
-            {
-                ModelState.AddModelError(
-                    "VerificationDocument",
-                    "Only JPG, JPEG, PNG and PDF files are allowed.");
-
-                membershipPage.Name = member.FirstName;
-                membershipPage.Surname = member.LastName;
-                membershipPage.Email = member.Email;
-                membershipPage.StudentNo = member.StaffStudentNumber;
-
-                return View(membershipPage);
-            }
-
-
-            // ==========================================
-            // CHECK FILE SIZE
-            // Maximum 5 MB
-            // ==========================================
-
-            if (membershipPage.VerificationDocument.Length >
-                5 * 1024 * 1024)
-            {
-                ModelState.AddModelError(
-                    "VerificationDocument",
-                    "The verification document must not exceed 5 MB.");
-
-                membershipPage.Name = member.FirstName;
-                membershipPage.Surname = member.LastName;
-                membershipPage.Email = member.Email;
-                membershipPage.StudentNo =
-                    member.StaffStudentNumber;
-
-                return View(membershipPage);
-            }
-
-            // =====================================================
-            // CREATE MEMBERSHIP
-            // =====================================================
-
-            // ==========================================
-            // SAVE DOCUMENT
-            // ==========================================
+                    .ToLowerInvariant();
 
             string uploadsFolder =
                 Path.Combine(
@@ -536,11 +543,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             if (!Directory.Exists(uploadsFolder))
             {
-                Directory.CreateDirectory(uploadsFolder);
+                Directory.CreateDirectory(
+                    uploadsFolder);
             }
 
             string uniqueFileName =
-                Guid.NewGuid().ToString() + extension;
+                Guid.NewGuid().ToString() +
+                documentExtension;
 
             string filePath =
                 Path.Combine(
@@ -548,405 +557,489 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     uniqueFileName);
 
             using (var fileStream =
-                   new FileStream(
-                       filePath,
-                       FileMode.Create))
+                new FileStream(
+                    filePath,
+                    FileMode.Create))
             {
                 membershipPage.VerificationDocument
                     .CopyTo(fileStream);
             }
 
+            var application =
+                new MembershipApplication
+                {
+                    MemberId =
+                        memberId.Value,
 
-            // ==========================================
-            // CREATE APPLICATION
-            // ==========================================
+                    MembershipType =
+                        membershipPage.MembershipPeriod!,
 
-            var application = new MembershipApplication
-            {
-                MemberId = memberId,
+                    Price =
+                        price,
 
-                MembershipType =
-                    membershipPage.MembershipPeriod,
+                    ApplicationDate =
+                        DateTime.Now,
 
-                Price = price,
+                    Status =
+                        "Pending",
 
-                ApplicationDate = DateTime.Now,
+                    VerificationDocument =
+                        "/uploads/verification/" +
+                        uniqueFileName,
 
-                StartDate = null,
+                    PaymentMethod =
+                        membershipPage.PaymentMethod!
+                };
 
-                EndDate = null,
-
-                Status = "Pending",
-
-                Price = finalPrice,
-
-                PaymentStatus = null,
-
-                PaymentReference = null,
-
-                PaymentDate = null
-            };
-
-            _context.Memberships.Add(membership);
+            _context.MembershipApplications
+                .Add(application);
 
             _context.SaveChanges();
 
-            TempData["MembershipSuccess"] =
-                "Your membership application has been submitted and is awaiting admin approval.";
+            if (isFirstTimeMember)
+            {
+                TempData["MembershipSuccess"] =
+                    $"Your membership application has been submitted. " +
+                    $"As a first-time member, your 10% discount has been applied. " +
+                    $"Your membership fee is R{price:0.00}.";
+            }
+            else
+            {
+                TempData["MembershipSuccess"] =
+                    $"Your membership application has been submitted. " +
+                    $"Your membership fee is R{price:0.00}.";
+            }
 
             return RedirectToAction(
                 nameof(Membership));
         }
 
-
-        
-
-
         // =========================================================
-        // EQUIPMENT
-        // =========================================================
-
-        public IActionResult Equipment()
-        {
-            var equipment = _context.Equipment.ToList();
-
-            return View(equipment);
-        }
-
-
-        // =========================================================
-        // RESERVATIONS
-        // =========================================================
-
-        public IActionResult Reservations()
-        {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
-
-            if (memberIdClaim == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            int memberId = int.Parse(memberIdClaim);
-
-            var reservations = _context.Reservations
-                .Where(r => r.MemberID == memberId)
-                .Join(
-                    _context.Equipment,
-                    reservation => reservation.EquipmentID,
-                    equipment => equipment.EquipmentID,
-                    (reservation, equipment) =>
-                        new ReservationViewModel
-                        {
-                            ReservationID =
-                                reservation.ReservationID,
-
-                            EquipmentName =
-                                equipment.EquipmentName,
-
-                            ReservationDate =
-                                reservation.ReservationDate,
-
-                            Status =
-                                reservation.Status
-                        })
-                .ToList();
-
-            return View(reservations);
-        }
-
-
-        // =========================================================
-        // ANNOUNCEMENTS
-        // =========================================================
-
-        public IActionResult Announcements()
-        {
-            var announcements = _context.Announcements
-                .OrderByDescending(a => a.DatePosted)
-                .ToList();
-
-            return View(announcements);
-        }
-
-
-        // =========================================================
-        // GYM CARD / BARCODE
+        // VIRTUAL GYM CARD
         // =========================================================
 
         [HttpGet]
         public IActionResult GymCard()
         {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (string.IsNullOrEmpty(memberIdClaim))
+            if (memberId == null)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
 
-            int memberId = int.Parse(memberIdClaim);
-
             var member = _context.Members
-                .FirstOrDefault(m => m.MemberId == memberId);
+                .FirstOrDefault(m =>
+                    m.MemberId == memberId.Value);
 
             if (member == null)
             {
                 return NotFound();
             }
 
-            var membership = _context.Memberships
-                .Where(m => m.MemberId == memberId)
-                .OrderByDescending(m => m.MembershipId)
-                .FirstOrDefault();
+            var membership =
+                _context.Memberships
+                    .Where(m =>
+                        m.MemberId == memberId.Value &&
+                        m.Status == "Active" &&
+                        m.EndDate.HasValue &&
+                        m.EndDate.Value.Date >= DateTime.Today)
+                    .OrderByDescending(m =>
+                        m.MembershipId)
+                    .FirstOrDefault();
 
-            if (membership == null)
-            {
-                return View(new GymCardViewModel
+            var viewModel =
+                new GymCardViewModel
                 {
-                    MemberId = member.MemberId,
-                    FullName = $"{member.Name} {member.Surname}",
-                    StaffStudentNumber = member.StudentNumber,
-                    Email = member.Email,
-                    Role = member.Role,
-                    Status = "NO MEMBERSHIP"
-                });
-            }
+                    MemberId =
+                        member.MemberId,
 
-            var status =
-                membership.Status == "Active" &&
-                membership.EndDate.HasValue &&
-                membership.EndDate.Value.Date >= DateTime.Today
-                    ? "ACTIVE"
-                    : "EXPIRED";
+                    FullName =
+                        $"{member.Name} {member.Surname}",
 
-            var daysRemaining = 0;
+                    Role =
+                        member.Role,
 
-            if (membership.EndDate.HasValue)
+                    StaffStudentNumber =
+                        member.StudentNumber,
+
+                    Email =
+                        member.Email,
+
+                    MembershipId =
+                        membership?.MembershipId ?? 0,
+
+                    MembershipType =
+                        membership?.MembershipType ??
+                        "No Active Membership",
+
+                    StartDate =
+                        membership?.StartDate ??
+                        DateTime.MinValue,
+
+                    EndDate =
+                        membership?.EndDate ??
+                        DateTime.MinValue,
+
+                    DaysRemaining =
+                        membership != null &&
+                        membership.EndDate.HasValue
+                            ? Math.Max(
+                                0,
+                                (
+                                    membership.EndDate.Value.Date -
+                                    DateTime.Today
+                                ).Days)
+                            : 0,
+
+                    Status =
+                        membership?.Status?.ToUpper() ??
+                        "INACTIVE"
+                };
+
+            // =========================================================
+            // GENERATE CODE 128 BARCODE
+            // =========================================================
+            //
+            // ZXing.Net is used instead of BarcodeLib.
+            //
+            // The barcode value is the member's
+            // student/staff number.
+            //
+            // Example:
+            //
+            // 220123456
+            //
+            // The admin scanner can scan this value.
+            //
+
+            if (membership != null &&
+                !string.IsNullOrWhiteSpace(member.StudentNumber))
             {
-                daysRemaining = Math.Max(
-                    0,
-                    (
-                        membership.EndDate.Value.Date -
-                        DateTime.Today
-                    ).Days);
-            }
+                string barcodeValue =
+                    member.StudentNumber;
 
-            var barcodeData =
-                $"DUTGYM:{member.MemberId}";
+                var writer =
+                    new BarcodeWriterPixelData
+                    {
+                        Format = BarcodeFormat.CODE_128,
 
-            var writer = new BarcodeWriterPixelData
-            {
-                Format = BarcodeFormat.CODE_128,
-                Options = new EncodingOptions
+                        Options = new EncodingOptions
+                        {
+                            Width = 500,
+                            Height = 120,
+                            Margin = 10,
+                            PureBarcode = true
+                        }
+                    };
+
+                var pixelData =
+                    writer.Write(barcodeValue);
+
+                using var memoryStream =
+                    new MemoryStream();
+
+                using (var bitmap =
+                    new System.Drawing.Bitmap(
+                        pixelData.Width,
+                        pixelData.Height,
+                        System.Drawing.Imaging.PixelFormat.Format32bppRgb))
                 {
-                    Width = 500,
-                    Height = 150,
-                    Margin = 10
+                    var bitmapData =
+                        bitmap.LockBits(
+                            new System.Drawing.Rectangle(
+                                0,
+                                0,
+                                bitmap.Width,
+                                bitmap.Height),
+                            System.Drawing.Imaging.ImageLockMode.WriteOnly,
+                            System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+
+                    try
+                    {
+                        System.Runtime.InteropServices.Marshal.Copy(
+                            pixelData.Pixels,
+                            0,
+                            bitmapData.Scan0,
+                            pixelData.Pixels.Length);
+                    }
+                    finally
+                    {
+                        bitmap.UnlockBits(bitmapData);
+                    }
+
+                    bitmap.Save(
+                        memoryStream,
+                        System.Drawing.Imaging.ImageFormat.Png);
                 }
-            };
 
-            var pixelData = writer.Write(barcodeData);
-
-            using var bitmap = new Bitmap(
-                pixelData.Width,
-                pixelData.Height,
-                PixelFormat.Format32bppRgb);
-
-            var bitmapData = bitmap.LockBits(
-                new Rectangle(
-                    0,
-                    0,
-                    pixelData.Width,
-                    pixelData.Height),
-                ImageLockMode.WriteOnly,
-                PixelFormat.Format32bppRgb);
-
-            System.Runtime.InteropServices.Marshal.Copy(
-                pixelData.Pixels,
-                0,
-                bitmapData.Scan0,
-                pixelData.Pixels.Length);
-
-            bitmap.UnlockBits(bitmapData);
-
-            using var stream = new MemoryStream();
-
-            bitmap.Save(
-                stream,
-                ImageFormat.Png);
-
-            var barcodeBase64 =
-                Convert.ToBase64String(
-                    stream.ToArray());
-
-            var viewModel = new GymCardViewModel
-            {
-                MemberId = member.MemberId,
-                FullName = $"{member.Name} {member.Surname}",
-                StaffStudentNumber = member.StudentNumber,
-                Email = member.Email,
-                Role = member.Role,
-                MembershipId = membership.MembershipId,
-                MembershipType = membership.MembershipType,
-                StartDate =
-                    membership.StartDate ??
-                    DateTime.MinValue,
-                EndDate =
-                    membership.EndDate ??
-                    DateTime.MinValue,
-                Status = status,
-                DaysRemaining = daysRemaining,
-                Barcode = barcodeBase64
-            };
+                viewModel.Barcode =
+                    Convert.ToBase64String(
+                        memoryStream.ToArray());
+            }
 
             return View(viewModel);
         }
 
-
         // =========================================================
-        // CHECK IN - GET
+        // CHECK-IN PAGE
         // =========================================================
 
         [HttpGet]
         public IActionResult CheckIn()
         {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (string.IsNullOrEmpty(memberIdClaim))
+            if (memberId == null)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
 
-            int memberId = int.Parse(memberIdClaim);
-
-            var member = _context.Members
-                .FirstOrDefault(m => m.MemberId == memberId);
+            var member =
+                _context.Members
+                    .FirstOrDefault(m =>
+                        m.MemberId == memberId.Value);
 
             if (member == null)
             {
                 return NotFound();
             }
 
-            var membership = _context.Memberships
-                .Where(m => m.MemberId == memberId)
-                .OrderByDescending(m => m.MembershipId)
-                .FirstOrDefault();
+            var activeMembership =
+                _context.Memberships
+                    .FirstOrDefault(m =>
+                        m.MemberId == memberId.Value &&
+                        m.Status == "Active" &&
+                        m.EndDate.HasValue &&
+                        m.EndDate.Value.Date >=
+                            DateTime.Today);
 
-            bool membershipActive =
-                membership != null &&
-                membership.EndDate.HasValue &&
-                membership.EndDate.Value.Date >= DateTime.Today &&
-                membership.Status == "Active";
+            var currentAttendance =
+                _context.Attendances
+                    .Where(a =>
+                        a.MemberId == memberId.Value &&
+                        a.CheckOutTime == null)
+                    .OrderByDescending(a =>
+                        a.CheckInTime)
+                    .FirstOrDefault();
 
-            var attendance = _context.Attendances
-                .Where(a =>
-                    a.MemberId == memberId &&
-                    a.CheckOutTime == null)
-                .OrderByDescending(a => a.CheckInTime)
-                .FirstOrDefault();
+            var viewModel =
+                new CheckInViewModel
+                {
+                    FullName =
+                        $"{member.Name} {member.Surname}",
 
-            var viewModel = new CheckInViewModel
-            {
-                FullName =
-                    $"{member.Name} {member.Surname}",
+                    MembershipActive =
+                        activeMembership != null,
 
-                MembershipActive =
-                    membershipActive,
+                    IsCheckedIn =
+                        currentAttendance != null,
 
-                IsCheckedIn =
-                    attendance != null,
-
-                CheckInTime =
-                    attendance?.CheckInTime
-            };
+                    CheckInTime =
+                        currentAttendance?.CheckInTime
+                };
 
             return View(viewModel);
         }
 
+        // =========================================================
+        // OLD CHECK-IN PAGE ROUTE
+        // =========================================================
+
+        [HttpGet]
+        public IActionResult CheckInPage()
+        {
+            return RedirectToAction(
+                nameof(CheckIn));
+        }
 
         // =========================================================
-        // VERIFY QR CODE + CHECK IN
+        // CHECK-IN RESULT
+        // =========================================================
+
+        [HttpGet]
+        public IActionResult CheckInResult()
+        {
+            return View();
+        }
+
+        // =========================================================
+        // CHECK OUT
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CheckOut()
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var attendance =
+                _context.Attendances
+                    .Where(a =>
+                        a.MemberId == memberId.Value &&
+                        a.CheckOutTime == null)
+                    .OrderByDescending(a =>
+                        a.CheckInTime)
+                    .FirstOrDefault();
+
+            if (attendance == null)
+            {
+                TempData["CheckInError"] =
+                    "No active check-in was found.";
+
+                return RedirectToAction(
+                    nameof(CheckIn));
+            }
+
+            attendance.CheckOutTime =
+                DateTime.Now;
+
+            _context.SaveChanges();
+
+            TempData["CheckInSuccess"] =
+                "You have successfully checked out.";
+
+            return RedirectToAction(
+                nameof(CheckIn));
+        }
+
+        // =========================================================
+        // FIXED GYM QR CHECK-IN
+        // =========================================================
+        //
+        // ONE QR CODE IS DISPLAYED AT THE GYM ENTRANCE.
+        //
+        // QR CONTENT:
+        // DUTGYM_CHECKIN
+        //
+        // Every student scans the SAME QR code.
+        //
+        // The system identifies the student using
+        // their logged-in account.
         // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult VerifyQrCheckIn(string qrData)
         {
+            // =========================================================
+            // VALIDATE QR DATA
+            // =========================================================
+
             if (string.IsNullOrWhiteSpace(qrData))
             {
                 TempData["CheckInError"] =
-                    "No QR code was detected.";
+                    "No gym QR code was detected.";
 
                 return RedirectToAction(nameof(CheckIn));
             }
 
-            var numberLine = qrData
-                .Split('\n')
-                .FirstOrDefault(x =>
-                    x.Trim().StartsWith("Number:"));
+            qrData = qrData.Trim();
 
-            if (numberLine == null)
+
+            // =========================================================
+            // VERIFY OFFICIAL GYM QR CODE
+            // =========================================================
+
+            if (!string.Equals(
+                qrData,
+                "DUTGYM_CHECKIN",
+                StringComparison.OrdinalIgnoreCase))
             {
                 TempData["CheckInError"] =
-                    "Invalid DUT FIT Gym QR code.";
+                    "Invalid DUT Campus FIT Gym QR code.";
 
                 return RedirectToAction(nameof(CheckIn));
             }
 
-            var studentNumber =
-                numberLine
-                    .Substring("Number:".Length)
-                    .Trim();
 
-            if (string.IsNullOrWhiteSpace(studentNumber))
+            // =========================================================
+            // GET LOGGED-IN MEMBER
+            // =========================================================
+
+            var memberId = GetMemberId();
+
+            if (memberId == null)
             {
                 TempData["CheckInError"] =
-                    "Student number could not be read.";
+                    "Your account could not be identified. Please log in again.";
 
-                return RedirectToAction(nameof(CheckIn));
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
+
+
+            // =========================================================
+            // FIND MEMBER
+            // =========================================================
 
             var member = _context.Members
                 .FirstOrDefault(m =>
-                    m.StudentNumber == studentNumber);
+                    m.MemberId == memberId.Value);
 
             if (member == null)
             {
                 TempData["CheckInError"] =
-                    "Member account could not be found.";
+                    "Your member account could not be found.";
 
                 return RedirectToAction(nameof(CheckIn));
             }
 
+
+            // =========================================================
+            // CHECK ACTIVE MEMBERSHIP
+            // =========================================================
+
             var membership = _context.Memberships
-                .Where(m => m.MemberId == member.MemberId)
-                .OrderByDescending(m => m.MembershipId)
+                .Where(m =>
+                    m.MemberId == memberId.Value &&
+                    m.Status == "Active")
+                .OrderByDescending(m =>
+                    m.MembershipId)
                 .FirstOrDefault();
 
             if (membership == null)
             {
                 TempData["CheckInError"] =
-                    "You do not have a gym membership.";
+                    "You do not have an active gym membership.";
 
                 return RedirectToAction(nameof(CheckIn));
             }
 
-            if (membership.Status != "Active" ||
-                !membership.EndDate.HasValue ||
+
+            // =========================================================
+            // CHECK MEMBERSHIP EXPIRY
+            // =========================================================
+
+            if (membership.EndDate.HasValue &&
                 membership.EndDate.Value.Date < DateTime.Today)
             {
                 TempData["CheckInError"] =
-                    "Your gym membership is not active.";
+                    "Your gym membership has expired.";
 
                 return RedirectToAction(nameof(CheckIn));
             }
 
+
+            // =========================================================
+            // CHECK IF ALREADY CHECKED IN
+            // =========================================================
+
             var existingAttendance = _context.Attendances
                 .FirstOrDefault(a =>
-                    a.MemberId == member.MemberId &&
+                    a.MemberId == memberId.Value &&
                     a.CheckOutTime == null);
 
             if (existingAttendance != null)
@@ -957,10 +1050,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(CheckIn));
             }
 
+
+            // =========================================================
+            // CREATE ATTENDANCE
+            // =========================================================
+
             var attendance = new Attendance
             {
-                MemberId = member.MemberId,
+                MemberId = memberId.Value,
+
                 CheckInTime = DateTime.Now,
+
                 CheckOutTime = null
             };
 
@@ -968,57 +1068,227 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             _context.SaveChanges();
 
+
+            // =========================================================
+            // SUCCESS
+            // =========================================================
+
             TempData["CheckInSuccess"] =
-                $"ACCESS GRANTED — Welcome {member.Name}!";
+                $"Access granted — Welcome {member.Name}!";
 
             return RedirectToAction(nameof(CheckIn));
         }
 
+        // =========================================================
+        // EQUIPMENT
+        // =========================================================
+
+        [HttpGet]
+        public IActionResult Equipment()
+        {
+            var equipment =
+                _context.Equipment
+                    .ToList();
+
+            return View(equipment);
+        }
 
         // =========================================================
-        // CHECK OUT
+        // RESERVE EQUIPMENT
         // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CheckOut()
+        public IActionResult Reserve(
+            int equipmentId)
         {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (string.IsNullOrEmpty(memberIdClaim))
+            if (memberId == null)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
 
-            int memberId = int.Parse(memberIdClaim);
+            var equipment =
+                _context.Equipment
+                    .FirstOrDefault(e =>
+                        e.EquipmentID ==
+                        equipmentId);
 
-            var attendance = _context.Attendances
-                .Where(a =>
-                    a.MemberId == memberId &&
-                    a.CheckOutTime == null)
-                .OrderByDescending(a => a.CheckInTime)
-                .FirstOrDefault();
-
-            if (attendance == null)
+            if (equipment == null)
             {
-                TempData["CheckInError"] =
-                    "You are not currently checked in.";
-
-                return RedirectToAction(nameof(CheckIn));
+                return NotFound();
             }
 
-            attendance.CheckOutTime =
-                DateTime.Now;
+            if (!equipment.IsAvailable)
+            {
+                TempData["EquipmentError"] =
+                    "This equipment is currently unavailable.";
+
+                return RedirectToAction(
+                    nameof(Equipment));
+            }
+
+            var existingReservation =
+                _context.Reservations
+                    .FirstOrDefault(r =>
+                        r.MemberID ==
+                            memberId.Value &&
+                        r.EquipmentID ==
+                            equipmentId &&
+                        r.Status ==
+                            "Reserved");
+
+            if (existingReservation != null)
+            {
+                TempData["EquipmentError"] =
+                    "You have already reserved this equipment.";
+
+                return RedirectToAction(
+                    nameof(Equipment));
+            }
+
+            var reservation =
+                new Reservation
+                {
+                    MemberID =
+                        memberId.Value,
+
+                    EquipmentID =
+                        equipmentId,
+
+                    ReservationDate =
+                        DateTime.Now,
+
+                    Status =
+                        "Reserved"
+                };
+
+            equipment.IsAvailable =
+                false;
+
+            _context.Reservations.Add(
+                reservation);
 
             _context.SaveChanges();
 
-            TempData["CheckInSuccess"] =
-                "You have successfully checked out. See you next time!";
+            TempData["EquipmentSuccess"] =
+                "Equipment reserved successfully.";
 
-            return RedirectToAction(nameof(CheckIn));
+            return RedirectToAction(
+                nameof(Equipment));
         }
 
+        // =========================================================
+        // MY RESERVATIONS
+        // =========================================================
+
+        [HttpGet]
+        public IActionResult Reservations()
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var reservations =
+                (
+                    from reservation
+                    in _context.Reservations
+
+                    join equipment
+                    in _context.Equipment
+                    on reservation.EquipmentID
+                    equals equipment.EquipmentID
+
+                    where reservation.MemberID ==
+                            memberId.Value &&
+                          reservation.Status ==
+                            "Reserved"
+
+                    orderby reservation.ReservationDate
+                        descending
+
+                    select new ReservationViewModel
+                    {
+                        ReservationID =
+                            reservation.ReservationID,
+
+                        EquipmentName =
+                            equipment.EquipmentName,
+
+                        ReservationDate =
+                            reservation.ReservationDate,
+
+                        Status =
+                            reservation.Status
+                    }
+                )
+                .ToList();
+
+            return View(reservations);
+        }
+
+        // =========================================================
+        // UNRESERVE EQUIPMENT
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Unreserve(
+            int reservationId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var reservation =
+                _context.Reservations
+                    .FirstOrDefault(r =>
+                        r.ReservationID ==
+                            reservationId &&
+                        r.MemberID ==
+                            memberId.Value);
+
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            var equipment =
+                _context.Equipment
+                    .FirstOrDefault(e =>
+                        e.EquipmentID ==
+                        reservation.EquipmentID);
+
+            reservation.Status =
+                "Cancelled";
+
+            if (equipment != null)
+            {
+                equipment.IsAvailable =
+                    true;
+            }
+
+            _context.SaveChanges();
+
+            TempData["EquipmentSuccess"] =
+                "Equipment reservation cancelled.";
+
+            return RedirectToAction(
+                nameof(Reservations));
+        }
 
         // =========================================================
         // REQUEST TRAINER - GET
@@ -1027,24 +1297,37 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [HttpGet]
         public IActionResult RequestTrainer()
         {
-            var memberIdClaim =
-                User.FindFirstValue(
-                    ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (string.IsNullOrEmpty(memberIdClaim))
+            if (memberId == null)
             {
                 return RedirectToAction("Login", "Account");
+            }
+
+            var member = _context.Members
+                .FirstOrDefault(m => m.MemberId == memberId.Value);
+
+            if (member == null)
+            {
+                return NotFound();
             }
 
             var trainers = _context.Trainers
                 .OrderBy(t => t.TrainerName)
                 .ToList();
 
+            if (!trainers.Any())
+            {
+                TempData["TrainerRequestError"] =
+                    "There are currently no trainers available.";
+
+                return RedirectToAction(nameof(MyTrainerRequests));
+            }
+
             ViewBag.Trainers = trainers;
 
             return View();
         }
-
 
         // =========================================================
         // REQUEST TRAINER - POST
@@ -1056,143 +1339,129 @@ namespace DUT_Campus_FIT_Gym.Controllers
             int trainerId,
             string requestMessage)
         {
-            var memberIdClaim =
-                User.FindFirstValue(
-                    ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (string.IsNullOrEmpty(memberIdClaim))
+            if (memberId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            int studentId =
-                int.Parse(memberIdClaim);
+            var member = _context.Members
+                .FirstOrDefault(m => m.MemberId == memberId.Value);
 
-            var trainer = _context.Members
-                .FirstOrDefault(m =>
-                    m.MemberId == trainerId &&
-                    m.Role == "Trainer");
-
-            if (string.IsNullOrWhiteSpace(requestMessage))
+            if (member == null)
             {
-                ModelState.AddModelError(
-                    "",
-                    "Please explain what assistance you need.");
-
-                ViewBag.Trainers = _context.Trainers
-                    .OrderBy(t => t.TrainerName)
-                    .ToList();
-
-                return View();
+                return NotFound();
             }
 
-
-            // ==========================================
-            // FIND TRAINER
-            // ==========================================
-
             var trainer = _context.Trainers
-                .FirstOrDefault(t =>
-                    t.TrainerId == trainerId);
+                .FirstOrDefault(t => t.TrainerId == trainerId);
 
             if (trainer == null)
             {
-                ModelState.AddModelError(
-                    "",
-                    "Please select a valid trainer.");
+                TempData["TrainerRequestError"] =
+                    "The selected trainer could not be found.";
 
-                ViewBag.Trainers = _context.Trainers
-                    .OrderBy(t => t.TrainerName)
-                    .ToList();
-
-                return View();
+                return RedirectToAction(nameof(RequestTrainer));
             }
 
-
-            // ==========================================
-            // CHECK EXISTING PENDING REQUEST
-            // ==========================================
-
-            var existingRequest =
-                _context.TrainerRequests
-                    .FirstOrDefault(r =>
-                        r.StudentId == studentId &&
-                        r.TrainerId == trainerId &&
-                        r.Status == "Pending");
-
-            if (existingRequest != null)
+            if (string.IsNullOrWhiteSpace(requestMessage))
             {
-                ModelState.AddModelError(
-                    "",
-                    "You already have a pending request with this trainer.");
+                TempData["TrainerRequestError"] =
+                    "Please explain what you need help with.";
 
-                ViewBag.Trainers = _context.Trainers
-                    .OrderBy(t => t.TrainerName)
-                    .ToList();
-
-                return View();
+                return RedirectToAction(nameof(RequestTrainer));
             }
 
+            requestMessage = requestMessage.Trim();
 
-            // ==========================================
-            // CREATE REQUEST
-            // ==========================================
-
-            var request = new TrainerRequest
+            if (requestMessage.Length > 500)
             {
-                StudentId = studentId,
+                TempData["TrainerRequestError"] =
+                    "Your request message cannot exceed 500 characters.";
 
-                TrainerId = trainer.TrainerId,
+                return RedirectToAction(nameof(RequestTrainer));
+            }
 
-                RequestMessage = requestMessage.Trim(),
+            var activeRequest = _context.TrainerRequests
+                .Any(r =>
+                    r.StudentId == memberId.Value &&
+                    (r.Status == "Pending" ||
+                     r.Status == "Accepted"));
 
+            if (activeRequest)
+            {
+                TempData["TrainerRequestError"] =
+                    "You already have a pending or active trainer request.";
+
+                return RedirectToAction(nameof(MyTrainerRequests));
+            }
+
+            var trainerRequest = new TrainerRequest
+            {
+                StudentId = memberId.Value,
+                TrainerId = trainerId,
+                RequestMessage = requestMessage,
                 Status = "Pending",
-
                 RequestDate = DateTime.Now
             };
 
-
-            _context.TrainerRequests.Add(request);
+            _context.TrainerRequests.Add(trainerRequest);
 
             _context.SaveChanges();
 
-
-            // ==========================================
-            // SUCCESS
-            // ==========================================
-
             TempData["TrainerRequestSuccess"] =
-                "Your trainer assistance request has been sent.";
+                $"Your request has been sent to {trainer.TrainerName}.";
 
-            return RedirectToAction("Dashboard");
+            return RedirectToAction(nameof(MyTrainerRequests));
         }
+
         // =========================================================
         // MY TRAINER REQUESTS
         // =========================================================
 
         [HttpGet]
-        public async Task<IActionResult> MyTrainerRequests()
+        public IActionResult MyTrainerRequests()
         {
-            var memberIdClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var memberId = GetMemberId();
 
-            if (string.IsNullOrEmpty(memberIdClaim))
+            if (memberId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            if (!int.TryParse(memberIdClaim, out int memberId))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var requests = await _context.TrainerRequests
+            var requests = _context.TrainerRequests
                 .Include(r => r.Trainer)
-                .Where(r => r.StudentId == memberId)
+                .Where(r => r.StudentId == memberId.Value)
                 .OrderByDescending(r => r.RequestDate)
-                .ToListAsync();
+                .ToList();
 
             return View(requests);
+        }
+
+        [HttpGet]
+        public IActionResult Payment()
+        {
+            var memberIdClaim = User.FindFirst(
+                System.Security.Claims.ClaimTypes.NameIdentifier);
+
+            if (memberIdClaim == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (!int.TryParse(memberIdClaim.Value, out int memberId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var payments = _context.Payments
+                .Include(p => p.Membership)
+                .Where(p => p.MemberId == memberId)
+                .OrderByDescending(p => p.PaymentDate)
+                .ToList();
+
+            return View("Payment", payments);
         }
     }
 }

@@ -20,6 +20,7 @@ namespace DUT_Campus_FIT_Gym.Models
         public DateTime EndTime { get; set; }
 
         [Required]
-        public string Status { get; set; } = "";
+        [StringLength(20)]
+        public string Status { get; set; } = "Active";
     }
 }

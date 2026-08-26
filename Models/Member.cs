@@ -9,32 +9,29 @@ namespace DUT_Campus_FIT_Gym.Models
 
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         [Required]
         [StringLength(50)]
-        public string Surname { get; set; }
+        public string Surname { get; set; } = "";
 
         [Required]
-        public string StudentNumber { get; set; }
+        [StringLength(20)]
+        public string StudentNumber { get; set; } = "";
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = "";
 
         [Required]
         [Phone]
-        public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; } = "";
 
         [Required]
-        public string Role { get; set; }
+        [StringLength(20)]
+        public string Role { get; set; } = "Student";
 
-        public string PasswordHash { get; set; }
-
-
-        // =====================================================
-        // WORKOUT RELATIONSHIPS
-        // =====================================================
+        public string PasswordHash { get; set; } = "";
 
         public ICollection<WorkoutPlan> WorkoutPlans { get; set; }
             = new List<WorkoutPlan>();
@@ -43,7 +40,7 @@ namespace DUT_Campus_FIT_Gym.Models
             = new List<WorkoutProfile>();
 
         public ICollection<Membership> Memberships { get; set; }
-    = new List<Membership>();
+            = new List<Membership>();
 
         public ICollection<MembershipApplication> MembershipApplications { get; set; }
             = new List<MembershipApplication>();

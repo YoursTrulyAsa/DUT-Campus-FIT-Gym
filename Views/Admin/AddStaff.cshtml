@@ -1,0 +1,261 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.CreateStaffViewModel
+
+@{
+    ViewData["Title"] = "Add Staff";
+}
+
+<div class="container mt-4">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-7">
+
+            <!-- =====================================================
+                 HEADER
+                 ===================================================== -->
+
+            <div class="mb-4">
+
+                <h1>Add Staff Member</h1>
+
+                <p class="text-muted">
+                    Create a staff account for the DUT Campus FIT Gym.
+                </p>
+
+            </div>
+
+
+            <!-- =====================================================
+                 FORM CARD
+                 ===================================================== -->
+
+            <div class="card shadow-sm">
+
+                <div class="card-body p-4">
+
+                    <form asp-action="AddStaff"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+
+                        <!-- VALIDATION -->
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
+                        </div>
+
+
+                        <!-- =================================================
+                             FIRST NAME
+                             ================================================= -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="FirstName"
+                                   class="form-label">
+
+                                First Name
+
+                            </label>
+
+                            <input asp-for="FirstName"
+                                   class="form-control"
+                                   placeholder="Enter first name" />
+
+                            <span asp-validation-for="FirstName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             LAST NAME
+                             ================================================= -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="LastName"
+                                   class="form-label">
+
+                                Last Name
+
+                            </label>
+
+                            <input asp-for="LastName"
+                                   class="form-control"
+                                   placeholder="Enter last name" />
+
+                            <span asp-validation-for="LastName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             STAFF NUMBER
+                             ================================================= -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="StaffStudentNumber"
+                                   class="form-label">
+
+                                Staff Number
+
+                            </label>
+
+                            <input asp-for="StaffStudentNumber"
+                                   class="form-control"
+                                   placeholder="Enter staff number" />
+
+                            <span asp-validation-for="StaffStudentNumber"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             EMAIL
+                             ================================================= -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="Email"
+                                   class="form-label">
+
+                                Email Address
+
+                            </label>
+
+                            <input asp-for="Email"
+                                   class="form-control"
+                                   placeholder="Enter email address" />
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             PHONE
+                             ================================================= -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="PhoneNumber"
+                                   class="form-label">
+
+                                Phone Number
+
+                            </label>
+
+                            <input asp-for="PhoneNumber"
+                                   class="form-control"
+                                   placeholder="Enter phone number" />
+
+                            <span asp-validation-for="PhoneNumber"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             PASSWORD
+                             ================================================= -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="Password"
+                                   class="form-label">
+
+                                Password
+
+                            </label>
+
+                            <input asp-for="Password"
+                                   class="form-control"
+                                   placeholder="Enter password" />
+
+                            <span asp-validation-for="Password"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             CONFIRM PASSWORD
+                             ================================================= -->
+
+                        <div class="mb-4">
+
+                            <label asp-for="ConfirmPassword"
+                                   class="form-label">
+
+                                Confirm Password
+
+                            </label>
+
+                            <input asp-for="ConfirmPassword"
+                                   class="form-control"
+                                   placeholder="Confirm password" />
+
+                            <span asp-validation-for="ConfirmPassword"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             BUTTONS
+                             ================================================= -->
+
+                        <div class="d-flex justify-content-between">
+
+                            <a asp-action="Members"
+                               class="btn btn-outline-secondary">
+
+                                Cancel
+
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+
+                                <i class="bi bi-person-plus-fill"></i>
+
+                                Create Staff Account
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
+    }
+
+}

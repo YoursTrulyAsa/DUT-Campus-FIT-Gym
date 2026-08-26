@@ -1,198 +1,222 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
 
-    const startScanner = document.getElementById("startScanner");
-    const closeScanner = document.getElementById("closeScanner");
-    const scannerSection = document.getElementById("scannerSection");
-    const scannerStatus = document.getElementById("scannerStatus");
+    const startScanner =
+        document.getElementById("startScanner");
+
+    const closeScanner =
+        document.getElementById("closeScanner");
+
+    const scannerSection =
+        document.getElementById("scannerSection");
+
+    const scannerStatus =
+        document.getElementById("scannerStatus");
 
     let qrScanner = null;
-    let scannerRunning = false;
-    let scanProcessed = false;
 
 
-    // ==============================
+    // =========================================================
     // START SCANNER
-    // ==============================
+    // =========================================================
 
-    startScanner.addEventListener("click", async function () {
+    if (startScanner) {
 
-        scannerSection.style.display = "block";
+        startScanner.addEventListener("click", function () {
 
-        scannerStatus.textContent =
-            "Starting camera...";
+            scannerSection.style.display = "block";
 
-        scanProcessed = false;
+            startScanner.disabled = true;
 
-        qrScanner = new Html5Qrcode("qr-reader");
+            scannerStatus.textContent =
+                "Opening camera...";
 
-        try {
 
-            await qrScanner.start(
+            qrScanner =
+                new Html5Qrcode("qr-reader");
 
-                { facingMode: "environment" },
+
+            const config = {
+
+                fps: 10,
+
+                qrbox: {
+                    width: 250,
+                    height: 250
+                },
+
+                formatsToSupport: [
+                    Html5QrcodeSupportedFormats.QR_CODE
+                ]
+
+            };
+
+
+            qrScanner.start(
 
                 {
-                    fps: 10,
-                    qrbox: {
-                        width: 250,
-                        height: 250
-                    }
+                    facingMode: "environment"
                 },
 
-                async function (decodedText) {
-
-                    // Prevent multiple scans
-                    if (scanProcessed) {
-                        return;
-                    }
-
-                    scanProcessed = true;
-
-                    console.log("QR Code:", decodedText);
-
-                    scannerStatus.innerHTML =
-                        "<strong>QR CODE SCANNED</strong><br>" +
-                        "Verifying access...";
-
-                    scannerStatus.classList.add("success");
+                config,
 
 
-                    // Stop camera
-                    await stopScanner();
+                // =================================================
+                // QR CODE DETECTED
+                // =================================================
+
+                function (decodedText) {
+
+                    scannerStatus.textContent =
+                        "QR code detected. Verifying check-in...";
 
 
-                    // ==============================
-                    // SEND QR DATA TO CONTROLLER
-                    // ==============================
+                    qrScanner.stop()
+                        .then(function () {
 
-                    const form = document.createElement("form");
+                            verifyQrCode(decodedText);
 
-                    form.method = "POST";
+                        })
+                        .catch(function () {
 
-                    form.action =
-                        "/Member/VerifyQrCheckIn";
+                            verifyQrCode(decodedText);
 
-
-                    // Anti-forgery token
-
-                    const token =
-                        document.querySelector(
-                            '#scannerSection input[name="__RequestVerificationToken"]'
-                        );
-
-
-                    if (token) {
-
-                        const tokenInput =
-                            document.createElement("input");
-
-                        tokenInput.type = "hidden";
-
-                        tokenInput.name =
-                            "__RequestVerificationToken";
-
-                        tokenInput.value =
-                            token.value;
-
-                        form.appendChild(tokenInput);
-                    }
-
-
-                    // QR DATA
-
-                    const qrInput =
-                        document.createElement("input");
-
-                    qrInput.type = "hidden";
-
-                    qrInput.name = "qrData";
-
-                    qrInput.value = decodedText;
-
-                    form.appendChild(qrInput);
-
-
-                    document.body.appendChild(form);
-
-
-                    // Submit verification
-
-                    form.submit();
+                        });
 
                 },
 
-                function (errorMessage) {
 
-                    // Normal scanning errors are ignored.
+                // =================================================
+                // SCANNING ERROR
+                // =================================================
+
+                function () {
+
+                    // Normal scanning failures are ignored.
 
                 }
 
-            );
+            )
+                .catch(function (error) {
 
-            scannerRunning = true;
+                    console.error(error);
+
+                    scannerStatus.textContent =
+                        "Unable to access your camera.";
+
+                    startScanner.disabled = false;
+
+                });
+
+        });
+
+    }
+
+
+    // =========================================================
+    // CLOSE SCANNER
+    // =========================================================
+
+    if (closeScanner) {
+
+        closeScanner.addEventListener("click", function () {
+
+            if (qrScanner) {
+
+                qrScanner.stop()
+                    .then(function () {
+
+                        qrScanner.clear();
+
+                        qrScanner = null;
+
+                    })
+                    .catch(function () {
+
+                        qrScanner = null;
+
+                    });
+
+            }
+
+            scannerSection.style.display = "none";
+
+            startScanner.disabled = false;
 
             scannerStatus.textContent =
                 "Position the QR code inside the scanner.";
 
-        }
-        catch (error) {
+        });
 
-            console.error(error);
-
-            scannerStatus.textContent =
-                "Unable to access the camera. Please allow camera permissions.";
-
-        }
-
-    });
-
-
-    // ==============================
-    // STOP SCANNER
-    // ==============================
-
-    async function stopScanner() {
-
-        if (qrScanner && scannerRunning) {
-
-            try {
-
-                await qrScanner.stop();
-
-                qrScanner.clear();
-
-            }
-            catch (error) {
-
-                console.error(
-                    "Error stopping scanner:",
-                    error
-                );
-
-            }
-
-            scannerRunning = false;
-        }
     }
 
 
-    // ==============================
-    // CLOSE SCANNER
-    // ==============================
+    // =========================================================
+    // SEND QR CODE TO MEMBER CONTROLLER
+    // =========================================================
 
-    closeScanner.addEventListener("click", async function () {
+    function verifyQrCode(qrData) {
 
-        await stopScanner();
+        const form =
+            document.createElement("form");
 
-        scannerSection.style.display = "none";
+        form.method = "POST";
 
-        scannerStatus.textContent =
-            "Position the QR code inside the scanner.";
+        form.action =
+            "/Member/VerifyQrCheckIn";
 
-        scannerStatus.classList.remove("success");
 
-        scanProcessed = false;
+        // =====================================================
+        // ANTI-FORGERY TOKEN
+        // =====================================================
 
-    });
+        const token =
+            document.querySelector(
+                'input[name="__RequestVerificationToken"]'
+            );
+
+
+        if (token) {
+
+            const tokenInput =
+                document.createElement("input");
+
+            tokenInput.type = "hidden";
+
+            tokenInput.name =
+                "__RequestVerificationToken";
+
+            tokenInput.value =
+                token.value;
+
+            form.appendChild(tokenInput);
+
+        }
+
+
+        // =====================================================
+        // QR DATA
+        // =====================================================
+
+        const qrInput =
+            document.createElement("input");
+
+        qrInput.type = "hidden";
+
+        qrInput.name = "qrData";
+
+        qrInput.value = qrData;
+
+        form.appendChild(qrInput);
+
+
+        // =====================================================
+        // SUBMIT
+        // =====================================================
+
+        document.body.appendChild(form);
+
+        form.submit();
+
+    }
 
 });

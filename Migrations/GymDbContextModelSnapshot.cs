@@ -123,18 +123,21 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<string>("Category")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("EquipmentName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("EquipmentID");
 
@@ -168,11 +171,13 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("StudentNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Surname")
                         .IsRequired()
@@ -195,29 +200,31 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsRenewal")
+                    b.Property<bool>("FirstTimeMember")
                         .HasColumnType("bit");
 
                     b.Property<int?>("MemberId")
                         .HasColumnType("int");
 
                     b.Property<string>("MembershipType")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("PaymentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("PaymentId")
-                        .HasColumnType("int");
-
                     b.Property<string>("PaymentMethod")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("PaymentReference")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PaymentStatus")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -227,7 +234,8 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("MembershipId");
 
@@ -295,12 +303,9 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("MemberId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MemberId1")
                         .HasColumnType("int");
 
                     b.Property<int>("MembershipId")
@@ -310,25 +315,17 @@ namespace DUT_Campus_FIT_Gym.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReceiptNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PaymentId");
 
                     b.HasIndex("MemberId");
-
-                    b.HasIndex("MemberId1");
 
                     b.HasIndex("MembershipId");
 
@@ -357,7 +354,8 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("ReservationID");
 
@@ -378,7 +376,8 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<string>("TrainerName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("TrainerId");
 
@@ -511,7 +510,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
                         .WithMany()
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Member");
@@ -522,8 +521,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
                         .WithMany("Memberships")
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Member");
                 });
@@ -533,7 +531,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
                         .WithMany("MembershipApplications")
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Member");
@@ -542,21 +540,16 @@ namespace DUT_Campus_FIT_Gym.Migrations
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Payment", b =>
                 {
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
-                        .WithMany()
+                        .WithMany("Payments")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", null)
-                        .WithMany("Payments")
-                        .HasForeignKey("MemberId1");
 
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Membership", "Membership")
                         .WithMany()
                         .HasForeignKey("MembershipId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-                        .HasForeignKey("MemberId");
 
                     b.Navigation("Member");
 

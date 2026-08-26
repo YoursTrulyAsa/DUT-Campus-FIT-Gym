@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DUT_Campus_FIT_Gym.Models
 {
@@ -15,6 +16,7 @@ namespace DUT_Campus_FIT_Gym.Models
 
         public DateTime? CheckOutTime { get; set; }
 
-        public Member Member { get; set; }
+        [ForeignKey("MemberId")]
+        public Member? Member { get; set; }
     }
 }
