@@ -6,6 +6,10 @@
 
 <div class="container mt-5">
 
+    <!-- ========================================= -->
+    <!-- HEADER -->
+    <!-- ========================================= -->
+
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <h1>
@@ -23,25 +27,35 @@
     </div>
 
 
+    <!-- ========================================= -->
     <!-- SUCCESS MESSAGE -->
+    <!-- ========================================= -->
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">
+
             @TempData["Success"]
+
         </div>
     }
 
 
+    <!-- ========================================= -->
     <!-- ERROR MESSAGE -->
+    <!-- ========================================= -->
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger">
+
             @TempData["Error"]
+
         </div>
     }
 
 
+    <!-- ========================================= -->
     <!-- ACTIVE REQUEST -->
+    <!-- ========================================= -->
     @if (ViewBag.ActiveRequest != null)
     {
         <div class="card shadow border-success mb-4">
@@ -58,8 +72,8 @@
 
                 <h5>
                     Student:
-                    @ViewBag.ActiveRequest.Student.FirstName
-                    @ViewBag.ActiveRequest.Student.LastName
+                    @ViewBag.ActiveRequest.Student.Name
+                    @ViewBag.ActiveRequest.Student.Surname
                 </h5>
 
                 <p>
@@ -73,15 +87,17 @@
                 </p>
 
                 <p>
+
                     <strong>Status:</strong>
 
                     <span class="badge bg-success">
                         Accepted / In Progress
                     </span>
+
                 </p>
 
 
-                <!-- COMPLETE BUTTON -->
+                <!-- COMPLETE WORKOUT -->
 
                 <form asp-controller="Trainer"
                       asp-action="CompleteRequest"
@@ -115,7 +131,9 @@
     }
 
 
+    <!-- ========================================= -->
     <!-- ALL REQUESTS -->
+    <!-- ========================================= -->
 
     <div class="card shadow">
 
@@ -126,6 +144,7 @@
             </h4>
 
         </div>
+
 
         <div class="card-body">
 
@@ -174,6 +193,8 @@
                             {
                                 <tr>
 
+                                    <!-- STUDENT -->
+
                                     <td>
 
                                         @request.Student.Name
@@ -182,12 +203,16 @@
                                     </td>
 
 
+                                    <!-- EMAIL -->
+
                                     <td>
 
                                         @request.Student.Email
 
                                     </td>
 
+
+                                    <!-- REQUEST -->
 
                                     <td>
 
@@ -196,17 +221,21 @@
                                     </td>
 
 
+                                    <!-- DATE -->
+
                                     <td>
 
                                         @request.RequestDate.ToString(
-                                            "dd/MM/yyyy HH:mm")
+                                        "dd/MM/yyyy HH:mm")
 
-                                    </td>
+                            </td>
 
 
-                                    <td>
+                            <!-- STATUS -->
 
-                                        @if (request.Status == "Pending")
+                            <td>
+
+                                @if (request.Status == "Pending")
                                         {
                                             <span class="badge bg-warning text-dark">
                                                 Pending
@@ -240,13 +269,18 @@
                                     </td>
 
 
+                                    <!-- ================================= -->
+                                    <!-- ACTION -->
+                                    <!-- ================================= -->
+
                                     <td>
 
-                                        <!-- PENDING -->
                                         @if (request.Status == "Pending")
                                         {
                                             @if (ViewBag.ActiveRequest == null)
                                             {
+                                                <!-- ACCEPT -->
+
                                                 <form asp-controller="Trainer"
                                                       asp-action="AcceptRequest"
                                                       method="post"
@@ -267,6 +301,8 @@
 
                                                 </form>
 
+
+                                                <!-- REJECT -->
 
                                                 <form asp-controller="Trainer"
                                                       asp-action="RejectRequest"
@@ -298,38 +334,37 @@
                                                 </span>
                                             }
                                         }
-
-
-                                        <!-- ACCEPTED -->
                                         else if (request.Status == "Accepted")
                                         {
-                                        <span class="badge bg-success">
+                                            <span class="badge bg-success">
 
-                                            Current Workout
+                                                Current Workout
 
-                                        </span>
+                                            </span>
                                         }
-
-
-                                        <!-- COMPLETED -->
                                         else if (request.Status == "Completed")
                                         {
-                                        <span class="badge bg-primary">
+                                            <span class="badge bg-primary">
 
-                                            Completed
+                                                Completed
 
-                                        </span>
+                                            </span>
                                         }
-
-
-                                        <!-- REJECTED -->
                                         else if (request.Status == "Rejected")
                                         {
-                                        <span class="badge bg-danger">
+                                            <span class="badge bg-danger">
 
-                                            Rejected
+                                                Rejected
 
-                                        </span>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+
+                                                No action
+
+                                            </span>
                                         }
 
                                     </td>

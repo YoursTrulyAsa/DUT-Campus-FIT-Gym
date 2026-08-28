@@ -82,7 +82,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var reservationCount = _context.Reservations
                 .Count(r =>
                     r.MemberID == memberId.Value &&
-                    r.Status == "Reserved");
+                    r.Status == "Reserved" &&
+                    r.EndTime > DateTime.Now);
 
             var workouts = _context.WorkoutPlans
                 .Where(w => w.MemberId == memberId.Value)
@@ -130,6 +131,70 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             return View(member);
+        }
+
+        // =========================================================
+        // UPDATE PROFILE
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Profile(
+            string name,
+            string surname,
+            string phoneNumber)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var member = _context.Members
+                .FirstOrDefault(m => m.MemberId == memberId.Value);
+
+            if (member == null)
+            {
+                return NotFound();
+            }
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                ModelState.AddModelError(
+                    "Name",
+                    "First name is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(surname))
+            {
+                ModelState.AddModelError(
+                    "Surname",
+                    "Last name is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+            {
+                ModelState.AddModelError(
+                    "PhoneNumber",
+                    "Phone number is required.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(member);
+            }
+
+            member.Name = name.Trim();
+            member.Surname = surname.Trim();
+            member.PhoneNumber = phoneNumber.Trim();
+
+            _context.SaveChanges();
+
+            TempData["ProfileSuccess"] =
+                "Your profile has been updated successfully.";
+
+            return RedirectToAction(nameof(Profile));
         }
 
         // =========================================================
@@ -699,22 +764,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         "INACTIVE"
                 };
 
-            // =========================================================
-            // GENERATE CODE 128 BARCODE
-            // =========================================================
-            //
-            // ZXing.Net is used instead of BarcodeLib.
-            //
-            // The barcode value is the member's
-            // student/staff number.
-            //
-            // Example:
-            //
-            // 220123456
-            //
-            // The admin scanner can scan this value.
-            //
-
             if (membership != null &&
                 !string.IsNullOrWhiteSpace(member.StudentNumber))
             {
@@ -784,7 +833,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         // =========================================================
-        // CHECK-IN PAGE
+        // CHECK-IN
         // =========================================================
 
         [HttpGet]
@@ -799,55 +848,53 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
-            var member =
-                _context.Members
-                    .FirstOrDefault(m =>
-                        m.MemberId == memberId.Value);
+            var member = _context.Members
+                .FirstOrDefault(m =>
+                    m.MemberId == memberId.Value);
 
             if (member == null)
             {
                 return NotFound();
             }
 
-            var activeMembership =
-                _context.Memberships
-                    .FirstOrDefault(m =>
-                        m.MemberId == memberId.Value &&
-                        m.Status == "Active" &&
-                        m.EndDate.HasValue &&
-                        m.EndDate.Value.Date >=
-                            DateTime.Today);
+            var activeMembership = _context.Memberships
+                .Where(m =>
+                    m.MemberId == memberId.Value &&
+                    m.Status == "Active" &&
+                    m.EndDate.HasValue &&
+                    m.EndDate.Value.Date >= DateTime.Today)
+                .OrderByDescending(m =>
+                    m.MembershipId)
+                .FirstOrDefault();
 
-            var currentAttendance =
-                _context.Attendances
-                    .Where(a =>
-                        a.MemberId == memberId.Value &&
-                        a.CheckOutTime == null)
-                    .OrderByDescending(a =>
-                        a.CheckInTime)
-                    .FirstOrDefault();
+            var currentAttendance = _context.Attendances
+                .Where(a =>
+                    a.MemberId == memberId.Value &&
+                    a.CheckOutTime == null)
+                .OrderByDescending(a =>
+                    a.CheckInTime)
+                .FirstOrDefault();
 
-            var viewModel =
-                new CheckInViewModel
-                {
-                    FullName =
-                        $"{member.Name} {member.Surname}",
+            var viewModel = new CheckInViewModel
+            {
+                FullName =
+                    $"{member.Name} {member.Surname}",
 
-                    MembershipActive =
-                        activeMembership != null,
+                MembershipActive =
+                    activeMembership != null,
 
-                    IsCheckedIn =
-                        currentAttendance != null,
+                IsCheckedIn =
+                    currentAttendance != null,
 
-                    CheckInTime =
-                        currentAttendance?.CheckInTime
-                };
+                CheckInTime =
+                    currentAttendance?.CheckInTime
+            };
 
             return View(viewModel);
         }
 
         // =========================================================
-        // OLD CHECK-IN PAGE ROUTE
+        // OLD CHECK-IN ROUTE
         // =========================================================
 
         [HttpGet]
@@ -884,14 +931,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
-            var attendance =
-                _context.Attendances
-                    .Where(a =>
-                        a.MemberId == memberId.Value &&
-                        a.CheckOutTime == null)
-                    .OrderByDescending(a =>
-                        a.CheckInTime)
-                    .FirstOrDefault();
+            var attendance = _context.Attendances
+                .Where(a =>
+                    a.MemberId == memberId.Value &&
+                    a.CheckOutTime == null)
+                .OrderByDescending(a =>
+                    a.CheckInTime)
+                .FirstOrDefault();
 
             if (attendance == null)
             {
@@ -908,35 +954,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context.SaveChanges();
 
             TempData["CheckInSuccess"] =
-                "You have successfully checked out.";
+                "You have successfully checked out of the gym.";
 
             return RedirectToAction(
                 nameof(CheckIn));
         }
 
         // =========================================================
-        // FIXED GYM QR CHECK-IN
-        // =========================================================
-        //
-        // ONE QR CODE IS DISPLAYED AT THE GYM ENTRANCE.
-        //
-        // QR CONTENT:
-        // DUTGYM_CHECKIN
-        //
-        // Every student scans the SAME QR code.
-        //
-        // The system identifies the student using
-        // their logged-in account.
+        // QR CHECK-IN
         // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult VerifyQrCheckIn(string qrData)
         {
-            // =========================================================
-            // VALIDATE QR DATA
-            // =========================================================
-
             if (string.IsNullOrWhiteSpace(qrData))
             {
                 TempData["CheckInError"] =
@@ -946,11 +977,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             qrData = qrData.Trim();
-
-
-            // =========================================================
-            // VERIFY OFFICIAL GYM QR CODE
-            // =========================================================
 
             if (!string.Equals(
                 qrData,
@@ -962,11 +988,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return RedirectToAction(nameof(CheckIn));
             }
-
-
-            // =========================================================
-            // GET LOGGED-IN MEMBER
-            // =========================================================
 
             var memberId = GetMemberId();
 
@@ -980,11 +1001,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
-
-            // =========================================================
-            // FIND MEMBER
-            // =========================================================
-
             var member = _context.Members
                 .FirstOrDefault(m =>
                     m.MemberId == memberId.Value);
@@ -996,11 +1012,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return RedirectToAction(nameof(CheckIn));
             }
-
-
-            // =========================================================
-            // CHECK ACTIVE MEMBERSHIP
-            // =========================================================
 
             var membership = _context.Memberships
                 .Where(m =>
@@ -1018,11 +1029,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(CheckIn));
             }
 
-
-            // =========================================================
-            // CHECK MEMBERSHIP EXPIRY
-            // =========================================================
-
             if (membership.EndDate.HasValue &&
                 membership.EndDate.Value.Date < DateTime.Today)
             {
@@ -1031,11 +1037,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return RedirectToAction(nameof(CheckIn));
             }
-
-
-            // =========================================================
-            // CHECK IF ALREADY CHECKED IN
-            // =========================================================
 
             var existingAttendance = _context.Attendances
                 .FirstOrDefault(a =>
@@ -1050,28 +1051,16 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(CheckIn));
             }
 
-
-            // =========================================================
-            // CREATE ATTENDANCE
-            // =========================================================
-
             var attendance = new Attendance
             {
                 MemberId = memberId.Value,
-
                 CheckInTime = DateTime.Now,
-
                 CheckOutTime = null
             };
 
             _context.Attendances.Add(attendance);
 
             _context.SaveChanges();
-
-
-            // =========================================================
-            // SUCCESS
-            // =========================================================
 
             TempData["CheckInSuccess"] =
                 $"Access granted — Welcome {member.Name}!";
@@ -1080,7 +1069,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         // =========================================================
-        // EQUIPMENT
+        // MEMBER EQUIPMENT PAGE
         // =========================================================
 
         [HttpGet]
@@ -1088,101 +1077,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             var equipment =
                 _context.Equipment
+                    .OrderBy(e => e.EquipmentName)
                     .ToList();
 
             return View(equipment);
         }
 
         // =========================================================
-        // RESERVE EQUIPMENT
-        // =========================================================
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Reserve(
-            int equipmentId)
-        {
-            var memberId = GetMemberId();
-
-            if (memberId == null)
-            {
-                return RedirectToAction(
-                    "Login",
-                    "Account");
-            }
-
-            var equipment =
-                _context.Equipment
-                    .FirstOrDefault(e =>
-                        e.EquipmentID ==
-                        equipmentId);
-
-            if (equipment == null)
-            {
-                return NotFound();
-            }
-
-            if (!equipment.IsAvailable)
-            {
-                TempData["EquipmentError"] =
-                    "This equipment is currently unavailable.";
-
-                return RedirectToAction(
-                    nameof(Equipment));
-            }
-
-            var existingReservation =
-                _context.Reservations
-                    .FirstOrDefault(r =>
-                        r.MemberID ==
-                            memberId.Value &&
-                        r.EquipmentID ==
-                            equipmentId &&
-                        r.Status ==
-                            "Reserved");
-
-            if (existingReservation != null)
-            {
-                TempData["EquipmentError"] =
-                    "You have already reserved this equipment.";
-
-                return RedirectToAction(
-                    nameof(Equipment));
-            }
-
-            var reservation =
-                new Reservation
-                {
-                    MemberID =
-                        memberId.Value,
-
-                    EquipmentID =
-                        equipmentId,
-
-                    ReservationDate =
-                        DateTime.Now,
-
-                    Status =
-                        "Reserved"
-                };
-
-            equipment.IsAvailable =
-                false;
-
-            _context.Reservations.Add(
-                reservation);
-
-            _context.SaveChanges();
-
-            TempData["EquipmentSuccess"] =
-                "Equipment reserved successfully.";
-
-            return RedirectToAction(
-                nameof(Equipment));
-        }
-
-        // =========================================================
-        // MY RESERVATIONS
+        // MEMBER RESERVATIONS
         // =========================================================
 
         [HttpGet]
@@ -1197,6 +1099,45 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
+            var now = DateTime.Now;
+
+            // -----------------------------------------------------
+            // AUTOMATICALLY EXPIRE OLD RESERVATIONS
+            // -----------------------------------------------------
+
+            var expiredReservations = _context.Reservations
+                .Where(r =>
+                    r.MemberID == memberId.Value &&
+                    r.Status == "Reserved" &&
+                    r.EndTime <= now)
+                .ToList();
+
+            foreach (var expired in expiredReservations)
+            {
+                expired.Status = "Expired";
+
+                var equipment =
+                    _context.Equipment
+                        .FirstOrDefault(e =>
+                            e.EquipmentID ==
+                            expired.EquipmentID);
+
+                if (equipment != null)
+                {
+                    equipment.IsAvailable = true;
+                }
+            }
+
+            if (expiredReservations.Any())
+            {
+                _context.SaveChanges();
+            }
+
+            // -----------------------------------------------------
+            // LOAD RESERVATIONS
+            // IMPORTANT: EndTime IS INCLUDED
+            // -----------------------------------------------------
+
             var reservations =
                 (
                     from reservation
@@ -1204,13 +1145,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                     join equipment
                     in _context.Equipment
+
                     on reservation.EquipmentID
                     equals equipment.EquipmentID
 
                     where reservation.MemberID ==
-                            memberId.Value &&
-                          reservation.Status ==
-                            "Reserved"
+                            memberId.Value
 
                     orderby reservation.ReservationDate
                         descending
@@ -1220,11 +1160,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         ReservationID =
                             reservation.ReservationID,
 
+                        MemberID =
+                            reservation.MemberID,
+
                         EquipmentName =
                             equipment.EquipmentName,
 
                         ReservationDate =
                             reservation.ReservationDate,
+
+                        EndTime =
+                            reservation.EndTime,
 
                         Status =
                             reservation.Status
@@ -1259,11 +1205,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         r.ReservationID ==
                             reservationId &&
                         r.MemberID ==
-                            memberId.Value);
+                            memberId.Value &&
+                        r.Status ==
+                            "Reserved");
 
             if (reservation == null)
             {
-                return NotFound();
+                TempData["EquipmentError"] =
+                    "The reservation could not be found or has already expired.";
+
+                return RedirectToAction(
+                    nameof(Reservations));
             }
 
             var equipment =
@@ -1284,7 +1236,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context.SaveChanges();
 
             TempData["EquipmentSuccess"] =
-                "Equipment reservation cancelled.";
+                "Equipment reservation cancelled successfully.";
 
             return RedirectToAction(
                 nameof(Reservations));
@@ -1321,7 +1273,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 TempData["TrainerRequestError"] =
                     "There are currently no trainers available.";
 
-                return RedirectToAction(nameof(MyTrainerRequests));
+                return RedirectToAction(
+                    nameof(MyTrainerRequests));
             }
 
             ViewBag.Trainers = trainers;
@@ -1362,7 +1315,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 TempData["TrainerRequestError"] =
                     "The selected trainer could not be found.";
 
-                return RedirectToAction(nameof(RequestTrainer));
+                return RedirectToAction(
+                    nameof(RequestTrainer));
             }
 
             if (string.IsNullOrWhiteSpace(requestMessage))
@@ -1370,50 +1324,72 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 TempData["TrainerRequestError"] =
                     "Please explain what you need help with.";
 
-                return RedirectToAction(nameof(RequestTrainer));
+                return RedirectToAction(
+                    nameof(RequestTrainer));
             }
 
-            requestMessage = requestMessage.Trim();
+            requestMessage =
+                requestMessage.Trim();
 
             if (requestMessage.Length > 500)
             {
                 TempData["TrainerRequestError"] =
                     "Your request message cannot exceed 500 characters.";
 
-                return RedirectToAction(nameof(RequestTrainer));
+                return RedirectToAction(
+                    nameof(RequestTrainer));
             }
 
-            var activeRequest = _context.TrainerRequests
-                .Any(r =>
-                    r.StudentId == memberId.Value &&
-                    (r.Status == "Pending" ||
-                     r.Status == "Accepted"));
+            var activeRequest =
+                _context.TrainerRequests
+                    .Any(r =>
+                        r.StudentId ==
+                            memberId.Value &&
+                        (
+                            r.Status ==
+                                "Pending" ||
+                            r.Status ==
+                                "Accepted"
+                        ));
 
             if (activeRequest)
             {
                 TempData["TrainerRequestError"] =
                     "You already have a pending or active trainer request.";
 
-                return RedirectToAction(nameof(MyTrainerRequests));
+                return RedirectToAction(
+                    nameof(MyTrainerRequests));
             }
 
-            var trainerRequest = new TrainerRequest
-            {
-                StudentId = memberId.Value,
-                TrainerId = trainerId,
-                RequestMessage = requestMessage,
-                Status = "Pending",
-                RequestDate = DateTime.Now
-            };
+            var trainerRequest =
+                new TrainerRequest
+                {
+                    StudentId =
+                        memberId.Value,
 
-            _context.TrainerRequests.Add(trainerRequest);
+                    TrainerId =
+                        trainerId,
+
+                    RequestMessage =
+                        requestMessage,
+
+                    Status =
+                        "Pending",
+
+                    RequestDate =
+                        DateTime.Now
+                };
+
+            _context.TrainerRequests.Add(
+                trainerRequest);
 
             _context.SaveChanges();
 
             TempData["TrainerRequestSuccess"] =
                 $"Your request has been sent to {trainer.TrainerName}.";
 
-            return RedirectToAction(nameof(MyTrainerRequests));
+            return RedirectToAction(
+                nameof(MyTrainerRequests));
         }
 
         // =========================================================
@@ -1427,41 +1403,63 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             if (memberId == null)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
 
-            var requests = _context.TrainerRequests
-                .Include(r => r.Trainer)
-                .Where(r => r.StudentId == memberId.Value)
-                .OrderByDescending(r => r.RequestDate)
-                .ToList();
+            var requests =
+                _context.TrainerRequests
+                    .Include(r => r.Trainer)
+                    .Where(r =>
+                        r.StudentId ==
+                        memberId.Value)
+                    .OrderByDescending(r =>
+                        r.RequestDate)
+                    .ToList();
 
             return View(requests);
         }
 
+        // =========================================================
+        // PAYMENT
+        // =========================================================
+
         [HttpGet]
         public IActionResult Payment()
         {
-            var memberIdClaim = User.FindFirst(
-                System.Security.Claims.ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirst(
+                    System.Security.Claims.ClaimTypes.NameIdentifier);
 
             if (memberIdClaim == null)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
 
-            if (!int.TryParse(memberIdClaim.Value, out int memberId))
+            if (!int.TryParse(
+                memberIdClaim.Value,
+                out int memberId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
 
             var payments = _context.Payments
                 .Include(p => p.Membership)
-                .Where(p => p.MemberId == memberId)
-                .OrderByDescending(p => p.PaymentDate)
+                .Where(p =>
+                    p.MemberId ==
+                    memberId)
+                .OrderByDescending(p =>
+                    p.PaymentDate)
                 .ToList();
 
-            return View("Payment", payments);
+            return View(
+                "Payment",
+                payments);
         }
     }
 }

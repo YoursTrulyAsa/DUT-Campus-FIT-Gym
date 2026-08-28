@@ -6,35 +6,52 @@
 
 <div class="checkin-page">
 
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
     <div class="checkin-header">
 
         <div>
+
             <span class="checkin-label">
                 DUT CAMPUS FIT GYM
             </span>
 
-            <h1>Gym Check-In</h1>
+            <h1>
+                Gym Check-In
+            </h1>
 
             <p>
                 Welcome back,
                 <strong>@Model.FullName</strong>
             </p>
+
         </div>
 
-        <div class="membership-indicator
-             @(Model.MembershipActive ? "active" : "inactive")">
+        <!-- MEMBERSHIP STATUS -->
+
+        <div class="membership-indicator @(Model.MembershipActive ? "active" : "inactive")">
 
             <span></span>
 
-            @(Model.MembershipActive
-                        ? "Membership Active"
-                        : "Membership Inactive")
+            @if (Model.MembershipActive)
+            {
+                <text>Membership Active</text>
+            }
+            else
+            {
+                <text>Membership Inactive</text>
+            }
 
         </div>
 
     </div>
 
 
+    <!-- ====================================================== -->
+    <!-- ERROR MESSAGE -->
+    <!-- ====================================================== -->
     @if (TempData["CheckInError"] != null)
     {
         <div class="checkin-alert error">
@@ -42,16 +59,24 @@
             <span>!</span>
 
             <div>
-                <strong>Check-In Unavailable</strong>
+
+                <strong>
+                    Check-In Unavailable
+                </strong>
 
                 <p>
                     @TempData["CheckInError"]
                 </p>
+
             </div>
 
         </div>
     }
 
+
+    <!-- ====================================================== -->
+    <!-- SUCCESS MESSAGE -->
+    <!-- ====================================================== -->
     @if (TempData["CheckInSuccess"] != null)
     {
         <div class="checkin-alert success">
@@ -59,40 +84,61 @@
             <span>✓</span>
 
             <div>
-                <strong>Access Granted</strong>
+
+                <strong>
+                    Access Granted
+                </strong>
 
                 <p>
                     @TempData["CheckInSuccess"]
                 </p>
+
             </div>
 
         </div>
     }
 
 
+    <!-- ====================================================== -->
+    <!-- CHECK-IN CONTENT -->
+    <!-- IMPORTANT: KEEP THIS AS ONE RAZOR IF / ELSE IF / ELSE -->
+    <!-- ====================================================== -->
     @if (!Model.MembershipActive)
     {
+        <!-- ================================================== -->
+        <!-- NO ACTIVE MEMBERSHIP -->
+        <!-- ================================================== -->
+
         <div class="checkin-disabled">
 
             <div class="disabled-icon">
                 🔒
             </div>
 
-            <h2>Access Unavailable</h2>
+            <h2>
+                Access Unavailable
+            </h2>
 
             <p>
                 You need an active gym membership
                 to access the gym.
             </p>
 
-            <a asp-action="Membership">
+            <a asp-controller="Member"
+               asp-action="Membership">
+
                 View Membership
+
             </a>
 
         </div>
     }
     else if (Model.IsCheckedIn)
     {
+        <!-- ================================================== -->
+        <!-- CURRENTLY CHECKED IN -->
+        <!-- ================================================== -->
+
         <div class="already-checked-in">
 
             <div class="success-icon">
@@ -105,18 +151,35 @@
 
             <p>
                 Check-in time:
+
                 <strong>
-                    @Model.CheckInTime?.ToString("dd MMM yyyy, HH:mm")
+
+                    @if (Model.CheckInTime.HasValue)
+                    {
+                        @Model.CheckInTime.Value.ToString("dd MMM yyyy, HH:mm")
+                    }
+                    else
+                    {
+                        <text>Not available</text>
+                    }
+
                 </strong>
+
             </p>
 
-            <form asp-action="CheckOut"
+
+            <!-- CHECK OUT -->
+
+            <form asp-controller="Member"
+                  asp-action="CheckOut"
                   method="post">
 
                 @Html.AntiForgeryToken()
 
                 <button type="submit"
                         class="checkout-button">
+
+                    <i class="bi bi-box-arrow-right"></i>
 
                     Check Out
 
@@ -128,109 +191,149 @@
     }
     else
     {
-    <div class="checkin-ready">
+        <!-- ================================================== -->
+        <!-- READY TO CHECK IN -->
+        <!-- ================================================== -->
 
-        <div class="ready-icon">
-            <i class="bi bi-door-open-fill"></i>
-        </div>
+        <div class="checkin-ready">
 
-        <h2>Ready to Check In</h2>
+            <div class="ready-icon">
 
-        <p>
-            Choose how you would like to check in
-            at the gym entrance.
-        </p>
+                <i class="bi bi-door-open-fill"></i>
 
-
-        <!-- CHECK-IN OPTIONS -->
-
-        <div class="checkin-options">
+            </div>
 
 
-            <!-- QR CODE -->
+            <h2>
+                Ready to Check In
+            </h2>
 
-            <div class="checkin-option">
 
-                <div class="option-icon">
-                    <i class="bi bi-qr-code-scan"></i>
+            <p>
+                Choose how you would like to check in
+                at the gym entrance.
+            </p>
+
+
+            <!-- ================================================= -->
+            <!-- CHECK-IN OPTIONS -->
+            <!-- ================================================= -->
+
+            <div class="checkin-options">
+
+
+                <!-- ============================================= -->
+                <!-- QR CODE -->
+                <!-- ============================================= -->
+
+                <div class="checkin-option">
+
+                    <div class="option-icon">
+
+                        <i class="bi bi-qr-code-scan"></i>
+
+                    </div>
+
+
+                    <h3>
+                        Scan QR Code
+                    </h3>
+
+
+                    <p>
+                        Scan the DUT Campus FIT Gym
+                        QR code at the entrance.
+                    </p>
+
+
+                    <button type="button"
+                            id="startScanner"
+                            class="primary-checkin-button">
+
+                        <i class="bi bi-camera-fill"></i>
+
+                        Scan QR Code
+
+                    </button>
+
                 </div>
 
-                <h3>
-                    Scan QR Code
-                </h3>
 
-                <p>
-                    Scan your gym QR code using
-                    the entrance scanner.
-                </p>
+                <!-- ============================================= -->
+                <!-- OR -->
+                <!-- ============================================= -->
 
-                <button type="button"
-                        id="startScanner"
-                        class="primary-checkin-button">
+                <div class="checkin-or">
 
-                    <i class="bi bi-camera-fill"></i>
+                    <span>
+                        OR
+                    </span>
 
-                    Scan QR Code
-
-                </button>
-
-            </div>
-
-
-            <!-- OR -->
-
-            <div class="checkin-or">
-                <span>OR</span>
-            </div>
-
-
-            <!-- VIRTUAL CARD -->
-
-            <div class="checkin-option">
-
-                <div class="option-icon">
-                    <i class="bi bi-person-vcard-fill"></i>
                 </div>
 
-                <h3>
-                    Use Virtual Card
-                </h3>
 
-                <p>
-                    Display your Virtual Gym Card
-                    and present its barcode at
-                    the entrance scanner.
-                </p>
+                <!-- ============================================= -->
+                <!-- VIRTUAL CARD -->
+                <!-- ============================================= -->
 
-                <a asp-action="GymCard"
-                   class="secondary-checkin-button">
+                <div class="checkin-option">
 
-                    <i class="bi bi-credit-card-2-front-fill"></i>
+                    <div class="option-icon">
 
-                    Use Virtual Card
+                        <i class="bi bi-person-vcard-fill"></i>
 
-                </a>
+                    </div>
+
+
+                    <h3>
+                        Use Virtual Card
+                    </h3>
+
+
+                    <p>
+                        Display your Virtual Gym Card
+                        and present its barcode at
+                        the entrance scanner.
+                    </p>
+
+
+                    <a asp-controller="Member"
+                       asp-action="GymCard"
+                       class="secondary-checkin-button">
+
+                        <i class="bi bi-credit-card-2-front-fill"></i>
+
+                        Use Virtual Card
+
+                    </a>
+
+                </div>
 
             </div>
 
-        </div>
 
-
-        <!-- QR SCANNER -->
+            <!-- ================================================= -->
+            <!-- QR SCANNER -->
+            <!-- ================================================= -->
 
             <div id="scannerSection"
                  class="scanner-section"
-                 style="display:none;">
-
-                @Html.AntiForgeryToken()
+                 style="display: none;">
 
                 <div class="scanner-header">
 
                     <div>
-                        <span>DUT CAMPUS FIT GYM</span>
 
-                        <h3>Scan QR Code</h3>
+                        <span>
+                            DUT CAMPUS FIT GYM
+                        </span>
+
+                        <h3>
+                            Scan QR Code
+                        </h3>
+
                     </div>
+
 
                     <button type="button"
                             id="closeScanner"
@@ -242,47 +345,75 @@
 
                 </div>
 
+
                 <div id="qr-reader"></div>
 
+
                 <p id="scannerStatus">
-                    Position the QR code inside the scanner.
+
+                    Position the QR code inside
+                    the scanner.
+
                 </p>
 
             </div>
 
 
-        <!-- INFORMATION -->
+            <!-- ================================================= -->
+            <!-- INFORMATION -->
+            <!-- ================================================= -->
 
-        <div class="checkin-info">
+            <div class="checkin-info">
 
-            <div>
-                <strong>How it works</strong>
+                <div>
+
+                    <strong>
+                        How it works
+                    </strong>
+
+                </div>
+
+
+                <p>
+
+                    Scan the official DUT Campus FIT Gym
+                    entrance QR code. The system checks
+                    your membership and records your
+                    attendance.
+
+                </p>
+
             </div>
 
-            <p>
-                Your QR code identifies your gym account.
-                The system checks your membership status
-                before granting access and recording your
-                attendance.
-            </p>
-
         </div>
-
-    </div>
     }
 
 </div>
 
+
+<!-- ====================================================== -->
+<!-- PAGE STYLES -->
+<!-- ====================================================== -->
 @section Styles {
+
     <link rel="stylesheet"
           href="~/css/checkin.css"
           asp-append-version="true" />
+
 }
 
+
+<!-- ====================================================== -->
+<!-- PAGE SCRIPTS -->
+<!-- ====================================================== -->
 @section Scripts {
+
     <script src="https://unpkg.com/html5-qrcode"
-            type="text/javascript"></script>
+            type="text/javascript">
+    </script>
 
     <script src="~/js/checkin.js"
-            asp-append-version="true"></script>
+            asp-append-version="true">
+    </script>
+
 }

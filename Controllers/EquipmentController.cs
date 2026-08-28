@@ -2,7 +2,6 @@
 using DUT_Campus_FIT_Gym.Models;
 using DUT_Campus_FIT_Gym.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace DUT_Campus_FIT_Gym.Controllers
@@ -15,7 +14,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             _context = context;
         }
-
 
         // =========================================================
         // EQUIPMENT LIST
@@ -38,7 +36,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(equipment);
         }
 
-
         // =========================================================
         // CREATE EQUIPMENT
         // =========================================================
@@ -47,7 +44,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             return View();
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -66,7 +62,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(equipment);
         }
 
-
         // =========================================================
         // RESERVE EQUIPMENT
         // =========================================================
@@ -77,13 +72,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             ExpireOldReservations();
 
-            var memberId = int.Parse(
-                User.FindFirstValue(ClaimTypes.NameIdentifier)
-            );
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (string.IsNullOrEmpty(memberIdClaim) ||
+                !int.TryParse(memberIdClaim, out int memberId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             // -----------------------------------------------------
-            // CHECK IF STUDENT ALREADY HAS AN ACTIVE RESERVATION
+            // CHECK EXISTING ACTIVE RESERVATION
             // -----------------------------------------------------
 
             var existingReservation = _context.Reservations
@@ -95,11 +94,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
             if (existingReservation != null)
             {
                 TempData["Error"] =
-                    "You already have an equipment reservation. Cancel it or wait for it to expire before reserving another equipment.";
+                    "You already have an equipment reservation. Cancel it or wait for it to expire.";
 
                 return RedirectToAction(nameof(Index));
             }
-
 
             // -----------------------------------------------------
             // FIND EQUIPMENT
@@ -113,9 +111,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return NotFound();
             }
 
-
             // -----------------------------------------------------
-            // CHECK EQUIPMENT AVAILABILITY
+            // CHECK AVAILABILITY
             // -----------------------------------------------------
 
             if (!equipment.IsAvailable)
@@ -126,34 +123,32 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-
             // -----------------------------------------------------
             // CREATE 10-MINUTE RESERVATION
             // -----------------------------------------------------
 
             var startTime = DateTime.Now;
+            var endTime = startTime.AddMinutes(10);
 
             var reservation = new Reservation
             {
                 MemberID = memberId,
                 EquipmentID = equipment.EquipmentID,
                 ReservationDate = startTime,
-                EndTime = startTime.AddMinutes(10),
+                EndTime = endTime,
                 Status = "Reserved"
             };
 
             equipment.IsAvailable = false;
 
             _context.Reservations.Add(reservation);
-
             _context.SaveChanges();
 
             TempData["Success"] =
                 $"{equipment.EquipmentName} reserved successfully for 10 minutes.";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MyReservations));
         }
-
 
         // =========================================================
         // MY RESERVATIONS
@@ -163,12 +158,23 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             ExpireOldReservations();
 
-            var memberId = int.Parse(
-                User.FindFirstValue(ClaimTypes.NameIdentifier)
-            );
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(memberIdClaim) ||
+                !int.TryParse(memberIdClaim, out int memberId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Only show ACTIVE reservations.
+            // Cancelled and expired reservations are removed
+            // from this page.
 
             var reservations = _context.Reservations
-                .Where(r => r.MemberID == memberId)
+                .Where(r =>
+                    r.MemberID == memberId &&
+                    r.Status == "Reserved")
                 .Join(
                     _context.Equipment,
                     reservation => reservation.EquipmentID,
@@ -176,11 +182,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     (reservation, equipment) =>
                         new ReservationViewModel
                         {
-                            ReservationID = reservation.ReservationID,
-                            EquipmentName = equipment.EquipmentName,
-                            ReservationDate = reservation.ReservationDate,
-                            Status = reservation.Status,
-                            EndTime = reservation.EndTime
+                            ReservationID =
+                                reservation.ReservationID,
+
+                            EquipmentName =
+                                equipment.EquipmentName,
+
+                            ReservationDate =
+                                reservation.ReservationDate,
+
+                            EndTime =
+                                reservation.EndTime,
+
+                            Status =
+                                reservation.Status
                         }
                 )
                 .OrderByDescending(r => r.ReservationDate)
@@ -188,7 +203,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View("Reserve", reservations);
         }
-
 
         // =========================================================
         // CANCEL / UNRESERVE
@@ -198,9 +212,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Unreserve(int id)
         {
-            var memberId = int.Parse(
-                User.FindFirstValue(ClaimTypes.NameIdentifier)
-            );
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(memberIdClaim) ||
+                !int.TryParse(memberIdClaim, out int memberId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             var reservation = _context.Reservations
                 .FirstOrDefault(r =>
@@ -216,7 +235,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(MyReservations));
             }
 
-
             var equipment = _context.Equipment
                 .FirstOrDefault(e =>
                     e.EquipmentID == reservation.EquipmentID);
@@ -225,7 +243,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 equipment.IsAvailable = true;
             }
-
 
             reservation.Status = "Cancelled";
 
@@ -236,7 +253,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return RedirectToAction(nameof(MyReservations));
         }
-
 
         // =========================================================
         // AUTOMATICALLY EXPIRE OLD RESERVATIONS

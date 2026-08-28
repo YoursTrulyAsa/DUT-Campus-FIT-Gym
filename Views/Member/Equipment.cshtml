@@ -5,85 +5,160 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/member-equipment.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="~/css/member-equipment.css"
+          asp-append-version="true" />
 }
 
 <div class="equipment-page">
 
     <div class="equipment-header">
+
         <div>
-            <h1>Gym Equipment</h1>
-            <p>View available equipment and reserve what you need.</p>
+
+            <h1>
+                Gym Equipment
+            </h1>
+
+            <p>
+                View available equipment and reserve what you need.
+            </p>
+
         </div>
+
     </div>
+
+
+    @* =========================================================
+       SUCCESS MESSAGE
+       ========================================================= *@
+
+    @if (TempData["EquipmentSuccess"] != null)
+    {
+        <div class="alert alert-success">
+
+            @TempData["EquipmentSuccess"]
+
+        </div>
+    }
+
+
+    @* =========================================================
+       ERROR MESSAGE
+       ========================================================= *@
+
+    @if (TempData["EquipmentError"] != null)
+    {
+        <div class="alert alert-danger">
+
+            @TempData["EquipmentError"]
+
+        </div>
+    }
+
 
     <div class="equipment-grid">
 
-        @foreach (var item in Model)
+        @if (Model == null || !Model.Any())
         {
-            <div class="equipment-card">
+            <div class="equipment-empty">
 
-                <div class="equipment-icon">
-                    🏋️
-                </div>
+                <h3>
+                    No Equipment Available
+                </h3>
 
-                <div class="equipment-info">
-                    <h3>@item.EquipmentName</h3>
-
-                    <p class="equipment-category">
-                        @item.Category
-                    </p>
-
-                    <p class="equipment-location">
-                        📍 @item.Location
-                    </p>
-
-                    @if (item.IsAvailable)
-                    {
-                        <span class="status available">
-                            ● Available
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="status unavailable">
-                            ● Unavailable
-                        </span>
-                    }
-                </div>
-
-                <div class="equipment-action">
-
-                    @if (item.IsAvailable)
-                    {
-                        <form asp-controller="Equipment"
-                              asp-action="Reserve"
-                              method="post">
-
-                            @Html.AntiForgeryToken()
-
-                            <input type="hidden"
-                                   name="id"
-                                   value="@item.EquipmentID" />
-
-                            <button type="submit"
-                                    class="reserve-btn">
-                                Reserve Equipment
-                            </button>
-
-                        </form>
-                    }
-                    else
-                    {
-                        <button class="reserve-btn disabled"
-                                disabled>
-                            Currently Reserved
-                        </button>
-                    }
-
-                </div>
+                <p>
+                    There is currently no gym equipment listed.
+                </p>
 
             </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="equipment-card">
+
+                    <!-- EQUIPMENT ICON -->
+
+                    <div class="equipment-icon">
+                        🏋️
+                    </div>
+
+
+                    <!-- EQUIPMENT INFORMATION -->
+
+                    <div class="equipment-info">
+
+                        <h3>
+                            @item.EquipmentName
+                        </h3>
+
+                        <p class="equipment-category">
+                            @item.Category
+                        </p>
+
+                        <p class="equipment-location">
+                            📍 @item.Location
+                        </p>
+
+
+                        @if (item.IsAvailable)
+                        {
+                            <span class="status available">
+                                ● Available
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="status unavailable">
+                                ● Unavailable
+                            </span>
+                        }
+
+                    </div>
+
+
+                    <!-- RESERVE BUTTON -->
+
+                    <div class="equipment-action">
+
+                        @if (item.IsAvailable)
+                        {
+                            <form asp-controller="Equipment"
+                                  asp-action="Reserve"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@item.EquipmentID" />
+
+                                <button type="submit"
+                                        class="reserve-btn">
+
+                                    Reserve Equipment
+
+                                </button>
+
+                            </form>
+                        }
+                        else
+                        {
+                            <button type="button"
+                                    class="reserve-btn disabled"
+                                    disabled>
+
+                                Currently Reserved
+
+                            </button>
+                        }
+
+                    </div>
+
+                </div>
+            }
         }
 
     </div>

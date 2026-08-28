@@ -112,18 +112,43 @@
         var action =
         ViewContext.RouteData.Values["action"]?.ToString();
 
+
         bool isAccountPage =
         controller == "Account";
 
+
+        bool isAuthenticated =
+        User.Identity?.IsAuthenticated == true;
+
+
         bool isStudent =
-        User.Identity?.IsAuthenticated == true &&
+        isAuthenticated &&
         User.IsInRole("Student");
+
+
+        bool isStaff =
+        isAuthenticated &&
+        User.IsInRole("Staff");
+
+
+        bool isTrainer =
+        isAuthenticated &&
+        User.IsInRole("Trainer");
+
+
+        bool isAdmin =
+        isAuthenticated &&
+        User.IsInRole("Admin");
+
 
         bool showStudentSidebar =
         isStudent && !isAccountPage;
     }
 
 
+    <!-- =====================================================
+         STUDENT LAYOUT
+         ===================================================== -->
     @if (showStudentSidebar)
     {
         <div class="app-layout">
@@ -137,7 +162,7 @@
 
 
                 <!-- =====================================
-                     SIDEBAR BRAND + TOGGLE
+                     SIDEBAR BRAND
                      ===================================== -->
 
                 <div class="sidebar-brand">
@@ -145,6 +170,7 @@
                     <img src="~/images/DUT-logo.jpg"
                          alt="DUT Logo"
                          class="gym-logo" />
+
 
                     <div class="brand-text">
 
@@ -406,7 +432,7 @@
 
 
                 <!-- =========================================
-                     LOGOUT
+                     STUDENT LOGOUT
                      ========================================= -->
 
                 <div class="sidebar-bottom">
@@ -438,7 +464,7 @@
 
 
             <!-- =========================================
-                 MAIN CONTENT
+                 STUDENT MAIN CONTENT
                  ========================================= -->
 
             <main class="main-content">
@@ -449,9 +475,89 @@
 
         </div>
     }
-    else
+
+
+    <!-- =====================================================
+         NON-STUDENT LAYOUT
+         ===================================================== -->
+    @if (!showStudentSidebar)
     {
-        @RenderBody()
+
+        <!-- =========================================
+             TOP BAR
+             TRAINER / ADMIN / STAFF
+             ========================================= -->
+        @if (isAuthenticated && !isAccountPage)
+        {
+            <div class="role-topbar">
+
+                <div class="role-topbar-left">
+
+                    @if (isTrainer)
+                    {
+                        <span>
+                            <i class="fa-solid fa-user-tie"></i>
+                            Trainer
+                        </span>
+                    }
+
+                    @if (isAdmin)
+                    {
+                        <span>
+                            <i class="fa-solid fa-user-shield"></i>
+                            Administrator
+                        </span>
+                    }
+
+                    @if (isStaff)
+                    {
+                        <span>
+                            <i class="fa-solid fa-user"></i>
+                            Staff
+                        </span>
+                    }
+
+                </div>
+
+
+                <!-- =====================================
+                     LOGOUT
+                     ===================================== -->
+
+                <form asp-controller="Account"
+                      asp-action="Logout"
+                      method="post"
+                      class="role-logout-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="role-logout-button">
+
+                        <i class="bi bi-box-arrow-right"></i>
+
+                        <span>
+                            Logout
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </div>
+        }
+
+
+        <!-- =========================================
+             NON-STUDENT PAGE CONTENT
+             ========================================= -->
+
+        <main class="non-student-content">
+
+            @RenderBody()
+
+        </main>
+
     }
 
 
@@ -534,6 +640,7 @@
         });
 
     </script>
+
 
 </body>
 

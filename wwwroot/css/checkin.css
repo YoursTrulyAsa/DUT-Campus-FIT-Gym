@@ -4,12 +4,7 @@
     background: #f5f7fb;
     font-family: 'Poppins', sans-serif;
 }
-
-
-/* ================================
-   HEADER
-================================ */
-
+          
 .checkin-header {
     max-width: 1100px;
     margin: 0 auto 30px;
@@ -36,12 +31,7 @@
     margin: 0;
     color: #6b7280;
     font-size: 14px;
-}
-
-
-/* ================================
-   MEMBERSHIP INDICATOR
-================================ */
+}         
 
 .membership-indicator {
     display: flex;
@@ -76,12 +66,7 @@
         .membership-indicator.inactive span {
             background: #e74c3c;
         }
-
-
-/* ================================
-   MAIN CARD
-================================ */
-
+         
 .checkin-ready {
     max-width: 900px;
     margin: 0 auto;
@@ -117,12 +102,7 @@
     color: #6b7280;
     font-size: 14px;
 }
-
-
-/* ================================
-   OPTIONS
-================================ */
-
+          
 .checkin-options {
     display: grid;
     grid-template-columns: 1fr 60px 1fr;
@@ -170,12 +150,7 @@
     font-size: 12px;
     line-height: 1.6;
 }
-
-
-/* ================================
-   BUTTONS
-================================ */
-
+           
 .primary-checkin-button,
 .secondary-checkin-button {
     display: inline-flex;
@@ -212,12 +187,7 @@
         background: #dcecff;
         color: #2168ae;
     }
-
-
-/* ================================
-   OR
-================================ */
-
+             
 .checkin-or {
     display: flex;
     align-items: center;
@@ -236,12 +206,7 @@
         font-size: 9px;
         font-weight: 700;
     }
-
-
-/* ================================
-   SCANNER
-================================ */
-
+               
 .scanner-section {
     max-width: 650px;
     margin: 30px auto 0;
@@ -303,10 +268,6 @@
 }
 
 
-/* ================================
-   INFORMATION
-================================ */
-
 .checkin-info {
     max-width: 700px;
     margin: 30px auto 0;
@@ -327,12 +288,7 @@
         font-size: 11px;
         line-height: 1.6;
     }
-
-
-/* ================================
-   DISABLED
-================================ */
-
+     
 .checkin-disabled,
 .already-checked-in {
     max-width: 650px;
@@ -343,12 +299,7 @@
     text-align: center;
     box-shadow: 0 20px 45px rgba(7, 27, 54, 0.08);
 }
-
-
-/* ================================
-   MOBILE
-================================ */
-
+       
 @media (max-width: 750px) {
 
     .checkin-page {

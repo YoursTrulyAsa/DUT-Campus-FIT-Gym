@@ -5,6 +5,7 @@ namespace DUT_Campus_FIT_Gym.Models
 {
     public class WorkoutPlan
     {
+        
         [Key]
         public int WorkoutPlanId { get; set; }
 
@@ -12,27 +13,33 @@ namespace DUT_Campus_FIT_Gym.Models
         public int MemberId { get; set; }
 
         [ForeignKey("MemberId")]
-        public Member? Member { get; set; }
+        public virtual Member? Member { get; set; }
 
         [Required]
         [StringLength(100)]
         public string WorkoutName { get; set; } = "";
 
         [Required]
-        [StringLength(100)]
+        [StringLength(150)]
         public string ExerciseName { get; set; } = "";
 
         [Required]
-        [StringLength(50)]
+        [StringLength(20)]
         public string WorkoutDay { get; set; } = "";
 
+        [Required]
+        [Range(1, 100)]
         public int Sets { get; set; }
 
+        [Required]
+        [Range(1, 500)]
         public int Repetitions { get; set; }
 
-        public int RestTime { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string RestTime { get; set; } = "";
 
-        [StringLength(500)]
-        public string Description { get; set; } = "";
+        [StringLength(1000)]
+        public string? Description { get; set; }
     }
 }

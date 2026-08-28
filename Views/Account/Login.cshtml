@@ -8,6 +8,8 @@
 
     <div class="login-container">
 
+        <!-- LEFT PANEL -->
+
         <div class="login-left-panel">
 
             <div class="login-branding">
@@ -29,6 +31,8 @@
         </div>
 
 
+        <!-- RIGHT PANEL -->
+
         <div class="login-right-panel">
 
             <div class="login-card">
@@ -42,21 +46,29 @@
                 </p>
 
 
+                <!-- PASSWORD RESET SUCCESS -->
                 @if (TempData["PasswordResetSuccess"] != null)
                 {
                     <div class="alert alert-success">
+
                         @TempData["PasswordResetSuccess"]
+
                     </div>
                 }
 
 
+                <!-- REGISTRATION SUCCESS -->
                 @if (TempData["RegistrationSuccess"] != null)
                 {
                     <div class="alert alert-success">
+
                         @TempData["RegistrationSuccess"]
+
                     </div>
                 }
 
+
+                <!-- LOGIN FORM -->
 
                 <form asp-controller="Account"
                       asp-action="Login"
@@ -64,6 +76,8 @@
 
                     @Html.AntiForgeryToken()
 
+
+                    <!-- VALIDATION -->
 
                     <div asp-validation-summary="ModelOnly"
                          class="text-danger mb-3">
@@ -98,7 +112,6 @@
                                class="form-label">
                         </label>
 
-
                         <div class="password-wrapper">
 
                             <input asp-for="Password"
@@ -107,7 +120,6 @@
                                    id="loginPassword"
                                    placeholder="Enter your password"
                                    autocomplete="current-password" />
-
 
                             <button type="button"
                                     class="show-password-btn"
@@ -118,7 +130,6 @@
                             </button>
 
                         </div>
-
 
                         <span asp-validation-for="Password"
                               class="text-danger">
@@ -141,7 +152,7 @@
                     </div>
 
 
-                    <!-- LOGIN -->
+                    <!-- LOGIN BUTTON -->
 
                     <button type="submit"
                             class="btn login-btn w-100">
@@ -177,6 +188,15 @@
     </div>
 
 </div>
+
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/login.css"
+          asp-append-version="true" />
+
+}
 
 
 @section Scripts {
@@ -217,14 +237,5 @@
         }
 
     </script>
-
-}
-
-
-@section Styles {
-
-    <link rel="stylesheet"
-          href="~/css/login.css"
-          asp-append-version="true" />
 
 }

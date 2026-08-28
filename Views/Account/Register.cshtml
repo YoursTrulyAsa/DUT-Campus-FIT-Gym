@@ -4,11 +4,13 @@
     ViewData["Title"] = "Register";
 }
 
-<link rel="stylesheet" href="~/css/register.css" />
-
 <div class="register-page">
 
     <div class="register-container">
+
+        <!-- ====================================================== -->
+        <!-- LEFT PANEL -->
+        <!-- ====================================================== -->
 
         <div class="left-panel">
 
@@ -18,34 +20,57 @@
                      alt="Durban University of Technology Logo"
                      class="gym-logo" />
 
-                <h1>DUT Campus FIT Gym</h1>
+                <h1>
+                    DUT Campus FIT Gym
+                </h1>
 
-                <p>Train. Grow. Achieve.</p>
+                <p>
+                    Train. Grow. Achieve.
+                </p>
 
             </div>
 
         </div>
 
 
+        <!-- ====================================================== -->
+        <!-- RIGHT PANEL -->
+        <!-- ====================================================== -->
+
         <div class="right-panel">
 
             <div class="register-card">
 
-                <h2>Create Account</h2>
+                <h2>
+                    Create Account
+                </h2>
 
-                <p>Join the DUT Campus FIT Gym today.</p>
+                <p>
+                    Join the DUT Campus FIT Gym today.
+                </p>
 
+
+                <!-- ================================================= -->
+                <!-- REGISTER FORM -->
+                <!-- ================================================= -->
 
                 <form asp-controller="Account"
                       asp-action="Register"
                       method="post">
+
+                    @Html.AntiForgeryToken()
+
+
+                    <!-- VALIDATION SUMMARY -->
 
                     <div asp-validation-summary="ModelOnly"
                          class="text-danger mb-3">
                     </div>
 
 
+                    <!-- ================================================= -->
                     <!-- NAME + SURNAME -->
+                    <!-- ================================================= -->
 
                     <div class="row">
 
@@ -83,7 +108,9 @@
                     </div>
 
 
+                    <!-- ================================================= -->
                     <!-- STUDENT NUMBER -->
+                    <!-- ================================================= -->
 
                     <div class="mb-3">
 
@@ -101,7 +128,9 @@
                     </div>
 
 
+                    <!-- ================================================= -->
                     <!-- EMAIL -->
+                    <!-- ================================================= -->
 
                     <div class="mb-3">
 
@@ -110,7 +139,8 @@
                         </label>
 
                         <input asp-for="Email"
-                               class="form-control" />
+                               class="form-control"
+                               type="email" />
 
                         <span asp-validation-for="Email"
                               class="text-danger">
@@ -119,7 +149,9 @@
                     </div>
 
 
+                    <!-- ================================================= -->
                     <!-- PHONE NUMBER -->
+                    <!-- ================================================= -->
 
                     <div class="mb-3">
 
@@ -136,9 +168,14 @@
 
                     </div>
 
-                    
+
+                    <!-- ================================================= -->
+                    <!-- PASSWORDS -->
+                    <!-- ================================================= -->
 
                     <div class="row">
+
+                        <!-- PASSWORD -->
 
                         <div class="col-md-6 mb-3">
 
@@ -155,7 +192,9 @@
                                 <button type="button"
                                         class="password-toggle"
                                         onclick="togglePassword('passwordInput', this)">
+
                                     Show
+
                                 </button>
 
                             </div>
@@ -166,6 +205,8 @@
 
                         </div>
 
+
+                        <!-- CONFIRM PASSWORD -->
 
                         <div class="col-md-6 mb-4">
 
@@ -182,7 +223,9 @@
                                 <button type="button"
                                         class="password-toggle"
                                         onclick="togglePassword('confirmPasswordInput', this)">
+
                                     Show
+
                                 </button>
 
                             </div>
@@ -196,7 +239,9 @@
                     </div>
 
 
+                    <!-- ================================================= -->
                     <!-- CREATE ACCOUNT -->
+                    <!-- ================================================= -->
 
                     <button type="submit"
                             class="btn register-btn w-100">
@@ -206,11 +251,15 @@
                     </button>
 
 
+                    <!-- ================================================= -->
                     <!-- LOGIN -->
+                    <!-- ================================================= -->
 
                     <div class="text-center mt-4">
 
-                        Already have an account?
+                        <span>
+                            Already have an account?
+                        </span>
 
                         <a asp-controller="Account"
                            asp-action="Login">
@@ -232,12 +281,27 @@
 </div>
 
 
+<!-- ====================================================== -->
+<!-- STYLES -->
+<!-- ====================================================== -->
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/register.css"
+          asp-append-version="true" />
+
+}
+
+
+<!-- ====================================================== -->
+<!-- SCRIPTS -->
+<!-- ====================================================== -->
 @section Scripts {
 
-    <script src="~/js/register.js"></script>
+    <script src="~/js/register.js"
+            asp-append-version="true">
+    </script>
 
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 
 }

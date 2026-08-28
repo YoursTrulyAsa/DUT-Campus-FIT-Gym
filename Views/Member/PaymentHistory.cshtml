@@ -111,8 +111,7 @@
 
                     <strong>
                         R @Model
-                        .Where(p =>
-                        string.Equals(
+                        .Where(p => string.Equals(
                         p.PaymentStatus,
                         "Completed",
                         StringComparison.OrdinalIgnoreCase))

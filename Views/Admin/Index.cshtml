@@ -6,9 +6,7 @@
 
 <div class="admin-dashboard">
 
-    <!-- ====================================================== -->
     <!-- HEADER -->
-    <!-- ====================================================== -->
 
     <div class="admin-dashboard-header">
 
@@ -47,14 +45,33 @@
 
             </div>
 
+
+            <!-- LOGOUT -->
+
+            <form asp-controller="Account"
+                  asp-action="Logout"
+                  method="post"
+                  class="ms-3">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-outline-danger">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    Logout
+
+                </button>
+
+            </form>
+
         </div>
 
     </div>
 
 
-    <!-- ====================================================== -->
-    <!-- SUCCESS / ERROR MESSAGES -->
-    <!-- ====================================================== -->
+    <!-- SUCCESS MESSAGE -->
     @if (TempData["Success"] != null)
     {
         <div class="admin-alert admin-alert-success">
@@ -69,6 +86,7 @@
     }
 
 
+    <!-- ERROR MESSAGE -->
     @if (TempData["Error"] != null)
     {
         <div class="admin-alert admin-alert-error">
@@ -83,12 +101,9 @@
     }
 
 
-    <!-- ====================================================== -->
     <!-- STATISTICS -->
-    <!-- ====================================================== -->
 
     <div class="admin-stats">
-
 
         <!-- TOTAL MEMBERS -->
 
@@ -97,9 +112,7 @@
            class="admin-stat-card">
 
             <div class="admin-stat-icon">
-
                 <i class="fa-solid fa-users"></i>
-
             </div>
 
             <div class="admin-stat-content">
@@ -130,9 +143,7 @@
            class="admin-stat-card admin-stat-warning">
 
             <div class="admin-stat-icon">
-
                 <i class="fa-solid fa-file-circle-exclamation"></i>
-
             </div>
 
             <div class="admin-stat-content">
@@ -163,9 +174,7 @@
            class="admin-stat-card admin-stat-active">
 
             <div class="admin-stat-icon">
-
                 <i class="fa-solid fa-circle-check"></i>
-
             </div>
 
             <div class="admin-stat-content">
@@ -196,9 +205,7 @@
            class="admin-stat-card">
 
             <div class="admin-stat-icon">
-
                 <i class="fa-solid fa-dumbbell"></i>
-
             </div>
 
             <div class="admin-stat-content">
@@ -229,9 +236,7 @@
            class="admin-stat-card admin-stat-danger">
 
             <div class="admin-stat-icon">
-
                 <i class="fa-solid fa-triangle-exclamation"></i>
-
             </div>
 
             <div class="admin-stat-content">
@@ -262,9 +267,7 @@
            class="admin-stat-card">
 
             <div class="admin-stat-icon">
-
                 <i class="fa-solid fa-calendar-check"></i>
-
             </div>
 
             <div class="admin-stat-content">
@@ -290,16 +293,11 @@
     </div>
 
 
-    <!-- ====================================================== -->
     <!-- MAIN GRID -->
-    <!-- ====================================================== -->
 
     <div class="admin-dashboard-grid">
 
-
-        <!-- ================================================== -->
         <!-- QUICK ACTIONS -->
-        <!-- ================================================== -->
 
         <section class="admin-card quick-actions-card">
 
@@ -322,9 +320,7 @@
                 </div>
 
                 <div class="admin-card-icon">
-
                     <i class="fa-solid fa-bolt"></i>
-
                 </div>
 
             </div>
@@ -333,16 +329,14 @@
             <div class="admin-quick-actions">
 
 
-                <!-- APPLICATIONS -->
+                <!-- MEMBERSHIP APPLICATIONS -->
 
                 <a asp-controller="Admin"
                    asp-action="MembershipApplications"
                    class="admin-quick-action">
 
                     <div class="admin-quick-icon">
-
                         <i class="fa-solid fa-file-signature"></i>
-
                     </div>
 
                     <div>
@@ -362,16 +356,14 @@
                 </a>
 
 
-                <!-- MEMBERS -->
+                <!-- MANAGE MEMBERS -->
 
                 <a asp-controller="Admin"
                    asp-action="Members"
                    class="admin-quick-action">
 
                     <div class="admin-quick-icon">
-
                         <i class="fa-solid fa-users"></i>
-
                     </div>
 
                     <div>
@@ -391,16 +383,14 @@
                 </a>
 
 
-                <!-- EQUIPMENT -->
+                <!-- MANAGE EQUIPMENT -->
 
                 <a asp-controller="Admin"
                    asp-action="Equipment"
                    class="admin-quick-action">
 
                     <div class="admin-quick-icon">
-
                         <i class="fa-solid fa-dumbbell"></i>
-
                     </div>
 
                     <div>
@@ -420,16 +410,14 @@
                 </a>
 
 
-                <!-- SCANNER -->
+                <!-- MEMBER CHECK-IN -->
 
                 <a asp-controller="Admin"
                    asp-action="Scanner"
                    class="admin-quick-action">
 
                     <div class="admin-quick-icon">
-
                         <i class="fa-solid fa-qrcode"></i>
-
                     </div>
 
                     <div>
@@ -456,9 +444,7 @@
                    class="admin-quick-action">
 
                     <div class="admin-quick-icon">
-
                         <i class="fa-solid fa-calendar-check"></i>
-
                     </div>
 
                     <div>
@@ -478,16 +464,14 @@
                 </a>
 
 
-                <!-- TRAINER -->
+                <!-- ADD TRAINER -->
 
                 <a asp-controller="Admin"
                    asp-action="AddTrainer"
                    class="admin-quick-action">
 
                     <div class="admin-quick-icon">
-
                         <i class="fa-solid fa-user-plus"></i>
-
                     </div>
 
                     <div>
@@ -511,9 +495,7 @@
         </section>
 
 
-        <!-- ================================================== -->
         <!-- RECENT APPLICATIONS -->
-        <!-- ================================================== -->
 
         <section class="admin-card recent-applications-card">
 
@@ -536,9 +518,7 @@
                 </div>
 
                 <div class="admin-card-icon">
-
                     <i class="fa-solid fa-file-lines"></i>
-
                 </div>
 
             </div>
@@ -563,6 +543,7 @@
                         ? "rejected"
                         : "waiting";
 
+
                         <div class="application-item">
 
                             <div class="application-icon">
@@ -584,9 +565,14 @@
                         </strong>
 
                                 <span>
+
                                     @application.MembershipType
+
                                     •
-                                    @application.ApplicationDate.ToString("dd MMM yyyy")
+
+                                    @application.ApplicationDate
+                                    .ToString("dd MMM yyyy")
+
                                 </span>
 
                             </div>

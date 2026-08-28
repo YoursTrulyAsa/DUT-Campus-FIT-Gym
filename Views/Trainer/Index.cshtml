@@ -4,13 +4,30 @@
 
 <div class="container mt-5">
 
-    <h1 class="mb-4">Trainer Dashboard</h1>
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
 
-    <p class="lead">
-        Welcome to the Trainer Dashboard.
-    </p>
+    <div class="mb-4">
+
+        <span class="text-muted">
+            DUT CAMPUS FIT GYM
+        </span>
+
+        <h1 class="mb-2">
+            Trainer Dashboard
+        </h1>
+
+        <p class="lead">
+            Welcome to the Trainer Dashboard.
+        </p>
+
+    </div>
 
 
+    <!-- ====================================================== -->
+    <!-- SUCCESS MESSAGE -->
+    <!-- ====================================================== -->
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">
@@ -19,6 +36,9 @@
     }
 
 
+    <!-- ====================================================== -->
+    <!-- ERROR MESSAGE -->
+    <!-- ====================================================== -->
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger">
@@ -27,9 +47,16 @@
     }
 
 
+    <!-- ====================================================== -->
+    <!-- DASHBOARD OPTIONS -->
+    <!-- ====================================================== -->
+
     <div class="row mt-4">
 
+
+        <!-- ================================================== -->
         <!-- EQUIPMENT -->
+        <!-- ================================================== -->
 
         <div class="col-md-4 mb-4">
 
@@ -60,7 +87,9 @@
         </div>
 
 
+        <!-- ================================================== -->
         <!-- WORKOUTS -->
+        <!-- ================================================== -->
 
         <div class="col-md-4 mb-4">
 
@@ -92,7 +121,9 @@
         </div>
 
 
+        <!-- ================================================== -->
         <!-- TRAINER REQUESTS -->
+        <!-- ================================================== -->
 
         <div class="col-md-4 mb-4">
 
@@ -108,15 +139,20 @@
                         View and respond to requests from students.
                     </p>
 
+
                     @if (ViewBag.PendingRequests != null &&
-                         ViewBag.PendingRequests > 0)
+                                        ViewBag.PendingRequests > 0)
                     {
                         <span class="badge bg-danger mb-2">
-                            @ViewBag.PendingRequests pending request(s)
+
+                            @ViewBag.PendingRequests
+                            pending request(s)
+
                         </span>
                     }
 
                     <br />
+
 
                     <a asp-controller="Trainer"
                        asp-action="Requests"
@@ -135,14 +171,22 @@
     </div>
 
 
+    <!-- ====================================================== -->
     <!-- CURRENT ACTIVE STUDENT -->
+    <!-- ====================================================== -->
     @if (ViewBag.ActiveRequest != null)
     {
         var student = ViewBag.ActiveRequest.Student;
         var profile = ViewBag.StudentProfile;
         var workoutPlans = ViewBag.StudentWorkoutPlans;
 
+
         <div class="card shadow mt-4 border-warning">
+
+
+            <!-- ================================================== -->
+            <!-- CARD HEADER -->
+            <!-- ================================================== -->
 
             <div class="card-header bg-warning">
 
@@ -152,64 +196,161 @@
 
             </div>
 
+
+            <!-- ================================================== -->
+            <!-- CARD BODY -->
+            <!-- ================================================== -->
+
             <div class="card-body">
 
-                <p>
-                    <strong>Student:</strong>
-                    @student.FirstName @student.LastName
-                </p>
+
+                <!-- STUDENT NAME -->
 
                 <p>
-                    <strong>Student Number:</strong>
-                    @student.StaffStudentNumber
+
+                    <strong>
+                        Student:
+                    </strong>
+
+                    @student.Name @student.Surname
+
                 </p>
 
+
+                <!-- STUDENT NUMBER -->
+
                 <p>
-                    <strong>Email:</strong>
+
+                    <strong>
+                        Student Number:
+                    </strong>
+
+                    @student.StudentNumber
+
+                </p>
+
+
+                <!-- EMAIL -->
+
+                <p>
+
+                    <strong>
+                        Email:
+                    </strong>
+
                     @student.Email
+
                 </p>
 
+
+                <!-- REQUEST -->
+
                 <p>
-                    <strong>Request:</strong>
+
+                    <strong>
+                        Request:
+                    </strong>
+
                     @ViewBag.ActiveRequest.RequestMessage
+
                 </p>
 
+
+                <!-- STATUS -->
+
                 <p>
-                    <strong>Status:</strong>
+
+                    <strong>
+                        Status:
+                    </strong>
+
                     <span class="badge bg-success">
                         Active
                     </span>
+
                 </p>
+
 
                 <hr />
 
-                <h5>Student Workout Profile</h5>
+
+                <!-- ================================================== -->
+                <!-- STUDENT WORKOUT PROFILE -->
+                <!-- ================================================== -->
+
+                <h5>
+                    Student Workout Profile
+                </h5>
+
 
                 @if (profile != null)
                 {
                     <div class="row">
 
-                        <div class="col-md-3">
-                            <strong>Age</strong>
-                            <p>@profile.Age</p>
-                        </div>
+
+                        <!-- AGE -->
 
                         <div class="col-md-3">
-                            <strong>Weight</strong>
-                            <p>@profile.Weight kg</p>
+
+                            <strong>
+                                Age
+                            </strong>
+
+                            <p>
+                                @profile.Age
+                            </p>
+
                         </div>
 
-                        <div class="col-md-3">
-                            <strong>Height</strong>
-                            <p>@profile.Height cm</p>
-                        </div>
+
+                        <!-- WEIGHT -->
 
                         <div class="col-md-3">
-                            <strong>Goal</strong>
-                            <p>@profile.Goal</p>
+
+                            <strong>
+                                Weight
+                            </strong>
+
+                            <p>
+                                @profile.Weight kg
+                            </p>
+
+                        </div>
+
+
+                        <!-- HEIGHT -->
+
+                        <div class="col-md-3">
+
+                            <strong>
+                                Height
+                            </strong>
+
+                            <p>
+                                @profile.Height cm
+                            </p>
+
+                        </div>
+
+
+                        <!-- GOAL -->
+
+                        <div class="col-md-3">
+
+                            <strong>
+                                Goal
+                            </strong>
+
+                            <p>
+                                @profile.Goal
+                            </p>
+
                         </div>
 
                     </div>
+
+
+                    <!-- FULL PROFILE -->
 
                     <a asp-controller="Trainer"
                        asp-action="ViewProfile"
@@ -219,17 +360,25 @@
                         View Full Profile
 
                     </a>
+
                 }
                 else
                 {
+
                     <div class="alert alert-info">
-                        This student has not created a workout profile yet.
+
+                        This student has not created a workout
+                        profile yet.
+
                     </div>
+
                 }
+
 
                 <hr />
 
-                
+
+                <!-- MANAGE REQUEST -->
 
                 <a asp-controller="Trainer"
                    asp-action="Requests"
@@ -242,6 +391,7 @@
             </div>
 
         </div>
+
     }
 
 </div>
