@@ -179,7 +179,7 @@ using (var scope = app.Services.CreateScope())
 app.MapControllerRoute(
     name: "default",
     pattern:
-        "{controller=Account}/{action=Register}/{id?}");
+        "{controller=Account}/{action=Login}/{id?}");
 
 
 // =========================================================

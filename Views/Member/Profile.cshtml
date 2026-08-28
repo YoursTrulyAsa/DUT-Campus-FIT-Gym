@@ -3,7 +3,14 @@
 @{
     ViewData["Title"] = "My Profile";
 }
-
+@{
+    var totalPaid = Model.Payments
+        .Where(p => p.PaymentStatus != null &&
+                    p.PaymentStatus.Equals(
+                        "Completed",
+                        StringComparison.OrdinalIgnoreCase))
+        .Sum(p => p.Amount);
+}
 <div class="profile-page">
 
     <!-- PAGE HEADER -->
