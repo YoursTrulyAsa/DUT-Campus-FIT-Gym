@@ -5,11 +5,10 @@ namespace DUT_Campus_FIT_Gym.Models
 {
     public class WorkoutPlan
     {
-        
         [Key]
         public int WorkoutPlanId { get; set; }
 
-        [Required]
+    [Required]
         public int MemberId { get; set; }
 
         [ForeignKey("MemberId")]
@@ -36,8 +35,8 @@ namespace DUT_Campus_FIT_Gym.Models
         public int Repetitions { get; set; }
 
         [Required]
-        [StringLength(50)]
-        public string RestTime { get; set; } = "";
+        [Range(1, 3600)]
+        public int RestTime { get; set; }
 
         [StringLength(1000)]
         public string? Description { get; set; }
