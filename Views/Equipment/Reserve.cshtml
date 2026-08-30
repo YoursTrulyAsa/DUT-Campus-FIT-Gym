@@ -1,31 +1,202 @@
 ﻿@model IEnumerable<DUT_Campus_FIT_Gym.ViewModels.ReservationViewModel>
 
-<h1>My Reservations</h1>
+@{
+    ViewData["Title"] = "My Reservations";
+}
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Equipment</th>
-            <th>Reservation Date</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var reservation in Model)
-        {
-            <tr>
-                <td>@reservation.EquipmentName</td>
-                <td>@reservation.ReservationDate</td>
-                <td>@reservation.Status</td>
-                <td>
-                    <form asp-controller="Equipment" asp-action="Unreserve" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@reservation.ReservationID" />
-                        <button type="submit" class="btn btn-danger">Unreserve</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="container mt-5">
+
+    <div class="mb-4">
+        <h1>My Reservations</h1>
+
+        <p class="text-muted">
+            View and manage your equipment reservations.
+        </p>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="card shadow-sm">
+
+            <div class="card-header">
+                <strong>Equipment Reservations</strong>
+            </div>
+
+            <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover mb-0">
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                <th>
+                                    Equipment
+                                </th>
+
+                                <th>
+                                    Reserved At
+                                </th>
+
+                                <th>
+                                    End Time
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th class="text-center">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var reservation in Model)
+                            {
+                                <tr>
+
+                                    <td>
+
+                                        <strong>
+                                            @reservation.EquipmentName
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @reservation.ReservationDate.ToString(
+                                        "dd MMM yyyy HH:mm:ss")
+
+                            </td>
+
+                            <td>
+
+                                @reservation.EndTime.ToString(
+                                                                "dd MMM yyyy HH:mm:ss")
+
+                            </td>
+
+                            <td>
+
+                                @if (reservation.Status == "Reserved")
+                                        {
+                                            <span class="badge bg-success">
+                                                Reserved
+                                            </span>
+                                        }
+                                        else if (reservation.Status == "Expired")
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Expired
+                                            </span>
+                                        }
+                                        else if (reservation.Status == "Cancelled")
+                                        {
+                                            <span class="badge bg-danger">
+                                                Cancelled
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                @reservation.Status
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+
+                                    <td class="text-center">
+
+                                        @if (reservation.Status == "Reserved")
+                                        {
+                                            <form asp-controller="Equipment"
+                                                  asp-action="Unreserve"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@reservation.ReservationID" />
+
+                                                <button type="submit"
+                                                        class="btn btn-danger btn-sm">
+
+                                                    Unreserve
+
+                                                </button>
+
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                —
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+
+            You currently have no equipment reservations.
+
+        </div>
+    }
+
+
+    <div class="mt-4">
+
+        <a asp-controller="Equipment"
+           asp-action="Index"
+           class="btn btn-primary">
+
+            Reserve Equipment
+
+        </a>
+
+    </div>
+
+</div>

@@ -1,0 +1,279 @@
+﻿@model DUT_Campus_FIT_Gym.Models.WorkoutPlan
+
+@{
+    ViewData["Title"] = "Assign Workout";
+}
+
+<div class="trainer-page">
+
+    <div class="trainer-page-header">
+
+        <span class="trainer-page-label">
+            DUT CAMPUS FIT GYM
+        </span>
+
+        <h1>
+            Assign Workout Plan
+        </h1>
+
+        <p>
+            Create and assign a workout plan to a gym member.
+        </p>
+
+    </div>
+
+    <div class="trainer-form-card">
+
+        <div class="trainer-section-title">
+
+            <h3>
+                Workout Details
+            </h3>
+
+        </div>
+
+        <form asp-controller="Trainer"
+              asp-action="CreateWorkout"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="trainer-alert trainer-alert-danger">
+            </div>
+
+            <div class="trainer-form-group">
+
+                <label asp-for="MemberId">
+                    Select Member
+                </label>
+
+                <select asp-for="MemberId"
+                        class="trainer-form-control">
+
+                    <option value="">
+                        -- Select Member --
+                    </option>
+
+                    @if (ViewBag.Members != null)
+                    {
+                        foreach (var member in ViewBag.Members)
+                        {
+                            <option value="@member.MemberId">
+
+                                @member.Name
+                                @member.Surname
+                                -
+                                @member.Email
+
+                            </option>
+                        }
+                    }
+
+                </select>
+
+                <span asp-validation-for="MemberId"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="trainer-form-group">
+
+                <label asp-for="WorkoutName">
+                    Workout Name
+                </label>
+
+                <input asp-for="WorkoutName"
+                       class="trainer-form-control"
+                       placeholder="Example: Beginner Strength Plan" />
+
+                <span asp-validation-for="WorkoutName"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="trainer-form-group">
+
+                <label asp-for="ExerciseName">
+                    Exercise Name
+                </label>
+
+                <input asp-for="ExerciseName"
+                       class="trainer-form-control"
+                       placeholder="Example: Squats" />
+
+                <span asp-validation-for="ExerciseName"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="trainer-form-group">
+
+                <label asp-for="WorkoutDay">
+                    Workout Day
+                </label>
+
+                <select asp-for="WorkoutDay"
+                        class="trainer-form-control">
+
+                    <option value="">
+                        -- Select Day --
+                    </option>
+
+                    <option value="Monday">
+                        Monday
+                    </option>
+
+                    <option value="Tuesday">
+                        Tuesday
+                    </option>
+
+                    <option value="Wednesday">
+                        Wednesday
+                    </option>
+
+                    <option value="Thursday">
+                        Thursday
+                    </option>
+
+                    <option value="Friday">
+                        Friday
+                    </option>
+
+                    <option value="Saturday">
+                        Saturday
+                    </option>
+
+                    <option value="Sunday">
+                        Sunday
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="WorkoutDay"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="trainer-student-grid">
+
+                <div class="trainer-form-group">
+
+                    <label asp-for="Sets">
+                        Sets
+                    </label>
+
+                    <input asp-for="Sets"
+                           type="number"
+                           class="trainer-form-control"
+                           min="1"
+                           max="100"
+                           placeholder="3" />
+
+                    <span asp-validation-for="Sets"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="trainer-form-group">
+
+                    <label asp-for="Repetitions">
+                        Repetitions
+                    </label>
+
+                    <input asp-for="Repetitions"
+                           type="number"
+                           class="trainer-form-control"
+                           min="1"
+                           max="500"
+                           placeholder="12" />
+
+                    <span asp-validation-for="Repetitions"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="trainer-form-group">
+
+                    <label asp-for="RestTime">
+                        Rest Time
+                    </label>
+
+                    <input asp-for="RestTime"
+                           type="number"
+                           class="trainer-form-control"
+                           min="1"
+                           max="3600"
+                           placeholder="60" />
+
+                    <span asp-validation-for="RestTime"
+                          class="text-danger">
+                    </span>
+
+                    <small class="text-muted">
+                        Seconds
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="trainer-form-group">
+
+                <label asp-for="Description">
+                    Description
+                </label>
+
+                <textarea asp-for="Description"
+                          class="trainer-form-control"
+                          rows="5"
+                          placeholder="Add workout instructions, notes or training guidance..."></textarea>
+
+                <span asp-validation-for="Description"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="trainer-actions">
+
+                <button type="submit"
+                        class="trainer-btn trainer-btn-success">
+
+                    <i class="fa-solid fa-plus"></i>
+                    Assign Workout
+
+                </button>
+
+                <a asp-controller="Trainer"
+                   asp-action="Workouts"
+                   class="trainer-btn trainer-btn-secondary">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/trainer.css"
+          asp-append-version="true" />
+}

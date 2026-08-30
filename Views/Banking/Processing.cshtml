@@ -1,0 +1,97 @@
+﻿@{
+    ViewData["Title"] = "Payment Processing";
+}
+
+<div class="payment-processing">
+
+    <div class="processing-card">
+
+        <div class="spinner"></div>
+
+        <h2>Payment Processing</h2>
+
+        <p>
+            Your payment has been submitted successfully.
+        </p>
+
+        <p class="processing-text">
+            We are waiting for PayFast to confirm your payment.
+            Please don't close this page.
+        </p>
+
+        <div class="payment-info">
+            <strong>Membership ID:</strong>
+            @ViewBag.MembershipId
+        </div>
+
+        <div class="status" id="paymentStatus">
+            Checking payment status...
+        </div>
+
+    </div>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/payment-processing.css" />
+}
+
+<script>
+    const membershipId = @ViewBag.MembershipId;
+
+    let attempts = 0;
+    const maxAttempts = 24;
+
+    const checkPaymentStatus = async () => {
+
+        attempts++;
+
+        try {
+
+            const response = await fetch(
+                `/Banking/CheckPaymentStatus?membershipId=${membershipId}`
+            );
+
+            const data = await response.json();
+
+            console.log("Payment status:", data);
+
+            if (data.status === "Completed") {
+
+                document.getElementById("paymentStatus").innerText =
+                    "Payment confirmed! Redirecting...";
+
+                window.location.href =
+                    `/Banking/PaymentComplete?membershipId=${membershipId}`;
+
+                return;
+            }
+
+            if (data.status === "Failed" || data.status === "Cancelled") {
+
+                document.getElementById("paymentStatus").innerText =
+                    "Payment was not completed.";
+
+                return;
+            }
+
+            if (attempts >= maxAttempts) {
+
+                document.getElementById("paymentStatus").innerText =
+                    "We are still waiting for PayFast confirmation. Please check your membership later.";
+
+                return;
+            }
+
+        }
+        catch (error) {
+
+            console.error("Error checking payment status:", error);
+
+        }
+
+        setTimeout(checkPaymentStatus, 5000);
+    };
+
+    checkPaymentStatus();
+</script>

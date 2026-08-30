@@ -7,12 +7,7 @@
     background: #f5f7fb;
     font-family: 'Poppins', sans-serif;
 }
-
-
-/* ================================
-   CARD
-================================ */
-
+             
 .gym-card-container {
     width: 520px;
     min-height: 300px;
@@ -26,18 +21,12 @@
     transform: translateY(0);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
-
-    /* FLOATING EFFECT */
-
+                
     .gym-card-container:hover {
         transform: translateY(-8px);
         box-shadow: 0 35px 70px rgba(0, 0, 0, 0.25), 0 12px 30px rgba(0, 0, 0, 0.12);
     }
-
-
-    /* Decorative glow */
-
+              
     .gym-card-container::before {
         content: "";
         position: absolute;
@@ -60,12 +49,7 @@
         bottom: -100px;
         left: -60px;
     }
-
-
-/* ================================
-   HEADER
-================================ */
-
+             
 .gym-card-header {
     display: flex;
     justify-content: space-between;
@@ -101,12 +85,7 @@
     letter-spacing: 1.4px;
     opacity: 0.75;
 }
-
-
-/* ================================
-   MEMBER
-================================ */
-
+                 
 .member-info {
     position: relative;
     z-index: 2;
@@ -135,12 +114,7 @@
     font-size: 8px;
     letter-spacing: 1px;
 }
-
-
-/* ================================
-   DETAILS
-================================ */
-
+         
 .details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -170,12 +144,7 @@
         font-size: 10px;
         opacity: 0.95;
     }
-
-
-/* ================================
-   DATES
-================================ */
-
+                  
 .membership-dates {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -211,12 +180,7 @@
     .date-box strong {
         font-size: 9px;
     }
-
-
-/* ================================
-   STATUS
-================================ */
-
+                    
 .membership-status {
     display: flex;
     justify-content: space-between;
@@ -266,11 +230,7 @@
     opacity: 0.65;
 }
 
-
-/* ================================
-   VERIFICATION
-================================ */
-
+              
 .gym-card-verification {
     display: flex;
     align-items: center;
@@ -304,12 +264,7 @@
     font-size: 6px;
     opacity: 0.5;
 }
-
-
-/* ================================
-   BARCODE
-================================ */
-
+             
 .gym-card-barcode {
     margin-top: 14px;
     padding: 10px 14px;
@@ -325,10 +280,7 @@
         height: 50px;
         object-fit: contain;
     }
-
-
-/* STUDENT / STAFF NUMBER */
-
+         
 .barcode-number {
     color: #071b36;
     font-size: 9px;
@@ -336,19 +288,11 @@
     letter-spacing: 2px;
     margin-top: 3px;
 }
-
-
-/* Hide the old explanatory text */
-
+          
 .gym-card-barcode small {
     display: none;
 }
-
-
-/* ================================
-   NO MEMBERSHIP
-================================ */
-
+           
 .no-membership {
     position: relative;
     z-index: 2;
@@ -357,12 +301,7 @@
     font-size: 12px;
     opacity: 0.7;
 }
-
-
-/* ================================
-   MOBILE
-================================ */
-
+            
 @media (max-width: 650px) {
 
     .gym-card-page {

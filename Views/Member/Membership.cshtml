@@ -2,232 +2,271 @@
 
 @{
     ViewData["Title"] = "My Membership";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var daysRemaining = Math.Max(
-        0,
-        (Model.EndDate.Date - DateTime.Today).Days
-    );
+    var pendingApplication = ViewBag.PendingApplication;
 
-    var isActive = Model.EndDate.Date >= DateTime.Today;
+    bool hasMembership = Model != null;
+
+    bool isActive =
+        Model != null &&
+        Model.Status == "Active" &&
+        Model.EndDate.HasValue &&
+        Model.EndDate.Value.Date >= DateTime.Today;
+
+    int daysRemaining = 0;
+
+    if (isActive && Model!.EndDate.HasValue)
+    {
+        daysRemaining = Math.Max(
+            0,
+            (Model.EndDate.Value.Date - DateTime.Today).Days
+        );
+    }
+
+    string statusClass = Model?.Status switch
+    {
+        "Active" => "status-active",
+        "WaitingForPayment" => "status-payment",
+        "Pending" => "status-pending",
+        "Rejected" => "status-rejected",
+        _ => "status-inactive"
+    };
 }
 
 <div class="membership-page">
 
-    <div class="membership-container">
 
-        <!-- HEADER -->
+    <div class="membership-header">
 
-        <div class="membership-header">
+        <div>
 
-            <div>
+            <span class="membership-label">
+                DUT CAMPUS FIT GYM
+            </span>
 
-                <span class="membership-label">
-                    DUT CAMPUS FIT GYM
-                </span>
+            <h1>
+                My Gym Membership
+            </h1>
 
-                <h1>
-                    My Membership
-                </h1>
+            <p>
+                View and manage your current gym membership.
+            </p>
 
-                <p>
-                    View your current gym membership details.
-                </p>
+        </div>
 
-            </div>
+    </div>
 
-            <div class="membership-status-badge
-                 @(isActive ? "active" : "expired")">
 
-                <span></span>
+    @if (TempData["MembershipSuccess"] != null)
+    {
+        <div class="alert alert-success">
 
-                @(isActive ? "ACTIVE" : "EXPIRED")
+            <i class="bi bi-check-circle-fill"></i>
+
+            <span>
+                @TempData["MembershipSuccess"]
+            </span>
+
+        </div>
+    }
+
+    @if (TempData["MembershipError"] != null)
+    {
+        <div class="alert alert-warning">
+
+            <i class="bi bi-exclamation-triangle-fill"></i>
+
+            <span>
+                @TempData["MembershipError"]
+            </span>
+
+        </div>
+    }
+
+    @if (pendingApplication != null)
+    {
+        <div class="membership-card">
+
+            <div class="membership-status-panel
+                     @(pendingApplication.Status == "WaitingForPayment"
+                                      ? "payment"
+                                      : "active")">
+
+            <div class="status-icon">
+
+                @if (pendingApplication.Status == "WaitingForPayment")
+                    {
+                        <i class="bi bi-credit-card-fill"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-hourglass-split"></i>
+                    }
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        MEMBERSHIP APPLICATION
+                    </span>
+
+                    @if (pendingApplication.Status == "WaitingForPayment")
+                    {
+                        <strong>
+                            Approved - Payment Required
+                        </strong>
+
+                        <p>
+                            Your membership application has been approved.
+                            Please complete your payment to activate your
+                            gym membership.
+                        </p>
+                    }
+                    else
+                    {
+                        <strong>
+                            Application Pending
+                        </strong>
+
+                        <p>
+                            Your membership application has been submitted
+                            successfully and is waiting for admin approval.
+                        </p>
+                    }
 
             </div>
 
         </div>
 
+        <div class="membership-details-grid">
 
-        <!-- MEMBERSHIP CARD -->
+            <div class="membership-detail">
 
+                <div class="detail-icon">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        APPLICATION DATE
+                    </span>
+
+                    <strong>
+                        @pendingApplication.ApplicationDate.ToString("dd MMM yyyy")
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="membership-detail">
+
+                <div class="detail-icon">
+                    <i class="bi bi-card-checklist"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        MEMBERSHIP PERIOD
+                    </span>
+
+                    <strong>
+                        @pendingApplication.MembershipType
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <div class="membership-detail">
+
+                <div class="detail-icon">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        MEMBERSHIP FEE
+                    </span>
+
+                    <strong>
+                        R @pendingApplication.Price.ToString("0.00")
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="membership-detail">
+
+                <div class="detail-icon">
+                    <i class="bi bi-info-circle"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        STATUS
+                    </span>
+
+                    <strong>
+                        @(
+                                                pendingApplication.Status == "WaitingForPayment"
+                                                ? "Approved - Waiting for Payment"
+                                                : pendingApplication.Status
+                                                )
+                    </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        @if (pendingApplication.Status == "WaitingForPayment")
+            {
+                <div class="membership-actions">
+
+                    <a asp-controller="Banking"
+                       asp-action="Index"
+                       asp-route-membershipApplicationId="@pendingApplication.MembershipApplicationId"
+                       class="payment-btn">
+
+                        <i class="fa-solid fa-credit-card"></i>
+
+                        <span>
+                            Pay Membership Fee
+                        </span>
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                    </a>
+
+                </div>
+            }
+
+        </div>
+    }
+
+
+    @if (pendingApplication == null && !hasMembership)
+    {
         <div class="membership-card">
 
-            <!-- CARD HEADER -->
-
-            <div class="membership-card-header">
-
-                <div>
-
-                    <span class="card-small-label">
-                        MEMBERSHIP PLAN
-                    </span>
-
-                    <h2>
-                        @Model.MembershipType
-                    </h2>
-
-                </div>
-
-                <div class="membership-icon">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-
-            </div>
-
-
-            <!-- MEMBER INFO -->
-
-            <div class="membership-member">
-
-                <div class="member-avatar">
-                    <i class="bi bi-person-fill"></i>
-                </div>
-
-                <div>
-
-                    <span>
-                        MEMBER ID
-                    </span>
-
-                    <strong>
-                        @Model.MemberId
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <!-- DATES -->
-
-            <div class="membership-details-grid">
-
-                <div class="membership-detail">
-
-                    <div class="detail-icon">
-                        <i class="bi bi-calendar-check"></i>
-                    </div>
-
-                    <div>
-
-                        <span>
-                            START DATE
-                        </span>
-
-                        <strong>
-                            @Model.StartDate.ToString("dd MMM yyyy")
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="membership-detail">
-
-                    <div class="detail-icon">
-                        <i class="bi bi-calendar-x"></i>
-                    </div>
-
-                    <div>
-
-                        <span>
-                            EXPIRY DATE
-                        </span>
-
-                        <strong>
-                            @Model.EndDate.ToString("dd MMM yyyy")
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="membership-detail">
-
-                    <div class="detail-icon">
-                        <i class="bi bi-clock"></i>
-                    </div>
-
-                    <div>
-
-                        <span>
-                            DAYS REMAINING
-                        </span>
-
-                        <strong>
-                            @daysRemaining days
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="membership-detail">
-
-                    <div class="detail-icon">
-                        <i class="bi bi-credit-card"></i>
-                    </div>
-
-                    <div>
-
-                        <span>
-                            PAYMENT METHOD
-                        </span>
-
-                        <strong>
-                            @Model.PaymentMethod
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- PRICE -->
-
-            <div class="membership-price">
-
-                <div>
-
-                    <span>
-                        MEMBERSHIP PRICE
-                    </span>
-
-                    <strong>
-                        R @Model.Price.ToString("N2")
-                    </strong>
-
-                </div>
-
-                @if (Model.FirstTimeMember)
-                {
-                    <span class="discount-badge">
-                        10% FIRST-TIME DISCOUNT
-                    </span>
-                }
-
-            </div>
-
-
-            <!-- STATUS -->
-
-            <div class="membership-status-panel
-                 @(isActive ? "active" : "expired")">
+            <div class="membership-status-panel expired">
 
                 <div class="status-icon">
 
-                    @if (isActive)
-                    {
-                        <i class="bi bi-check-lg"></i>
-                    }
-                    else
-                    {
-                        <i class="bi bi-exclamation-lg"></i>
-                    }
+                    <i class="bi bi-exclamation-lg"></i>
 
                 </div>
 
@@ -238,16 +277,260 @@
                     </span>
 
                     <strong>
-                        @(isActive
-                                                ? "Membership Active"
-                                                : "Membership Expired")
+                        No Active Membership
                     </strong>
 
                     <p>
-                        @(isActive
-                                                ? "Your membership is currently active and you have access to the gym."
-                                                : "Your membership has expired. Please renew your membership to regain access.")
+                        You do not currently have an active gym membership.
+                        Apply for a membership to access the
+                        DUT Campus FIT Gym.
                     </p>
+
+                </div>
+
+            </div>
+
+            <div class="membership-pricing">
+
+                <div class="pricing-card">
+
+                    <span>
+                        SEMESTER
+                    </span>
+
+                    <strong>
+                        R150.00
+                    </strong>
+
+                    <small>
+                        Per semester
+                    </small>
+
+                </div>
+
+
+                <div class="pricing-card">
+
+                    <span>
+                        ANNUAL
+                    </span>
+
+                    <strong>
+                        R300.00
+                    </strong>
+
+                    <small>
+                        Per year
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="first-time-discount">
+
+                <i class="bi bi-stars"></i>
+
+                <div>
+
+                    <strong>
+                        First-Time Member?
+                    </strong>
+
+                    <p>
+                        Get 10% off your first membership.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="membership-actions">
+
+                <a asp-controller="Member"
+                   asp-action="Create"
+                   class="btn btn-primary">
+
+                    <i class="bi bi-plus-circle"></i>
+
+                    <span>
+                        Apply for Membership
+                    </span>
+
+                </a>
+
+            </div>
+
+        </div>
+    }
+
+    @if (hasMembership)
+    {
+        <div class="membership-card">
+
+            <div class="membership-card-top">
+
+                <div>
+
+                    <span class="card-small-label">
+                        DUT CAMPUS FIT GYM
+                    </span>
+
+                    <span class="card-small-label">
+                        MEMBERSHIP PLAN
+                    </span>
+
+                    <h2>
+                        @Model!.MembershipType
+                    </h2>
+
+                    <p>
+                        Gym Membership
+                    </p>
+
+                </div>
+
+
+                <div class="membership-logo-icon">
+
+                    <i class="fa-solid fa-dumbbell"></i>
+
+                </div>
+
+            </div>
+
+
+            
+            <div class="membership-status-row">
+
+                <span class="membership-status @statusClass">
+
+                    <span class="status-dot"></span>
+
+                    @(
+                                    Model.Status == "WaitingForPayment"
+                                    ? "Waiting for Payment"
+                                    : Model.Status
+                                    )
+
+                </span>
+
+            </div>
+
+            <div class="membership-price">
+
+                <span>
+                    Membership Fee
+                </span>
+
+                <strong>
+                    R @Model.Price.ToString("0.00")
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="membership-info-grid">
+
+            <div class="membership-info-card">
+
+                <div class="info-icon">
+
+                    <i class="fa-regular fa-calendar-plus"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        Start Date
+                    </span>
+
+                    <strong>
+
+                        @(Model.StartDate.HasValue
+                                            ? Model.StartDate.Value.ToString("dd MMM yyyy")
+                                            : "Not yet active")
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="membership-info-card">
+
+                <div class="info-icon">
+
+                    <i class="fa-regular fa-calendar-xmark"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        End Date
+                    </span>
+
+                    <strong>
+
+                        @(Model.EndDate.HasValue
+                                            ? Model.EndDate.Value.ToString("dd MMM yyyy")
+                                            : "Not yet active")
+
+                </strong>
+
+                </div>
+
+            </div>
+
+        @if (Model.Status == "Active" &&
+                Model.EndDate.HasValue)
+            {
+                <div class="membership-info-card">
+
+                    <div class="info-icon">
+
+                        <i class="fa-solid fa-hourglass-half"></i>
+
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Days Remaining
+                        </span>
+
+                        <strong>
+                            @daysRemaining days
+                        </strong>
+
+                    </div>
+
+                </div>
+            }
+
+            <div class="membership-info-card">
+
+                <div class="info-icon">
+
+                    <i class="fa-solid fa-layer-group"></i>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        Membership Type
+                    </span>
+
+                    <strong>
+                        @Model.MembershipType
+                    </strong>
 
                 </div>
 
@@ -255,23 +538,108 @@
 
         </div>
 
+        @if (Model.Status == "WaitingForPayment")
+        {
+            <div class="payment-card">
 
-        <!-- ACTIONS -->
+                <div class="payment-icon">
 
-        <div class="membership-actions">
+                    <i class="fa-solid fa-credit-card"></i>
 
-            <a asp-action="Dashboard"
-               class="membership-back-btn">
+                </div>
 
-                <i class="bi bi-arrow-left"></i>
 
-                Back to Dashboard
+                <div class="payment-content">
 
-            </a>
+                    <span class="payment-label">
+                        PAYMENT REQUIRED
+                    </span>
 
-        </div>
+                    <h3>
+                        Complete Your Membership Payment
+                    </h3>
 
-    </div>
+                    <p>
+                        Your membership application has been approved.
+                        Complete your payment to activate your membership.
+                    </p>
+
+                </div>
+
+
+                <a asp-controller="Banking"
+                   asp-action="Index"
+                   asp-route-membershipId="@Model.MembershipId"
+                   class="payment-btn">
+
+                    <i class="fa-solid fa-credit-card"></i>
+
+                    <span>
+                        Pay Now
+                    </span>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+            </div>
+        }
+
+
+        @if (Model.Status == "Active")
+        {
+            <div class="notice-card notice-active">
+
+                <div class="notice-icon">
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                </div>
+
+                <div>
+
+                    <strong>
+                        Your Membership Is Active
+                    </strong>
+
+                    <p>
+                        You're all set! You can use your gym membership
+                        and access the available gym facilities.
+                    </p>
+
+                </div>
+
+            </div>
+        }
+
+
+        @if (Model.Status == "Rejected")
+        {
+            <div class="notice-card notice-rejected">
+
+                <div class="notice-icon">
+
+                    <i class="fa-solid fa-circle-xmark"></i>
+
+                </div>
+
+                <div>
+
+                    <strong>
+                        Membership Application Rejected
+                    </strong>
+
+                    <p>
+                        Your membership application was not approved.
+                        Please contact gym administration for assistance.
+                    </p>
+
+                </div>
+
+            </div>
+        }
+
+    }
 
 </div>
 
@@ -279,7 +647,7 @@
 @section Styles {
 
     <link rel="stylesheet"
-          href="~/css/member-membership.css"
+          href="~/css/membership.css"
           asp-append-version="true" />
 
 }

@@ -1,0 +1,507 @@
+﻿.trainer-dashboard {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.trainer-dashboard-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.trainer-dashboard-label {
+    display: block;
+    color: var(--gym-light-blue);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 7px;
+}
+
+.trainer-dashboard-header h1 {
+    margin: 0;
+    color: var(--gym-dark);
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.trainer-dashboard-header p {
+    margin: 8px 0 0;
+    color: var(--gym-muted);
+    font-size: 14px;
+}
+
+.trainer-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 38px;
+}
+
+.trainer-stat-card {
+    background: var(--gym-white);
+    border: 1px solid var(--gym-border);
+    border-radius: 16px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 5px 18px rgba(7, 26, 51, 0.05);
+    transition: 0.2s ease;
+}
+
+    .trainer-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 9px 24px rgba(7, 26, 51, 0.08);
+    }
+
+.trainer-stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.equipment-icon {
+    background: #eaf6ff;
+    color: var(--gym-light-blue);
+}
+
+.workout-icon {
+    background: #f1edff;
+    color: #6750d6;
+}
+
+.request-icon {
+    background: #fff4df;
+    color: #d98200;
+}
+
+.trainer-stat-label {
+    display: block;
+    color: #8794a5;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+}
+
+.trainer-stat-card h3 {
+    margin: 4px 0 1px;
+    color: var(--gym-dark);
+    font-size: 21px;
+}
+
+.trainer-stat-card p {
+    margin: 0;
+    color: #8794a5;
+    font-size: 12px;
+}
+
+.trainer-section-title {
+    margin-bottom: 18px;
+}
+
+    .trainer-section-title span {
+        color: var(--gym-light-blue);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+    }
+
+    .trainer-section-title h2 {
+        margin: 4px 0 0;
+        color: var(--gym-dark);
+        font-size: 22px;
+    }
+
+.trainer-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-bottom: 35px;
+}
+
+.trainer-tool-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    padding: 22px;
+    background: var(--gym-white);
+    border: 1px solid var(--gym-border);
+    border-radius: 16px;
+    text-decoration: none;
+    box-shadow: 0 5px 18px rgba(7, 26, 51, 0.04);
+    transition: 0.2s ease;
+}
+
+    .trainer-tool-card:hover {
+        transform: translateY(-3px);
+        border-color: #a9d9f7;
+        box-shadow: 0 10px 25px rgba(7, 26, 51, 0.08);
+    }
+
+.trainer-tool-icon {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 13px;
+    background: #edf7ff;
+    color: var(--gym-light-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+
+.trainer-tool-content {
+    padding-right: 25px;
+}
+
+    .trainer-tool-content h3 {
+        margin: 0 0 5px;
+        color: var(--gym-dark);
+        font-size: 16px;
+    }
+
+    .trainer-tool-content p {
+        margin: 0;
+        color: var(--gym-muted);
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+.trainer-tool-arrow {
+    position: absolute;
+    right: 20px;
+    color: #a5b1bf;
+    transition: 0.2s ease;
+}
+
+.trainer-tool-card:hover .trainer-tool-arrow {
+    color: var(--gym-light-blue);
+    transform: translateX(3px);
+}
+
+.trainer-pending-badge {
+    display: inline-block;
+    margin-top: 9px;
+    padding: 4px 9px;
+    border-radius: 20px;
+    background: #fff1d6;
+    color: #a86200;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.active-student-section,
+.active-workout-card {
+    background: var(--gym-white);
+    border: 1px solid var(--gym-border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 7px 22px rgba(7, 26, 51, 0.05);
+    margin-bottom: 30px;
+}
+
+.active-student-header,
+.active-workout-header {
+    padding: 22px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fbfe;
+    border-bottom: 1px solid #e8edf2;
+}
+
+.active-student-label,
+.active-workout-title span {
+    color: var(--gym-light-blue);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.active-student-header h2,
+.active-workout-title h2 {
+    margin: 5px 0 0;
+    color: var(--gym-dark);
+    font-size: 21px;
+}
+
+.active-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px;
+    border-radius: 20px;
+    background: #ecfdf3;
+    color: #087443;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.active-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #16a34a;
+}
+
+.active-student-body {
+    padding: 25px;
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 35px;
+}
+
+.student-profile-main,
+.active-student {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.student-avatar {
+    width: 62px;
+    height: 62px;
+    border-radius: 16px;
+    background: #eaf6ff;
+    color: var(--gym-light-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.student-small-label {
+    color: #8794a5;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+}
+
+.student-profile-main h3,
+.active-student h3 {
+    margin: 3px 0;
+    color: var(--gym-dark);
+    font-size: 20px;
+}
+
+.student-profile-main p,
+.active-student p {
+    margin: 0;
+    color: var(--gym-muted);
+    font-size: 13px;
+}
+
+.student-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.student-detail span,
+.fitness-item span {
+    display: block;
+    margin-bottom: 5px;
+    color: #8794a5;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.student-detail strong {
+    color: #26384d;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.active-student-divider {
+    height: 1px;
+    background: #e8edf2;
+}
+
+.profile-section {
+    padding: 25px;
+}
+
+.profile-section-heading span {
+    color: var(--gym-light-blue);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+}
+
+.profile-section-heading h3 {
+    margin: 4px 0 20px;
+    color: var(--gym-dark);
+    font-size: 18px;
+}
+
+.fitness-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.fitness-item {
+    padding: 16px;
+    border-radius: 12px;
+    background: #f7f9fc;
+    border: 1px solid #edf0f4;
+}
+
+    .fitness-item strong {
+        color: var(--gym-dark);
+        font-size: 18px;
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .fitness-item small {
+        color: #8794a5;
+        font-size: 11px;
+        margin-left: 3px;
+    }
+
+.active-student-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.trainer-primary-button,
+.trainer-secondary-button {
+    padding: 11px 17px;
+}
+
+.trainer-empty-profile,
+.no-active-student {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    padding: 20px;
+    background: var(--gym-white);
+    border: 1px solid var(--gym-border);
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba(7, 26, 51, 0.04);
+}
+
+.trainer-empty-profile {
+    gap: 12px;
+    padding: 15px;
+    background: #f0f8ff;
+    color: var(--gym-light-blue);
+}
+
+    .trainer-empty-profile strong {
+        display: block;
+        color: #24415f;
+        font-size: 13px;
+    }
+
+    .trainer-empty-profile p {
+        margin: 3px 0 0;
+        color: var(--gym-muted);
+        font-size: 12px;
+    }
+
+.no-active-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 13px;
+    background: #f2f5f8;
+    color: var(--gym-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    flex-shrink: 0;
+}
+
+.no-active-student > div:nth-child(2) {
+    flex: 1;
+}
+
+.no-active-student span {
+    color: #8794a5;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.no-active-student h3 {
+    margin: 3px 0;
+    color: var(--gym-dark);
+    font-size: 17px;
+}
+
+.no-active-student p {
+    margin: 0;
+    color: var(--gym-muted);
+    font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+    .trainer-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .active-student-body {
+        grid-template-columns: 1fr;
+    }
+
+    .fitness-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .trainer-dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+        .trainer-dashboard-header h1 {
+            font-size: 27px;
+        }
+
+    .trainer-tools-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .student-details {
+        grid-template-columns: 1fr;
+    }
+
+    .fitness-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .active-student-actions {
+        flex-direction: column;
+    }
+
+        .active-student-actions a {
+            width: 100%;
+        }
+
+    .no-active-student {
+        flex-wrap: wrap;
+    }
+
+        .no-active-student .trainer-primary-button {
+            width: 100%;
+        }
+}

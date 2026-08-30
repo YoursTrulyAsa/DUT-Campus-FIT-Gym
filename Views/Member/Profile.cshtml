@@ -4,20 +4,39 @@
     ViewData["Title"] = "My Profile";
 }
 
+@{
+    var totalPaid = Model.Payments
+        .Where(p => p.PaymentStatus != null &&
+                    p.PaymentStatus.Equals(
+                        "Completed",
+                        StringComparison.OrdinalIgnoreCase))
+        .Sum(p => p.Amount);
+}
+
 <div class="profile-page">
 
-    <!-- PAGE HEADER -->
+    <!-- =========================================================
+         PROFILE HEADER
+         ========================================================= -->
+
     <div class="profile-header">
 
         <div>
-            <span class="profile-label">ACCOUNT</span>
 
-            <h1>My Profile</h1>
+            <span class="profile-label">
+                ACCOUNT
+            </span>
+
+            <h1>
+                My Profile
+            </h1>
 
             <p>
-                View your personal DUT Campus FIT Gym information.
+                View and update your personal DUT Campus FIT Gym information.
             </p>
+
         </div>
+
 
         <a asp-controller="Member"
            asp-action="Dashboard"
@@ -32,23 +51,48 @@
     </div>
 
 
-    <!-- PROFILE CONTENT -->
+    <!-- =========================================================
+         SUCCESS MESSAGE
+         ========================================================= -->
+    @if (TempData["ProfileSuccess"] != null)
+    {
+        <div class="alert alert-success">
+
+            @TempData["ProfileSuccess"]
+
+        </div>
+    }
+
+
+    <!-- =========================================================
+         PROFILE CONTAINER
+         ========================================================= -->
+
     <div class="profile-container">
 
-        <!-- PROFILE SUMMARY -->
+
+        <!-- =====================================================
+             PROFILE SUMMARY
+             ===================================================== -->
+
         <div class="profile-summary">
 
             <div class="profile-avatar">
+
                 <i class="fa-solid fa-user"></i>
+
             </div>
 
+
             <h2>
-                @Model.Name @Model.Name
+                @Model.Name @Model.Surname
             </h2>
+
 
             <span class="role-badge">
                 @Model.Role
             </span>
+
 
             <p>
                 DUT Campus FIT Gym Member
@@ -57,12 +101,22 @@
         </div>
 
 
-        <!-- ACCOUNT DETAILS -->
+
+        <!-- =====================================================
+             PROFILE CARD
+             ===================================================== -->
+
         <div class="profile-card">
+
+
+            <!-- =================================================
+                 CARD HEADER
+                 ================================================= -->
 
             <div class="profile-card-header">
 
                 <div>
+
                     <span class="profile-label">
                         PERSONAL INFORMATION
                     </span>
@@ -70,94 +124,198 @@
                     <h2>
                         Account Details
                     </h2>
+
                 </div>
+
 
                 <i class="fa-solid fa-user-pen"></i>
 
             </div>
 
 
-            <!-- DETAILS -->
-            <div class="profile-details">
 
-                <div class="profile-field">
+            <!-- =================================================
+                 PROFILE FORM
+                 ================================================= -->
 
-                    <span>
-                        First Name
-                    </span>
+            <form asp-controller="Member"
+                  asp-action="Profile"
+                  method="post">
 
-                    <strong>
-                        @Model.Name
-                    </strong>
+                @Html.AntiForgeryToken()
+
+
+                <!-- VALIDATION -->
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+
+
+                <div class="profile-details">
+
+
+                    <!-- =================================================
+                         FIRST NAME
+                         ================================================= -->
+
+                    <div class="profile-field">
+
+                        <label for="name">
+                            First Name
+                        </label>
+
+
+                        <input type="text"
+                               id="name"
+                               name="name"
+                               value="@Model.Name"
+                               class="form-control"
+                               required />
+
+
+                        <span class="text-danger"
+                              asp-validation-for="Name">
+                        </span>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         LAST NAME
+                         ================================================= -->
+
+                    <div class="profile-field">
+
+                        <label for="surname">
+                            Last Name
+                        </label>
+
+
+                        <input type="text"
+                               id="surname"
+                               name="surname"
+                               value="@Model.Surname"
+                               class="form-control"
+                               required />
+
+
+                        <span class="text-danger"
+                              asp-validation-for="Surname">
+                        </span>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         STUDENT / STAFF NUMBER
+                         ================================================= -->
+
+                    <div class="profile-field">
+
+                        <span>
+                            Student / Staff Number
+                        </span>
+
+
+                        <strong>
+                            @Model.StudentNumber
+                        </strong>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         EMAIL
+                         ================================================= -->
+
+                    <div class="profile-field">
+
+                        <span>
+                            Email Address
+                        </span>
+
+
+                        <strong>
+                            @Model.Email
+                        </strong>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         PHONE NUMBER
+                         ================================================= -->
+
+                    <div class="profile-field">
+
+                        <label for="phoneNumber">
+                            Phone Number
+                        </label>
+
+
+                        <input type="text"
+                               id="phoneNumber"
+                               name="phoneNumber"
+                               value="@Model.PhoneNumber"
+                               class="form-control"
+                               required />
+
+
+                        <span class="text-danger"
+                              asp-validation-for="PhoneNumber">
+                        </span>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         ACCOUNT ROLE
+                         ================================================= -->
+
+                    <div class="profile-field">
+
+                        <span>
+                            Account Role
+                        </span>
+
+
+                        <strong>
+                            @Model.Role
+                        </strong>
+
+                    </div>
+
 
                 </div>
 
 
-                <div class="profile-field">
 
-                    <span>
-                        Last Name
-                    </span>
+                <!-- =================================================
+                     SAVE BUTTON
+                     ================================================= -->
 
-                    <strong>
-                        @Model.Name
-                    </strong>
+                <div class="mt-4">
 
-                </div>
+                    <button type="submit"
+                            class="btn btn-primary">
 
+                        <i class="fa-solid fa-floppy-disk"></i>
 
-                <div class="profile-field">
+                        Save Changes
 
-                    <span>
-                        Student / Staff Number
-                    </span>
-
-                    <strong>
-                        @Model.StudentNumber
-                    </strong>
+                    </button>
 
                 </div>
 
 
-                <div class="profile-field">
-
-                    <span>
-                        Email Address
-                    </span>
-
-                    <strong>
-                        @Model.Email
-                    </strong>
-
-                </div>
-
-
-                <div class="profile-field">
-
-                    <span>
-                        Phone Number
-                    </span>
-
-                    <strong>
-                        @Model.PhoneNumber
-                    </strong>
-
-                </div>
-
-
-                <div class="profile-field">
-
-                    <span>
-                        Account Role
-                    </span>
-
-                    <strong>
-                        @Model.Role
-                    </strong>
-
-                </div>
-
-            </div>
+            </form>
 
         </div>
 
@@ -166,6 +324,10 @@
 </div>
 
 
+
+<!-- =============================================================
+     STYLES
+     ============================================================= -->
 @section Styles {
 
     <link rel="stylesheet"

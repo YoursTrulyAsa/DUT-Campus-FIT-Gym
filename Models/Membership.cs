@@ -8,33 +8,37 @@ namespace DUT_Campus_FIT_Gym.Models
         [Key]
         public int MembershipId { get; set; }
 
-        [Required]
-        public int MemberId { get; set; }
+        public int? MemberId { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string MembershipType { get; set; }
-
-        [Required]
-        public DateTime StartDate { get; set; }
-
-        [Required]
-        public DateTime EndDate { get; set; }
+        [ForeignKey("MemberId")]
+        public Member? Member { get; set; }
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; }
+        public string MembershipType { get; set; } = "";
 
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal Price { get; set; }
-
-        // Payment method selected during membership creation
-        [Required]
-        public string PaymentMethod { get; set; }
-
-        // Whether this is the member's first membership
         public bool FirstTimeMember { get; set; }
 
-        public Member Member { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Price { get; set; }
+
+        public DateTime? StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
+
+        [Required]
+        [StringLength(30)]
+        public string Status { get; set; } = "Pending";
+
+        [StringLength(50)]
+        public string? PaymentMethod { get; set; }
+
+        [StringLength(100)]
+        public string? PaymentReference { get; set; }
+
+        public DateTime? PaymentDate { get; set; }
+
+        [StringLength(30)]
+        public string? PaymentStatus { get; set; }
     }
 }

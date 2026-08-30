@@ -1,0 +1,211 @@
+﻿ 
+.payment-history-page {
+    padding: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}                                                               
+
+.payment-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.payment-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #4da3ff;
+}
+
+.payment-history-header h1 {
+    margin: 8px 0;
+    font-size: 34px;
+}
+
+.payment-history-header p {
+    color: #7f8c9a;
+    margin: 0;
+}
+                                                               
+
+.back-button {
+    text-decoration: none;
+    padding: 12px 20px;
+    border: 1px solid #34495e;
+    border-radius: 8px;
+    color: inherit;
+}
+
+    .back-button:hover {
+        text-decoration: none;
+    }
+                                                               
+.payment-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 25px;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+}
+
+.summary-icon {
+    font-size: 30px;
+}
+
+.summary-card small {
+    display: block;
+    color: #7f8c9a;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.summary-card strong {
+    display: block;
+    margin-top: 5px;
+    font-size: 24px;
+}
+
+                                                                
+.payments-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.payments-card-header {
+    padding: 25px;
+    border-bottom: 1px solid #e8edf2;
+}
+
+    .payments-card-header h2 {
+        margin: 0 0 5px;
+    }
+
+    .payments-card-header p {
+        margin: 0;
+        color: #7f8c9a;
+    }
+                                                                 
+.payments-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .payments-table th {
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c7a89;
+        background: #f7f9fb;
+    }
+
+    .payments-table td {
+        padding: 18px 20px;
+        border-top: 1px solid #edf0f3;
+    }
+
+    .payments-table tbody tr:hover {
+        background: #f9fbfd;
+    }                                                          
+
+.payment-status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+    .payment-status.paid {
+        background: #e8f7ee;
+        color: #218739;
+    }
+
+    .payment-status.pending {
+        background: #fff4d6;
+        color: #9a6b00;
+    }
+
+    .payment-status.failed {
+        background: #fdeaea;
+        color: #c0392b;
+    }
+                                                               
+
+.payment-empty {
+    text-align: center;
+    padding: 70px 20px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+}
+
+.empty-icon {
+    font-size: 45px;
+    margin-bottom: 15px;
+}
+
+.payment-empty h2 {
+    margin-bottom: 10px;
+}
+
+.payment-empty p {
+    color: #7f8c9a;
+    margin-bottom: 25px;
+}                                                                  
+
+.membership-button {
+    display: inline-block;
+    padding: 12px 22px;
+    border-radius: 8px;
+    text-decoration: none;
+    background: #1769aa;
+    color: white;
+}
+
+    .membership-button:hover {
+        text-decoration: none;
+        color: white;
+    }
+                                                                
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+                                                             
+@media (max-width: 768px) {
+
+    .payment-history-page {
+        padding: 20px;
+    }
+
+    .payment-history-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .payment-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .payments-table {
+        min-width: 850px;
+    }
+}

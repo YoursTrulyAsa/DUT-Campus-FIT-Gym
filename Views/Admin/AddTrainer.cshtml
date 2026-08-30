@@ -1,0 +1,289 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.CreateStaffViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Add Trainer";
+}
+
+<div class="admin-trainer-page">
+
+    <div class="admin-page-header">
+
+        <div>
+
+            <span class="admin-label">
+                STAFF MANAGEMENT
+            </span>
+
+            <h1>
+                Add Trainer
+            </h1>
+
+            <p>
+                Create a new Trainer account for the DUT Campus FIT Gym.
+            </p>
+
+        </div>
+
+        <div class="admin-page-header-icon">
+            <i class="fa-solid fa-user-plus"></i>
+        </div>
+
+    </div>
+
+
+
+    <div class="admin-form-card">
+
+        <div class="admin-form-heading">
+
+            <div class="admin-form-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+
+            <div>
+
+                <h2>
+                    Trainer Details
+                </h2>
+
+                <p>
+                    Enter the trainer's information and account credentials.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form asp-action="AddTrainer"
+              asp-controller="Admin"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+
+            <div asp-validation-summary="ModelOnly"
+                 class="admin-validation">
+            </div>
+
+
+            <div class="admin-form-grid">
+
+                <div class="admin-form-group">
+
+                    <label asp-for="FirstName">
+                        First Name
+                    </label>
+
+                    <div class="admin-input-wrapper">
+
+                        <i class="fa-solid fa-user"></i>
+
+                        <input asp-for="FirstName"
+                               placeholder="e.g. Asanda" />
+
+                    </div>
+
+                    <span asp-validation-for="FirstName"
+                          class="admin-field-error">
+                    </span>
+
+                </div>
+
+
+                <div class="admin-form-group">
+
+                    <label asp-for="LastName">
+                        Last Name
+                    </label>
+
+                    <div class="admin-input-wrapper">
+
+                        <i class="fa-solid fa-user"></i>
+
+                        <input asp-for="LastName"
+                               placeholder="e.g Mjadu" />
+
+                    </div>
+
+                    <span asp-validation-for="LastName"
+                          class="admin-field-error">
+                    </span>
+
+                </div>
+
+                <div class="admin-form-group">
+
+                    <label asp-for="StaffStudentNumber">
+                        Staff Number
+                    </label>
+
+                    <div class="admin-input-wrapper">
+
+                        <i class="fa-solid fa-id-card"></i>
+
+                        <input asp-for="StaffStudentNumber"
+                               placeholder="Enter staff number" />
+
+                    </div>
+
+                    <span asp-validation-for="StaffStudentNumber"
+                          class="admin-field-error">
+                    </span>
+
+                </div>
+
+
+                <div class="admin-form-group">
+
+                    <label asp-for="Email">
+                        Email
+                    </label>
+
+                    <div class="admin-input-wrapper">
+
+                        <i class="fa-solid fa-envelope"></i>
+
+                        <input asp-for="Email"
+                               type="email"
+                               placeholder="Enter email address" />
+
+                    </div>
+
+                    <span asp-validation-for="Email"
+                          class="admin-field-error">
+                    </span>
+
+                </div>
+
+                <div class="admin-form-group">
+
+                    <label asp-for="PhoneNumber">
+                        Phone Number
+                    </label>
+
+                    <div class="admin-input-wrapper">
+
+                        <i class="fa-solid fa-phone"></i>
+
+                        <input asp-for="PhoneNumber"
+                               type="tel"
+                               placeholder="Enter phone number" />
+
+                    </div>
+
+                    <span asp-validation-for="PhoneNumber"
+                          class="admin-field-error">
+                    </span>
+
+                </div>
+
+                <div class="admin-form-group">
+
+                    <label asp-for="Password">
+                        Password
+                    </label>
+
+                    <div class="admin-input-wrapper">
+
+                        <i class="fa-solid fa-lock"></i>
+
+                        <input asp-for="Password"
+                               type="password"
+                               placeholder="Create a password" />
+
+                    </div>
+
+                    <span asp-validation-for="Password"
+                          class="admin-field-error">
+                    </span>
+
+                </div>
+
+
+                <div class="admin-form-group admin-form-full">
+
+                    <label asp-for="ConfirmPassword">
+                        Confirm Password
+                    </label>
+
+                    <div class="admin-input-wrapper">
+
+                        <i class="fa-solid fa-lock"></i>
+
+                        <input asp-for="ConfirmPassword"
+                               type="password"
+                               placeholder="Confirm the password" />
+
+                    </div>
+
+                    <span asp-validation-for="ConfirmPassword"
+                          class="admin-field-error">
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-info-notice">
+
+                <div class="admin-info-notice-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+
+                <div>
+
+                    <strong>
+                        Trainer Role
+                    </strong>
+
+                    <span>
+                        This account will automatically be created with the
+                        <strong>Trainer</strong> role.
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="admin-form-actions">
+
+                <a asp-controller="Admin"
+                   asp-action="Dashboard"
+                   class="admin-cancel-btn">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    Cancel
+
+                </a>
+
+
+                <button type="submit"
+                        class="admin-submit-btn">
+
+                    <i class="fa-solid fa-user-plus"></i>
+
+                    Create Trainer
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/admin-trainer.css"
+          asp-append-version="true" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+}

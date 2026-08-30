@@ -1,0 +1,419 @@
+﻿@model DUT_Campus_FIT_Gym.Models.BankDetails
+
+@{
+    ViewData["Title"] = "Secure Payment";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/banking.css"
+          asp-append-version="true" />
+}
+
+<div class="banking-page">
+
+    <div class="banking-header">
+
+        <div>
+            <span class="banking-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Complete Your Payment
+            </h1>
+
+            <p>
+                Enter your payment details securely to activate your
+                gym membership.
+            </p>
+        </div>
+
+        <a asp-controller="Member"
+           asp-action="Dashboard"
+           class="banking-back-button">
+
+            ← Back to Dashboard
+
+        </a>
+
+    </div>
+
+
+    <div class="banking-content">
+
+
+        <div class="banking-card">
+
+            <div class="banking-card-header">
+
+                <div class="card-icon">
+                    💳
+                </div>
+
+                <div>
+
+                    <h2>
+                        Payment Details
+                    </h2>
+
+                    <p>
+                        Enter the details below to continue.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form asp-action="Index"
+                  method="post"
+                  class="banking-form">
+
+                <input type="hidden"
+                       name="membershipId"
+                       value="@ViewBag.MembershipId" />
+
+                <div class="form-group">
+
+                    <label asp-for="AccountHolderName">
+                        Account Holder Name
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            👤
+                        </span>
+
+                        <input asp-for="AccountHolderName"
+                               placeholder="Enter account holder name"
+                               autocomplete="cc-name" />
+
+                    </div>
+
+                    <span asp-validation-for="AccountHolderName"
+                          class="validation-message">
+                    </span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label asp-for="Bank">
+                        Bank
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            🏦
+                        </span>
+
+                        <select asp-for="Bank">
+
+                            <option value="">
+                                Select your bank
+                            </option>
+
+                            <option value="ABSA">
+                                ABSA
+                            </option>
+
+                            <option value="Capitec">
+                                Capitec
+                            </option>
+
+                            <option value="FNB">
+                                FNB
+                            </option>
+
+                            <option value="Nedbank">
+                                Nedbank
+                            </option>
+
+                            <option value="Standard Bank">
+                                Standard Bank
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <span asp-validation-for="Bank"
+                          class="validation-message">
+                    </span>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <div class="label-row">
+
+                        <label asp-for="CardNumber">
+                            Card Number
+                        </label>
+
+                        <span class="secure-label">
+                            🔒 Secure
+                        </span>
+
+                    </div>
+
+                    <div class="input-wrapper card-number-wrapper">
+
+                        <span class="input-icon">
+                            💳
+                        </span>
+
+                        <input asp-for="CardNumber"
+                               placeholder="1234 5678 9012 3456"
+                               maxlength="19"
+                               autocomplete="cc-number"
+                               inputmode="numeric" />
+
+                    </div>
+
+                    <span asp-validation-for="CardNumber"
+                          class="validation-message">
+                    </span>
+
+                </div>
+
+                <div class="form-row">
+
+
+                    <div class="form-group">
+
+                        <label asp-for="ExpiryDate">
+                            Expiry Date
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                📅
+                            </span>
+
+                            <input asp-for="ExpiryDate"
+                                   placeholder="MM/YY"
+                                   maxlength="5"
+                                   autocomplete="cc-exp"
+                                   inputmode="numeric" />
+
+                        </div>
+
+                        <span asp-validation-for="ExpiryDate"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label asp-for="cvv">
+                            CVV
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                🔐
+                            </span>
+
+                            <input asp-for="cvv"
+                                   placeholder="123"
+                                   maxlength="4"
+                                   autocomplete="cc-csc"
+                                   inputmode="numeric"
+                                   type="password" />
+
+                        </div>
+
+                        <span asp-validation-for="cvv"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label asp-for="AccountType">
+                        Account Type
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            💼
+                        </span>
+
+                        <select asp-for="AccountType">
+
+                            <option value="">
+                                Select account type
+                            </option>
+
+                            <option value="Savings">
+                                Savings
+                            </option>
+
+                            <option value="Cheque">
+                                Cheque
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <span asp-validation-for="AccountType"
+                          class="validation-message">
+                    </span>
+
+                </div>
+
+
+                <div class="security-notice">
+
+                    <span class="security-icon">
+                        🔒
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Secure Payment
+                        </strong>
+
+                        <p>
+                            Your payment information is protected
+                            during submission.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button type="submit"
+                        class="banking-button">
+
+                    <span>
+                        Pay &amp; Activate Membership
+                    </span>
+
+                    <span class="button-arrow">
+                        →
+                    </span>
+
+                </button>
+
+
+                <p class="payment-note">
+                    By continuing, you confirm that the payment
+                    information provided is correct.
+                </p>
+
+            </form>
+
+        </div>
+
+
+        <div class="payment-summary-card">
+
+            <div class="summary-top">
+
+                <span class="summary-label">
+                    MEMBERSHIP PAYMENT
+                </span>
+
+                <div class="summary-icon">
+                    🏋️
+                </div>
+
+            </div>
+
+
+            <h2>
+                Gym Membership
+            </h2>
+
+            <p>
+                Complete your payment to activate your approved
+                membership.
+            </p>
+
+
+            <div class="summary-divider"></div>
+
+
+            <div class="summary-row">
+
+                <span>
+                    Membership
+                </span>
+
+                <strong>
+                    @ViewBag.MembershipType
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>
+                    Membership ID
+                </span>
+
+                <strong>
+                    #@ViewBag.MembershipId
+                </strong>
+
+            </div>
+
+
+            @if (ViewBag.Amount != null)
+            {
+                <div class="summary-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong>
+                        R @ViewBag.Amount
+                    </strong>
+
+                </div>
+            }
+
+
+            <div class="summary-security">
+
+                <span>
+                    🛡️
+                </span>
+
+                <p>
+                    Secure payment processing
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

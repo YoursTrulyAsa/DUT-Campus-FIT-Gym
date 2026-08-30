@@ -1,0 +1,396 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.MembershipApplication>
+
+@{
+    ViewData["Title"] = "Membership Applications";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-pages.css" asp-append-version="true" />
+}
+
+<div class="admin-page">
+ 
+    <div class="admin-page-header">
+
+        <div>
+
+            <span class="admin-page-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Membership Applications
+            </h1>
+
+            <p>
+                Review and manage student gym membership applications.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert success">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <div>
+                <strong>Success</strong>
+                <span>@TempData["Success"]</span>
+            </div>
+
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="admin-alert error">
+
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+            <div>
+                <strong>Error</strong>
+                <span>@TempData["Error"]</span>
+            </div>
+
+        </div>
+    }
+
+    <div class="admin-content-card">
+
+        <div class="admin-content-card-header">
+
+            <div>
+
+                <h2>
+                    Applications
+                </h2>
+
+                <p>
+                    Review pending membership applications and their supporting documents.
+                </p>
+
+            </div>
+
+            <div class="admin-record-count">
+
+                <i class="fa-solid fa-file-signature"></i>
+
+                <span>
+                    @Model.Count() Applications
+                </span>
+
+            </div>
+
+        </div>
+
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="admin-empty-state">
+
+                <div class="admin-empty-icon">
+
+                    <i class="fa-solid fa-file-signature"></i>
+
+                </div>
+
+                <h3>
+                    No Applications
+                </h3>
+
+                <p>
+                    There are currently no membership applications to review.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            <div class="admin-table-wrapper">
+
+                <table class="admin-table applications-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Student
+                            </th>
+
+                            <th>
+                                Membership
+                            </th>
+
+                            <th>
+                                Price
+                            </th>
+
+                            <th>
+                                Payment
+                            </th>
+
+                            <th>
+                                Applied
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Document
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @foreach (var application in Model)
+                        {
+                            <tr>
+
+                                <td>
+
+                                    @if (application.Member != null)
+                                    {
+                                        <div class="admin-member-cell">
+
+                                            <div class="admin-member-avatar">
+
+                                                <i class="fa-solid fa-user"></i>
+
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    @application.Member.Name
+                                                    @application.Member.Surname
+                                                </strong>
+
+                                                <span>
+                                                    @application.Member.StudentNumber
+                                                </span>
+
+                                                <small>
+                                                    @application.Member.Email
+                                                </small>
+
+                                            </div>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-muted">
+                                            Unknown member
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="admin-membership-type">
+
+                                        <i class="fa-solid fa-id-card"></i>
+
+                                        @application.MembershipType
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <strong class="admin-price">
+
+                                        R @application.Price.ToString("N2")
+
+                                    </strong>
+
+                                </td>
+
+                                <td>
+
+                                    @application.PaymentMethod
+
+                                </td>
+
+                                <td>
+
+                                    <span class="admin-date">
+
+                                        <i class="fa-regular fa-calendar"></i>
+
+                                        @application.ApplicationDate.ToString("dd MMM yyyy")
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    @if (application.Status == "Pending")
+                                    {
+                                        <span class="admin-status-badge pending">
+
+                                            <i class="fa-solid fa-clock"></i>
+
+                                            Pending
+
+                                        </span>
+                                    }
+                                    else if (application.Status == "Approved")
+                                    {
+                                        <span class="admin-status-badge approved">
+
+                                            <i class="fa-solid fa-circle-check"></i>
+
+                                            Approved
+
+                                        </span>
+                                    }
+                                    else if (application.Status == "Rejected")
+                                    {
+                                        <span class="admin-status-badge rejected">
+
+                                            <i class="fa-solid fa-circle-xmark"></i>
+
+                                            Rejected
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-status-badge other">
+
+                                            @application.Status
+
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                                                application.VerificationDocument))
+                                    {
+                                        <a href="@application.VerificationDocument"
+                                           target="_blank"
+                                           class="admin-document-btn">
+
+                                            <i class="fa-solid fa-file-arrow-up"></i>
+
+                                            View
+
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-muted">
+                                            No document
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <td>
+
+                                    @if (application.Status == "Pending")
+                                    {
+                                        <div class="admin-application-actions">
+
+                                            <form asp-controller="Admin"
+                                                  asp-action="ApproveMembership"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@application.MembershipApplicationId" />
+
+                                                <button type="submit"
+                                                        class="admin-approve-btn">
+
+                                                    <i class="fa-solid fa-check"></i>
+
+                                                    Approve
+
+                                                </button>
+
+                                            </form>
+
+
+                                            <form asp-controller="Admin"
+                                                  asp-action="RejectMembership"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@application.MembershipApplicationId" />
+
+                                                <textarea name="adminComment"
+                                              class="admin-reject-input"
+                                              placeholder="Reason for rejection..."
+                                              required></textarea>
+
+                                                <button type="submit"
+                                                        class="admin-reject-btn">
+
+                                                    <i class="fa-solid fa-xmark"></i>
+
+                                                    Reject
+
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-reviewed">
+
+                                            <i class="fa-solid fa-check-double"></i>
+
+                                            Reviewed
+
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+
+</div>

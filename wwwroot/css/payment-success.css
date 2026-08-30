@@ -1,0 +1,189 @@
+﻿ 
+.payment-success-page {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 20px 70px;
+}
+       
+.success-card {
+    width: 100%;
+    max-width: 650px;
+    padding: 45px;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    background: #ffffff;
+    text-align: center;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.09);
+}
+
+              
+.success-icon {
+    width: 82px;
+    height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 22px;
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #16a34a;
+    font-size: 43px;
+    font-weight: 800;
+    border: 7px solid #f0fdf4;
+}
+
+      
+.success-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2563eb;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.success-card h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.success-message {
+    max-width: 500px;
+    margin: 12px auto 30px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+}
+       
+.success-details {
+    margin-bottom: 22px;
+    padding: 5px 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.success-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+    .success-detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .success-detail-row span {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .success-detail-row strong {
+        color: #0f172a;
+        font-size: 14px;
+        text-align: right;
+    }
+
+    .success-detail-row .amount {
+        color: #2563eb;
+        font-size: 17px;
+    }
+
+                                  
+
+.email-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    margin-bottom: 25px;
+    border-radius: 11px;
+    background: #eff6ff;
+    text-align: left;
+}
+
+    .email-notice span {
+        font-size: 18px;
+    }
+
+    .email-notice p {
+        margin: 0;
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+                                         
+
+.dashboard-button {
+    width: 100%;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 11px;
+    background: #2563eb;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 800;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.20);
+    transition: all 0.2s ease;
+}
+
+    .dashboard-button:hover {
+        background: #1d4ed8;
+        color: #ffffff;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(37, 99, 235, 0.27);
+    }
+
+    .dashboard-button span {
+        font-size: 19px;
+        transition: transform 0.2s ease;
+    }
+
+    .dashboard-button:hover span {
+        transform: translateX(4px);
+    }
+                                                                
+@media (max-width: 600px) {
+
+    .payment-success-page {
+        padding: 30px 15px 50px;
+    }
+
+    .success-card {
+        padding: 30px 20px;
+        border-radius: 17px;
+    }
+
+        .success-card h1 {
+            font-size: 27px;
+        }
+
+    .success-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 35px;
+    }
+
+    .success-detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+        .success-detail-row strong {
+            text-align: left;
+        }
+}

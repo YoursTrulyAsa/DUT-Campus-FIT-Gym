@@ -1,18 +1,9 @@
-﻿/* =========================================
-   MEMBER MEMBERSHIP PAGE
-   ========================================= */
-
-.membership-page {
+﻿.membership-page {
     min-height: 100vh;
     padding: 40px 20px;
     background: #f4f6f8;
 }
-
-
-/* =========================================
-   MAIN CARD
-   ========================================= */
-
+  
 .membership-card {
     max-width: 700px;
     margin: 0 auto;
@@ -21,12 +12,7 @@
     padding: 35px 40px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
-
-
-/* =========================================
-   PAGE TITLE
-   ========================================= */
-
+    
 .membership-title {
     text-align: center;
     font-size: 30px;
@@ -34,11 +20,6 @@
     margin-bottom: 35px;
     text-transform: uppercase;
 }
-
-
-/* =========================================
-   SECTION
-   ========================================= */
 
 .membership-section {
     margin-bottom: 30px;
@@ -57,12 +38,7 @@
     border: none;
     margin-bottom: 20px;
 }
-
-
-/* =========================================
-   USER DETAILS
-   ========================================= */
-
+      
 .user-detail {
     margin-bottom: 15px;
 }
@@ -81,12 +57,7 @@
         background: #f5f5f5;
         color: #555;
     }
-
-
-/* =========================================
-   PAYMENT OPTIONS
-   ========================================= */
-
+          
 .payment-options {
     display: flex;
     gap: 15px;
@@ -112,28 +83,17 @@
         font-weight: 600;
         transition: all 0.2s ease;
     }
-
-
-    /* Selected payment option */
-
+            
     .payment-option input:checked + label {
         background: #212529;
         color: #1683ff;
         border-color: #212529;
     }
-
-
-    /* Hover */
-
+           
     .payment-option label:hover {
         border-color: #212529;
     }
-
-
-/* =========================================
-   PAYMENT PLAN
-   ========================================= */
-
+          
 .payment-plan select {
     width: 100%;
     padding: 12px 15px;
@@ -149,12 +109,7 @@
         border-color: #212529;
         box-shadow: 0 0 0 2px rgba(33, 37, 41, 0.1);
     }
-
-
-/* =========================================
-   FIRST TIME MEMBERSHIP
-   ========================================= */
-
+           
 .first-time-options {
     display: flex;
     gap: 15px;
@@ -188,12 +143,7 @@
     .first-time-option label:hover {
         border-color: #212529;
     }
-
-
-/* =========================================
-   CREATE BUTTON
-   ========================================= */
-
+              
 .create-membership-button {
     width: 100%;
     padding: 14px;
@@ -212,23 +162,13 @@
         background: #000000;
         transform: translateY(-1px);
     }
-
-
-/* =========================================
-   VALIDATION
-   ========================================= */
-
+            
 .validation-error {
     color: #dc3545;
     font-size: 14px;
     margin-top: 5px;
 }
-
-
-/* =========================================
-   MOBILE
-   ========================================= */
-
+            
 @media (max-width: 600px) {
 
     .membership-page {
@@ -253,10 +193,6 @@
         width: 100%;
     }
 }
-
-/* ================================
-   MEMBERSHIP PRICE
-================================ */
 
 .membership-price-box {
     margin-top: 25px;
@@ -307,12 +243,7 @@
         font-size: 24px;
         font-weight: 700;
     }
-
-
-/* ================================
-   CREATE MEMBERSHIP BUTTON
-================================ */
-
+            
 .create-membership-button {
     width: 100%;
     margin-top: 20px;

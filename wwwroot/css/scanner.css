@@ -1,0 +1,459 @@
+﻿ 
+
+@import url('gym-card.css');
+.scanner-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 0 50px;
+}
+
+    
+.scanner-header {
+    margin-bottom: 30px;
+}
+
+.scanner-label {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #2563eb;
+}
+
+.scanner-header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.scanner-header p {
+    margin: 0;
+    max-width: 700px;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+        
+.scanner-card {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto 30px;
+    padding: 40px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+    text-align: center;
+}
+
+.scanner-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 34px;
+}
+
+.scanner-card h2 {
+    margin: 0 0 10px;
+    color: #0f172a;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.scanner-card > p {
+    max-width: 600px;
+    margin: 0 auto 25px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+            
+.scanner-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 190px;
+    padding: 13px 24px;
+    border: none;
+    border-radius: 12px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .scanner-button:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+    }
+
+    .scanner-button:active {
+        transform: translateY(0);
+    }
+
+    .scanner-button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+                                                                    
+
+#qr-reader {
+    display: none;
+    width: 100%;
+    max-width: 650px;
+    margin: 30px auto 0;
+    overflow: hidden;
+    border: 1px solid #cbd5e1;
+    border-radius: 18px;
+    background: #f8fafc;
+}
+
+    #qr-reader video {
+        width: 100% !important;
+        height: auto !important;
+        display: block;
+        border-radius: 14px;
+    }
+
+#qr-reader__scan_region {
+    min-height: 260px;
+}
+
+    #qr-reader__scan_region img {
+        max-width: 180px;
+        opacity: 0.7;
+    }
+
+#qr-reader__dashboard {
+    padding: 15px !important;
+    background: #ffffff;
+}
+
+#qr-reader__dashboard_section_csr button {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 9px;
+    background: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    #qr-reader__dashboard_section_csr button:hover {
+        background: #1d4ed8;
+    }
+                                                             
+
+.scanner-status {
+    min-height: 24px;
+    margin-top: 18px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+                                                                
+
+.scanner-result {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto 22px;
+    padding: 25px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-radius: 18px;
+    border: 1px solid;
+}
+
+.success-result {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.error-result {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.result-icon {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.success-result .result-icon {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.error-result .result-icon {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.result-content {
+    min-width: 0;
+}
+
+.result-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.success-result .result-label {
+    color: #15803d;
+}
+
+.error-result .result-label {
+    color: #dc2626;
+}
+
+.result-content h2 {
+    margin: 0 0 5px;
+    font-size: 21px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.result-content p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+}
+                                                             
+
+.scanned-member-card {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto 30px;
+    padding: 30px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.scanned-member-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.card-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #2563eb;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.scanned-member-header h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.verified-badge {
+    flex-shrink: 0;
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 11px;
+    font-weight: 800;
+}                                                              
+
+.member-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.member-detail {
+    padding: 18px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.detail-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.member-detail strong {
+    display: block;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.member-detail .status-active {
+    color: #15803d;
+}
+                                                                   
+
+.scanner-instructions {
+    width: 100%;
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 30px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+}
+
+.instruction-title {
+    margin-bottom: 25px;
+    color: #0f172a;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.instruction-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.instruction-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.instruction-number {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.instruction-item strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.instruction-item p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+                                                                
+
+@media (max-width: 900px) {
+
+    .scanner-page {
+        padding: 5px 10px 40px;
+    }
+
+    .scanner-card {
+        padding: 30px 20px;
+    }
+
+    .instruction-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    .scanner-header h1 {
+        font-size: 26px;
+    }
+
+    .scanner-card {
+        padding: 25px 15px;
+        border-radius: 16px;
+    }
+
+    .scanner-result {
+        padding: 20px;
+        align-items: flex-start;
+    }
+
+    .result-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+    }
+
+    .result-content h2 {
+        font-size: 18px;
+    }
+
+    .scanned-member-card {
+        padding: 20px;
+    }
+
+    .scanned-member-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .member-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .scanner-instructions {
+        padding: 20px;
+    }
+
+    .instruction-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #qr-reader {
+        margin-top: 20px;
+    }
+}

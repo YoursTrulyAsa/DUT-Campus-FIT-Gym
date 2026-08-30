@@ -1,5 +1,270 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Member>
+
 @{
+    ViewData["Title"] = "Manage Members";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-pages.css" asp-append-version="true" />
+}
+
+<div class="admin-page">
+
+    <div class="admin-page-header">
+
+        <div>
+            <span class="admin-page-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Manage Members
+            </h1>
+
+            <p>
+                View and manage registered students, staff and trainers.
+            </p>
+        </div>
+
+        <div class="admin-header-actions">
+
+            <a asp-controller="Admin"
+               asp-action="AddStaff"
+               class="admin-action-btn primary">
+
+                <i class="fa-solid fa-user-plus"></i>
+
+                Add Staff
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert success">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <div>
+                <strong>Success</strong>
+                <span>@TempData["Success"]</span>
+            </div>
+
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="admin-alert error">
+
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+            <div>
+                <strong>Error</strong>
+                <span>@TempData["Error"]</span>
+            </div>
+
+        </div>
+    }
+
+    <div class="admin-content-card">
+
+        <div class="admin-content-card-header">
+
+            <div>
+                <h2>
+                    Registered Members
+                </h2>
+
+                <p>
+                    All students, staff and trainers registered on the system.
+                </p>
+            </div>
+
+            <div class="admin-record-count">
+
+                <i class="fa-solid fa-users"></i>
+
+                <span>
+                    @Model.Count() Members
+                </span>
+
+            </div>
+
+        </div>
+
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="admin-empty-state">
+
+                <div class="admin-empty-icon">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+
+                <h3>
+                    No Members Found
+                </h3>
+
+                <p>
+                    There are currently no registered members.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            <div class="admin-table-wrapper">
+
+                <table class="admin-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Member
+                            </th>
+
+                            <th>
+                                Student / Staff No.
+                            </th>
+
+                            <th>
+                                Email
+                            </th>
+
+                            <th>
+                                Phone
+                            </th>
+
+                            <th>
+                                Role
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var member in Model)
+                        {
+                            <tr>
+
+                                <td>
+
+                                    <div class="admin-member-cell">
+
+                                        <div class="admin-member-avatar">
+
+                                            <i class="fa-solid fa-user"></i>
+
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                @member.Name @member.Surname
+                                            </strong>
+
+                                            <span>
+                                                Member ID: @member.MemberId
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="admin-number">
+                                        @member.StudentNumber
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="admin-email">
+                                        @member.Email
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    @if (!string.IsNullOrWhiteSpace(member.PhoneNumber))
+                                    {
+                                        @member.PhoneNumber
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-muted">
+                                            Not provided
+                                        </span>
+                                    }
+
+                                </td>
+
+                                
+                                <td>
+
+                                    @if (member.Role == "Student")
+                                    {
+                                        <span class="admin-role-badge student">
+                                            <i class="fa-solid fa-graduation-cap"></i>
+                                            Student
+                                        </span>
+                                    }
+                                    else if (member.Role == "Trainer")
+                                    {
+                                        <span class="admin-role-badge trainer">
+                                            <i class="fa-solid fa-dumbbell"></i>
+                                            Trainer
+                                        </span>
+                                    }
+                                    else if (member.Role == "Staff")
+                                    {
+                                        <span class="admin-role-badge staff">
+                                            <i class="fa-solid fa-user-tie"></i>
+                                            Staff
+                                        </span>
+                                    }
+                                    else if (member.Role == "Admin")
+                                    {
+                                        <span class="admin-role-badge admin">
+                                            <i class="fa-solid fa-user-shield"></i>
+                                            Admin
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-role-badge other">
+                                            @member.Role
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+
+</div>

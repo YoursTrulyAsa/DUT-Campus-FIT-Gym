@@ -1,5 +1,361 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Equipment>
+
 @{
+    ViewData["Title"] = "Manage Equipment";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-page">
+
+    <div class="admin-page-header">
+
+        <div>
+            <span class="admin-page-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Manage Equipment
+            </h1>
+
+            <p>
+                View and manage gym equipment and availability.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="AddEquipment"
+           class="admin-primary-btn">
+
+            <i class="fa-solid fa-plus"></i>
+
+            Add Equipment
+
+        </a>
+
+    </div>
+
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert admin-alert-success">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                @TempData["Success"]
+            </span>
+
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="admin-alert admin-alert-error">
+
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+            <span>
+                @TempData["Error"]
+            </span>
+
+        </div>
+    }
+
+
+    <div class="equipment-summary">
+
+        <div class="equipment-stat-card">
+
+            <div class="equipment-stat-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <div>
+                <span>
+                    TOTAL EQUIPMENT
+                </span>
+
+                <strong>
+                    @(Model?.Count() ?? 0)
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="equipment-stat-card">
+
+            <div class="equipment-stat-icon available-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <div>
+                <span>
+                    AVAILABLE
+                </span>
+
+                <strong>
+                    @(Model?.Count(e => e.IsAvailable) ?? 0)
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="equipment-stat-card">
+
+            <div class="equipment-stat-icon reserved-icon">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+
+            <div>
+                <span>
+                    RESERVED
+                </span>
+
+                <strong>
+                    @(Model?.Count(e => !e.IsAvailable) ?? 0)
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="equipment-empty">
+
+            <div class="equipment-empty-icon">
+
+                <i class="fa-solid fa-dumbbell"></i>
+
+            </div>
+
+            <h2>
+                No Equipment Yet
+            </h2>
+
+            <p>
+                No gym equipment has been added to the system.
+            </p>
+
+            <a asp-controller="Admin"
+               asp-action="AddEquipment"
+               class="admin-primary-btn">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Add First Equipment
+
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <div class="equipment-card">
+
+            <div class="equipment-card-header">
+
+                <div>
+
+                    <span class="equipment-card-label">
+                        EQUIPMENT INVENTORY
+                    </span>
+
+                    <h2>
+                        Gym Equipment
+                    </h2>
+
+                </div>
+
+                <div class="equipment-count">
+
+                    @Model.Count() item@(Model.Count() == 1 ? "" : "s")
+
+                </div>
+
+            </div>
+
+
+            <div class="equipment-table-wrapper">
+
+                <table class="equipment-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Equipment
+                            </th>
+
+                            <th>
+                                Category
+                            </th>
+
+                            <th>
+                                Location
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @foreach (var equipment in Model)
+                        {
+                            <tr>
+
+                                <td>
+
+                                    <div class="equipment-name">
+
+                                        <div class="equipment-row-icon">
+
+                                            <i class="fa-solid fa-dumbbell"></i>
+
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                @equipment.EquipmentName
+                                            </strong>
+
+                                            <span>
+                                                Equipment ID:
+                                                @equipment.EquipmentID
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="equipment-category">
+                                        @equipment.Category
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="equipment-location">
+
+                                        <i class="fa-solid fa-location-dot"></i>
+
+                                        @equipment.Location
+
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    @if (equipment.IsAvailable)
+                                    {
+                                        <span class="equipment-status available">
+
+                                            <span class="status-dot"></span>
+
+                                            Available
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="equipment-status reserved">
+
+                                            <span class="status-dot"></span>
+
+                                            Reserved
+
+                                        </span>
+                                    }
+
+                                </td>
+
+
+                                <td>
+
+                                    <form asp-controller="Admin"
+                                          asp-action="RemoveEquipment"
+                                          method="post"
+                                          onsubmit="return confirm('Are you sure you want to remove this equipment?');">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@equipment.EquipmentID" />
+
+                                        <button type="submit"
+                                                class="equipment-delete-btn">
+
+                                            <i class="fa-solid fa-trash"></i>
+
+                                            Remove
+
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+
+
+    <div class="equipment-back">
+
+        <a asp-controller="Admin"
+           asp-action="Index"
+           class="admin-back-btn">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Back to Admin Dashboard
+
+        </a>
+
+    </div>
+
+</div>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/admin-equipment.css"
+          asp-append-version="true" />
+
 }

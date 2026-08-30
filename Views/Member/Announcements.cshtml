@@ -1,98 +1,103 @@
 ﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Announcement>
 
-<link rel="stylesheet" href="~/css/announcements.css" />
+@{
+    ViewData["Title"] = "Announcements";
+}
 
-<div class="announcements-page">
+<div class="member-page">
 
-    <div class="announcements-header">
+    <div class="member-page-header">
+
         <div>
-            <span class="page-label">GYM UPDATES</span>
+            <span class="member-page-label">DUT CAMPUS FIT GYM</span>
             <h1>Announcements</h1>
-            <p>Stay updated with the latest news, events and gym information.</p>
+            <p>Stay up to date with the latest gym news and updates.</p>
         </div>
 
-        <div class="announcement-icon">
-            <i class="bi bi-megaphone-fill"></i>
-        </div>
     </div>
 
-    @if (!Model.Any())
-    {
-        <div class="empty-announcements">
-            <i class="bi bi-megaphone"></i>
-            <h3>No announcements yet</h3>
-            <p>There are currently no updates from the gym.</p>
-        </div>
-    }
-    else
-    {
-        var groupedAnnouncements = Model
-        .GroupBy(a => a.Category)
-        .OrderBy(g => g.Key);
+    <div class="member-announcements">
 
-        <div class="announcement-groups">
+        @if (!Model.Any())
+        {
+            <div class="announcement-empty">
 
-            @foreach (var group in groupedAnnouncements)
+                <div class="empty-icon">
+                    <i class="fa-regular fa-bell"></i>
+                </div>
+
+                <h3>No announcements</h3>
+
+                <p>
+                    There are currently no announcements from the gym.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            foreach (var announcement in Model)
             {
-                <section class="announcement-group">
+                <div class="member-announcement-card">
 
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="bi bi-megaphone-fill"></i>
+                    <div class="announcement-card-header">
+
+                        <div class="announcement-icon">
+                            <i class="fa-solid fa-bullhorn"></i>
                         </div>
 
-                        <div>
-                            <h2>@group.Key</h2>
-                            <span>
-                                @group.Count() announcement@(group.Count() == 1 ? "" : "s")
-                            </span>
-                        </div>
-                    </div>
+                        <div class="announcement-heading">
 
-                    <div class="announcements-list">
+                            <h2>
+                                @announcement.Title
+                            </h2>
 
-                        @foreach (var announcement in group.OrderByDescending(a => a.DatePosted))
-                        {
-                            <div class="announcement-card">
+                            <div class="announcement-meta">
 
-                                <div class="announcement-card-top">
+                                <span>
+                                    <i class="fa-regular fa-calendar"></i>
+                                    @announcement.DatePosted.ToString("dd MMM yyyy")
+                                </span>
 
-                                    <div class="announcement-title-section">
-
-                                        <div class="announcement-small-icon">
-                                            <i class="bi bi-megaphone-fill"></i>
-                                        </div>
-
-                                        <div>
-                                            <h3>@announcement.Title</h3>
-
-                                            <span class="announcement-category">
-                                                @announcement.Category
-                                            </span>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="announcement-date">
-                                        <i class="bi bi-calendar3"></i>
-                                        @announcement.DatePosted.ToString("dd MMM yyyy")
-                                    </div>
-
-                                </div>
-
-                                <div class="announcement-message">
-                                    @announcement.Message
-                                </div>
+                                <span>
+                                    <i class="fa-regular fa-clock"></i>
+                                    @announcement.DatePosted.ToString("HH:mm")
+                                </span>
 
                             </div>
-                        }
+
+                        </div>
+
+                        <span class="announcement-category">
+                            @announcement.Category
+                        </span>
 
                     </div>
 
-                </section>
-            }
+                    <div class="announcement-card-body">
 
-        </div>
-    }
+                        <p>
+                            @announcement.Message
+                        </p>
+
+                    </div>
+
+                </div>
+            }
+        }
+
+    </div>
 
 </div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/announcements.css"
+          asp-append-version="true" />
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/member-announcements.css"
+          asp-append-version="true" />
+}

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -28,10 +29,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _config = config;
         }
 
-        // =========================
-        // REGISTER
-        // =========================
-
         [HttpGet]
         public IActionResult Register()
         {
@@ -40,21 +37,45 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(
+            RegisterViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // Student email must be:
-            // 12345678@dut4life.ac.za
-            string expectedEmail =
-                $"{model.StudentNumber}@dut4life.ac.za";
+            string email =
+                model.Email?.Trim().ToLower() ?? "";
+
+            string studentNumber =
+                model.StudentNumber?.Trim() ?? "";
+
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                ModelState.AddModelError(
+                    "Email",
+                    "Email address is required.");
+
+                return View(model);
+            }
+
+            if (string.IsNullOrWhiteSpace(studentNumber))
+            {
+                ModelState.AddModelError(
+                    "StudentNumber",
+                    "Student Number is required.");
+
+                return View(model);
+            }
+
+            string expectedStudentEmail =
+                $"{studentNumber}@dut4life.ac.za";
+
 
             if (!string.Equals(
-                model.Email.Trim(),
-                expectedEmail,
+                email,
+                expectedStudentEmail,
                 StringComparison.OrdinalIgnoreCase))
             {
                 ModelState.AddModelError(
@@ -64,11 +85,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            // Check if email already exists
-            bool emailExists = _context.Members
-                .Any(m =>
-                    m.Email.ToLower() ==
-                    model.Email.Trim().ToLower());
+            bool emailExists =
+                await _context.Members
+                    .AnyAsync(m =>
+                        m.Email.ToLower() == email);
+
 
             if (emailExists)
             {
@@ -79,11 +100,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            // Check if student number already exists
-            bool numberExists = _context.Members
-                .Any(m =>
-                    m.StudentNumber ==
-                    model.StudentNumber);
+            bool numberExists =
+                await _context.Members
+                    .AnyAsync(m =>
+                        m.StudentNumber == studentNumber);
+
 
             if (numberExists)
             {
@@ -94,65 +115,148 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            // Create student account
             var member = new Member
             {
-                Name = model.Name,
-                Surname = model.Surname,
-                StudentNumber = model.StudentNumber,
-                Email = model.Email.Trim().ToLower(),
-                PhoneNumber = model.PhoneNumber,
+                Name =
+                    model.Name?.Trim() ?? "",
 
-                // Role is automatically assigned.
-                // The student does NOT choose this.
-                Role = "Student"
+                Surname =
+                    model.Surname?.Trim() ?? "",
+
+                StudentNumber =
+                    studentNumber,
+
+                Email =
+                    email,
+
+                PhoneNumber =
+                    model.PhoneNumber?.Trim() ?? "",
+
+                Role =
+                    "Student"
             };
 
-            // Hash password
             member.PasswordHash =
                 _passwordHasher.HashPassword(
                     member,
                     model.Password);
 
-            // Save member
-            _context.Members.Add(member);
-            _context.SaveChanges();
 
-            // Send confirmation email
-            SendRegistrationEmail(member);
+            try
+            {
+                _context.Members.Add(member);
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "The account could not be created. Please try again.");
+
+                return View(model);
+            }
+
+
+            // =====================================================
+            // SEND REGISTRATION EMAIL
+            // =====================================================
+            //
+            // IMPORTANT:
+            //
+            // Email failure must NOT prevent registration.
+            //
+            // The account has already been successfully saved.
+            //
+            // =====================================================
+
+            try
+            {
+                await SendRegistrationEmail(member);
+            }
+            catch (Exception)
+            {
+                // Do NOT delete the account.
+                //
+                // Registration has succeeded.
+                //
+                // Email is optional and can fail because of:
+                //
+                // SMTP
+                // Internet
+                // certificate
+                // authentication
+                // configuration
+                //
+            }
+
 
             TempData["RegistrationSuccess"] =
-                "Your account has been created successfully. A confirmation email has been sent to your email address.";
+                "Your account has been created successfully. You can now log in.";
 
-            return RedirectToAction("Login");
+            return RedirectToAction(
+                nameof(Login));
         }
 
-
-        // =========================
-        // REGISTRATION EMAIL
-        // =========================
-
-        private void SendRegistrationEmail(Member member)
+        private async Task SendRegistrationEmail(
+            Member member)
         {
             var smtpSettings =
                 _config.GetSection("SmtpSettings");
 
-            var message = new MimeMessage();
+
+            string server =
+                smtpSettings["Server"] ?? "";
+
+            string portValue =
+                smtpSettings["Port"] ?? "587";
+
+            string senderEmail =
+                smtpSettings["SenderEmail"] ?? "";
+
+            string password =
+                smtpSettings["Password"] ?? "";
+
+
+            if (string.IsNullOrWhiteSpace(server) ||
+                string.IsNullOrWhiteSpace(senderEmail) ||
+                string.IsNullOrWhiteSpace(password))
+            {
+                return;
+            }
+
+
+            if (!int.TryParse(
+                portValue,
+                out int port))
+            {
+                port = 587;
+            }
+
+
+            var message =
+                new MimeMessage();
+
 
             message.From.Add(
                 new MailboxAddress(
                     "DUT Campus FIT Gym",
-                    smtpSettings["SenderEmail"]));
+                    senderEmail));
+
 
             message.To.Add(
                 new MailboxAddress(
                     $"{member.Name} {member.Surname}",
                     member.Email));
 
+
             message.Subject =
                 "Welcome to DUT Campus FIT Gym";
 
-            var builder = new BodyBuilder();
+
+            var builder =
+                new BodyBuilder();
+
 
             builder.TextBody =
                 $"Hello {member.Name},\n\n" +
@@ -167,31 +271,31 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "Regards,\n" +
                 "DUT Campus FIT Gym";
 
-            message.Body = builder.ToMessageBody();
 
-            using var client = new SmtpClient();
+            message.Body =
+                builder.ToMessageBody();
+
+
+            using var client =
+                new SmtpClient();
+
 
             client.ServerCertificateValidationCallback =
                 (s, c, h, e) => true;
 
-            client.Connect(
-                smtpSettings["Server"],
-                int.Parse(smtpSettings["Port"]),
+            await client.ConnectAsync(
+                server,
+                port,
                 SecureSocketOptions.StartTls);
 
-            client.Authenticate(
-                smtpSettings["SenderEmail"],
-                smtpSettings["Password"]);
+            await client.AuthenticateAsync(
+                senderEmail,
+                password);
 
-            client.Send(message);
+            await client.SendAsync(message);
 
-            client.Disconnect(true);
+            await client.DisconnectAsync(true);
         }
-
-
-        // =========================
-        // LOGIN
-        // =========================
 
         [HttpGet]
         public IActionResult Login()
@@ -209,16 +313,18 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            var member = _context.Members
-                .FirstOrDefault(m =>
-                    m.Email == model.Email);
 
-            if (member == null ||
-                _passwordHasher.VerifyHashedPassword(
-                    member,
-                    member.PasswordHash,
-                    model.Password)
-                == PasswordVerificationResult.Failed)
+            string email =
+                model.Email?.Trim().ToLower() ?? "";
+
+
+            var member =
+                await _context.Members
+                    .FirstOrDefaultAsync(
+                        m => m.Email.ToLower() == email);
+
+
+            if (member == null)
             {
                 ModelState.AddModelError(
                     "",
@@ -227,61 +333,131 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            var claims = new List<Claim>
+
+            if (string.IsNullOrWhiteSpace(
+                member.PasswordHash))
             {
-                new Claim(
-                    ClaimTypes.NameIdentifier,
-                    member.MemberId.ToString()),
+                ModelState.AddModelError(
+                    "",
+                    "This account does not have a valid password. Please reset your password.");
 
-                new Claim(
-                    ClaimTypes.Name,
-                    member.Name),
+                return View(model);
+            }
 
-                new Claim(
-                    ClaimTypes.Email,
-                    member.Email),
 
-                new Claim(
-                    ClaimTypes.Role,
-                    member.Role)
-            };
+            var passwordResult =
+                _passwordHasher.VerifyHashedPassword(
+                    member,
+                    member.PasswordHash,
+                    model.Password);
 
-            var identity = new ClaimsIdentity(
-                claims,
-                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            if (passwordResult ==
+                PasswordVerificationResult.Failed)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Invalid email or password.");
+
+                return View(model);
+            }
+
+            var claims =
+                new List<Claim>
+                {
+                    new Claim(
+                        ClaimTypes.NameIdentifier,
+                        member.MemberId.ToString()),
+
+                    new Claim(
+                        ClaimTypes.Name,
+                        member.Name ?? ""),
+
+                    new Claim(
+                        ClaimTypes.Email,
+                        member.Email ?? ""),
+
+                    new Claim(
+                        ClaimTypes.Role,
+                        member.Role ?? "Student")
+                };
+
+
+            var identity =
+                new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+
 
             var principal =
                 new ClaimsPrincipal(identity);
 
+
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 principal);
+
+
+            if (string.Equals(
+                member.Role,
+                "Admin",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction(
+                    "Index",
+                    "Admin");
+            }
+
+
+            if (string.Equals(
+                member.Role,
+                "Trainer",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction(
+                    "Index",
+                    "Trainer");
+            }
 
             return RedirectToAction(
                 "Dashboard",
                 "Member");
         }
 
-
-        // =========================
-        // EQUIPMENT RESERVATION
-        // =========================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Reserve(int id)
         {
-            var memberId = int.Parse(
+            var memberIdClaim =
                 User.FindFirstValue(
-                    ClaimTypes.NameIdentifier));
+                    ClaimTypes.NameIdentifier);
+
+
+            if (string.IsNullOrEmpty(memberIdClaim))
+            {
+                return RedirectToAction(
+                    nameof(Login));
+            }
+
+
+            if (!int.TryParse(
+                memberIdClaim,
+                out int memberId))
+            {
+                return RedirectToAction(
+                    nameof(Login));
+            }
+
 
             var equipment =
                 _context.Equipment.Find(id);
+
 
             if (equipment == null)
             {
                 return NotFound();
             }
+
 
             if (!equipment.IsAvailable)
             {
@@ -290,29 +466,39 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Equipment");
             }
 
-            var reservation = new Reservation
-            {
-                MemberID = memberId,
-                EquipmentID = equipment.EquipmentID,
-                ReservationDate = DateTime.Now,
-                Status = "Reserved"
-            };
 
-            equipment.IsAvailable = false;
+            var reservation =
+                new Reservation
+                {
+                    MemberID =
+                        memberId,
 
-            _context.Reservations.Add(reservation);
+                    EquipmentID =
+                        equipment.EquipmentID,
+
+                    ReservationDate =
+                        DateTime.Now,
+
+                    Status =
+                        "Reserved"
+                };
+
+
+            equipment.IsAvailable =
+                false;
+
+
+            _context.Reservations.Add(
+                reservation);
+
 
             _context.SaveChanges();
+
 
             return RedirectToAction(
                 "Index",
                 "Equipment");
         }
-
-
-        // =========================
-        // FORGOT PASSWORD
-        // =========================
 
         [HttpGet]
         public IActionResult ForgotPassword()
@@ -330,9 +516,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-            var member = _context.Members
-                .FirstOrDefault(m =>
-                    m.Email == model.Email);
+
+            var member =
+                _context.Members
+                    .FirstOrDefault(
+                        m => m.Email.ToLower() ==
+                             model.Email.Trim().ToLower());
+
 
             if (member == null)
             {
@@ -343,13 +533,18 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
+
             string otp =
                 RandomNumberGenerator
-                    .GetInt32(100000, 1000000)
+                    .GetInt32(
+                        100000,
+                        1000000)
                     .ToString();
+
 
             DateTime expiry =
                 DateTime.Now.AddMinutes(10);
+
 
             TempData["ResetEmail"] =
                 member.Email;
@@ -360,18 +555,28 @@ namespace DUT_Campus_FIT_Gym.Controllers
             TempData["ResetOtpExpiry"] =
                 expiry.ToString("O");
 
-            SendPasswordResetOtp(
-                member,
-                otp);
+
+            try
+            {
+                SendPasswordResetOtp(
+                    member,
+                    otp);
+            }
+            catch
+            {
+                TempData.Clear();
+
+                ModelState.AddModelError(
+                    "",
+                    "We could not send the password reset email. Please try again.");
+
+                return View(model);
+            }
+
 
             return RedirectToAction(
                 "VerifyOtp");
         }
-
-
-        // =========================
-        // PASSWORD RESET EMAIL
-        // =========================
 
         private void SendPasswordResetOtp(
             Member member,
@@ -380,22 +585,30 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var smtpSettings =
                 _config.GetSection("SmtpSettings");
 
-            var message = new MimeMessage();
+
+            var message =
+                new MimeMessage();
+
 
             message.From.Add(
                 new MailboxAddress(
                     "DUT Campus FIT Gym",
                     smtpSettings["SenderEmail"]));
 
+
             message.To.Add(
                 new MailboxAddress(
                     $"{member.Name} {member.Surname}",
                     member.Email));
 
+
             message.Subject =
                 "DUT Campus FIT Gym - Password Reset OTP";
 
-            var builder = new BodyBuilder();
+
+            var builder =
+                new BodyBuilder();
+
 
             builder.TextBody =
                 $"Hello {member.Name},\n\n" +
@@ -406,33 +619,34 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "Regards,\n" +
                 "DUT Campus FIT Gym";
 
+
             message.Body =
                 builder.ToMessageBody();
+
 
             using var client =
                 new SmtpClient();
 
+
             client.ServerCertificateValidationCallback =
                 (s, c, h, e) => true;
+
 
             client.Connect(
                 smtpSettings["Server"],
                 int.Parse(smtpSettings["Port"]),
                 SecureSocketOptions.StartTls);
 
+
             client.Authenticate(
                 smtpSettings["SenderEmail"],
                 smtpSettings["Password"]);
+
 
             client.Send(message);
 
             client.Disconnect(true);
         }
-
-
-        // =========================
-        // VERIFY OTP
-        // =========================
 
         [HttpGet]
         public IActionResult VerifyOtp()
@@ -445,25 +659,35 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "ForgotPassword");
             }
 
+
             TempData.Keep("ResetEmail");
             TempData.Keep("ResetOtp");
             TempData.Keep("ResetOtpExpiry");
 
+
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult VerifyOtp(string otp)
+        public IActionResult VerifyOtp(
+            string otp)
         {
             var resetEmail =
-                TempData.Peek("ResetEmail")?.ToString();
+                TempData.Peek(
+                    "ResetEmail")?.ToString();
+
 
             var storedOtp =
-                TempData.Peek("ResetOtp")?.ToString();
+                TempData.Peek(
+                    "ResetOtp")?.ToString();
+
 
             var expiryString =
-                TempData.Peek("ResetOtpExpiry")?.ToString();
+                TempData.Peek(
+                    "ResetOtpExpiry")?.ToString();
+
 
             if (string.IsNullOrEmpty(resetEmail) ||
                 string.IsNullOrEmpty(storedOtp) ||
@@ -473,6 +697,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "ForgotPassword");
             }
 
+
             if (!DateTime.TryParse(
                 expiryString,
                 out DateTime expiry))
@@ -480,6 +705,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(
                     "ForgotPassword");
             }
+
 
             if (DateTime.Now > expiry)
             {
@@ -491,6 +717,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(
                     "ForgotPassword");
             }
+
 
             if (string.IsNullOrWhiteSpace(otp) ||
                 otp != storedOtp)
@@ -505,6 +732,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View();
             }
 
+
             TempData["ResetVerified"] =
                 "true";
 
@@ -513,23 +741,24 @@ namespace DUT_Campus_FIT_Gym.Controllers
             TempData.Remove("ResetOtp");
             TempData.Remove("ResetOtpExpiry");
 
+
             return RedirectToAction(
                 "ResetPassword");
         }
 
 
-        // =========================
-        // RESET PASSWORD
-        // =========================
-
         [HttpGet]
         public IActionResult ResetPassword()
         {
             var verified =
-                TempData.Peek("ResetVerified")?.ToString();
+                TempData.Peek(
+                    "ResetVerified")?.ToString();
+
 
             var resetEmail =
-                TempData.Peek("ResetEmail")?.ToString();
+                TempData.Peek(
+                    "ResetEmail")?.ToString();
+
 
             if (verified != "true" ||
                 string.IsNullOrEmpty(resetEmail))
@@ -538,8 +767,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "ForgotPassword");
             }
 
+
             TempData.Keep("ResetVerified");
             TempData.Keep("ResetEmail");
+
 
             return View();
         }
@@ -551,10 +782,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
             string confirmPassword)
         {
             var verified =
-                TempData.Peek("ResetVerified")?.ToString();
+                TempData.Peek(
+                    "ResetVerified")?.ToString();
+
 
             var resetEmail =
-                TempData.Peek("ResetEmail")?.ToString();
+                TempData.Peek(
+                    "ResetEmail")?.ToString();
+
 
             if (verified != "true" ||
                 string.IsNullOrEmpty(resetEmail))
@@ -563,7 +798,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "ForgotPassword");
             }
 
-            if (string.IsNullOrWhiteSpace(newPassword))
+
+            if (string.IsNullOrWhiteSpace(
+                newPassword))
             {
                 TempData.Keep("ResetVerified");
                 TempData.Keep("ResetEmail");
@@ -574,6 +811,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return View();
             }
+
 
             if (newPassword != confirmPassword)
             {
@@ -587,9 +825,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View();
             }
 
-            var member = _context.Members
-                .FirstOrDefault(m =>
-                    m.Email == resetEmail);
+
+            var member =
+                _context.Members
+                    .FirstOrDefault(
+                        m => m.Email == resetEmail);
+
 
             if (member == null)
             {
@@ -599,26 +840,26 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Login");
             }
 
+
             member.PasswordHash =
                 _passwordHasher.HashPassword(
                     member,
                     newPassword);
 
+
             _context.SaveChanges();
 
+
             TempData.Clear();
+
 
             TempData["PasswordResetSuccess"] =
                 "Your password has been reset successfully.";
 
+
             return RedirectToAction(
                 "Login");
         }
-
-
-        // =========================
-        // LOGOUT
-        // =========================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -627,7 +868,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             await HttpContext.SignOutAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme);
 
-            return RedirectToAction("Login");
+
+            return RedirectToAction(
+                "Login");
         }
     }
 }

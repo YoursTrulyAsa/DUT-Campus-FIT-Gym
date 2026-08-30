@@ -1,0 +1,580 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.AdminDashboardViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="admin-dashboard">
+
+    <div class="admin-dashboard-header">
+
+        <div>
+
+            <span class="admin-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Admin Dashboard
+            </h1>
+
+            <p>
+                Manage members, memberships and gym operations.
+            </p>
+
+        </div>
+
+
+        <div class="admin-user-badge">
+
+            <div class="admin-user-icon">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+
+            <div>
+
+                <strong>
+                    Administrator
+                </strong>
+
+                <span>
+                    Gym Management
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert admin-alert-success">
+
+            <i class="bi bi-check-circle-fill"></i>
+
+            <span>
+                @TempData["Success"]
+            </span>
+
+        </div>
+    }
+
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="admin-alert admin-alert-error">
+
+            <i class="bi bi-exclamation-triangle-fill"></i>
+
+            <span>
+                @TempData["Error"]
+            </span>
+
+        </div>
+    }
+
+
+    <div class="admin-stats">
+
+        <a asp-controller="Admin"
+           asp-action="Members"
+           class="admin-stat-card">
+
+            <div class="admin-stat-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+
+            <div class="admin-stat-content">
+
+                <span>
+                    TOTAL MEMBERS
+                </span>
+
+                <strong>
+                    @Model.TotalMembers
+                </strong>
+
+                <small>
+                    Registered members
+                </small>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
+
+        </a>
+
+
+        <a asp-controller="Admin"
+           asp-action="MembershipApplications"
+           class="admin-stat-card admin-stat-warning">
+
+            <div class="admin-stat-icon">
+                <i class="fa-solid fa-file-circle-exclamation"></i>
+            </div>
+
+            <div class="admin-stat-content">
+
+                <span>
+                    PENDING APPLICATIONS
+                </span>
+
+                <strong>
+                    @Model.PendingApplications
+                </strong>
+
+                <small>
+                    Awaiting review
+                </small>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
+
+        </a>
+
+        <a asp-controller="Admin"
+           asp-action="Members"
+           class="admin-stat-card admin-stat-active">
+
+            <div class="admin-stat-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <div class="admin-stat-content">
+
+                <span>
+                    ACTIVE MEMBERSHIPS
+                </span>
+
+                <strong>
+                    @Model.ActiveMemberships
+                </strong>
+
+                <small>
+                    Currently active
+                </small>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
+
+        </a>
+
+
+        <a asp-controller="Admin"
+           asp-action="Equipment"
+           class="admin-stat-card">
+
+            <div class="admin-stat-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <div class="admin-stat-content">
+
+                <span>
+                    AVAILABLE EQUIPMENT
+                </span>
+
+                <strong>
+                    @Model.AvailableEquipment
+                </strong>
+
+                <small>
+                    Ready for use
+                </small>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
+
+        </a>
+
+
+        <a asp-controller="Admin"
+           asp-action="Equipment"
+           class="admin-stat-card admin-stat-danger">
+
+            <div class="admin-stat-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+
+            <div class="admin-stat-content">
+
+                <span>
+                    UNAVAILABLE EQUIPMENT
+                </span>
+
+                <strong>
+                    @Model.UnavailableEquipment
+                </strong>
+
+                <small>
+                    Currently unavailable
+                </small>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
+
+        </a>
+
+
+        <a asp-controller="Admin"
+           asp-action="Reservations"
+           class="admin-stat-card">
+
+            <div class="admin-stat-icon">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+
+            <div class="admin-stat-content">
+
+                <span>
+                    ACTIVE RESERVATIONS
+                </span>
+
+                <strong>
+                    @Model.ActiveReservations
+                </strong>
+
+                <small>
+                    Equipment bookings
+                </small>
+
+            </div>
+
+            <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
+
+        </a>
+
+    </div>
+
+
+    <div class="admin-dashboard-grid">
+
+        <section class="admin-card quick-actions-card">
+
+            <div class="admin-card-heading">
+
+                <div>
+
+                    <span class="admin-card-label">
+                        QUICK ACCESS
+                    </span>
+
+                    <h2>
+                        Administration
+                    </h2>
+
+                    <p>
+                        Access the tools you use most.
+                    </p>
+
+                </div>
+
+                <div class="admin-card-icon">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+
+            </div>
+
+
+            <div class="admin-quick-actions">
+
+                <a asp-controller="Admin"
+                   asp-action="MembershipApplications"
+                   class="admin-quick-action">
+
+                    <div class="admin-quick-icon">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Membership Applications
+                        </strong>
+
+                        <span>
+                            Review student applications
+                        </span>
+
+                    </div>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+
+                <a asp-controller="Admin"
+                   asp-action="Members"
+                   class="admin-quick-action">
+
+                    <div class="admin-quick-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Manage Members
+                        </strong>
+
+                        <span>
+                            View registered members
+                        </span>
+
+                    </div>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+
+                <a asp-controller="Admin"
+                   asp-action="Equipment"
+                   class="admin-quick-action">
+
+                    <div class="admin-quick-icon">
+                        <i class="fa-solid fa-dumbbell"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Manage Equipment
+                        </strong>
+
+                        <span>
+                            Add or remove equipment
+                        </span>
+
+                    </div>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+
+                <a asp-controller="Admin"
+                   asp-action="Scanner"
+                   class="admin-quick-action">
+
+                    <div class="admin-quick-icon">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Member Check-In
+                        </strong>
+
+                        <span>
+                            Scan member gym cards
+                        </span>
+
+                    </div>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+
+                <a asp-controller="Admin"
+                   asp-action="Reservations"
+                   class="admin-quick-action">
+
+                    <div class="admin-quick-icon">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Reservations
+                        </strong>
+
+                        <span>
+                            View equipment bookings
+                        </span>
+
+                    </div>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+
+                <a asp-controller="Admin"
+                   asp-action="AddTrainer"
+                   class="admin-quick-action">
+
+                    <div class="admin-quick-icon">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Add Trainer
+                        </strong>
+
+                        <span>
+                            Create a trainer account
+                        </span>
+
+                    </div>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <section class="admin-card recent-applications-card">
+
+            <div class="admin-card-heading">
+
+                <div>
+
+                    <span class="admin-card-label">
+                        MEMBERSHIP MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Recent Applications
+                    </h2>
+
+                    <p>
+                        Latest student membership applications.
+                    </p>
+
+                </div>
+
+                <div class="admin-card-icon">
+                    <i class="fa-solid fa-file-lines"></i>
+                </div>
+
+            </div>
+
+
+            @if (Model.RecentApplications != null &&
+                        Model.RecentApplications.Count > 0)
+            {
+                <div class="application-list">
+
+                    @foreach (var application in Model.RecentApplications)
+                    {
+                        string applicationStatus =
+                        application.Status ?? "Unknown";
+
+                        string statusClass =
+                        applicationStatus == "Pending"
+                        ? "pending"
+                        : applicationStatus == "Approved"
+                        ? "approved"
+                        : applicationStatus == "Rejected"
+                        ? "rejected"
+                        : "waiting";
+
+
+                        <div class="application-item">
+
+                            <div class="application-icon">
+
+                                <i class="fa-solid fa-user"></i>
+
+                            </div>
+
+
+                            <div class="application-info">
+
+                                <strong>
+
+                                    @(application.Member != null
+                                                                ? application.Member.Name + " " +
+                                                                application.Member.Surname
+                                                                : "Unknown Member")
+
+                        </strong>
+
+                                <span>
+
+                                    @application.MembershipType
+
+                                    •
+
+                                    @application.ApplicationDate
+                                    .ToString("dd MMM yyyy")
+
+                                </span>
+
+                            </div>
+
+
+                            <span class="application-status @statusClass">
+
+                                @applicationStatus
+
+                            </span>
+
+                        </div>
+                                }
+
+                </div>
+
+
+                <a asp-controller="Admin"
+                   asp-action="MembershipApplications"
+                   class="admin-view-all">
+
+                    <span>
+                        View All Applications
+                    </span>
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+            }
+            else
+            {
+                <div class="admin-empty-state">
+
+                    <div class="admin-empty-icon">
+
+                        <i class="fa-solid fa-inbox"></i>
+
+                    </div>
+
+                    <strong>
+                        No applications yet
+                    </strong>
+
+                    <span>
+                        New membership applications will appear here.
+                    </span>
+
+                </div>
+            }
+
+        </section>
+
+    </div>
+
+</div>
+
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/admin-dashboard.css"
+          asp-append-version="true" />
+
+}

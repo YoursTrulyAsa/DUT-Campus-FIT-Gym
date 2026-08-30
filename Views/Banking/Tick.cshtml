@@ -1,0 +1,102 @@
+﻿@{
+    ViewData["Title"] = "Payment Successful";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/payment-success.css"
+          asp-append-version="true" />
+}
+
+<div class="payment-success-page">
+
+    <div class="success-card">
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <span class="success-label">
+            DUT CAMPUS FIT GYM
+        </span>
+
+        <h1>
+            Payment Successful!
+        </h1>
+
+        <p class="success-message">
+            Your payment has been successfully processed and
+            your gym membership is now active.
+        </p>
+
+
+        <div class="success-details">
+
+            <div class="success-detail-row">
+
+                <span>
+                    Membership Type
+                </span>
+
+                <strong>
+                    @ViewBag.MembershipType
+                </strong>
+
+            </div>
+
+
+            <div class="success-detail-row">
+
+                <span>
+                    Amount Paid
+                </span>
+
+                <strong class="amount">
+                    R @ViewBag.Amount
+                </strong>
+
+            </div>
+
+
+            <div class="success-detail-row">
+
+                <span>
+                    Membership Expires
+                </span>
+
+                <strong>
+                    @ViewBag.ExpiryDate
+                </strong>
+
+            </div>
+
+        </div>
+
+        <div class="email-notice">
+
+            <span>
+                ✉️
+            </span>
+
+            <p>
+                A confirmation email has been sent to your
+                registered email address.
+            </p>
+
+        </div>
+
+        <a asp-controller="Member"
+           asp-action="Dashboard"
+           class="dashboard-button">
+
+            Go to Dashboard
+
+            <span>
+                →
+            </span>
+
+        </a>
+
+    </div>
+
+</div>

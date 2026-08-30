@@ -1,15 +1,24 @@
-﻿namespace DUT_Campus_FIT_Gym.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DUT_Campus_FIT_Gym.Models
 {
     public class Equipment
     {
+        [Key]
         public int EquipmentID { get; set; }
 
-        public string EquipmentName { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string EquipmentName { get; set; } = "";
 
-        public string Category { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string Category { get; set; } = "";
 
-        public bool IsAvailable { get; set; }
+        public bool IsAvailable { get; set; } = true;
 
-        public string Location { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string Location { get; set; } = "";
     }
 }

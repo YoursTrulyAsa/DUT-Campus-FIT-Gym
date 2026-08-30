@@ -1,0 +1,450 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.ViewModels.AdminReservationViewModel>
+
+@{
+ViewData["Title"] = "Equipment Reservations";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-page">
+
+<div class="admin-page-header">
+
+    <div>
+        <span class="admin-page-label">
+            DUT CAMPUS FIT GYM
+        </span>
+
+        <h1>
+            Equipment Reservations
+        </h1>
+
+        <p>
+            Monitor equipment reservations made by gym members.
+        </p>
+    </div>
+
+    <a asp-controller="Admin"
+       asp-action="Index"
+       class="admin-back-button">
+
+        <i class="fa-solid fa-arrow-left"></i>
+
+        Dashboard
+
+    </a>
+
+</div>
+
+
+<div class="reservation-summary">
+
+    <div class="reservation-summary-card">
+
+        <div class="reservation-summary-icon">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
+
+        <div>
+            <span>Total Reservations</span>
+
+            <strong>
+                @(Model?.Count() ?? 0)
+            </strong>
+        </div>
+
+    </div>
+
+
+    <div class="reservation-summary-card">
+
+        <div class="reservation-summary-icon">
+            <i class="fa-solid fa-clock"></i>
+        </div>
+
+        <div>
+            <span>Upcoming</span>
+
+            <strong id="upcomingCount">
+                0
+            </strong>
+        </div>
+
+    </div>
+
+
+    <div class="reservation-summary-card">
+
+        <div class="reservation-summary-icon">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+
+        <div>
+            <span>Active</span>
+
+            <strong id="activeCount">
+                0
+            </strong>
+        </div>
+
+    </div>
+
+</div>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="reservation-empty">
+
+        <div class="reservation-empty-icon">
+            <i class="fa-regular fa-calendar-xmark"></i>
+        </div>
+
+        <h3>
+            No Reservations
+        </h3>
+
+        <p>
+            There are currently no equipment reservations.
+        </p>
+
+    </div>
+}
+else
+{
+    <div class="reservations-container">
+
+        @foreach (var reservation in Model)
+        {
+            <div class="reservation-card"
+                 data-reservation-date="@reservation.ReservationDate.ToString("yyyy-MM-ddTHH:mm:ss")"
+                 data-status="@reservation.Status">
+
+                <div class="reservation-card-top">
+
+                    <div class="reservation-equipment">
+
+                        <div class="reservation-equipment-icon">
+                            <i class="fa-solid fa-dumbbell"></i>
+                        </div>
+
+                        <div>
+
+                            <span class="reservation-label">
+                                EQUIPMENT
+                            </span>
+
+                            <h2>
+                                @reservation.EquipmentName
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="reservation-status">
+
+                        @if (reservation.Status == "Reserved")
+                        {
+                            <span class="reservation-badge reserved">
+                                <i class="fa-solid fa-circle"></i>
+                                Reserved
+                            </span>
+                        }
+                        else if (reservation.Status == "Completed")
+                        {
+                            <span class="reservation-badge completed">
+                                <i class="fa-solid fa-check"></i>
+                                Completed
+                            </span>
+                        }
+                        else if (reservation.Status == "Cancelled")
+                        {
+                            <span class="reservation-badge cancelled">
+                                <i class="fa-solid fa-xmark"></i>
+                                Cancelled
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="reservation-badge other">
+                                @reservation.Status
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <div class="reservation-card-divider"></div>
+
+
+                <div class="reservation-details">
+
+                    <div class="reservation-detail">
+
+                        <span>
+                            <i class="fa-solid fa-user"></i>
+                            MEMBER
+                        </span>
+
+                        <strong>
+                            @reservation.MemberName
+                        </strong>
+
+                    </div>
+
+
+                    <div class="reservation-detail">
+
+                        <span>
+                            <i class="fa-solid fa-id-card"></i>
+                            STUDENT NUMBER
+                        </span>
+
+                        <strong>
+                            @reservation.StudentNumber
+                        </strong>
+
+                    </div>
+
+
+                    <div class="reservation-detail">
+
+                        <span>
+                            <i class="fa-regular fa-calendar"></i>
+                            RESERVATION DATE
+                        </span>
+
+                        <strong>
+                            @reservation.ReservationDate.ToString("dd MMM yyyy")
+                        </strong>
+
+                    </div>
+
+
+                    <div class="reservation-detail">
+
+                        <span>
+                            <i class="fa-regular fa-clock"></i>
+                            RESERVATION TIME
+                        </span>
+
+                        <strong>
+                            @reservation.ReservationDate.ToString("HH:mm")
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="reservation-timer">
+
+                    <div class="timer-icon">
+                        <i class="fa-solid fa-stopwatch"></i>
+                    </div>
+
+                    <div class="timer-content">
+
+                        <span class="timer-label">
+                            RESERVATION TIMER
+                        </span>
+
+                        <strong class="reservation-countdown">
+                            Calculating...
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+}
+
+</div>
+
+@section Styles {
+
+<link rel="stylesheet"
+      href="~/css/admin-reservations.css"
+      asp-append-version="true" />
+
+}
+
+@section Scripts {
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const cards =
+            document.querySelectorAll(".reservation-card");
+
+        const upcomingCount =
+            document.getElementById("upcomingCount");
+
+        const activeCount =
+            document.getElementById("activeCount");
+
+
+        function updateTimers() {
+
+            let upcoming = 0;
+            let active = 0;
+
+            const now =
+                new Date();
+
+
+            cards.forEach(function (card) {
+
+                const countdown =
+                    card.querySelector(".reservation-countdown");
+
+                const timer =
+                    card.querySelector(".reservation-timer");
+
+                const status =
+                    card.dataset.status;
+
+                const reservationDate =
+                    new Date(
+                        card.dataset.reservationDate
+                    );
+
+
+                if (status === "Cancelled") {
+
+                    countdown.textContent =
+                        "Reservation cancelled";
+
+                    timer.classList.add("timer-cancelled");
+
+                    return;
+
+                }
+
+
+                if (status === "Completed") {
+
+                    countdown.textContent =
+                        "Reservation completed";
+
+                    timer.classList.add("timer-completed");
+
+                    return;
+
+                }
+
+
+                const difference =
+                    reservationDate - now;
+
+
+                if (difference > 0) {
+
+                    upcoming++;
+
+                    const totalSeconds =
+                        Math.floor(
+                            difference / 1000
+                        );
+
+
+                    const days =
+                        Math.floor(
+                            totalSeconds / 86400
+                        );
+
+
+                    const hours =
+                        Math.floor(
+                            (totalSeconds % 86400) / 3600
+                        );
+
+
+                    const minutes =
+                        Math.floor(
+                            (totalSeconds % 3600) / 60
+                        );
+
+
+                    const seconds =
+                        totalSeconds % 60;
+
+
+                    if (days > 0) {
+
+                        countdown.textContent =
+                            `${days}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}m`;
+
+                    }
+                    else {
+
+                        countdown.textContent =
+                            `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+                    }
+
+                    timer.classList.remove(
+                        "timer-active"
+                    );
+
+                    timer.classList.remove(
+                        "timer-expired"
+                    );
+
+                }
+                else {
+
+                    active++;
+
+                    countdown.textContent =
+                        "Reservation time reached";
+
+                    timer.classList.add(
+                        "timer-active"
+                    );
+
+                    timer.classList.remove(
+                        "timer-expired"
+                    );
+
+                }
+
+            });
+
+
+            if (upcomingCount) {
+
+                upcomingCount.textContent =
+                    upcoming;
+
+            }
+
+
+            if (activeCount) {
+
+                activeCount.textContent =
+                    active;
+
+            }
+
+        }
+
+
+        updateTimers();
+
+        setInterval(
+            updateTimers,
+            1000
+        );
+
+    });
+
+</script>
+}

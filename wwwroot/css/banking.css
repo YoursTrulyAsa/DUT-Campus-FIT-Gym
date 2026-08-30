@@ -1,0 +1,520 @@
+﻿/* =========================================================
+   DUT CAMPUS FIT GYM
+   BANKING / PAYMENT PAGE
+   ========================================================= */
+
+.banking-page {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 25px 70px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.banking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+.banking-label {
+    display: inline-block;
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #2563eb;
+}
+
+.banking-header h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+}
+
+.banking-header p {
+    margin: 10px 0 0;
+    color: #64748b;
+    font-size: 15px;
+}
+
+.banking-back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 18px;
+    border-radius: 10px;
+    border: 1px solid #dbe3ef;
+    background: #ffffff;
+    color: #334155;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+    .banking-back-button:hover {
+        color: #2563eb;
+        border-color: #bfdbfe;
+        background: #eff6ff;
+        transform: translateY(-1px);
+    }
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.banking-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.8fr);
+    gap: 25px;
+    align-items: start;
+}
+
+
+/* =========================================================
+   PAYMENT CARD
+   ========================================================= */
+
+.banking-card {
+    padding: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.07);
+}
+
+.banking-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-bottom: 25px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: #eff6ff;
+    font-size: 22px;
+}
+
+.banking-card-header h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.banking-card-header p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.banking-form {
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 21px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #1e293b;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+.label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.secure-label {
+    color: #16a34a;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    z-index: 2;
+    font-size: 15px;
+    pointer-events: none;
+}
+
+.input-wrapper input,
+.input-wrapper select {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px 12px 44px;
+    border: 1px solid #dbe3ef;
+    border-radius: 11px;
+    outline: none;
+    background: #f8fafc;
+    color: #0f172a;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+    .input-wrapper input::placeholder {
+        color: #94a3b8;
+    }
+
+    .input-wrapper input:focus,
+    .input-wrapper select:focus {
+        border-color: #60a5fa;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+    }
+
+.input-wrapper select {
+    cursor: pointer;
+    appearance: auto;
+}
+
+
+/* =========================================================
+   EXPIRY + CVV
+   ========================================================= */
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+
+/* =========================================================
+   VALIDATION
+   ========================================================= */
+
+.validation-message {
+    display: block;
+    margin-top: 6px;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   SECURITY NOTICE
+   ========================================================= */
+
+.security-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    margin: 5px 0 20px;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    background: #eff6ff;
+}
+
+.security-icon {
+    font-size: 18px;
+}
+
+.security-notice strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #1e3a8a;
+    font-size: 13px;
+}
+
+.security-notice p {
+    margin: 0;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   PAYMENT BUTTON
+   ========================================================= */
+
+.banking-button {
+    width: 100%;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: none;
+    border-radius: 12px;
+    background: #2563eb;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.20);
+    transition: all 0.2s ease;
+}
+
+    .banking-button:hover {
+        background: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(37, 99, 235, 0.28);
+    }
+
+    .banking-button:active {
+        transform: translateY(0);
+    }
+
+.button-arrow {
+    font-size: 20px;
+    transition: transform 0.2s ease;
+}
+
+.banking-button:hover .button-arrow {
+    transform: translateX(4px);
+}
+
+.payment-note {
+    margin: 13px 0 0;
+    color: #94a3b8;
+    font-size: 11px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+
+/* =========================================================
+   PAYMENT SUMMARY
+   ========================================================= */
+
+.payment-summary-card {
+    position: sticky;
+    top: 25px;
+    padding: 27px;
+    border-radius: 20px;
+    background: #0f172a;
+    color: #ffffff;
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.15);
+    overflow: hidden;
+}
+
+    .payment-summary-card::before {
+        content: "";
+        position: absolute;
+        top: -70px;
+        right: -70px;
+        width: 170px;
+        height: 170px;
+        border-radius: 50%;
+        background: rgba(59, 130, 246, 0.15);
+    }
+
+.summary-top {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-label {
+    color: #93c5fd;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.summary-icon {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 20px;
+}
+
+.payment-summary-card h2 {
+    position: relative;
+    margin: 25px 0 8px;
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.payment-summary-card > p {
+    position: relative;
+    margin: 0;
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.summary-divider {
+    height: 1px;
+    margin: 25px 0 20px;
+    background: rgba(255, 255, 255, 0.10);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+    .summary-row span {
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    .summary-row strong {
+        color: #ffffff;
+        font-size: 13px;
+        text-align: right;
+    }
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+    .summary-total span {
+        color: #cbd5e1;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .summary-total strong {
+        color: #ffffff;
+        font-size: 25px;
+        font-weight: 800;
+    }
+
+.summary-security {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 25px;
+    padding: 13px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+    .summary-security span {
+        font-size: 16px;
+    }
+
+    .summary-security p {
+        margin: 0;
+        color: #cbd5e1;
+        font-size: 11px;
+    }
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+    .banking-content {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-summary-card {
+        position: static;
+        order: -1;
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    .banking-page {
+        padding: 25px 15px 50px;
+    }
+
+    .banking-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+        .banking-header h1 {
+            font-size: 28px;
+        }
+
+    .banking-card {
+        padding: 22px;
+        border-radius: 16px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .payment-summary-card {
+        padding: 22px;
+    }
+}
+
+
+@media (max-width: 420px) {
+
+    .banking-header h1 {
+        font-size: 24px;
+    }
+
+    .banking-card {
+        padding: 18px;
+    }
+
+    .banking-card-header h2 {
+        font-size: 18px;
+    }
+
+    .banking-back-button {
+        width: 100%;
+    }
+}
