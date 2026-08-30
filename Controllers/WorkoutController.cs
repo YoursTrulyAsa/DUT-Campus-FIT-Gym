@@ -1,4 +1,5 @@
 ﻿using DUT_Campus_FIT_Gym.Data;
+using DUT_Campus_FIT_Gym.Filters;
 using DUT_Campus_FIT_Gym.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -14,6 +15,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context = context;
         }
 
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult MyWorkout()
         {
             var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -51,6 +51,7 @@ namespace DUT_Campus_FIT_Gym.ViewModels
         [Required(ErrorMessage = "Phone Number is required.")]
         [Phone(ErrorMessage = "Please enter a valid phone number.")]
         [Display(Name = "Phone Number")]
+        [RegularExpression(@"^(\+27|0)(6[0-9]|7[0-9]|8[0-9])[0-9]{7}$", ErrorMessage = "Please enter a valid South African phone number, e.g. 0821234567 or +27821234567.")]
         public string PhoneNumber { get; set; } = "";
 
 

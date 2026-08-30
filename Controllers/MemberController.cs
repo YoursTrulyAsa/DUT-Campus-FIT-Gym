@@ -1,4 +1,5 @@
 ﻿using DUT_Campus_FIT_Gym.Data;
+using DUT_Campus_FIT_Gym.Filters;
 using DUT_Campus_FIT_Gym.Models;
 using DUT_Campus_FIT_Gym.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -49,6 +50,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Dashboard()
         {
             var memberId = GetMemberId();
@@ -202,6 +204,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Attendance()
         {
             var memberId = GetMemberId();
@@ -226,6 +229,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult PaymentHistory()
         {
             var memberId = GetMemberId();
@@ -251,6 +255,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Announcements()
         {
             var announcements = _context.Announcements
@@ -684,6 +689,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult GymCard()
         {
             var memberId = GetMemberId();
@@ -837,6 +843,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult CheckIn()
         {
             var memberId = GetMemberId();
@@ -898,6 +905,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult CheckInPage()
         {
             return RedirectToAction(
@@ -920,6 +928,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult CheckOut()
         {
             var memberId = GetMemberId();
@@ -1073,6 +1082,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Equipment()
         {
             var equipment =
@@ -1088,6 +1098,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Reservations()
         {
             var memberId = GetMemberId();
@@ -1187,6 +1198,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Unreserve(
             int reservationId)
         {
@@ -1247,6 +1259,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult RequestTrainer()
         {
             var memberId = GetMemberId();
@@ -1288,6 +1301,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult RequestTrainer(
             int trainerId,
             string requestMessage)
@@ -1397,6 +1411,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult MyTrainerRequests()
         {
             var memberId = GetMemberId();
@@ -1460,6 +1475,138 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(
                 "Payment",
                 payments);
+        }
+        // =========================================================
+        // PROFILE PICTURE - UPLOAD
+        // =========================================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UploadProfilePicture(IFormFile profilePicture)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var member = _context.Members
+                .FirstOrDefault(m => m.MemberId == memberId.Value);
+
+            if (member == null)
+            {
+                return NotFound();
+            }
+
+            // Check that a file was selected
+            if (profilePicture == null ||
+                profilePicture.Length == 0)
+            {
+                TempData["ProfilePictureError"] =
+                    "Please select a picture.";
+
+                return RedirectToAction(nameof(Profile));
+            }
+
+            // Maximum file size: 5 MB
+            if (profilePicture.Length > 5 * 1024 * 1024)
+            {
+                TempData["ProfilePictureError"] =
+                    "The picture must not be larger than 5 MB.";
+
+                return RedirectToAction(nameof(Profile));
+            }
+
+            // Allowed image types
+            var extension =
+                Path.GetExtension(profilePicture.FileName)
+                    .ToLowerInvariant();
+
+            var allowedExtensions =
+                new[] { ".jpg", ".jpeg", ".png" };
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                TempData["ProfilePictureError"] =
+                    "Only JPG, JPEG and PNG pictures are allowed.";
+
+                return RedirectToAction(nameof(Profile));
+            }
+
+            // =========================================================
+            // CREATE PROFILE PICTURE FOLDER
+            // =========================================================
+
+            var uploadsFolder = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "uploads",
+                "profile");
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            // =========================================================
+            // DELETE OLD PROFILE PICTURE
+            // =========================================================
+
+            if (!string.IsNullOrWhiteSpace(member.ProfilePicture))
+            {
+                var oldFileName =
+                    Path.GetFileName(member.ProfilePicture);
+
+                var oldFilePath =
+                    Path.Combine(
+                        uploadsFolder,
+                        oldFileName);
+
+                if (System.IO.File.Exists(oldFilePath))
+                {
+                    System.IO.File.Delete(oldFilePath);
+                }
+            }
+
+            // =========================================================
+            // CREATE UNIQUE FILE NAME
+            // =========================================================
+
+            var uniqueFileName =
+                Guid.NewGuid().ToString() + extension;
+
+            var filePath =
+                Path.Combine(
+                    uploadsFolder,
+                    uniqueFileName);
+
+            // =========================================================
+            // SAVE FILE
+            // =========================================================
+
+            using (var stream =
+                new FileStream(
+                    filePath,
+                    FileMode.Create))
+            {
+                profilePicture.CopyTo(stream);
+            }
+
+            // =========================================================
+            // SAVE PATH IN DATABASE
+            // =========================================================
+
+            member.ProfilePicture =
+                "/uploads/profile/" +
+                uniqueFileName;
+
+            _context.SaveChanges();
+
+            TempData["ProfilePictureSuccess"] =
+                "Your profile picture has been updated successfully.";
+
+            return RedirectToAction(nameof(Profile));
         }
     }
 }

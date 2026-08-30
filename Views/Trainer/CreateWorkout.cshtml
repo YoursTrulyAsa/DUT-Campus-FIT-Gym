@@ -7,12 +7,15 @@
 <div class="container mt-4">
 
     <div class="row justify-content-center">
+
         <div class="col-md-8">
 
             <div class="card shadow">
 
                 <div class="card-header">
-                    <h3 class="mb-0">Assign Workout Plan</h3>
+                    <h3 class="mb-0">
+                        Assign Workout Plan
+                    </h3>
                 </div>
 
                 <div class="card-body">
@@ -27,9 +30,15 @@
                              class="text-danger mb-3">
                         </div>
 
-                        <!-- Member -->
+
+                        <!-- ========================================= -->
+                        <!-- MEMBER -->
+                        <!-- ========================================= -->
+
                         <div class="mb-3">
-                            <label class="form-label">
+
+                            <label asp-for="MemberId"
+                                   class="form-label">
                                 Select Member
                             </label>
 
@@ -40,14 +49,19 @@
                                     -- Select Member --
                                 </option>
 
-                                @foreach (var member in ViewBag.Members)
+                                @if (ViewBag.Members != null)
                                 {
-                                    <option value="@member.MemberId">
-                                        @member.FirstName
-                                        @member.LastName
-                                        -
-                                        @member.Email
-                                    </option>
+                                    foreach (var member in ViewBag.Members)
+                                    {
+                                        <option value="@member.MemberId">
+
+                                            @member.Name
+                                            @member.Surname
+                                            -
+                                            @member.Email
+
+                                        </option>
+                                    }
                                 }
 
                             </select>
@@ -55,10 +69,16 @@
                             <span asp-validation-for="MemberId"
                                   class="text-danger">
                             </span>
+
                         </div>
 
-                        <!-- Workout Name -->
+
+                        <!-- ========================================= -->
+                        <!-- WORKOUT NAME -->
+                        <!-- ========================================= -->
+
                         <div class="mb-3">
+
                             <label asp-for="WorkoutName"
                                    class="form-label">
                                 Workout Name
@@ -71,10 +91,16 @@
                             <span asp-validation-for="WorkoutName"
                                   class="text-danger">
                             </span>
+
                         </div>
 
-                        <!-- Exercise -->
+
+                        <!-- ========================================= -->
+                        <!-- EXERCISE -->
+                        <!-- ========================================= -->
+
                         <div class="mb-3">
+
                             <label asp-for="ExerciseName"
                                    class="form-label">
                                 Exercise Name
@@ -87,10 +113,16 @@
                             <span asp-validation-for="ExerciseName"
                                   class="text-danger">
                             </span>
+
                         </div>
 
-                        <!-- Workout Day -->
+
+                        <!-- ========================================= -->
+                        <!-- WORKOUT DAY -->
+                        <!-- ========================================= -->
+
                         <div class="mb-3">
+
                             <label asp-for="WorkoutDay"
                                    class="form-label">
                                 Workout Day
@@ -103,23 +135,49 @@
                                     -- Select Day --
                                 </option>
 
-                                <option>Monday</option>
-                                <option>Tuesday</option>
-                                <option>Wednesday</option>
-                                <option>Thursday</option>
-                                <option>Friday</option>
-                                <option>Saturday</option>
-                                <option>Sunday</option>
+                                <option value="Monday">
+                                    Monday
+                                </option>
+
+                                <option value="Tuesday">
+                                    Tuesday
+                                </option>
+
+                                <option value="Wednesday">
+                                    Wednesday
+                                </option>
+
+                                <option value="Thursday">
+                                    Thursday
+                                </option>
+
+                                <option value="Friday">
+                                    Friday
+                                </option>
+
+                                <option value="Saturday">
+                                    Saturday
+                                </option>
+
+                                <option value="Sunday">
+                                    Sunday
+                                </option>
 
                             </select>
 
                             <span asp-validation-for="WorkoutDay"
                                   class="text-danger">
                             </span>
+
                         </div>
 
-                        <!-- Sets -->
+
+                        <!-- ========================================= -->
+                        <!-- SETS -->
+                        <!-- ========================================= -->
+
                         <div class="mb-3">
+
                             <label asp-for="Sets"
                                    class="form-label">
                                 Sets
@@ -128,15 +186,23 @@
                             <input asp-for="Sets"
                                    type="number"
                                    class="form-control"
-                                   min="1" />
+                                   min="1"
+                                   max="100"
+                                   placeholder="Example: 3" />
 
                             <span asp-validation-for="Sets"
                                   class="text-danger">
                             </span>
+
                         </div>
 
-                        <!-- Repetitions -->
+
+                        <!-- ========================================= -->
+                        <!-- REPETITIONS -->
+                        <!-- ========================================= -->
+
                         <div class="mb-3">
+
                             <label asp-for="Repetitions"
                                    class="form-label">
                                 Repetitions
@@ -145,31 +211,53 @@
                             <input asp-for="Repetitions"
                                    type="number"
                                    class="form-control"
-                                   min="1" />
+                                   min="1"
+                                   max="500"
+                                   placeholder="Example: 12" />
 
                             <span asp-validation-for="Repetitions"
                                   class="text-danger">
                             </span>
+
                         </div>
 
-                        <!-- Rest Time -->
+
+                        <!-- ========================================= -->
+                        <!-- REST TIME -->
+                        <!-- ========================================= -->
+
                         <div class="mb-3">
+
                             <label asp-for="RestTime"
                                    class="form-label">
-                                Rest Time
+                                Rest Time (seconds)
                             </label>
 
                             <input asp-for="RestTime"
+                                   type="number"
                                    class="form-control"
-                                   placeholder="Example: 60 seconds" />
+                                   min="1"
+                                   max="3600"
+                                   placeholder="Example: 60" />
 
                             <span asp-validation-for="RestTime"
                                   class="text-danger">
                             </span>
+
+                            <div class="form-text">
+                                Enter the rest period in seconds.
+                                Example: 60 = 1 minute.
+                            </div>
+
                         </div>
 
-                        <!-- Description -->
+
+                        <!-- ========================================= -->
+                        <!-- DESCRIPTION -->
+                        <!-- ========================================= -->
+
                         <div class="mb-3">
+
                             <label asp-for="Description"
                                    class="form-label">
                                 Description
@@ -178,25 +266,35 @@
                             <textarea asp-for="Description"
                                       class="form-control"
                                       rows="4"
-                                      placeholder="Workout instructions...">
-                            </textarea>
+                                      placeholder="Workout instructions..."></textarea>
 
                             <span asp-validation-for="Description"
                                   class="text-danger">
                             </span>
+
                         </div>
+
+
+                        <!-- ========================================= -->
+                        <!-- BUTTONS -->
+                        <!-- ========================================= -->
 
                         <div class="mt-4">
 
                             <button type="submit"
                                     class="btn btn-success">
+
+                                <i class="fa-solid fa-plus"></i>
                                 Assign Workout
+
                             </button>
 
                             <a asp-controller="Trainer"
                                asp-action="Workouts"
                                class="btn btn-secondary">
+
                                 Cancel
+
                             </a>
 
                         </div>
@@ -208,6 +306,7 @@
             </div>
 
         </div>
+
     </div>
 
 </div>

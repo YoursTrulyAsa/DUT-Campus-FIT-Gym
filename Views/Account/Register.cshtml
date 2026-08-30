@@ -154,18 +154,17 @@
                     <!-- ================================================= -->
 
                     <div class="mb-3">
-
-                        <label asp-for="PhoneNumber"
-                               class="form-label">
+                        <label asp-for="PhoneNumber" class="form-label">
+                            Phone Number
                         </label>
 
                         <input asp-for="PhoneNumber"
-                               class="form-control" />
+                               class="form-control"
+                               placeholder="0821234567"
+                               maxlength="13" />
 
                         <span asp-validation-for="PhoneNumber"
-                              class="text-danger">
-                        </span>
-
+                              class="text-danger"></span>
                     </div>
 
 

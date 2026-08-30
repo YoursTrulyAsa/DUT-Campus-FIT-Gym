@@ -11,6 +11,89 @@
                         StringComparison.OrdinalIgnoreCase))
         .Sum(p => p.Amount);
 }
+<div class="text-center mb-4">
+
+    @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+    {
+        <img src="@Model.ProfilePicture"
+             alt="Profile Picture"
+             width="150"
+             height="150"
+             style="object-fit: cover; border-radius: 50%;" />
+    }
+    else
+    {
+        <div style="
+            width:150px;
+            height:150px;
+            border-radius:50%;
+            background:#ddd;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            margin:auto;">
+
+            <span>No Picture</span>
+
+        </div>
+    }
+
+</div>
+<div class="card mb-4">
+    <div class="card-body">
+
+        <h5 class="card-title">
+            Profile Picture
+        </h5>
+
+        @if (TempData["ProfilePictureSuccess"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["ProfilePictureSuccess"]
+            </div>
+        }
+
+        @if (TempData["ProfilePictureError"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ProfilePictureError"]
+            </div>
+        }
+
+        <form asp-action="UploadProfilePicture"
+              asp-controller="Member"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Choose your profile picture
+                </label>
+
+                <input type="file"
+                       name="profilePicture"
+                       class="form-control"
+                       accept=".jpg,.jpeg,.png"
+                       required />
+
+                <small class="text-muted">
+                    JPG, JPEG or PNG. Maximum 5 MB.
+                </small>
+
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Upload Picture
+            </button>
+
+        </form>
+
+    </div>
+</div>
 <div class="profile-page">
 
     <!-- PAGE HEADER -->

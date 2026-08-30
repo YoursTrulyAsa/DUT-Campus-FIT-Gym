@@ -1,73 +1,73 @@
 using DUT_Campus_FIT_Gym.Data;
+using DUT_Campus_FIT_Gym.Filters;
 using DUT_Campus_FIT_Gym.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+// =========================================================
+// MVC
+// =========================================================
 
+builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ActiveMembershipFilter>();
+builder.Services.AddSession();
+
+// =========================================================
+// HTTP CLIENT
+// Required by the Ask Us Gemini support service
+// =========================================================
+
+builder.Services.AddHttpClient();
 
 // =========================================================
 // PAYFAST SETTINGS
 // =========================================================
 
 builder.Services.Configure<PayFastSettings>(
-    builder.Configuration.GetSection("PayFast"));
-
+builder.Configuration.GetSection("PayFast"));
 
 // =========================================================
 // AUTHENTICATION
 // =========================================================
 
 builder.Services.AddAuthentication(
-    CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Account/Login";
+CookieAuthenticationDefaults.AuthenticationScheme)
+.AddCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
 
-        options.AccessDeniedPath =
-            "/Account/AccessDenied";
+    options.AccessDeniedPath = "/Account/AccessDenied";
 
-        // Keep the authentication cookie available
-        // during the PayFast return flow.
-        options.Cookie.Name =
-            "DUT_Campus_FIT_Gym_Auth";
+    options.Cookie.Name = "DUT_Campus_FIT_Gym_Auth";
 
-        options.Cookie.HttpOnly = true;
+    options.Cookie.HttpOnly = true;
 
-        options.Cookie.SameSite =
-            SameSiteMode.Lax;
+    options.Cookie.SameSite = SameSiteMode.Lax;
 
-        options.Cookie.SecurePolicy =
-            CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 
-        options.ExpireTimeSpan =
-            TimeSpan.FromHours(8);
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
 
-        options.SlidingExpiration = true;
-    });
-
+    options.SlidingExpiration = true;
+});
 
 // =========================================================
 // DATABASE
 // =========================================================
 
 builder.Services.AddDbContext<GymDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString(
-            "GymDatabase")
-    ));
-
+options.UseSqlServer(
+builder.Configuration.GetConnectionString("GymDatabase")
+));
 
 // =========================================================
 // BUILD APPLICATION
 // =========================================================
 
 var app = builder.Build();
-
 
 // =========================================================
 // ERROR HANDLING
@@ -77,9 +77,9 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 
-    app.UseHsts();
-}
+app.UseHsts();
 
+}
 
 // =========================================================
 // HTTPS
@@ -87,13 +87,11 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
 // =========================================================
 // STATIC FILES
 // =========================================================
 
 app.UseStaticFiles();
-
 
 // =========================================================
 // ROUTING
@@ -101,13 +99,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-
 // =========================================================
 // AUTHENTICATION
 // =========================================================
 
 app.UseAuthentication();
-
 
 // =========================================================
 // AUTHORIZATION
@@ -115,6 +111,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseSession();
 
 // =========================================================
 // CREATE INITIAL ADMIN ACCOUNT
@@ -123,41 +120,28 @@ app.UseAuthorization();
 using (var scope = app.Services.CreateScope())
 {
     var context =
-        scope.ServiceProvider
-            .GetRequiredService<GymDbContext>();
+    scope.ServiceProvider.GetRequiredService<GymDbContext>();
 
-    var passwordHasher =
-        new PasswordHasher<Member>();
+var passwordHasher =
+    new PasswordHasher<Member>();
 
     var adminEmail =
         "admin@dut.ac.za";
 
     var existingAdmin =
         context.Members
-            .FirstOrDefault(
-                m => m.Email == adminEmail);
+            .FirstOrDefault(m => m.Email == adminEmail);
 
     if (existingAdmin == null)
     {
         var admin = new Member
         {
-            Name =
-                "System",
-
-            Surname =
-                "Administrator",
-
-            StudentNumber =
-                "ADMIN001",
-
-            Email =
-                adminEmail,
-
-            PhoneNumber =
-                "0000000000",
-
-            Role =
-                "Admin"
+            Name = "System",
+            Surname = "Administrator",
+            StudentNumber = "ADMIN001",
+            Email = adminEmail,
+            PhoneNumber = "0000000000",
+            Role = "Admin"
         };
 
         admin.PasswordHash =
@@ -169,8 +153,8 @@ using (var scope = app.Services.CreateScope())
 
         context.SaveChanges();
     }
-}
 
+}
 
 // =========================================================
 // DEFAULT ROUTE
