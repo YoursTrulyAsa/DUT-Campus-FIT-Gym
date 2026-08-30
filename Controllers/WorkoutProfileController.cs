@@ -14,7 +14,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context = context;
         }
 
-        // GET: WorkoutProfile
         public IActionResult Index()
         {
             var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -32,7 +31,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(profile);
         }
 
-        // GET: WorkoutProfile/Create
         [HttpGet]
         public IActionResult Create()
         {
@@ -46,7 +44,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View();
         }
 
-        // POST: WorkoutProfile/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(WorkoutProfile profile)
@@ -60,7 +57,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             profile.MemberId = int.Parse(memberId);
 
-            // Prevent a member from creating multiple profiles
             var existingProfile = _context.WorkoutProfiles
                 .FirstOrDefault(p => p.MemberId == profile.MemberId);
 
@@ -80,7 +76,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(profile);
         }
 
-        // GET: WorkoutProfile/Edit
         [HttpGet]
         public IActionResult Edit()
         {
@@ -104,7 +99,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(profile);
         }
 
-        // POST: WorkoutProfile/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(WorkoutProfile profile)

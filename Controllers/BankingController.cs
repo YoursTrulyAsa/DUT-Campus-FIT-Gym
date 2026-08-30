@@ -460,19 +460,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
         }
 
-        // =========================================================
-        // PAYFAST ITN / PAYMENT NOTIFICATION
-        // =========================================================
-
+        // 
         [HttpPost]
         public async Task<IActionResult> PaymentNotify()
         {
             try
             {
-                // =====================================================
-                // READ RAW REQUEST BODY
-                // =====================================================
-
                 Request.EnableBuffering();
 
                 using var reader =
@@ -490,10 +483,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "PAYFAST RAW ITN BODY: {RawBody}",
                     rawBody);
 
-                // =====================================================
-                // READ FORM VALUES
-                // =====================================================
-
                 var form =
                     await Request.ReadFormAsync();
 
@@ -506,10 +495,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 _logger.LogInformation(
                     "RECEIVED ITN SIGNATURE: {Signature}",
                     receivedSignature);
-
-                // =====================================================
-                // BUILD ITN SIGNATURE STRING
-                // =====================================================
 
                 var signatureParts =
                     new List<string>();
@@ -542,10 +527,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         "&",
                         signatureParts);
 
-                // =====================================================
-                // ADD PASSPHRASE
-                // =====================================================
-
                 if (!string.IsNullOrWhiteSpace(
                     _payFast.Passphrase))
                 {
@@ -564,10 +545,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "ITN SIGNATURE STRING: {SignatureString}",
                     signatureString);
 
-                // =====================================================
-                // CALCULATE MD5
-                // =====================================================
-
                 using var md5 =
                     MD5.Create();
 
@@ -581,10 +558,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 _logger.LogInformation(
                     "CALCULATED ITN SIGNATURE: {Signature}",
                     calculatedSignature);
-
-                // =====================================================
-                // VERIFY SIGNATURE
-                // =====================================================
 
                 if (!string.Equals(
                     receivedSignature,
@@ -601,10 +574,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 _logger.LogInformation(
                     "PAYFAST ITN SIGNATURE VERIFIED SUCCESSFULLY");
 
-                // =====================================================
-                // GET PAYMENT INFORMATION
-                // =====================================================
-
+                
                 var paymentStatus =
                     form["payment_status"]
                         .ToString();
@@ -629,10 +599,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Amount: {Amount}",
                     amount);
 
-                // =====================================================
-                // FIND PAYMENT HISTORY RECORD
-                // =====================================================
-
                 var payment =
                     _context.Payments
                         .FirstOrDefault(
@@ -648,10 +614,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                     return Ok();
                 }
-
-                // =====================================================
-                // FIND MEMBERSHIP
-                // =====================================================
 
                 var membership =
                     _context.Memberships
@@ -669,18 +631,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     return Ok();
                 }
 
-                // =====================================================
-                // PAYMENT COMPLETE
-                // =====================================================
-
                 if (paymentStatus.Equals(
                     "COMPLETE",
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    // =================================================
-                    // PREVENT DUPLICATE ACTIVATION
-                    // =================================================
-
                     if (membership.Status == "Active" &&
                         membership.PaymentStatus == "Completed")
                     {
@@ -691,32 +645,16 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         return Ok();
                     }
 
-                    // =================================================
-                    // GET MEMBERSHIP DURATION
-                    // =================================================
-
                     var durationMonths =
                         GetMembershipDurationMonths(
                             membership.MembershipType);
 
-                    // =================================================
-                    // SET START DATE
-                    // =================================================
-
                     var startDate =
                         DateTime.Now;
-
-                    // =================================================
-                    // CALCULATE END DATE
-                    // =================================================
 
                     var endDate =
                         startDate.AddMonths(
                             durationMonths);
-
-                    // =================================================
-                    // ACTIVATE MEMBERSHIP
-                    // =================================================
 
                     membership.Status =
                         "Active";
@@ -733,10 +671,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     membership.EndDate =
                         endDate;
 
-                    // =================================================
-                    // UPDATE PAYMENT HISTORY
-                    // =================================================
-
+                
                     payment.PaymentStatus =
                         "Completed";
 
@@ -744,10 +679,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         DateTime.Now;
 
                     await _context.SaveChangesAsync();
-
-                    // =================================================
-                    // LOG SUCCESS
-                    // =================================================
 
                     _logger.LogInformation(
                         "========================================");
@@ -786,10 +717,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         "========================================");
                 }
 
-                // =====================================================
-                // PAYMENT FAILED / CANCELLED
-                // =====================================================
-
+                
                 else if (
                     paymentStatus.Equals(
                         "CANCELLED",
@@ -828,10 +756,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
         }
 
-        // =========================================================
-        // CHECK PAYMENT STATUS
-        // =========================================================
-
+       
         [HttpGet]
         public IActionResult CheckPaymentStatus(
             int membershipId)
@@ -859,10 +784,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 });
         }
 
-        // =========================================================
-        // PAYMENT COMPLETE
-        // =========================================================
-
+      
         [HttpGet]
         public IActionResult PaymentComplete(
             int membershipId)
@@ -906,10 +828,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Member");
             }
         }
-
-        // =========================================================
-        // PROCESSING
-        // =========================================================
 
         [HttpGet]
         public IActionResult Processing(

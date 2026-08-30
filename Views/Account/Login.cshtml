@@ -8,8 +8,6 @@
 
     <div class="login-container">
 
-        <!-- LEFT PANEL -->
-
         <div class="login-left-panel">
 
             <div class="login-branding">
@@ -31,7 +29,6 @@
         </div>
 
 
-        <!-- RIGHT PANEL -->
 
         <div class="login-right-panel">
 
@@ -46,7 +43,6 @@
                 </p>
 
 
-                <!-- PASSWORD RESET SUCCESS -->
                 @if (TempData["PasswordResetSuccess"] != null)
                 {
                     <div class="alert alert-success">
@@ -56,8 +52,6 @@
                     </div>
                 }
 
-
-                <!-- REGISTRATION SUCCESS -->
                 @if (TempData["RegistrationSuccess"] != null)
                 {
                     <div class="alert alert-success">
@@ -68,8 +62,6 @@
                 }
 
 
-                <!-- LOGIN FORM -->
-
                 <form asp-controller="Account"
                       asp-action="Login"
                       method="post">
@@ -77,14 +69,10 @@
                     @Html.AntiForgeryToken()
 
 
-                    <!-- VALIDATION -->
-
                     <div asp-validation-summary="ModelOnly"
                          class="text-danger mb-3">
                     </div>
 
-
-                    <!-- EMAIL -->
 
                     <div class="mb-4">
 
@@ -103,8 +91,6 @@
 
                     </div>
 
-
-                    <!-- PASSWORD -->
 
                     <div class="mb-4">
 
@@ -137,9 +123,6 @@
 
                     </div>
 
-
-                    <!-- FORGOT PASSWORD -->
-
                     <div class="forgot-password">
 
                         <a asp-controller="Account"
@@ -152,8 +135,6 @@
                     </div>
 
 
-                    <!-- LOGIN BUTTON -->
-
                     <button type="submit"
                             class="btn login-btn w-100">
 
@@ -161,8 +142,6 @@
 
                     </button>
 
-
-                    <!-- REGISTER -->
 
                     <div class="text-center mt-4">
 

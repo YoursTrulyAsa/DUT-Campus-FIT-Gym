@@ -1,0 +1,124 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Announcement>
+
+@{
+    ViewData["Title"] = "Announcements";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-page">
+
+    <div class="admin-page-header">
+
+        <div>
+            <span class="admin-page-label">DUT CAMPUS FIT GYM</span>
+            <h1>Announcements</h1>
+            <p>Manage announcements displayed to gym members.</p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="AddAnnouncement"
+           class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i>
+            Add Announcement
+        </a>
+
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="announcements-list">
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <i class="fa-regular fa-bell"></i>
+                <h3>No announcements yet</h3>
+                <p>Create your first announcement for gym members.</p>
+
+                <a asp-controller="Admin"
+                   asp-action="AddAnnouncement"
+                   class="btn btn-primary">
+                    Add Announcement
+                </a>
+            </div>
+        }
+        else
+        {
+            foreach (var announcement in Model)
+            {
+                <div class="announcement-admin-card">
+
+                    <div class="announcement-admin-content">
+
+                        <div class="announcement-top">
+
+                            <span class="announcement-category">
+                                @announcement.Category
+                            </span>
+
+                            <span class="announcement-date">
+                                @announcement.DatePosted.ToString("dd MMM yyyy, HH:mm")
+                            </span>
+
+                        </div>
+
+                        <h3>
+                            @announcement.Title
+                        </h3>
+
+                        <p>
+                            @announcement.Message
+                        </p>
+
+                    </div>
+
+                    <div class="announcement-admin-actions">
+
+                        <form asp-controller="Admin"
+                              asp-action="DeleteAnnouncement"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@announcement.AnnouncementID" />
+
+                            <button type="submit"
+                                    class="btn btn-outline-danger"
+                                    onclick="return confirm('Delete this announcement?');">
+
+                                <i class="fa-solid fa-trash"></i>
+                                Delete
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            }
+        }
+
+    </div>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/admin-announcements.css"
+          asp-append-version="true" />
+}

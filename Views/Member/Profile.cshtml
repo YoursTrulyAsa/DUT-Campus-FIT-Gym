@@ -6,7 +6,6 @@
 
 <div class="profile-page">
 
-    <!-- PAGE HEADER -->
     <div class="profile-header">
 
         <div>
@@ -32,7 +31,6 @@
     </div>
 
 
-    <!-- SUCCESS MESSAGE -->
     @if (TempData["ProfileSuccess"] != null)
     {
         <div class="alert alert-success">
@@ -41,10 +39,8 @@
     }
 
 
-    <!-- PROFILE CONTENT -->
     <div class="profile-container">
 
-        <!-- PROFILE SUMMARY -->
         <div class="profile-summary">
 
             <div class="profile-avatar">
@@ -65,8 +61,6 @@
 
         </div>
 
-
-        <!-- ACCOUNT DETAILS -->
         <div class="profile-card">
 
             <div class="profile-card-header">
@@ -85,8 +79,6 @@
 
             </div>
 
-
-            <!-- EDIT FORM -->
             <form asp-controller="Member"
                   asp-action="Profile"
                   method="post">
@@ -98,7 +90,6 @@
                 </div>
 
 
-                <!-- EDITABLE DETAILS -->
                 <div class="profile-details">
 
                     <div class="profile-field">
@@ -140,8 +131,6 @@
 
                     </div>
 
-
-                    <!-- READ-ONLY STUDENT NUMBER -->
                     <div class="profile-field">
 
                         <span>
@@ -154,8 +143,6 @@
 
                     </div>
 
-
-                    <!-- READ-ONLY EMAIL -->
                     <div class="profile-field">
 
                         <span>
@@ -168,8 +155,6 @@
 
                     </div>
 
-
-                    <!-- EDITABLE PHONE NUMBER -->
                     <div class="profile-field">
 
                         <label for="phoneNumber">
@@ -189,8 +174,6 @@
 
                     </div>
 
-
-                    <!-- READ-ONLY ROLE -->
                     <div class="profile-field">
 
                         <span>
@@ -205,8 +188,6 @@
 
                 </div>
 
-
-                <!-- SAVE BUTTON -->
                 <div class="mt-4">
 
                     <button type="submit"

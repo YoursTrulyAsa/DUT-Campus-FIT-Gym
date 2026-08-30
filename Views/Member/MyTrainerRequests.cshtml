@@ -4,281 +4,279 @@
     ViewData["Title"] = "My Trainer Requests";
 }
 
-<div class="container mt-5">
+<div class="trainer-page">
 
-    <!-- HEADER -->
+    <div class="trainer-page-header">
 
-    <div class="mb-4">
+        <div>
 
-        <span class="text-muted">
-            DUT CAMPUS FIT GYM
-        </span>
+            <span class="trainer-page-label">
+                DUT CAMPUS FIT GYM
+            </span>
 
-        <h1 class="mt-2">
-            My Trainer Requests
-        </h1>
+            <h1>
+                My Trainer Requests
+            </h1>
 
-        <p class="text-muted">
-            Track the status of your trainer assistance requests.
-        </p>
+            <p>
+                Track the status of your trainer assistance requests.
+            </p>
+
+        </div>
+
+        <div class="trainer-header-icon">
+            <i class="bi bi-person-workspace"></i>
+        </div>
 
     </div>
 
-
-    <!-- SUCCESS MESSAGE -->
     @if (TempData["TrainerRequestSuccess"] != null)
     {
-        <div class="alert alert-success">
+        <div class="trainer-alert trainer-alert-success">
+
+            <i class="bi bi-check-circle-fill"></i>
+
             @TempData["TrainerRequestSuccess"]
+
         </div>
     }
 
-
-    <!-- ERROR MESSAGE -->
     @if (TempData["TrainerRequestError"] != null)
     {
-        <div class="alert alert-danger">
+        <div class="trainer-alert trainer-alert-danger">
+
+            <i class="bi bi-exclamation-circle-fill"></i>
+
             @TempData["TrainerRequestError"]
+
         </div>
     }
 
-
-    <!-- NO REQUESTS -->
     @if (Model == null || !Model.Any())
     {
-        <div class="card shadow-sm">
+        <div class="trainer-empty">
 
-            <div class="card-body text-center p-5">
+            <div class="trainer-empty-icon">
 
-                <div class="mb-3">
-
-                    <i class="bi bi-person-workspace"
-                       style="font-size: 50px;">
-                    </i>
-
-                </div>
-
-                <h4>
-                    No Trainer Requests
-                </h4>
-
-                <p class="text-muted">
-                    You have not requested assistance from a
-                    trainer yet.
-                </p>
-
-                <a asp-controller="Member"
-                   asp-action="RequestTrainer"
-                   class="btn btn-primary">
-
-                    <i class="bi bi-person-plus"></i>
-
-                    Request a Trainer
-
-                </a>
+                <i class="bi bi-person-workspace"></i>
 
             </div>
+
+            <h3>
+                No Trainer Requests
+            </h3>
+
+            <p>
+                You have not requested assistance from a trainer yet.
+                Request a trainer if you need help with your workout,
+                exercises or gym training.
+            </p>
+
+            <a asp-controller="Member"
+               asp-action="RequestTrainer"
+               class="trainer-button trainer-button-primary">
+
+                <i class="bi bi-person-plus-fill"></i>
+
+                Request a Trainer
+
+            </a>
 
         </div>
     }
     else
     {
-        <!-- REQUESTS -->
-
-        <div class="row">
+        <div class="trainer-request-grid">
 
             @foreach (var request in Model)
             {
-                string badgeClass = "bg-secondary";
-
+                string statusClass = "trainer-status-default";
                 string statusIcon = "bi-info-circle";
+
+                string messageClass = "";
 
                 if (request.Status == "Pending")
                 {
-                    badgeClass = "bg-warning text-dark";
+                    statusClass = "trainer-status-pending";
                     statusIcon = "bi-hourglass-split";
+                    messageClass = "pending";
                 }
                 else if (request.Status == "Accepted")
                 {
-                    badgeClass = "bg-success";
-                    statusIcon = "bi-check-circle";
+                    statusClass = "trainer-status-accepted";
+                    statusIcon = "bi-check-circle-fill";
+                    messageClass = "accepted";
                 }
                 else if (request.Status == "Rejected")
                 {
-                    badgeClass = "bg-danger";
-                    statusIcon = "bi-x-circle";
+                    statusClass = "trainer-status-rejected";
+                    statusIcon = "bi-x-circle-fill";
+                    messageClass = "rejected";
                 }
                 else if (request.Status == "Completed")
                 {
-                    badgeClass = "bg-primary";
+                    statusClass = "trainer-status-completed";
                     statusIcon = "bi-check2-all";
+                    messageClass = "completed";
                 }
 
+            <div class="trainer-request-card">
 
-                <div class="col-md-6 mb-4">
+                <div class="trainer-card-header">
 
-                    <div class="card h-100 shadow-sm">
+                    <span class="trainer-card-title">
 
-                        <!-- CARD HEADER -->
+                        <i class="bi bi-person-badge"></i>
 
-                        <div class="card-header d-flex justify-content-between align-items-center">
+                        Trainer Request
 
-                            <strong>
-                                Trainer Request
-                            </strong>
+                    </span>
 
-                            <span class="badge @badgeClass">
+                    <span class="trainer-status @statusClass">
 
-                                <i class="bi @statusIcon"></i>
+                        <i class="bi @statusIcon"></i>
 
-                                @request.Status
+                        @request.Status
 
+                    </span>
+
+                </div>
+
+                <div class="trainer-card-body">
+
+
+                    <div class="trainer-info">
+
+                        <span class="trainer-info-label">
+                            TRAINER
+                        </span>
+
+                        <div class="trainer-name">
+
+                            @(request.Trainer?.TrainerName
+                                                    ?? "Trainer unavailable")
+
+                    </div>
+
+                        </div>
+
+                        <div class="trainer-info">
+
+                            <span class="trainer-info-label">
+                                REQUEST DATE
                             </span>
 
-                        </div>
+                            <div class="trainer-info-value">
+
+                                <i class="bi bi-calendar3"></i>
+
+                                @request.RequestDate.ToString(
+                                                "dd MMM yyyy, HH:mm")
+
+                    </div>
+
+                </div>
+
+                <div class="trainer-info">
+
+                    <span class="trainer-info-label">
+                        YOUR MESSAGE
+                    </span>
+
+                    <div class="trainer-message">
+
+                        @request.RequestMessage
+
+                    </div>
+
+                </div>
+
+                @if (request.ResponseDate.HasValue)
+                        {
+                            <div class="trainer-info">
+
+                                <span class="trainer-info-label">
+                                    RESPONSE DATE
+                                </span>
+
+                                <div class="trainer-info-value">
+
+                                    <i class="bi bi-clock"></i>
+
+                                    @request.ResponseDate.Value.ToString(
+                                    "dd MMM yyyy, HH:mm")
+
+                    </div>
+
+                </div>
+                                }
+                        @if (request.CompletionDate.HasValue)
+                        {
+                            <div class="trainer-info">
+
+                                <span class="trainer-info-label">
+                                    COMPLETION DATE
+                                </span>
+
+                                <div class="trainer-info-value">
+
+                                    <i class="bi bi-check2-circle"></i>
+
+                                    @request.CompletionDate.Value.ToString(
+                                    "dd MMM yyyy, HH:mm")
+
+                    </div>
+
+                </div>
+                                }
 
 
-                        <!-- CARD BODY -->
+                        <!-- =================================================
+                             STATUS MESSAGE
+                             ================================================= -->
+                        @if (request.Status == "Pending")
+                        {
+                            <div class="trainer-status-message pending">
 
-                        <div class="card-body">
+                                <i class="bi bi-hourglass-split"></i>
 
-                            <!-- TRAINER -->
-
-                            <div class="mb-3">
-
-                                <small class="text-muted">
-                                    TRAINER
-                                </small>
-
-                                <h5 class="mb-0">
-
-                                    @(request.Trainer?.TrainerName
-                                        ?? "Trainer unavailable")
-
-                                </h5>
+                                Your request is waiting for the trainer
+                                to respond.
 
                             </div>
+                        }
+                        else if (request.Status == "Accepted")
+                        {
+                            <div class="trainer-status-message accepted">
 
+                                <i class="bi bi-check-circle-fill"></i>
 
-                            <!-- REQUEST DATE -->
-
-                            <div class="mb-3">
-
-                                <small class="text-muted">
-                                    REQUEST DATE
-                                </small>
-
-                                <div>
-
-                                    @request.RequestDate.ToString(
-                                        "dd MMM yyyy HH:mm")
-
-                                </div>
+                                Your trainer request has been accepted.
+                                Your trainer can now assist you.
 
                             </div>
+                        }
+                        else if (request.Status == "Rejected")
+                        {
+                            <div class="trainer-status-message rejected">
 
+                                <i class="bi bi-x-circle-fill"></i>
 
-                            <!-- MESSAGE -->
-
-                            <div class="mb-3">
-
-                                <small class="text-muted">
-                                    YOUR MESSAGE
-                                </small>
-
-                                <div class="mt-1">
-
-                                    @request.RequestMessage
-
-                                </div>
+                                Your trainer request was rejected.
+                                You may request another trainer.
 
                             </div>
+                        }
+                        else if (request.Status == "Completed")
+                        {
+                            <div class="trainer-status-message completed">
 
+                                <i class="bi bi-check2-all"></i>
 
-                            <!-- RESPONSE DATE -->
-                            @if (request.ResponseDate.HasValue)
-                            {
-                                <div class="mb-3">
+                                This trainer session has been completed.
 
-                                    <small class="text-muted">
-                                        RESPONSE DATE
-                                    </small>
-
-                                    <div>
-
-                                        @request.ResponseDate.Value.ToString(
-                                            "dd MMM yyyy HH:mm")
-
-                                    </div>
-
-                                </div>
-                            }
-                            <!-- COMPLETION DATE -->
-                            @if (request.CompletionDate.HasValue)
-                            {
-                                <div class="mb-3">
-
-                                    <small class="text-muted">
-                                        COMPLETION DATE
-                                    </small>
-
-                                    <div>
-                                        @request.CompletionDate.Value.ToString(
-                                            "dd MMM yyyy HH:mm")
-                                    </div>
-
-                                </div>
-                            }
-
-
-                            <!-- STATUS MESSAGE -->
-                            @if (request.Status == "Pending")
-                            {
-                                <div class="alert alert-warning mb-0">
-
-                                    <i class="bi bi-hourglass-split"></i>
-
-                                    Your request is waiting for the
-                                    trainer to respond.
-
-                                </div>
-                            }
-                            else if (request.Status == "Accepted")
-                            {
-                                <div class="alert alert-success mb-0">
-
-                                    <i class="bi bi-check-circle"></i>
-
-                                    Your trainer request has been
-                                    accepted. Your trainer can now
-                                    assist you.
-
-                                </div>
-                            }
-                            else if (request.Status == "Rejected")
-                            {
-                                <div class="alert alert-danger mb-0">
-
-                                    <i class="bi bi-x-circle"></i>
-
-                                    Your trainer request was rejected.
-                                    You may request another trainer.
-
-                                </div>
-                            }
-                            else if (request.Status == "Completed")
-                            {
-                                <div class="alert alert-primary mb-0">
-
-                                    <i class="bi bi-check2-all"></i>
-
-                                    This trainer session has been
-                                    completed.
-
-                                </div>
-                            }
-
-                        </div>
+                            </div>
+                        }
 
                     </div>
 
@@ -287,39 +285,37 @@
 
         </div>
 
-
-        <!-- REQUEST ANOTHER TRAINER -->
-
-        <div class="mt-2 mb-5">
+        <div class="trainer-actions">
 
             <a asp-controller="Member"
                asp-action="RequestTrainer"
-               class="btn btn-primary">
+               class="trainer-button trainer-button-primary">
 
-                <i class="bi bi-person-plus"></i>
+                <i class="bi bi-person-plus-fill"></i>
 
                 Request a Trainer
 
             </a>
 
         </div>
+
     }
 
+    <a asp-controller="Member"
+       asp-action="Dashboard"
+       class="trainer-back-button">
 
-    <!-- BACK TO DASHBOARD -->
+        <i class="bi bi-arrow-left"></i>
 
-    <div class="mb-5">
+        Back to Dashboard
 
-        <a asp-controller="Member"
-           asp-action="Dashboard"
-           class="btn btn-outline-secondary">
-
-            <i class="bi bi-arrow-left"></i>
-
-            Back to Dashboard
-
-        </a>
-
-    </div>
+    </a>
 
 </div>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/trainer-requests.css"
+          asp-append-version="true" />
+}

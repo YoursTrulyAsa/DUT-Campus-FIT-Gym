@@ -16,10 +16,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context = context;
         }
 
-        // =========================
-        // PAYMENT PAGE
-        // =========================
-
         [HttpGet]
         public IActionResult Index(int id)
         {
@@ -43,7 +39,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return NotFound();
             }
 
-            // Only approved memberships can be paid for
             if (membership.Status != "WaitingForPayment")
             {
                 TempData["PaymentError"] =
@@ -65,11 +60,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View();
         }
-
-
-        // =========================
-        // PAYMENT SUCCESS
-        // =========================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -105,7 +95,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Member");
             }
 
-            // Payment successful
             membership.Status = "Active";
 
             _context.SaveChanges();

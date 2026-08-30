@@ -1,12 +1,11 @@
 ﻿@model DUT_Campus_FIT_Gym.ViewModels.AdminDashboardViewModel
 
 @{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Admin Dashboard";
 }
 
 <div class="admin-dashboard">
-
-    <!-- HEADER -->
 
     <div class="admin-dashboard-header">
 
@@ -45,33 +44,10 @@
 
             </div>
 
-
-            <!-- LOGOUT -->
-
-            <form asp-controller="Account"
-                  asp-action="Logout"
-                  method="post"
-                  class="ms-3">
-
-                @Html.AntiForgeryToken()
-
-                <button type="submit"
-                        class="btn btn-outline-danger">
-
-                    <i class="fa-solid fa-right-from-bracket"></i>
-
-                    Logout
-
-                </button>
-
-            </form>
-
         </div>
 
     </div>
 
-
-    <!-- SUCCESS MESSAGE -->
     @if (TempData["Success"] != null)
     {
         <div class="admin-alert admin-alert-success">
@@ -86,7 +62,6 @@
     }
 
 
-    <!-- ERROR MESSAGE -->
     @if (TempData["Error"] != null)
     {
         <div class="admin-alert admin-alert-error">
@@ -101,11 +76,7 @@
     }
 
 
-    <!-- STATISTICS -->
-
     <div class="admin-stats">
-
-        <!-- TOTAL MEMBERS -->
 
         <a asp-controller="Admin"
            asp-action="Members"
@@ -136,8 +107,6 @@
         </a>
 
 
-        <!-- PENDING APPLICATIONS -->
-
         <a asp-controller="Admin"
            asp-action="MembershipApplications"
            class="admin-stat-card admin-stat-warning">
@@ -165,9 +134,6 @@
             <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
 
         </a>
-
-
-        <!-- ACTIVE MEMBERSHIPS -->
 
         <a asp-controller="Admin"
            asp-action="Members"
@@ -198,8 +164,6 @@
         </a>
 
 
-        <!-- AVAILABLE EQUIPMENT -->
-
         <a asp-controller="Admin"
            asp-action="Equipment"
            class="admin-stat-card">
@@ -229,8 +193,6 @@
         </a>
 
 
-        <!-- UNAVAILABLE EQUIPMENT -->
-
         <a asp-controller="Admin"
            asp-action="Equipment"
            class="admin-stat-card admin-stat-danger">
@@ -259,8 +221,6 @@
 
         </a>
 
-
-        <!-- RESERVATIONS -->
 
         <a asp-controller="Admin"
            asp-action="Reservations"
@@ -293,11 +253,7 @@
     </div>
 
 
-    <!-- MAIN GRID -->
-
     <div class="admin-dashboard-grid">
-
-        <!-- QUICK ACTIONS -->
 
         <section class="admin-card quick-actions-card">
 
@@ -328,9 +284,6 @@
 
             <div class="admin-quick-actions">
 
-
-                <!-- MEMBERSHIP APPLICATIONS -->
-
                 <a asp-controller="Admin"
                    asp-action="MembershipApplications"
                    class="admin-quick-action">
@@ -355,8 +308,6 @@
 
                 </a>
 
-
-                <!-- MANAGE MEMBERS -->
 
                 <a asp-controller="Admin"
                    asp-action="Members"
@@ -383,8 +334,6 @@
                 </a>
 
 
-                <!-- MANAGE EQUIPMENT -->
-
                 <a asp-controller="Admin"
                    asp-action="Equipment"
                    class="admin-quick-action">
@@ -409,8 +358,6 @@
 
                 </a>
 
-
-                <!-- MEMBER CHECK-IN -->
 
                 <a asp-controller="Admin"
                    asp-action="Scanner"
@@ -437,8 +384,6 @@
                 </a>
 
 
-                <!-- RESERVATIONS -->
-
                 <a asp-controller="Admin"
                    asp-action="Reservations"
                    class="admin-quick-action">
@@ -463,8 +408,6 @@
 
                 </a>
 
-
-                <!-- ADD TRAINER -->
 
                 <a asp-controller="Admin"
                    asp-action="AddTrainer"
@@ -494,8 +437,6 @@
 
         </section>
 
-
-        <!-- RECENT APPLICATIONS -->
 
         <section class="admin-card recent-applications-card">
 

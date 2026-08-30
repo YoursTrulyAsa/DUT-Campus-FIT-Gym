@@ -10,54 +10,28 @@
 
     <title>@ViewData["Title"] - DUT Campus FIT Gym</title>
 
-
-    <!-- =========================================
-         BOOTSTRAP
-         ========================================= -->
-
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-
-    <!-- =========================================
-         SITE CSS
-         ========================================= -->
 
     <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
 
 
-    <!-- =========================================
-         MEMBER CREATE CSS
-         ========================================= -->
-
     <link rel="stylesheet"
           href="~/css/Member-Create.css"
           asp-append-version="true" />
-
-
-    <!-- =========================================
-         WORKOUT CSS
-         ========================================= -->
 
     <link rel="stylesheet"
           href="~/css/Workout.css"
           asp-append-version="true" />
 
 
-    <!-- =========================================
-         MEMBERSHIP CSS
-         ========================================= -->
-
     <link rel="stylesheet"
           href="~/css/membership.css"
           asp-append-version="true" />
 
-
-    <!-- =========================================
-         GOOGLE FONT
-         ========================================= -->
 
     <link rel="preconnect"
           href="https://fonts.googleapis.com" />
@@ -70,34 +44,20 @@
           rel="stylesheet" />
 
 
-    <!-- =========================================
-         FAVICON
-         ========================================= -->
-
     <link rel="icon"
           type="image/png"
           href="~/images/DUT_Campus_FIT_Gym_Emblem.png" />
 
 
-    <!-- =========================================
-         BOOTSTRAP ICONS
-         ========================================= -->
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
 
-    <!-- =========================================
-         FONT AWESOME
-         ========================================= -->
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-
-    <!-- =========================================
-         PAGE-SPECIFIC STYLES
-         ========================================= -->
     @await RenderSectionAsync("Styles", required: false)
 
 </head>
@@ -145,25 +105,13 @@
         isStudent && !isAccountPage;
     }
 
-
-    <!-- =====================================================
-         STUDENT LAYOUT
-         ===================================================== -->
     @if (showStudentSidebar)
     {
         <div class="app-layout">
 
-            <!-- =========================================
-                 STUDENT SIDEBAR
-                 ========================================= -->
-
             <aside class="sidebar"
                    id="studentSidebar">
 
-
-                <!-- =====================================
-                     SIDEBAR BRAND
-                     ===================================== -->
 
                 <div class="sidebar-brand">
 
@@ -182,8 +130,6 @@
                     </div>
 
 
-                    <!-- SIDEBAR TOGGLE -->
-
                     <button type="button"
                             class="sidebar-toggle"
                             id="sidebarToggle"
@@ -196,19 +142,11 @@
 
                 </div>
 
-
-                <!-- =====================================
-                     NAVIGATION
-                     ===================================== -->
-
                 <nav class="sidebar-nav">
 
                     <div class="nav-title">
                         MAIN MENU
                     </div>
-
-
-                    <!-- DASHBOARD -->
 
                     <a asp-controller="Member"
                        asp-action="Dashboard"
@@ -225,8 +163,6 @@
                     </a>
 
 
-                    <!-- PROFILE -->
-
                     <a asp-controller="Member"
                        asp-action="Profile"
                        class="sidebar-link @(controller == "Member" && action == "Profile" ? "active" : "")">
@@ -240,9 +176,6 @@
                         </span>
 
                     </a>
-
-
-                    <!-- CREATE MEMBERSHIP -->
 
                     <a asp-controller="Member"
                        asp-action="Create"
@@ -259,8 +192,6 @@
                     </a>
 
 
-                    <!-- MEMBERSHIP -->
-
                     <a asp-controller="Member"
                        asp-action="Membership"
                        class="sidebar-link @(controller == "Member" && action == "Membership" ? "active" : "")">
@@ -275,8 +206,6 @@
 
                     </a>
 
-
-                    <!-- VIRTUAL GYM CARD -->
 
                     <a asp-controller="Member"
                        asp-action="GymCard"
@@ -293,8 +222,6 @@
                     </a>
 
 
-                    <!-- CHECK-IN -->
-
                     <a asp-controller="Member"
                        asp-action="CheckIn"
                        class="sidebar-link @(controller == "Member" && action == "CheckIn" ? "active" : "")">
@@ -310,8 +237,6 @@
                     </a>
 
 
-                    <!-- ATTENDANCE -->
-
                     <a asp-controller="Member"
                        asp-action="Attendance"
                        class="sidebar-link @(controller == "Member" && action == "Attendance" ? "active" : "")">
@@ -325,9 +250,6 @@
                         </span>
 
                     </a>
-
-
-                    <!-- EQUIPMENT -->
 
                     <a asp-controller="Member"
                        asp-action="Equipment"
@@ -344,8 +266,6 @@
                     </a>
 
 
-                    <!-- RESERVATIONS -->
-
                     <a asp-controller="Member"
                        asp-action="Reservations"
                        class="sidebar-link @(controller == "Member" && action == "Reservations" ? "active" : "")">
@@ -361,8 +281,6 @@
                     </a>
 
 
-                    <!-- WORKOUT PLAN -->
-
                     <a asp-controller="Workout"
                        asp-action="MyWorkout"
                        class="sidebar-link @(controller == "Workout" ? "active" : "")">
@@ -377,9 +295,6 @@
 
                     </a>
 
-
-                    <!-- WORKOUT PROFILE -->
-
                     <a asp-controller="WorkoutProfile"
                        asp-action="Index"
                        class="sidebar-link @(controller == "WorkoutProfile" ? "active" : "")">
@@ -393,9 +308,6 @@
                         </span>
 
                     </a>
-
-
-                    <!-- PAYMENTS -->
 
                     <a asp-controller="Member"
                        asp-action="Payment"
@@ -412,8 +324,6 @@
                     </a>
 
 
-                    <!-- ANNOUNCEMENTS -->
-
                     <a asp-controller="Member"
                        asp-action="Announcements"
                        class="sidebar-link @(controller == "Member" && action == "Announcements" ? "active" : "")">
@@ -428,7 +338,6 @@
 
                     </a>
 
-                    <!--Support-->
                     <a asp-controller="Support"
                        asp-action="Index"
                        class="sidebar-link">
@@ -438,10 +347,6 @@
 
                 </nav>
 
-
-                <!-- =========================================
-                     STUDENT LOGOUT
-                     ========================================= -->
 
                 <div class="sidebar-bottom">
 
@@ -471,10 +376,6 @@
             </aside>
 
 
-            <!-- =========================================
-                 STUDENT MAIN CONTENT
-                 ========================================= -->
-
             <main class="main-content">
 
                 @RenderBody()
@@ -485,16 +386,8 @@
     }
 
 
-    <!-- =====================================================
-         NON-STUDENT LAYOUT
-         ===================================================== -->
     @if (!showStudentSidebar)
     {
-
-        <!-- =========================================
-             TOP BAR
-             TRAINER / ADMIN / STAFF
-             ========================================= -->
         @if (isAuthenticated && !isAccountPage)
         {
             <div class="role-topbar">
@@ -528,10 +421,6 @@
                 </div>
 
 
-                <!-- =====================================
-                     LOGOUT
-                     ===================================== -->
-
                 <form asp-controller="Account"
                       asp-action="Logout"
                       method="post"
@@ -556,10 +445,6 @@
         }
 
 
-        <!-- =========================================
-             NON-STUDENT PAGE CONTENT
-             ========================================= -->
-
         <main class="non-student-content">
 
             @RenderBody()
@@ -569,10 +454,6 @@
     }
 
 
-    <!-- =============================================
-         JAVASCRIPT
-         ============================================= -->
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -581,15 +462,9 @@
             asp-append-version="true"></script>
 
 
-    <!-- =============================================
-         PAGE-SPECIFIC SCRIPTS
-         ============================================= -->
     @await RenderSectionAsync("Scripts", required: false)
 
 
-    <!-- =============================================
-         SIDEBAR TOGGLE
-         ============================================= -->
 
     <script>
 

@@ -17,10 +17,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context = context;
         }
 
-        // =========================================================
-        // TRAINER DASHBOARD
-        // =========================================================
-
         public async Task<IActionResult> Index()
         {
             var trainerEmail =
@@ -40,7 +36,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return NotFound("Trainer account was not found.");
             }
 
-            // Current active request
             var activeRequest = await _context.TrainerRequests
      .Include(r => r.Student)
          .ThenInclude(s => s.WorkoutProfiles)
@@ -50,7 +45,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
          r.TrainerId == trainer.TrainerId &&
          r.Status == "Accepted");
 
-            // Number of pending requests
             var pendingRequests = await _context.TrainerRequests
                 .CountAsync(r =>
                     r.TrainerId == trainer.TrainerId &&
@@ -77,12 +71,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View();
         }
 
-
-        // =========================================================
-        // EQUIPMENT
-        // =========================================================
-
-        public async Task<IActionResult> Equipment()
+     public async Task<IActionResult> Equipment()
         {
             var equipment =
                 await _context.Equipment
@@ -91,11 +80,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(equipment);
         }
-
-
-        // =========================================================
-        // ADD EQUIPMENT
-        // =========================================================
 
         [HttpGet]
         public IActionResult AddEquipment()
@@ -124,11 +108,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(nameof(Equipment));
         }
 
-
-        // =========================================================
-        // WORKOUTS
-        // =========================================================
-
         public async Task<IActionResult> Workouts()
         {
             var workouts = await _context.WorkoutPlans
@@ -139,10 +118,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(workouts);
         }
 
-        // =========================================================
-        // STUDENT WORKOUT PROFILES
-        // =========================================================
-
+       
         public async Task<IActionResult> StudentProfiles()
         {
             var students = await _context.Members
@@ -156,11 +132,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(students);
         }
-
-
-        // =========================================================
-        // VIEW STUDENT WORKOUT PROFILE
-        // =========================================================
 
         public async Task<IActionResult> ViewProfile(int id)
         {
@@ -180,11 +151,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(student);
         }
 
-
-        // =========================================================
-        // CREATE WORKOUT
-        // =========================================================
-
         [HttpGet]
         public async Task<IActionResult> CreateWorkout()
         {
@@ -198,11 +164,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View();
         }
-
-
-        // =========================================================
-        // SAVE WORKOUT
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -251,11 +212,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(nameof(Workouts));
         }
 
-
-        // =========================================================
-        // TRAINER REQUESTS
-        // =========================================================
-
         public async Task<IActionResult> Requests()
         {
             var trainerEmail =
@@ -276,7 +232,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Trainer account was not found.");
             }
 
-            // Current active request
             var activeRequest =
                 await _context.TrainerRequests
                     .Include(r => r.Student)
@@ -284,7 +239,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         r.TrainerId == trainer.TrainerId &&
                         r.Status == "Accepted");
 
-            // All requests belonging to this trainer
             var requests =
                 await _context.TrainerRequests
                     .Include(r => r.Student)
@@ -297,11 +251,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(requests);
         }
-
-
-        // =========================================================
-        // ACCEPT REQUEST
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -325,10 +274,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Trainer account was not found.");
             }
 
-
-            // IMPORTANT:
-            // Check whether trainer already has an active workout.
-
             var activeRequest =
                 await _context.TrainerRequests
                     .FirstOrDefaultAsync(r =>
@@ -343,8 +288,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Requests));
             }
 
-
-            // Find the requested student request
 
             var request =
                 await _context.TrainerRequests
@@ -361,7 +304,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // Make sure request is still pending
 
             if (request.Status != "Pending")
             {
@@ -372,7 +314,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // Accept request
 
             request.Status = "Accepted";
             request.ResponseDate = DateTime.Now;
@@ -384,11 +325,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return RedirectToAction(nameof(Requests));
         }
-
-
-        // =========================================================
-        // REJECT REQUEST
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -448,11 +384,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(nameof(Requests));
         }
 
-
-        // =========================================================
-        // COMPLETE WORKOUT
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CompleteRequest(int id)
@@ -476,8 +407,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // Find the active request belonging to this trainer
-
             var request =
                 await _context.TrainerRequests
                     .FirstOrDefaultAsync(r =>
@@ -493,8 +422,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Requests));
             }
 
-
-            // Mark workout as completed
 
             request.Status = "Completed";
             request.ResponseDate = DateTime.Now;
