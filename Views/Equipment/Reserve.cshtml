@@ -14,8 +14,6 @@
         </p>
     </div>
 
-
-    <!-- SUCCESS MESSAGE -->
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">
@@ -23,8 +21,6 @@
         </div>
     }
 
-
-    <!-- ERROR MESSAGE -->
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger">
@@ -82,8 +78,6 @@
                             {
                                 <tr>
 
-                                    <!-- EQUIPMENT -->
-
                                     <td>
 
                                         <strong>
@@ -93,8 +87,6 @@
                                     </td>
 
 
-                                    <!-- START TIME -->
-
                                     <td>
 
                                         @reservation.ReservationDate.ToString(
@@ -102,18 +94,12 @@
 
                             </td>
 
-
-                            <!-- END TIME -->
-
                             <td>
 
                                 @reservation.EndTime.ToString(
                                                                 "dd MMM yyyy HH:mm:ss")
 
                             </td>
-
-
-                            <!-- STATUS -->
 
                             <td>
 
@@ -145,7 +131,6 @@
                                     </td>
 
 
-                                    <!-- ACTION -->
 
                                     <td class="text-center">
 

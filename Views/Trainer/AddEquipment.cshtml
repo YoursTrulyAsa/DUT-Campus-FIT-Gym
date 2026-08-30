@@ -4,102 +4,128 @@
     ViewData["Title"] = "Add Equipment";
 }
 
-<div class="container mt-4">
+<div class="trainer-page">
 
-    <div class="row justify-content-center">
+    <div class="trainer-page-header">
 
-        <div class="col-md-7">
+        <span class="trainer-page-label">
+            DUT CAMPUS FIT GYM
+        </span>
 
-            <div class="card shadow">
+        <h1>
+            Add Equipment
+        </h1>
 
-                <div class="card-header">
-                    <h3>Add Equipment</h3>
-                </div>
+        <p>
+            Add new equipment to the gym inventory.
+        </p>
 
-                <div class="card-body">
+    </div>
 
-                    <form asp-controller="Trainer"
-                          asp-action="AddEquipment"
-                          method="post">
+    <div class="trainer-form-card">
 
-                        @Html.AntiForgeryToken()
+        <div class="trainer-section-title">
 
-                        <div asp-validation-summary="ModelOnly"
-                             class="text-danger mb-3">
-                        </div>
+            <h3>
+                Equipment Details
+            </h3>
 
-                        <div class="mb-3">
-                            <label asp-for="EquipmentName"
-                                   class="form-label">
-                                Equipment Name
-                            </label>
+        </div>
 
-                            <input asp-for="EquipmentName"
-                                   class="form-control" />
+        <form asp-controller="Trainer"
+              asp-action="AddEquipment"
+              method="post">
 
-                            <span asp-validation-for="EquipmentName"
-                                  class="text-danger">
-                            </span>
-                        </div>
+            @Html.AntiForgeryToken()
 
-                        <div class="mb-3">
-                            <label asp-for="Category"
-                                   class="form-label">
-                                Category
-                            </label>
+            <div asp-validation-summary="ModelOnly"
+                 class="trainer-alert trainer-alert-danger">
+            </div>
 
-                            <input asp-for="Category"
-                                   class="form-control" />
+            <div class="trainer-form-group">
 
-                            <span asp-validation-for="Category"
-                                  class="text-danger">
-                            </span>
-                        </div>
+                <label asp-for="EquipmentName">
+                    Equipment Name
+                </label>
 
-                        <div class="mb-3">
-                            <label asp-for="Location"
-                                   class="form-label">
-                                Location
-                            </label>
+                <input asp-for="EquipmentName"
+                       class="trainer-form-control"
+                       placeholder="e.g. Treadmill" />
 
-                            <input asp-for="Location"
-                                   class="form-control" />
-
-                            <span asp-validation-for="Location"
-                                  class="text-danger">
-                            </span>
-                        </div>
-
-                        <div class="form-check mb-3">
-
-                            <input asp-for="IsAvailable"
-                                   class="form-check-input" />
-
-                            <label asp-for="IsAvailable"
-                                   class="form-check-label">
-                                Equipment is available
-                            </label>
-
-                        </div>
-
-                        <button type="submit"
-                                class="btn btn-success">
-                            Add Equipment
-                        </button>
-
-                        <a asp-controller="Trainer"
-                           asp-action="Equipment"
-                           class="btn btn-secondary">
-                            Cancel
-                        </a>
-
-                    </form>
-
-                </div>
+                <span asp-validation-for="EquipmentName"
+                      class="text-danger">
+                </span>
 
             </div>
 
-        </div>
+            <div class="trainer-form-group">
+
+                <label asp-for="Category">
+                    Category
+                </label>
+
+                <input asp-for="Category"
+                       class="trainer-form-control"
+                       placeholder="e.g. Cardio, Strength, Free Weights" />
+
+                <span asp-validation-for="Category"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="trainer-form-group">
+
+                <label asp-for="Location">
+                    Location
+                </label>
+
+                <input asp-for="Location"
+                       class="trainer-form-control"
+                       placeholder="e.g. Main Gym Floor" />
+
+                <span asp-validation-for="Location"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="trainer-form-group">
+
+                <label class="d-flex align-items-center gap-2">
+
+                    <input asp-for="IsAvailable"
+                           type="checkbox"
+                           style="width:18px;height:18px;" />
+
+                    Equipment is available
+
+                </label>
+
+            </div>
+
+            <div class="trainer-actions">
+
+                <button type="submit"
+                        class="trainer-btn trainer-btn-success">
+
+                    <i class="fa-solid fa-plus"></i>
+                    Add Equipment
+
+                </button>
+
+                <a asp-controller="Trainer"
+                   asp-action="Equipment"
+                   class="trainer-btn trainer-btn-secondary">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
 
     </div>
 
@@ -107,4 +133,10 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/trainer.css"
+          asp-append-version="true" />
 }

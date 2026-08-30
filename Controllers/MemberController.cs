@@ -1,4 +1,5 @@
 ﻿using DUT_Campus_FIT_Gym.Data;
+using DUT_Campus_FIT_Gym.Filters;
 using DUT_Campus_FIT_Gym.Models;
 using DUT_Campus_FIT_Gym.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -22,10 +23,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context = context;
         }
 
-        // =========================================================
-        // GET MEMBER ID
-        // =========================================================
-
         private int? GetMemberId()
         {
             var memberIdClaim =
@@ -44,11 +41,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return memberId;
         }
 
-        // =========================================================
-        // DASHBOARD
-        // =========================================================
-
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Dashboard()
         {
             var memberId = GetMemberId();
@@ -107,10 +101,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(dashboardData);
         }
 
-        // =========================================================
-        // PROFILE
-        // =========================================================
-
         [HttpGet]
         public IActionResult Profile()
         {
@@ -132,10 +122,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(member);
         }
-
-        // =========================================================
-        // UPDATE PROFILE
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -197,11 +183,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(nameof(Profile));
         }
 
-        // =========================================================
-        // ATTENDANCE
-        // =========================================================
-
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Attendance()
         {
             var memberId = GetMemberId();
@@ -220,12 +203,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(attendance);
         }
-
-        // =========================================================
-        // PAYMENT HISTORY
-        // =========================================================
-
+    
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult PaymentHistory()
         {
             var memberId = GetMemberId();
@@ -246,11 +226,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(payments);
         }
 
-        // =========================================================
-        // ANNOUNCEMENTS
-        // =========================================================
-
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Announcements()
         {
             var announcements = _context.Announcements
@@ -260,10 +237,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(announcements);
         }
-
-        // =========================================================
-        // MEMBERSHIP PAGE
-        // =========================================================
 
         [HttpGet]
         public IActionResult Membership()
@@ -329,10 +302,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(null);
         }
-
-        // =========================================================
-        // MEMBERSHIP APPLICATION - GET
-        // =========================================================
 
         [HttpGet]
         public IActionResult Create()
@@ -411,10 +380,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(membershipPage);
         }
-
-        // =========================================================
-        // MEMBERSHIP APPLICATION - POST
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -684,6 +649,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         // =========================================================
 
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult GymCard()
         {
             var memberId = GetMemberId();
@@ -832,11 +798,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(viewModel);
         }
 
-        // =========================================================
-        // CHECK-IN
-        // =========================================================
-
+      
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult CheckIn()
         {
             var memberId = GetMemberId();
@@ -893,33 +857,25 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(viewModel);
         }
 
-        // =========================================================
-        // OLD CHECK-IN ROUTE
-        // =========================================================
-
+        
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult CheckInPage()
         {
             return RedirectToAction(
                 nameof(CheckIn));
         }
 
-        // =========================================================
-        // CHECK-IN RESULT
-        // =========================================================
-
+       
         [HttpGet]
         public IActionResult CheckInResult()
         {
             return View();
         }
 
-        // =========================================================
-        // CHECK OUT
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult CheckOut()
         {
             var memberId = GetMemberId();
@@ -959,10 +915,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(
                 nameof(CheckIn));
         }
-
-        // =========================================================
-        // QR CHECK-IN
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1068,26 +1020,62 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(nameof(CheckIn));
         }
 
-        // =========================================================
-        // MEMBER EQUIPMENT PAGE
-        // =========================================================
-
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Equipment()
         {
-            var equipment =
-                _context.Equipment
-                    .OrderBy(e => e.EquipmentName)
-                    .ToList();
+            // Automatically expire reservations that have reached their end time
+            var now = DateTime.Now;
 
-            return View(equipment);
+            var expiredReservations = _context.Reservations
+                .Where(r =>
+                    r.Status == "Reserved" &&
+                    r.EndTime <= now)
+                .ToList();
+
+            foreach (var reservation in expiredReservations)
+            {
+                reservation.Status = "Expired";
+
+                var equipment = _context.Equipment
+                    .FirstOrDefault(e =>
+                        e.EquipmentID == reservation.EquipmentID);
+
+                if (equipment != null)
+                {
+                    equipment.IsAvailable = true;
+                }
+            }
+
+            if (expiredReservations.Any())
+            {
+                _context.SaveChanges();
+            }
+
+
+            // Get all equipment
+            var equipmentList = _context.Equipment
+                .OrderBy(e => e.EquipmentName)
+                .ToList();
+
+
+            // Get all currently active reservations
+            var activeReservations = _context.Reservations
+                .Where(r =>
+                    r.Status == "Reserved" &&
+                    r.EndTime > DateTime.Now)
+                .ToList();
+
+
+            // Send reservations to the view
+            ViewBag.ActiveReservations = activeReservations;
+
+
+            return View(equipmentList);
         }
 
-        // =========================================================
-        // MEMBER RESERVATIONS
-        // =========================================================
-
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Reservations()
         {
             var memberId = GetMemberId();
@@ -1100,10 +1088,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             var now = DateTime.Now;
-
-            // -----------------------------------------------------
-            // AUTOMATICALLY EXPIRE OLD RESERVATIONS
-            // -----------------------------------------------------
 
             var expiredReservations = _context.Reservations
                 .Where(r =>
@@ -1132,11 +1116,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 _context.SaveChanges();
             }
-
-            // -----------------------------------------------------
-            // LOAD RESERVATIONS
-            // IMPORTANT: EndTime IS INCLUDED
-            // -----------------------------------------------------
 
             var reservations =
                 (
@@ -1181,12 +1160,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(reservations);
         }
 
-        // =========================================================
-        // UNRESERVE EQUIPMENT
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult Unreserve(
             int reservationId)
         {
@@ -1242,11 +1218,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 nameof(Reservations));
         }
 
-        // =========================================================
-        // REQUEST TRAINER - GET
-        // =========================================================
-
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult RequestTrainer()
         {
             var memberId = GetMemberId();
@@ -1282,12 +1255,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View();
         }
 
-        // =========================================================
-        // REQUEST TRAINER - POST
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult RequestTrainer(
             int trainerId,
             string requestMessage)
@@ -1392,11 +1362,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 nameof(MyTrainerRequests));
         }
 
-        // =========================================================
-        // MY TRAINER REQUESTS
-        // =========================================================
-
         [HttpGet]
+        [ServiceFilter(typeof(ActiveMembershipFilter))]
         public IActionResult MyTrainerRequests()
         {
             var memberId = GetMemberId();
@@ -1420,10 +1387,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(requests);
         }
-
-        // =========================================================
-        // PAYMENT
-        // =========================================================
 
         [HttpGet]
         public IActionResult Payment()
@@ -1461,5 +1424,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "Payment",
                 payments);
         }
+        
+
+        
     }
 }

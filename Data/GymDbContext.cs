@@ -35,10 +35,6 @@ namespace DUT_Campus_FIT_Gym.Data
             base.OnModelCreating(modelBuilder);
 
 
-            // =====================================================
-            // TRAINER REQUEST
-            // =====================================================
-
             modelBuilder.Entity<TrainerRequest>()
                 .HasOne(r => r.Student)
                 .WithMany()
@@ -50,11 +46,6 @@ namespace DUT_Campus_FIT_Gym.Data
                 .WithMany()
                 .HasForeignKey(r => r.TrainerId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-
-            // =====================================================
-            // PAYMENT
-            // =====================================================
 
             modelBuilder.Entity<Payment>()
               .HasOne(p => p.Member)
@@ -68,21 +59,11 @@ namespace DUT_Campus_FIT_Gym.Data
                 .HasForeignKey(p => p.MembershipId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-            // =====================================================
-            // MEMBERSHIP
-            // =====================================================
-
             modelBuilder.Entity<Membership>()
                 .HasOne(m => m.Member)
                 .WithMany(m => m.Memberships)
                 .HasForeignKey(m => m.MemberId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-
-            // =====================================================
-            // MEMBERSHIP APPLICATION
-            // =====================================================
 
             modelBuilder.Entity<MembershipApplication>()
                 .HasOne(a => a.Member)
@@ -91,31 +72,17 @@ namespace DUT_Campus_FIT_Gym.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-            // =====================================================
-            // ATTENDANCE
-            // =====================================================
-
             modelBuilder.Entity<Attendance>()
                 .HasOne(a => a.Member)
                 .WithMany()
                 .HasForeignKey(a => a.MemberId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-            // =====================================================
-            // WORKOUT PROFILE
-            // =====================================================
-
             modelBuilder.Entity<WorkoutProfile>()
                 .HasOne(w => w.Member)
                 .WithMany(m => m.WorkoutProfiles)
                 .HasForeignKey(w => w.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-
-            // =====================================================
-            // WORKOUT PLAN
-            // =====================================================
 
             modelBuilder.Entity<WorkoutPlan>()
                 .HasOne(w => w.Member)

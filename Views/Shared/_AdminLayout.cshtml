@@ -1,0 +1,358 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - DUT Campus FIT Gym
+    </title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin />
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet"
+          href="~/css/admin-layout.css"
+          asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+ 
+</head>
+
+<body class="admin-body">
+
+    <div class="admin-shell">
+
+        <aside class="admin-sidebar">
+
+            <div class="admin-brand">
+
+                <div class="admin-brand-icon">
+
+                    <img src="~/images/DUT-logo.jpg"
+                         alt="DUT Campus FIT Gym"
+                         class="admin-brand-image" />
+
+                </div>
+
+                <div class="admin-brand-text">
+
+                    <strong>
+                        DUT CAMPUS
+                    </strong>
+
+                    <span>
+                        FIT GYM
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div class="admin-profile-icon">
+
+                    <i class="fa-solid fa-user-shield"></i>
+
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Gym Management
+                    </span>
+
+                </div>
+
+            </div>
+
+            <nav class="admin-nav">
+
+                <span class="admin-nav-label">
+                    MAIN MENU
+                </span>
+
+                <a asp-controller="Admin"
+                   asp-action="Index"
+                   class="admin-nav-item @(currentController == "Admin" && currentAction == "Index" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <a asp-controller="Admin"
+                   asp-action="MembershipApplications"
+                   class="admin-nav-item @(currentAction == "MembershipApplications" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Applications
+                    </span>
+
+                </a>
+
+                <a asp-controller="Admin"
+                   asp-action="Members"
+                   class="admin-nav-item @(currentAction == "Members" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Members
+                    </span>
+
+                </a>
+
+                <a asp-controller="Admin"
+                   asp-action="Equipment"
+                   class="admin-nav-item @(currentAction == "Equipment" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-dumbbell"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Equipment
+                    </span>
+
+                </a>
+
+                <a asp-controller="Admin"
+                   asp-action="Reservations"
+                   class="admin-nav-item @(currentAction == "Reservations" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Reservations
+                    </span>
+
+                </a>
+                <a asp-controller="Admin"
+                   asp-action="Scanner"
+                   class="admin-nav-item @(currentAction == "Scanner" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Check-In
+                    </span>
+
+                </a>
+
+                <span class="admin-nav-label admin-nav-label-space">
+                    MANAGEMENT
+                </span>
+
+
+                <a asp-controller="Admin"
+                   asp-action="Announcements"
+                   class="sidebar-link">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Announcements</span>
+                </a>
+                
+                <a asp-controller="Admin"
+                   asp-action="AddTrainer"
+                   class="admin-nav-item @(currentAction == "AddTrainer" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Add Trainer
+                    </span>
+
+                </a>
+
+            </nav>
+
+            <div class="admin-sidebar-footer">
+
+                <div class="admin-sidebar-line"></div>
+
+                <form asp-controller="Account"
+                      asp-action="Logout"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="admin-logout">
+
+                        <span class="admin-nav-icon">
+
+                            <i class="fa-solid fa-right-from-bracket"></i>
+
+                        </span>
+
+                        <span>
+                            Logout
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </aside>
+
+        <main class="admin-main">
+
+            <div class="admin-mobile-header">
+
+                <div class="admin-mobile-brand">
+
+                    <div class="admin-brand-icon">
+
+                        <img src="~/images/DUT-logo.jpg"
+                             alt="DUT Campus FIT Gym"
+                             class="sidebar-tab-image" />
+
+                    </div>
+
+                    <strong>
+                        DUT CAMPUS FIT GYM
+                    </strong>
+
+                </div>
+
+                <button type="button"
+                        class="admin-mobile-menu"
+                        id="adminMobileMenu">
+
+                    <i class="fa-solid fa-bars"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="admin-content">
+
+                @RenderBody()
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <div class="admin-overlay"
+         id="adminOverlay">
+    </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const menuButton =
+                document.getElementById("adminMobileMenu");
+
+            const sidebar =
+                document.querySelector(".admin-sidebar");
+
+            const overlay =
+                document.getElementById("adminOverlay");
+
+
+            if (menuButton) {
+
+                menuButton.addEventListener("click", function () {
+
+                    sidebar.classList.toggle("open");
+
+                    overlay.classList.toggle("show");
+
+                });
+
+            }
+
+
+            if (overlay) {
+
+                overlay.addEventListener("click", function () {
+
+                    sidebar.classList.remove("open");
+
+                    overlay.classList.remove("show");
+
+                });
+
+            }
+
+
+            document
+                .querySelectorAll(".admin-nav-item")
+                .forEach(function (item) {
+
+                    item.addEventListener("click", function () {
+
+                        sidebar.classList.remove("open");
+
+                        overlay.classList.remove("show");
+
+                    });
+
+                });
+
+        });
+
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>

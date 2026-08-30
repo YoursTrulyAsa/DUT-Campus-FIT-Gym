@@ -2,6 +2,11 @@
 
 @{
     ViewData["Title"] = "Equipment";
+
+    var activeReservations =
+        ViewBag.ActiveReservations
+        as List<DUT_Campus_FIT_Gym.Models.Reservation>
+        ?? new List<DUT_Campus_FIT_Gym.Models.Reservation>();
 }
 
 @section Styles {
@@ -29,10 +34,7 @@
     </div>
 
 
-    @* =========================================================
-       SUCCESS MESSAGE
-       ========================================================= *@
-
+    <!-- SUCCESS MESSAGE -->
     @if (TempData["EquipmentSuccess"] != null)
     {
         <div class="alert alert-success">
@@ -43,10 +45,7 @@
     }
 
 
-    @* =========================================================
-       ERROR MESSAGE
-       ========================================================= *@
-
+    <!-- ERROR MESSAGE -->
     @if (TempData["EquipmentError"] != null)
     {
         <div class="alert alert-danger">
@@ -77,6 +76,13 @@
         {
             @foreach (var item in Model)
             {
+                var activeReservation =
+                    activeReservations.FirstOrDefault(r =>
+                        r.EquipmentID == item.EquipmentID &&
+                        r.Status == "Reserved" &&
+                        r.EndTime > DateTime.Now);
+
+
                 <div class="equipment-card">
 
                     <!-- EQUIPMENT ICON -->
@@ -103,27 +109,59 @@
                         </p>
 
 
-                        @if (item.IsAvailable)
+                        <!-- STATUS -->
+                        @if (activeReservation == null)
                         {
                             <span class="status available">
                                 ● Available
                             </span>
+
+                            <div class="small text-success mt-1">
+                                Ready to use
+                            </div>
                         }
                         else
                         {
                             <span class="status unavailable">
-                                ● Unavailable
+                                ● Reserved
                             </span>
+
+
+                            <!-- COUNTDOWN -->
+
+                            <div class="countdown-container">
+
+                                Available in:
+
+                                <strong class="countdown"
+                                        data-end-time="@activeReservation.EndTime.ToString("o")">
+
+                                    --:--
+
+                                </strong>
+
+                            </div>
+
+
+                            <div class="small text-muted">
+
+                                Available again at:
+
+                                <strong>
+                                    @activeReservation.EndTime.ToString("HH:mm")
+                                </strong>
+
+                            </div>
                         }
 
                     </div>
 
 
-                    <!-- RESERVE BUTTON -->
+                    <!-- ACTION -->
 
                     <div class="equipment-action">
 
-                        @if (item.IsAvailable)
+                        @if (activeReservation == null)
                         {
                             <form asp-controller="Equipment"
                                   asp-action="Reserve"
@@ -164,3 +202,114 @@
     </div>
 
 </div>
+
+
+<!-- =========================================================
+     LIVE COUNTDOWN
+     ========================================================= -->
+
+<script>
+
+    let countdownTimer;
+
+
+    function updateCountdowns() {
+
+        const countdowns =
+            document.querySelectorAll(".countdown");
+
+
+        const now =
+            new Date().getTime();
+
+
+        let reservationExpired = false;
+
+
+        countdowns.forEach(function(element) {
+
+            const endTime =
+                new Date(
+                    element.dataset.endTime
+                ).getTime();
+
+
+            const difference =
+                endTime - now;
+
+
+            // =========================================
+            // EXPIRED
+            // =========================================
+
+            if (difference <= 0) {
+
+                element.textContent = "00:00";
+
+                reservationExpired = true;
+
+                return;
+            }
+
+
+            // =========================================
+            // REMAINING TIME
+            // =========================================
+
+            const totalSeconds =
+                Math.floor(
+                    difference / 1000
+                );
+
+
+            const minutes =
+                Math.floor(
+                    totalSeconds / 60
+                );
+
+
+            const seconds =
+                totalSeconds % 60;
+
+
+            element.textContent =
+                minutes
+                    .toString()
+                    .padStart(2, "0")
+                + ":"
+                + seconds
+                    .toString()
+                    .padStart(2, "0");
+
+        });
+
+
+        // =========================================
+        // REFRESH WHEN RESERVATION EXPIRES
+        // =========================================
+
+        if (reservationExpired) {
+
+            clearInterval(countdownTimer);
+
+            location.reload();
+
+        }
+
+    }
+
+
+    // Run immediately
+
+    updateCountdowns();
+
+
+    // Update every second
+
+    countdownTimer =
+        setInterval(
+            updateCountdowns,
+            1000
+        );
+
+</script>

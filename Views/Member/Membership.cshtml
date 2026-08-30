@@ -36,9 +36,6 @@
 
 <div class="membership-page">
 
-    <!-- ====================================================== -->
-    <!-- PAGE HEADER -->
-    <!-- ====================================================== -->
 
     <div class="membership-header">
 
@@ -61,9 +58,6 @@
     </div>
 
 
-    <!-- ====================================================== -->
-    <!-- SUCCESS MESSAGE -->
-    <!-- ====================================================== -->
     @if (TempData["MembershipSuccess"] != null)
     {
         <div class="alert alert-success">
@@ -77,10 +71,6 @@
         </div>
     }
 
-
-    <!-- ====================================================== -->
-    <!-- ERROR MESSAGE -->
-    <!-- ====================================================== -->
     @if (TempData["MembershipError"] != null)
     {
         <div class="alert alert-warning">
@@ -94,10 +84,6 @@
         </div>
     }
 
-
-    <!-- ====================================================== -->
-    <!-- PENDING / WAITING FOR PAYMENT APPLICATION -->
-    <!-- ====================================================== -->
     @if (pendingApplication != null)
     {
         <div class="membership-card">
@@ -155,14 +141,7 @@
 
         </div>
 
-
-        <!-- ================================================== -->
-        <!-- APPLICATION DETAILS -->
-        <!-- ================================================== -->
-
         <div class="membership-details-grid">
-
-            <!-- APPLICATION DATE -->
 
             <div class="membership-detail">
 
@@ -185,8 +164,6 @@
             </div>
 
 
-            <!-- MEMBERSHIP PERIOD -->
-
             <div class="membership-detail">
 
                 <div class="detail-icon">
@@ -206,9 +183,6 @@
                 </div>
 
             </div>
-
-
-            <!-- MEMBERSHIP FEE -->
 
             <div class="membership-detail">
 
@@ -230,8 +204,6 @@
 
             </div>
 
-
-            <!-- STATUS -->
 
             <div class="membership-detail">
 
@@ -260,9 +232,6 @@
             </div>
 
 
-            <!-- ================================================== -->
-            <!-- PAYMENT BUTTON -->
-            <!-- ================================================== -->
         @if (pendingApplication.Status == "WaitingForPayment")
             {
                 <div class="membership-actions">
@@ -289,9 +258,6 @@
     }
 
 
-    <!-- ====================================================== -->
-    <!-- NO MEMBERSHIP / NO APPLICATION -->
-    <!-- ====================================================== -->
     @if (pendingApplication == null && !hasMembership)
     {
         <div class="membership-card">
@@ -323,11 +289,6 @@
                 </div>
 
             </div>
-
-
-            <!-- ================================================== -->
-            <!-- MEMBERSHIP PRICES -->
-            <!-- ================================================== -->
 
             <div class="membership-pricing">
 
@@ -367,10 +328,6 @@
             </div>
 
 
-            <!-- ================================================== -->
-            <!-- FIRST-TIME DISCOUNT -->
-            <!-- ================================================== -->
-
             <div class="first-time-discount">
 
                 <i class="bi bi-stars"></i>
@@ -388,11 +345,6 @@
                 </div>
 
             </div>
-
-
-            <!-- ================================================== -->
-            <!-- APPLY -->
-            <!-- ================================================== -->
 
             <div class="membership-actions">
 
@@ -413,17 +365,9 @@
         </div>
     }
 
-
-    <!-- ====================================================== -->
-    <!-- EXISTING MEMBERSHIP -->
-    <!-- ====================================================== -->
     @if (hasMembership)
     {
         <div class="membership-card">
-
-            <!-- ================================================== -->
-            <!-- MEMBERSHIP CARD HEADER -->
-            <!-- ================================================== -->
 
             <div class="membership-card-top">
 
@@ -457,10 +401,7 @@
             </div>
 
 
-            <!-- ================================================== -->
-            <!-- STATUS -->
-            <!-- ================================================== -->
-
+            
             <div class="membership-status-row">
 
                 <span class="membership-status @statusClass">
@@ -477,11 +418,6 @@
 
             </div>
 
-
-            <!-- ================================================== -->
-            <!-- PRICE -->
-            <!-- ================================================== -->
-
             <div class="membership-price">
 
                 <span>
@@ -497,13 +433,7 @@
         </div>
 
 
-        <!-- ====================================================== -->
-        <!-- MEMBERSHIP INFORMATION -->
-        <!-- ====================================================== -->
-
         <div class="membership-info-grid">
-
-            <!-- START DATE -->
 
             <div class="membership-info-card">
 
@@ -532,8 +462,6 @@
             </div>
 
 
-            <!-- END DATE -->
-
             <div class="membership-info-card">
 
                 <div class="info-icon">
@@ -560,8 +488,6 @@
 
             </div>
 
-
-            <!-- DAYS REMAINING -->
         @if (Model.Status == "Active" &&
                 Model.EndDate.HasValue)
             {
@@ -588,9 +514,6 @@
                 </div>
             }
 
-
-            <!-- MEMBERSHIP TYPE -->
-
             <div class="membership-info-card">
 
                 <div class="info-icon">
@@ -615,10 +538,6 @@
 
         </div>
 
-
-        <!-- ====================================================== -->
-        <!-- PAYMENT REQUIRED -->
-        <!-- ====================================================== -->
         @if (Model.Status == "WaitingForPayment")
         {
             <div class="payment-card">
@@ -667,9 +586,6 @@
         }
 
 
-        <!-- ====================================================== -->
-        <!-- ACTIVE MEMBERSHIP -->
-        <!-- ====================================================== -->
         @if (Model.Status == "Active")
         {
             <div class="notice-card notice-active">
@@ -697,9 +613,6 @@
         }
 
 
-        <!-- ====================================================== -->
-        <!-- REJECTED MEMBERSHIP -->
-        <!-- ====================================================== -->
         @if (Model.Status == "Rejected")
         {
             <div class="notice-card notice-rejected">

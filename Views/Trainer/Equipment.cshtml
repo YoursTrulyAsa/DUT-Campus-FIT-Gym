@@ -4,80 +4,192 @@
     ViewData["Title"] = "Manage Equipment";
 }
 
-<div class="container mt-4">
+<div class="trainer-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Manage Equipment</h1>
+    <div class="trainer-page-header">
+
+        <span class="trainer-page-label">
+            DUT CAMPUS FIT GYM
+        </span>
+
+        <h1>
+            Manage Equipment
+        </h1>
+
+        <p>
+            View and manage gym equipment available at the facility.
+        </p>
+
+    </div>
+
+    <div class="trainer-section-title">
+
+        <h2>
+            Equipment Inventory
+        </h2>
 
         <a asp-controller="Trainer"
            asp-action="AddEquipment"
-           class="btn btn-success">
+           class="trainer-btn trainer-btn-success">
+
+            <i class="fa-solid fa-plus"></i>
             Add Equipment
+
         </a>
+
     </div>
 
-    @if (!Model.Any())
+    @if (TempData["Success"] != null)
     {
-        <div class="alert alert-info">
-            No equipment has been added yet.
+        <div class="trainer-alert trainer-alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="trainer-alert trainer-alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="trainer-empty">
+
+            <div class="trainer-empty-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <h3>
+                No Equipment Available
+            </h3>
+
+            <p>
+                No gym equipment has been added yet.
+            </p>
+
+            <div class="trainer-actions">
+
+                <a asp-controller="Trainer"
+                   asp-action="AddEquipment"
+                   class="trainer-btn trainer-btn-success">
+
+                    <i class="fa-solid fa-plus"></i>
+                    Add Equipment
+
+                </a>
+
+            </div>
+
         </div>
     }
     else
     {
-        <div class="table-responsive">
+        <div class="trainer-table-card">
 
-            <table class="table table-bordered table-striped">
+            <div class="trainer-table-wrapper">
 
-                <thead>
-                    <tr>
-                        <th>Equipment</th>
-                        <th>Category</th>
-                        <th>Location</th>
-                        <th>Availability</th>
-                    </tr>
-                </thead>
+                <table class="trainer-table">
 
-                <tbody>
+                    <thead>
 
-                    @foreach (var item in Model)
-                    {
                         <tr>
-                            <td>@item.EquipmentName</td>
 
-                            <td>@item.Category</td>
+                            <th>
+                                Equipment
+                            </th>
 
-                            <td>@item.Location</td>
+                            <th>
+                                Category
+                            </th>
 
-                            <td>
-                                @if (item.IsAvailable)
-                                {
-                                    <span class="badge bg-success">
-                                        Available
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger">
-                                        Reserved
-                                    </span>
-                                }
-                            </td>
+                            <th>
+                                Location
+                            </th>
+
+                            <th>
+                                Availability
+                            </th>
+
                         </tr>
-                    }
 
-                </tbody>
+                    </thead>
 
-            </table>
+                    <tbody>
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        @item.EquipmentName
+                                    </strong>
+
+                                </td>
+
+                                <td>
+                                    @item.Category
+                                </td>
+
+                                <td>
+                                    @item.Location
+                                </td>
+
+                                <td>
+
+                                    @if (item.IsAvailable)
+                                    {
+                                        <span class="trainer-badge trainer-badge-success">
+
+                                            <i class="fa-solid fa-circle-check me-1"></i>
+                                            Available
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="trainer-badge trainer-badge-danger">
+
+                                            <i class="fa-solid fa-lock me-1"></i>
+                                            Reserved
+
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
     }
 
-    <div class="mt-3">
+    <div class="trainer-actions">
+
         <a asp-controller="Trainer"
            asp-action="Index"
-           class="btn btn-secondary">
+           class="trainer-btn trainer-btn-secondary">
+
+            <i class="fa-solid fa-arrow-left"></i>
             Back to Dashboard
+
         </a>
+
     </div>
 
 </div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/trainer.css"
+          asp-append-version="true" />
+}

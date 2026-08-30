@@ -1,6 +1,4 @@
-﻿/* =========================================
-   MEMBERSHIP PAGE
-   ========================================= */
+﻿ 
 .membership-page {
     min-height: 100vh;
     padding: 38px 40px;
@@ -9,11 +7,7 @@
     color: #1e293b;
 }
 
-
-/* =========================================
-   PAGE HEADER
-   ========================================= */
-
+              
 .membership-header {
     display: flex;
     justify-content: space-between;
@@ -52,12 +46,7 @@
     color: #1683ff;
     font-size: 23px;
 }
-
-
-/* =========================================
-   MEMBERSHIP HERO CARD
-   ========================================= */
-
+              
 .membership-card {
     position: relative;
     overflow: hidden;
@@ -207,11 +196,7 @@
         font-weight: 700;
     }
 
-
-/* =========================================
-   INFORMATION CARDS
-   ========================================= */
-
+             
 .membership-info-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -256,11 +241,7 @@
     font-weight: 600;
 }
 
-
-/* =========================================
-   PAYMENT CARD
-   ========================================= */
-
+               
 .payment-card {
     display: flex;
     align-items: center;
@@ -332,11 +313,7 @@
         transform: translateY(-1px);
     }
 
-
-/* =========================================
-   NOTICE CARDS
-   ========================================= */
-
+                 
 .notice-card {
     display: flex;
     align-items: flex-start;
@@ -400,11 +377,7 @@
         color: #ef4444;
     }
 
-
-/* =========================================
-   BUTTON
-   ========================================= */
-
+             
 .membership-btn {
     display: inline-flex;
     align-items: center;
@@ -424,12 +397,7 @@
         color: #ffffff;
         transform: translateY(-1px);
     }
-
-
-/* =========================================
-   EMPTY STATE
-   ========================================= */
-
+          
 .membership-empty {
     padding: 60px 30px;
     text-align: center;
@@ -465,12 +433,7 @@
     font-size: 13px;
     line-height: 1.7;
 }
-
-
-/* =========================================
-   RESPONSIVE
-   ========================================= */
-
+       
 @media (max-width: 1100px) {
 
     .membership-info-grid {

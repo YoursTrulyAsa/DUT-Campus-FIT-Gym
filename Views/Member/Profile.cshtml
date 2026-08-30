@@ -4,20 +4,39 @@
     ViewData["Title"] = "My Profile";
 }
 
+@{
+    var totalPaid = Model.Payments
+        .Where(p => p.PaymentStatus != null &&
+                    p.PaymentStatus.Equals(
+                        "Completed",
+                        StringComparison.OrdinalIgnoreCase))
+        .Sum(p => p.Amount);
+}
+
 <div class="profile-page">
 
-    <!-- PAGE HEADER -->
+    <!-- =========================================================
+         PROFILE HEADER
+         ========================================================= -->
+
     <div class="profile-header">
 
         <div>
-            <span class="profile-label">ACCOUNT</span>
 
-            <h1>My Profile</h1>
+            <span class="profile-label">
+                ACCOUNT
+            </span>
+
+            <h1>
+                My Profile
+            </h1>
 
             <p>
                 View and update your personal DUT Campus FIT Gym information.
             </p>
+
         </div>
+
 
         <a asp-controller="Member"
            asp-action="Dashboard"
@@ -32,32 +51,48 @@
     </div>
 
 
-    <!-- SUCCESS MESSAGE -->
+    <!-- =========================================================
+         SUCCESS MESSAGE
+         ========================================================= -->
     @if (TempData["ProfileSuccess"] != null)
     {
         <div class="alert alert-success">
+
             @TempData["ProfileSuccess"]
+
         </div>
     }
 
 
-    <!-- PROFILE CONTENT -->
+    <!-- =========================================================
+         PROFILE CONTAINER
+         ========================================================= -->
+
     <div class="profile-container">
 
-        <!-- PROFILE SUMMARY -->
+
+        <!-- =====================================================
+             PROFILE SUMMARY
+             ===================================================== -->
+
         <div class="profile-summary">
 
             <div class="profile-avatar">
+
                 <i class="fa-solid fa-user"></i>
+
             </div>
+
 
             <h2>
                 @Model.Name @Model.Surname
             </h2>
 
+
             <span class="role-badge">
                 @Model.Role
             </span>
+
 
             <p>
                 DUT Campus FIT Gym Member
@@ -66,12 +101,22 @@
         </div>
 
 
-        <!-- ACCOUNT DETAILS -->
+
+        <!-- =====================================================
+             PROFILE CARD
+             ===================================================== -->
+
         <div class="profile-card">
+
+
+            <!-- =================================================
+                 CARD HEADER
+                 ================================================= -->
 
             <div class="profile-card-header">
 
                 <div>
+
                     <span class="profile-label">
                         PERSONAL INFORMATION
                     </span>
@@ -79,33 +124,48 @@
                     <h2>
                         Account Details
                     </h2>
+
                 </div>
+
 
                 <i class="fa-solid fa-user-pen"></i>
 
             </div>
 
 
-            <!-- EDIT FORM -->
+
+            <!-- =================================================
+                 PROFILE FORM
+                 ================================================= -->
+
             <form asp-controller="Member"
                   asp-action="Profile"
                   method="post">
 
                 @Html.AntiForgeryToken()
 
+
+                <!-- VALIDATION -->
+
                 <div asp-validation-summary="ModelOnly"
                      class="text-danger mb-3">
                 </div>
 
 
-                <!-- EDITABLE DETAILS -->
+
                 <div class="profile-details">
+
+
+                    <!-- =================================================
+                         FIRST NAME
+                         ================================================= -->
 
                     <div class="profile-field">
 
                         <label for="name">
                             First Name
                         </label>
+
 
                         <input type="text"
                                id="name"
@@ -114,6 +174,7 @@
                                class="form-control"
                                required />
 
+
                         <span class="text-danger"
                               asp-validation-for="Name">
                         </span>
@@ -121,11 +182,17 @@
                     </div>
 
 
+
+                    <!-- =================================================
+                         LAST NAME
+                         ================================================= -->
+
                     <div class="profile-field">
 
                         <label for="surname">
                             Last Name
                         </label>
+
 
                         <input type="text"
                                id="surname"
@@ -134,6 +201,7 @@
                                class="form-control"
                                required />
 
+
                         <span class="text-danger"
                               asp-validation-for="Surname">
                         </span>
@@ -141,12 +209,17 @@
                     </div>
 
 
-                    <!-- READ-ONLY STUDENT NUMBER -->
+
+                    <!-- =================================================
+                         STUDENT / STAFF NUMBER
+                         ================================================= -->
+
                     <div class="profile-field">
 
                         <span>
                             Student / Staff Number
                         </span>
+
 
                         <strong>
                             @Model.StudentNumber
@@ -155,12 +228,17 @@
                     </div>
 
 
-                    <!-- READ-ONLY EMAIL -->
+
+                    <!-- =================================================
+                         EMAIL
+                         ================================================= -->
+
                     <div class="profile-field">
 
                         <span>
                             Email Address
                         </span>
+
 
                         <strong>
                             @Model.Email
@@ -169,12 +247,17 @@
                     </div>
 
 
-                    <!-- EDITABLE PHONE NUMBER -->
+
+                    <!-- =================================================
+                         PHONE NUMBER
+                         ================================================= -->
+
                     <div class="profile-field">
 
                         <label for="phoneNumber">
                             Phone Number
                         </label>
+
 
                         <input type="text"
                                id="phoneNumber"
@@ -183,6 +266,7 @@
                                class="form-control"
                                required />
 
+
                         <span class="text-danger"
                               asp-validation-for="PhoneNumber">
                         </span>
@@ -190,12 +274,17 @@
                     </div>
 
 
-                    <!-- READ-ONLY ROLE -->
+
+                    <!-- =================================================
+                         ACCOUNT ROLE
+                         ================================================= -->
+
                     <div class="profile-field">
 
                         <span>
                             Account Role
                         </span>
+
 
                         <strong>
                             @Model.Role
@@ -203,10 +292,15 @@
 
                     </div>
 
+
                 </div>
 
 
-                <!-- SAVE BUTTON -->
+
+                <!-- =================================================
+                     SAVE BUTTON
+                     ================================================= -->
+
                 <div class="mt-4">
 
                     <button type="submit"
@@ -220,6 +314,7 @@
 
                 </div>
 
+
             </form>
 
         </div>
@@ -229,6 +324,10 @@
 </div>
 
 
+
+<!-- =============================================================
+     STYLES
+     ============================================================= -->
 @section Styles {
 
     <link rel="stylesheet"

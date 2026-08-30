@@ -12,9 +12,6 @@
 
 <div class="reservations-page">
 
-    <!-- ========================================= -->
-    <!-- PAGE HEADER -->
-    <!-- ========================================= -->
 
     <div class="page-header">
 
@@ -47,9 +44,6 @@
     </div>
 
 
-    <!-- ========================================= -->
-    <!-- SUCCESS MESSAGE -->
-    <!-- ========================================= -->
     @if (TempData["EquipmentSuccess"] != null)
     {
         <div class="alert alert-success">
@@ -63,10 +57,6 @@
         </div>
     }
 
-
-    <!-- ========================================= -->
-    <!-- ERROR MESSAGE -->
-    <!-- ========================================= -->
     @if (TempData["EquipmentError"] != null)
     {
         <div class="alert alert-warning">
@@ -80,10 +70,6 @@
         </div>
     }
 
-
-    <!-- ========================================= -->
-    <!-- RESERVATIONS TABLE -->
-    <!-- ========================================= -->
     @if (Model != null && Model.Any())
     {
         <div class="reservation-table-container">
@@ -130,7 +116,6 @@
                         {
                             <tr>
 
-                                <!-- EQUIPMENT -->
 
                                 <td>
 
@@ -147,8 +132,6 @@
                                 </td>
 
 
-                                <!-- RESERVED AT -->
-
                                 <td>
 
                                     @reservation.ReservationDate.ToString(
@@ -156,8 +139,6 @@
 
                         </td>
 
-
-                        <!-- END TIME -->
 
                         <td>
 
@@ -175,8 +156,6 @@
 
                                 </td>
 
-
-                                <!-- STATUS -->
 
                                 <td>
 
@@ -206,11 +185,6 @@
                                     }
 
                                 </td>
-
-
-                                <!-- ================================= -->
-                                <!-- COUNTDOWN -->
-                                <!-- ================================= -->
 
                                 <td>
 
@@ -245,10 +219,6 @@
 
                                 </td>
 
-
-                                <!-- ================================= -->
-                                <!-- ACTION -->
-                                <!-- ================================= -->
 
                                 <td>
 
@@ -298,10 +268,6 @@
     }
     else
     {
-        <!-- ========================================= -->
-        <!-- NO RESERVATIONS -->
-        <!-- ========================================= -->
-
         <div class="empty-reservations">
 
             <div class="empty-icon">
@@ -333,10 +299,6 @@
     }
 
 
-    <!-- ========================================= -->
-    <!-- INFORMATION -->
-    <!-- ========================================= -->
-
     <div class="alert alert-info mt-4">
 
         <strong>
@@ -365,11 +327,6 @@
     </div>
 
 </div>
-
-
-<!-- ========================================= -->
-<!-- LIVE COUNTDOWN -->
-<!-- ========================================= -->
 
 <script>
 
@@ -406,11 +363,6 @@
                 const difference =
                     endTime - now;
 
-
-                // =====================================
-                // EXPIRED
-                // =====================================
-
                 if (difference <= 0) {
 
                     element.textContent =
@@ -427,11 +379,6 @@
                     return;
                 }
 
-
-                // =====================================
-                // CALCULATE TIME
-                // =====================================
-
                 const totalSeconds =
                     Math.floor(difference / 1000);
 
@@ -443,10 +390,6 @@
                 const seconds =
                     totalSeconds % 60;
 
-
-                // =====================================
-                // DISPLAY
-                // =====================================
 
                 element.textContent =
                     "⏱️ " +
@@ -460,11 +403,9 @@
         }
 
 
-        // Run immediately
         updateCountdowns();
 
 
-        // Update every second
         setInterval(
             updateCountdowns,
             1000

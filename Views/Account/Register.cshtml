@@ -8,10 +8,6 @@
 
     <div class="register-container">
 
-        <!-- ====================================================== -->
-        <!-- LEFT PANEL -->
-        <!-- ====================================================== -->
-
         <div class="left-panel">
 
             <div class="branding">
@@ -33,10 +29,6 @@
         </div>
 
 
-        <!-- ====================================================== -->
-        <!-- RIGHT PANEL -->
-        <!-- ====================================================== -->
-
         <div class="right-panel">
 
             <div class="register-card">
@@ -50,27 +42,16 @@
                 </p>
 
 
-                <!-- ================================================= -->
-                <!-- REGISTER FORM -->
-                <!-- ================================================= -->
-
                 <form asp-controller="Account"
                       asp-action="Register"
                       method="post">
 
                     @Html.AntiForgeryToken()
 
-
-                    <!-- VALIDATION SUMMARY -->
-
                     <div asp-validation-summary="ModelOnly"
                          class="text-danger mb-3">
                     </div>
 
-
-                    <!-- ================================================= -->
-                    <!-- NAME + SURNAME -->
-                    <!-- ================================================= -->
 
                     <div class="row">
 
@@ -107,11 +88,6 @@
 
                     </div>
 
-
-                    <!-- ================================================= -->
-                    <!-- STUDENT NUMBER -->
-                    <!-- ================================================= -->
-
                     <div class="mb-3">
 
                         <label asp-for="StudentNumber"
@@ -126,11 +102,6 @@
                         </span>
 
                     </div>
-
-
-                    <!-- ================================================= -->
-                    <!-- EMAIL -->
-                    <!-- ================================================= -->
 
                     <div class="mb-3">
 
@@ -149,33 +120,22 @@
                     </div>
 
 
-                    <!-- ================================================= -->
-                    <!-- PHONE NUMBER -->
-                    <!-- ================================================= -->
-
                     <div class="mb-3">
-
-                        <label asp-for="PhoneNumber"
-                               class="form-label">
+                        <label asp-for="PhoneNumber" class="form-label">
+                            Phone Number
                         </label>
 
                         <input asp-for="PhoneNumber"
-                               class="form-control" />
+                               class="form-control"
+                               placeholder="0821234567"
+                               maxlength="13" />
 
                         <span asp-validation-for="PhoneNumber"
-                              class="text-danger">
-                        </span>
-
+                              class="text-danger"></span>
                     </div>
 
 
-                    <!-- ================================================= -->
-                    <!-- PASSWORDS -->
-                    <!-- ================================================= -->
-
                     <div class="row">
-
-                        <!-- PASSWORD -->
 
                         <div class="col-md-6 mb-3">
 
@@ -204,9 +164,6 @@
                             </span>
 
                         </div>
-
-
-                        <!-- CONFIRM PASSWORD -->
 
                         <div class="col-md-6 mb-4">
 
@@ -238,22 +195,12 @@
 
                     </div>
 
-
-                    <!-- ================================================= -->
-                    <!-- CREATE ACCOUNT -->
-                    <!-- ================================================= -->
-
                     <button type="submit"
                             class="btn register-btn w-100">
 
                         Create Account
 
                     </button>
-
-
-                    <!-- ================================================= -->
-                    <!-- LOGIN -->
-                    <!-- ================================================= -->
 
                     <div class="text-center mt-4">
 
@@ -280,10 +227,6 @@
 
 </div>
 
-
-<!-- ====================================================== -->
-<!-- STYLES -->
-<!-- ====================================================== -->
 @section Styles {
 
     <link rel="stylesheet"
@@ -292,10 +235,6 @@
 
 }
 
-
-<!-- ====================================================== -->
-<!-- SCRIPTS -->
-<!-- ====================================================== -->
 @section Scripts {
 
     <script src="~/js/register.js"

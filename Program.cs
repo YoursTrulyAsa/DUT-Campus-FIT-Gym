@@ -1,4 +1,5 @@
 using DUT_Campus_FIT_Gym.Data;
+using DUT_Campus_FIT_Gym.Filters;
 using DUT_Campus_FIT_Gym.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -6,29 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =========================================================
-// MVC
-// =========================================================
-
 builder.Services.AddControllersWithViews();
-
-// =========================================================
-// HTTP CLIENT
-// Required by the Ask Us Gemini support service
-// =========================================================
+builder.Services.AddScoped<ActiveMembershipFilter>();
+builder.Services.AddSession();
 
 builder.Services.AddHttpClient();
 
-// =========================================================
-// PAYFAST SETTINGS
-// =========================================================
-
 builder.Services.Configure<PayFastSettings>(
 builder.Configuration.GetSection("PayFast"));
-
-// =========================================================
-// AUTHENTICATION
-// =========================================================
 
 builder.Services.AddAuthentication(
 CookieAuthenticationDefaults.AuthenticationScheme)
@@ -51,24 +37,12 @@ CookieAuthenticationDefaults.AuthenticationScheme)
     options.SlidingExpiration = true;
 });
 
-// =========================================================
-// DATABASE
-// =========================================================
-
 builder.Services.AddDbContext<GymDbContext>(options =>
 options.UseSqlServer(
 builder.Configuration.GetConnectionString("GymDatabase")
 ));
 
-// =========================================================
-// BUILD APPLICATION
-// =========================================================
-
 var app = builder.Build();
-
-// =========================================================
-// ERROR HANDLING
-// =========================================================
 
 if (!app.Environment.IsDevelopment())
 {
@@ -78,35 +52,17 @@ app.UseHsts();
 
 }
 
-// =========================================================
-// HTTPS
-// =========================================================
-
 app.UseHttpsRedirection();
-
-// =========================================================
-// STATIC FILES
-// =========================================================
 
 app.UseStaticFiles();
 
-// =========================================================
-// ROUTING
-// =========================================================
-
 app.UseRouting();
-
-// =========================================================
-// AUTHENTICATION
-// =========================================================
 
 app.UseAuthentication();
 
-// =========================================================
-// AUTHORIZATION
-// =========================================================
-
 app.UseAuthorization();
+
+app.UseSession();
 
 // =========================================================
 // CREATE INITIAL ADMIN ACCOUNT
@@ -151,13 +107,11 @@ var passwordHasher =
 
 }
 
-// =========================================================
-// DEFAULT ROUTE
-// =========================================================
-
 app.MapControllerRoute(
-name: "default",
-pattern: "{controller=Account}/{action=Register}/{id?}");
+    name: "default",
+    pattern:
+        "{controller=Account}/{action=Login}/{id?}");
+
 
 // =========================================================
 // RUN

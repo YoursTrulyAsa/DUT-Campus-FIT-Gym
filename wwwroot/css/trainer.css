@@ -1,0 +1,1342 @@
+﻿:root {
+    --gym-dark: #071a33;
+    --gym-blue: #0b2d52;
+    --gym-light-blue: #1597e5;
+    --gym-accent: #38bdf8;
+    --gym-text: #172033;
+    --gym-muted: #718096;
+    --gym-bg: #f4f7fb;
+    --gym-white: #ffffff;
+    --gym-border: #e4eaf1;
+    --gym-success: #16a34a;
+    --gym-warning: #d97706;
+    --gym-danger: #dc2626;
+}
+
+.trainer-page {
+    min-height: 100vh;
+    width: 100%;
+    background: var(--gym-bg);
+    padding: 30px 30px 50px;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+
+.trainer-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+    .trainer-page-header > div:first-child {
+        flex: 1;
+    }
+
+.trainer-page-label,
+.trainer-section-label {
+    display: block;
+    color: var(--gym-light-blue);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.7px;
+    margin-bottom: 7px;
+}
+
+.trainer-page-header h1 {
+    margin: 0;
+    color: var(--gym-dark);
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.trainer-page-header p {
+    margin: 8px 0 0;
+    color: var(--gym-muted);
+    font-size: 14px;
+}
+
+.trainer-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.trainer-primary-btn,
+.trainer-secondary-btn,
+.trainer-back-btn,
+.trainer-primary-button,
+.trainer-secondary-button,
+.trainer-button,
+.trainer-button-primary,
+.trainer-button-secondary,
+.trainer-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 43px;
+    padding: 10px 17px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.trainer-primary-btn,
+.trainer-primary-button,
+.trainer-button-primary,
+.trainer-button,
+.trainer-btn-success {
+    background: var(--gym-dark);
+    color: white;
+    border: 1px solid var(--gym-dark);
+}
+
+    .trainer-primary-btn:hover,
+    .trainer-primary-button:hover,
+    .trainer-button-primary:hover,
+    .trainer-button:hover,
+    .trainer-btn-success:hover {
+        background: var(--gym-light-blue);
+        border-color: var(--gym-light-blue);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+.trainer-secondary-btn,
+.trainer-secondary-button,
+.trainer-button-secondary,
+.trainer-btn-secondary {
+    background: white;
+    color: var(--gym-dark);
+    border: 1px solid var(--gym-border);
+}
+
+    .trainer-secondary-btn:hover,
+    .trainer-secondary-button:hover,
+    .trainer-button-secondary:hover,
+    .trainer-btn-secondary:hover {
+        background: #f1f7fc;
+        border-color: var(--gym-light-blue);
+        color: var(--gym-light-blue);
+    }
+
+.trainer-back-btn,
+.trainer-back-button {
+    background: white;
+    color: #374151;
+    border: 1px solid var(--gym-border);
+}
+
+    .trainer-back-btn:hover,
+    .trainer-back-button:hover {
+        background: #f8fafc;
+        color: var(--gym-light-blue);
+    }
+
+.trainer-back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 25px;
+}
+
+.trainer-alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 22px;
+    font-size: 13px;
+    box-shadow: 0 4px 15px rgba(7, 26, 51, 0.05);
+}
+
+.trainer-alert-success {
+    background: #ecfdf3;
+    color: #166534;
+    border-left: 4px solid var(--gym-success);
+}
+
+.trainer-alert-error,
+.trainer-alert-danger {
+    background: #fef2f2;
+    color: #991b1b;
+    border-left: 4px solid var(--gym-danger);
+}
+
+.trainer-alert-warning {
+    background: #fffbeb;
+    color: #92400e;
+    border-left: 4px solid var(--gym-warning);
+}
+
+.trainer-empty,
+.trainer-empty-state {
+    background: var(--gym-white);
+    border: 1px solid var(--gym-border);
+    border-radius: 20px;
+    padding: 60px 30px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(7, 26, 51, 0.06);
+}
+
+.trainer-empty-icon,
+.empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: #e8f6ff;
+    color: var(--gym-light-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+}
+
+.trainer-empty h3,
+.trainer-empty-state h3 {
+    color: var(--gym-dark);
+    font-size: 21px;
+    font-weight: 700;
+    margin-bottom: 9px;
+}
+
+.trainer-empty p,
+.trainer-empty-state p {
+    color: var(--gym-muted);
+    max-width: 520px;
+    margin: 0 auto 24px;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.trainer-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+    .trainer-section-title h2,
+    .trainer-section-title h3 {
+        margin: 0;
+        color: var(--gym-dark);
+        font-size: 21px;
+        font-weight: 700;
+    }
+
+    .trainer-section-title h3 {
+        font-size: 18px;
+    }
+
+.trainer-form-card {
+    max-width: 850px;
+    margin: 0 auto;
+    background: var(--gym-white);
+    border: 1px solid var(--gym-border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 35px rgba(7, 26, 51, 0.07);
+}
+
+    .trainer-form-card > .trainer-section-title {
+        padding: 22px 30px;
+        margin: 0;
+        background: #f8fbfe;
+        border-bottom: 1px solid var(--gym-border);
+    }
+
+    .trainer-form-card form {
+        padding: 30px;
+    }
+
+.trainer-form-header {
+    background: var(--gym-dark);
+    padding: 25px 30px;
+}
+
+    .trainer-form-header h2 {
+        color: white;
+        margin: 0;
+        font-size: 21px;
+        font-weight: 700;
+    }
+
+    .trainer-form-header p {
+        color: #b9c8d9;
+        margin: 7px 0 0;
+        font-size: 13px;
+    }
+
+.trainer-form-body {
+    padding: 30px;
+}
+
+.trainer-form-group {
+    margin-bottom: 21px;
+}
+
+    .trainer-form-group label,
+    .trainer-form-label {
+        display: block;
+        color: var(--gym-dark);
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+.trainer-required {
+    color: var(--gym-danger);
+}
+
+.trainer-form-control {
+    width: 100%;
+    border: 1px solid var(--gym-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: white;
+    color: var(--gym-text);
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+    .trainer-form-control:focus {
+        border-color: var(--gym-light-blue);
+        box-shadow: 0 0 0 3px rgba(21, 151, 229, 0.12);
+    }
+
+textarea.trainer-form-control {
+    resize: vertical;
+    min-height: 140px;
+}
+
+.trainer-help-text {
+    color: var(--gym-muted);
+    font-size: 11px;
+    margin-top: 7px;
+}
+
+.trainer-student-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.trainer-form-actions,
+.trainer-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.complete-workout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 17px;
+    border: none;
+    border-radius: 9px;
+    background: var(--gym-light-blue);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+    .complete-workout-btn:hover {
+        background: #0878c7;
+        transform: translateY(-1px);
+    }
+
+.trainer-table-card,
+.requests-card,
+.student-profiles-card,
+.workouts-card {
+    background: white;
+    border: 1px solid var(--gym-border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 7px 22px rgba(7, 26, 51, 0.05);
+}
+
+.trainer-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.trainer-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+    .trainer-table thead {
+        background: #f8fbfe;
+    }
+
+    .trainer-table th {
+        padding: 16px 20px;
+        text-align: left;
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+        border-bottom: 1px solid var(--gym-border);
+    }
+
+    .trainer-table td {
+        padding: 18px 20px;
+        color: #526173;
+        font-size: 13px;
+        border-bottom: 1px solid #edf1f5;
+    }
+
+    .trainer-table tbody tr:hover {
+        background: #fbfdff;
+    }
+
+    .trainer-table td strong {
+        color: var(--gym-dark);
+        font-weight: 600;
+    }
+
+.trainer-badge,
+.request-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+    .trainer-badge-success,
+    .request-badge.accepted {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .trainer-badge-danger,
+    .request-badge.rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .request-badge.pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .request-badge.completed {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+.request-count {
+    padding: 8px 12px;
+    border-radius: 20px;
+    background: #eef2ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.requests-card-header,
+.student-profiles-header,
+.workouts-card-header {
+    padding: 22px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: #f8fbfe;
+    border-bottom: 1px solid #e8edf2;
+}
+
+    .requests-card-header h2,
+    .student-profiles-header h2,
+    .workouts-card-header h2 {
+        margin: 4px 0 0;
+        color: var(--gym-dark);
+        font-size: 21px;
+    }
+
+    .student-profiles-header p {
+        margin: 6px 0 0;
+        color: var(--gym-muted);
+        font-size: 12px;
+    }
+
+.requests-card-body,
+.student-profiles-body,
+.workouts-card-body {
+    padding: 25px;
+}
+
+.trainer-request-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.trainer-request-item {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr 0.8fr 0.8fr 1.2fr;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border: 1px solid var(--gym-border);
+    border-radius: 15px;
+    background: white;
+    transition: 0.2s ease;
+}
+
+    .trainer-request-item:hover {
+        border-color: #b8ddf4;
+        box-shadow: 0 7px 20px rgba(7, 26, 51, 0.05);
+    }
+
+.request-student,
+.active-student,
+.student-profile-main {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.request-avatar,
+.student-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    background: #eaf6ff;
+    color: var(--gym-light-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.request-student h3 {
+    margin: 0 0 3px;
+    color: var(--gym-dark);
+    font-size: 14px;
+}
+
+.request-student span {
+    color: var(--gym-muted);
+    font-size: 11px;
+}
+
+.detail-label {
+    display: block;
+    color: #8794a5;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    margin-bottom: 5px;
+}
+
+.request-info p {
+    margin: 0;
+    color: #526173;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.request-date strong,
+.request-date small {
+    display: block;
+}
+
+.request-date strong {
+    color: var(--gym-dark);
+    font-size: 12px;
+}
+
+.request-date small {
+    margin-top: 3px;
+    color: var(--gym-muted);
+    font-size: 10px;
+}
+
+.request-action-buttons {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.request-accept-btn,
+.request-reject-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 11px;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.request-accept-btn {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.request-reject-btn {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.request-accept-btn:hover {
+    background: #bbf7d0;
+}
+
+.request-reject-btn:hover {
+    background: #fecaca;
+}
+
+.request-disabled,
+.request-action-status {
+    color: var(--gym-muted);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.active-workout-card,
+.active-student-section {
+    background: white;
+    border: 1px solid var(--gym-border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 7px 22px rgba(7, 26, 51, 0.05);
+    margin-bottom: 30px;
+}
+
+.active-workout-header,
+.active-student-header {
+    padding: 22px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    background: #f8fbfe;
+    border-bottom: 1px solid #e8edf2;
+}
+
+.active-workout-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.active-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 20px;
+}
+
+.active-workout-title span,
+.active-student-label {
+    color: var(--gym-light-blue);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.active-workout-title h2,
+.active-student-header h2 {
+    margin: 5px 0 0;
+    color: var(--gym-dark);
+    font-size: 20px;
+}
+
+.active-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px;
+    border-radius: 20px;
+    background: #ecfdf3;
+    color: #087443;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+    .active-status i {
+        font-size: 7px;
+    }
+
+.active-workout-body {
+    padding: 25px;
+}
+
+    .active-workout-body .active-student {
+        margin-bottom: 22px;
+    }
+
+.active-student h3 {
+    margin: 3px 0;
+    color: var(--gym-dark);
+    font-size: 19px;
+}
+
+.active-student p {
+    margin: 0;
+    color: var(--gym-muted);
+    font-size: 12px;
+}
+
+.request-message {
+    padding: 15px;
+    background: #f7faff;
+    border: 1px solid #e4eef8;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+    .request-message p {
+        margin: 0;
+        color: #334155;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+.active-workout-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+    .active-workout-actions small {
+        color: var(--gym-muted);
+        font-size: 10px;
+    }
+
+.profile-summary,
+.workouts-summary {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    background: white;
+    border: 1px solid var(--gym-border);
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba(7, 26, 51, 0.04);
+}
+
+.profile-summary-icon,
+.workouts-summary-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 13px;
+    background: #eaf6ff;
+    color: var(--gym-light-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+
+.profile-summary span,
+.workouts-summary span {
+    display: block;
+    color: #8794a5;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.profile-summary strong,
+.workouts-summary strong {
+    display: block;
+    margin-top: 3px;
+    color: var(--gym-dark);
+    font-size: 21px;
+}
+
+.student-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.student-profile-card {
+    background: white;
+    border: 1px solid var(--gym-border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 5px 18px rgba(7, 26, 51, 0.04);
+    transition: 0.2s ease;
+}
+
+    .student-profile-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(7, 26, 51, 0.08);
+    }
+
+.student-profile-top {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #edf1f5;
+}
+
+.student-profile-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 13px;
+    background: #eaf6ff;
+    color: var(--gym-light-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.student-profile-name h3 {
+    margin: 0 0 3px;
+    color: var(--gym-dark);
+    font-size: 15px;
+}
+
+.student-profile-name span {
+    color: var(--gym-muted);
+    font-size: 11px;
+}
+
+.student-profile-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 18px 0;
+}
+
+.profile-detail > span {
+    display: block;
+    color: #8794a5;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.profile-detail strong {
+    display: block;
+    color: #34465b;
+    font-size: 11px;
+    word-break: break-word;
+}
+
+.profile-available {
+    color: #15803d !important;
+}
+
+.profile-missing {
+    color: #b45309 !important;
+}
+
+.student-profile-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.profile-view-btn,
+.profile-workout-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+
+.profile-view-btn {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+}
+
+.profile-workout-btn {
+    background: var(--gym-dark);
+    color: white;
+    border: 1px solid var(--gym-dark);
+}
+
+.profile-view-btn:hover {
+    background: #e2e8f0;
+    color: var(--gym-dark);
+}
+
+.profile-workout-btn:hover {
+    background: var(--gym-light-blue);
+    border-color: var(--gym-light-blue);
+    color: white;
+}
+
+.student-profile-hero {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 25px;
+    margin-bottom: 25px;
+    background: var(--gym-dark);
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(7, 26, 51, 0.12);
+}
+
+.profile-large-avatar {
+    width: 75px;
+    height: 75px;
+    border-radius: 18px;
+    background: rgba(56, 189, 248, 0.14);
+    color: var(--gym-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    flex-shrink: 0;
+}
+
+.profile-role {
+    color: var(--gym-accent);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.profile-hero-info h2 {
+    margin: 5px 0;
+    color: white;
+    font-size: 24px;
+}
+
+.profile-hero-info p {
+    margin: 0;
+    color: #b9c8d9;
+    font-size: 12px;
+}
+
+.profile-section-card {
+    background: white;
+    border: 1px solid var(--gym-border);
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 25px;
+    box-shadow: 0 7px 22px rgba(7, 26, 51, 0.05);
+}
+
+.profile-section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 25px;
+    background: #f8fbfe;
+    border-bottom: 1px solid #e8edf2;
+}
+
+.profile-section-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    background: #eaf6ff;
+    color: var(--gym-light-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .profile-section-icon.fitness-icon {
+        background: #ecfdf3;
+        color: #15803d;
+    }
+
+    .profile-section-icon.workout-icon {
+        background: #f1edff;
+        color: #6750d6;
+    }
+
+.profile-section-header span {
+    color: var(--gym-light-blue);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+}
+
+.profile-section-header h2 {
+    margin: 4px 0 0;
+    color: var(--gym-dark);
+    font-size: 19px;
+}
+
+.profile-section-body {
+    padding: 25px;
+}
+
+.profile-details-grid,
+.fitness-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.profile-info-item,
+.fitness-detail {
+    padding: 16px;
+    border-radius: 12px;
+    background: #f7f9fc;
+    border: 1px solid #edf0f4;
+}
+
+    .profile-info-item span,
+    .fitness-detail > span {
+        display: block;
+        color: #8794a5;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+        margin-bottom: 6px;
+    }
+
+    .profile-info-item strong,
+    .fitness-detail strong {
+        color: var(--gym-dark);
+        font-size: 13px;
+        word-break: break-word;
+    }
+
+.fitness-detail-icon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 12px;
+    border-radius: 9px;
+    background: #eaf6ff;
+    color: var(--gym-light-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.workout-plan-list,
+.workout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.workout-plan-item,
+.workout-card-item {
+    padding: 20px;
+    border: 1px solid var(--gym-border);
+    border-radius: 15px;
+    background: white;
+}
+
+.workout-plan-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto auto;
+    align-items: center;
+    gap: 18px;
+}
+
+.workout-plan-icon,
+.workout-item-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 11px;
+    background: #f1edff;
+    color: #6750d6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.workout-plan-main h3,
+.workout-item-title h3 {
+    margin: 0 0 3px;
+    color: var(--gym-dark);
+    font-size: 14px;
+}
+
+.workout-plan-main span {
+    color: var(--gym-muted);
+    font-size: 11px;
+}
+
+.workout-plan-day span,
+.workout-plan-stat span,
+.workout-detail span,
+.workout-stat span,
+.workout-member span,
+.workout-description > span {
+    display: block;
+    color: #8794a5;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.1px;
+    margin-bottom: 4px;
+}
+
+.workout-plan-day strong,
+.workout-plan-stat strong {
+    color: var(--gym-dark);
+    font-size: 12px;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 25px;
+}
+
+.workout-item-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #edf1f5;
+}
+
+.workout-item-title {
+    flex: 1;
+}
+
+.workout-day-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 11px;
+    border-radius: 20px;
+    background: #eef6ff;
+    color: var(--gym-light-blue);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.workout-item-details {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr repeat(3, 0.7fr);
+    gap: 18px;
+    padding: 20px 0;
+}
+
+.workout-member strong,
+.workout-member small,
+.workout-detail strong,
+.workout-stat strong {
+    display: block;
+}
+
+.workout-member strong,
+.workout-detail strong,
+.workout-stat strong {
+    color: var(--gym-dark);
+    font-size: 12px;
+}
+
+.workout-member small {
+    margin-top: 3px;
+    color: var(--gym-muted);
+    font-size: 10px;
+}
+
+.workout-description {
+    padding: 15px;
+    background: #f7faff;
+    border: 1px solid #e4eef8;
+    border-radius: 11px;
+}
+
+    .workout-description p {
+        margin: 5px 0 0;
+        color: #526173;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+@media (max-width: 1100px) {
+    .trainer-request-item {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .student-profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-details-grid,
+    .fitness-details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .workout-plan-item {
+        grid-template-columns: auto 1fr 1fr 1fr;
+    }
+
+    .workout-item-details {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .trainer-student-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .trainer-page {
+        padding: 20px 15px 40px;
+    }
+
+    .trainer-page-header {
+        flex-direction: column;
+    }
+
+        .trainer-page-header h1 {
+            font-size: 27px;
+        }
+
+    .trainer-header-actions {
+        width: 100%;
+    }
+
+        .trainer-header-actions a {
+            flex: 1;
+        }
+
+    .trainer-form-card form,
+    .trainer-form-body {
+        padding: 22px;
+    }
+
+    .trainer-form-card > .trainer-section-title,
+    .trainer-form-header {
+        padding: 20px 22px;
+    }
+
+    .trainer-section-title {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .trainer-actions,
+    .trainer-form-actions,
+    .profile-actions {
+        flex-direction: column;
+    }
+
+        .trainer-actions .trainer-btn,
+        .trainer-actions .trainer-primary-btn,
+        .trainer-actions .trainer-secondary-btn,
+        .trainer-form-actions .trainer-btn,
+        .profile-actions a {
+            width: 100%;
+        }
+
+    .trainer-request-item {
+        grid-template-columns: 1fr;
+    }
+
+    .requests-card-body,
+    .student-profiles-body,
+    .workouts-card-body,
+    .profile-section-body {
+        padding: 18px;
+    }
+
+    .student-profile-details,
+    .profile-details-grid,
+    .fitness-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .student-profile-actions {
+        flex-direction: column;
+    }
+
+    .student-profile-hero {
+        align-items: flex-start;
+    }
+
+    .profile-hero-info h2 {
+        font-size: 20px;
+    }
+
+    .workout-plan-item {
+        grid-template-columns: auto 1fr;
+    }
+
+    .workout-item-details {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .workout-item-top {
+        align-items: flex-start;
+    }
+
+    .workout-day-badge {
+        margin-left: auto;
+    }
+
+    .active-workout-header,
+    .active-student-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .active-workout-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .complete-workout-btn {
+        width: 100%;
+    }
+
+    .trainer-table {
+        min-width: 600px;
+    }
+}
