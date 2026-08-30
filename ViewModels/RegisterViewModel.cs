@@ -40,6 +40,9 @@ namespace DUT_Campus_FIT_Gym.ViewModels
 
         [Required(ErrorMessage = "Email address is required.")]
         [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        [RegularExpression(
+          @"^2[0-9]+@dut4life\.ac\.za$",
+          ErrorMessage = "Email must start with your Student Number and end with @dut4life.ac.za.")]
         [Display(Name = "Email")]
         public string Email { get; set; } = "";
 
@@ -49,7 +52,9 @@ namespace DUT_Campus_FIT_Gym.ViewModels
         // =========================================================
 
         [Required(ErrorMessage = "Phone Number is required.")]
-        [Phone(ErrorMessage = "Please enter a valid phone number.")]
+        [RegularExpression(
+          @"^(?:0[6-8][0-9]{8}|\+27[6-8][0-9]{8})$",
+            ErrorMessage = "Please enter a valid South African phone number.")]
         [Display(Name = "Phone Number")]
         public string PhoneNumber { get; set; } = "";
 
@@ -63,6 +68,9 @@ namespace DUT_Campus_FIT_Gym.ViewModels
         [MinLength(
             8,
             ErrorMessage = "Password must be at least 8 characters.")]
+        [RegularExpression(
+          @"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^a-zA-Z0-9]).+$",
+            ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.")]
         [Display(Name = "Password")]
         public string Password { get; set; } = "";
 
