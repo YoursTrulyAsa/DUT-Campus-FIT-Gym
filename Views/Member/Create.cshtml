@@ -12,10 +12,6 @@
 
     <div class="membership-container">
 
-        <!-- ========================================== -->
-        <!-- HEADER -->
-        <!-- ========================================== -->
-
         <div class="membership-header">
 
             <div>
@@ -37,29 +33,16 @@
         </div>
 
 
-        <!-- ========================================== -->
-        <!-- FORM CARD -->
-        <!-- ========================================== -->
-
         <div class="membership-card">
 
             <h2 class="membership-title">
                 Create Membership
             </h2>
 
-
-            <!-- ========================================== -->
-            <!-- VALIDATION SUMMARY -->
-            <!-- ========================================== -->
-
             <div asp-validation-summary="ModelOnly"
                  class="text-danger mb-4">
             </div>
 
-
-            <!-- ========================================== -->
-            <!-- FIRST TIME MEMBER NOTICE -->
-            <!-- ========================================== -->
             @if (firstTimeMember)
             {
                 <div class="alert alert-success mb-4">
@@ -78,11 +61,6 @@
                 </div>
             }
 
-
-            <!-- ========================================== -->
-            <!-- FORM -->
-            <!-- ========================================== -->
-
             <form asp-controller="Member"
                   asp-action="Create"
                   method="post"
@@ -90,10 +68,6 @@
 
                 @Html.AntiForgeryToken()
 
-
-                <!-- ========================================== -->
-                <!-- MEMBER INFORMATION -->
-                <!-- ========================================== -->
 
                 <div class="membership-section">
 
@@ -157,11 +131,6 @@
 
                 </div>
 
-
-                <!-- ========================================== -->
-                <!-- MEMBERSHIP PERIOD -->
-                <!-- ========================================== -->
-
                 <div class="membership-section">
 
                     <h4 class="membership-section-title">
@@ -203,11 +172,6 @@
                     </div>
 
                 </div>
-
-
-                <!-- ========================================== -->
-                <!-- PAYMENT METHOD -->
-                <!-- ========================================== -->
 
                 <div class="membership-section">
 
@@ -257,10 +221,6 @@
                 </div>
 
 
-                <!-- ========================================== -->
-                <!-- VERIFICATION DOCUMENT -->
-                <!-- ========================================== -->
-
                 <div class="membership-section">
 
                     <h4 class="membership-section-title">
@@ -303,10 +263,6 @@
 
                 </div>
 
-
-                <!-- ========================================== -->
-                <!-- MEMBERSHIP PRICE -->
-                <!-- ========================================== -->
 
                 <div class="membership-price-box">
 
@@ -369,11 +325,6 @@
 
                 </div>
 
-
-                <!-- ========================================== -->
-                <!-- SUBMIT -->
-                <!-- ========================================== -->
-
                 <div class="membership-actions">
 
                     <button type="submit"
@@ -426,27 +377,14 @@
             document.getElementById("membershipTotal");
 
 
-        // ==========================================
-        // MEMBERSHIP PRICES
-        // ==========================================
-
         const prices = {
             Semester: 150,
             Annual: 300
         };
 
-
-        // ==========================================
-        // FIRST-TIME MEMBER
-        // ==========================================
-
         const firstTimeMember =
             @(firstTimeMember.ToString().ToLower());
 
-
-        // ==========================================
-        // UPDATE PRICE
-        // ==========================================
 
         function updatePrice() {
 
@@ -519,11 +457,6 @@
 
         }
 
-
-        // ==========================================
-        // LISTEN FOR MEMBERSHIP CHANGE
-        // ==========================================
-
         if (membershipPeriod) {
 
             membershipPeriod.addEventListener(
@@ -533,10 +466,6 @@
 
         }
 
-
-        // ==========================================
-        // INITIAL PRICE
-        // ==========================================
 
         updatePrice();
 

@@ -1,361 +1,166 @@
-﻿```cshtml
-@{
-    ViewData["Title"] = "Gym Check-In";
+﻿@{
+    ViewData["Title"] = "Check-In Result";
+
+    var successMessage = TempData["CheckInSuccess"];
+    var errorMessage = TempData["CheckInError"];
 }
 
-<div class="checkin-page">
+<div class="checkin-result-page">
 
-    <!-- HEADER -->
-    <div class="checkin-header">
+    <div class="result-header">
 
-        <div>
-            <span class="checkin-label">
-                DUT CAMPUS FIT GYM
-            </span>
+        <span class="result-label">
+            DUT CAMPUS FIT GYM
+        </span>
 
-            <h1>Gym Check-In</h1>
+        <h1>
+            Check-In Result
+        </h1>
 
-            <p>
-                Choose how you would like to check in.
-            </p>
-        </div>
-
-        <div class="checkin-icon">
-            <i class="bi bi-door-open-fill"></i>
-        </div>
+        <p>
+            Your gym access verification result.
+        </p>
 
     </div>
 
 
-    <!-- CHECK-IN OPTIONS -->
-    <div class="checkin-options">
+    @if (successMessage != null)
+    {
+        <div class="result-card success">
 
+            <div class="result-icon">
 
-        <!-- QR CODE OPTION -->
-        <div class="checkin-card">
+                <i class="bi bi-check-lg"></i>
 
-            <div class="checkin-card-icon qr-icon">
-                <i class="bi bi-qr-code-scan"></i>
             </div>
 
-            <h2>Scan QR Code</h2>
+            <div class="result-content">
 
-            <p>
-                Scan the QR code on your gym card
-                at the entrance to verify your membership
-                and gain access to the gym.
-            </p>
-
-            <button type="button"
-                    id="startScanner"
-                    class="checkin-button primary">
-
-                <i class="bi bi-camera-fill"></i>
-
-                Scan QR Code
-
-            </button>
-
-        </div>
-
-
-        <!-- OR -->
-        <div class="checkin-divider">
-
-            <span>OR</span>
-
-        </div>
-
-
-        <!-- VIRTUAL CARD OPTION -->
-        <div class="checkin-card">
-
-            <div class="checkin-card-icon card-icon">
-                <i class="bi bi-person-vcard-fill"></i>
-            </div>
-
-            <h2>Use Virtual Card</h2>
-
-            <p>
-                Display your Virtual Gym Card and
-                present the barcode to the gym entrance
-                scanner.
-            </p>
-
-            <a asp-action="GymCard"
-               class="checkin-button secondary">
-
-                <i class="bi bi-credit-card-2-front-fill"></i>
-
-                Use Virtual Card
-
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <!-- SCANNER AREA -->
-    <div id="scannerSection"
-         class="scanner-section">
-
-        <div class="scanner-header">
-
-            <div>
-                <span class="scanner-label">
-                    GYM ENTRANCE SCANNER
+                <span class="result-status">
+                    ACCESS GRANTED
                 </span>
 
-                <h2>Scan Member QR Code</h2>
+                <h3>
+                    Check-In Successful
+                </h3>
+
+                <p>
+                    @successMessage
+                </p>
+
             </div>
 
-            <button type="button"
-                    id="closeScanner"
-                    class="close-scanner">
+            <div class="result-action">
+
+                <a asp-controller="Member"
+                   asp-action="CheckIn">
+
+                    Continue
+
+                </a>
+
+            </div>
+
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="result-card denied">
+
+            <div class="result-icon">
 
                 <i class="bi bi-x-lg"></i>
 
-            </button>
+            </div>
+
+            <div class="result-content">
+
+                <span class="result-status">
+                    ACCESS DENIED
+                </span>
+
+                <h3>
+                    Check-In Unsuccessful
+                </h3>
+
+                <p>
+                    @errorMessage
+                </p>
+
+            </div>
+
+            <div class="result-action">
+
+                <a asp-controller="Member"
+                   asp-action="CheckIn">
+
+                    Try Again
+
+                </a>
+
+            </div>
 
         </div>
+    }
+    else
+    {
+        <div class="result-card invalid">
 
-        <div id="qr-reader"></div>
+            <div class="result-icon">
 
-        <div id="scannerStatus"
-             class="scanner-status">
+                <i class="bi bi-info-lg"></i>
+
+            </div>
+
+            <div class="result-content">
+
+                <span class="result-status">
+                    NO RESULT
+                </span>
+
+                <h3>
+                    No Check-In Result
+                </h3>
+
+                <p>
+                    No check-in result is currently available.
+                    Return to the check-in page to try again.
+                </p>
+
+            </div>
+
+            <div class="result-action">
+
+                <a asp-controller="Member"
+                   asp-action="CheckIn">
+
+                    Go to Check-In
+
+                </a>
+
+            </div>
+
         </div>
+    }
 
-    </div>
 
+    <div class="result-back">
 
-    <!-- RESULT AREA -->
-    <div id="checkinResult"
-         class="checkin-result">
+        <a asp-controller="Member"
+           asp-action="Dashboard">
+
+            <i class="bi bi-arrow-left"></i>
+
+            Back to Dashboard
+
+        </a>
+
     </div>
 
 </div>
 
 
 @section Styles {
-
-    <link rel="stylesheet"
-          href="~/css/checkin.css"
-          asp-append-version="true" />
-
-}
-
-
-@section Scripts {
-
-    <script src="https://unpkg.com/html5-qrcode"
-            type="text/javascript">
-    </script>
-
-    <script>
-
-        const startScanner =
-            document.getElementById("startScanner");
-
-        const closeScanner =
-            document.getElementById("closeScanner");
-
-        const scannerSection =
-            document.getElementById("scannerSection");
-
-        const scannerStatus =
-            document.getElementById("scannerStatus");
-
-        let qrScanner = null;
-
-
-        /*
-         * OPEN SCANNER
-         */
-
-        startScanner.addEventListener("click", function () {
-
-            scannerSection.style.display = "block";
-
-            scannerSection.scrollIntoView({
-                behavior: "smooth"
-            });
-
-            startScanner.disabled = true;
-
-            startScanner.innerHTML =
-                '<i class="bi bi-camera-fill"></i> Scanner Open';
-
-            scannerStatus.textContent =
-                "Opening camera...";
-
-            qrScanner =
-                new Html5Qrcode("qr-reader");
-
-
-            qrScanner.start(
-
-                {
-                    facingMode: "environment"
-                },
-
-                {
-                    fps: 10,
-
-                    qrbox: {
-                        width: 250,
-                        height: 250
-                    }
-                },
-
-                function (decodedText) {
-
-                    scannerStatus.textContent =
-                        "QR code detected. Verifying membership...";
-
-                    stopScanner();
-
-                    verifyQrCode(decodedText);
-
-                },
-
-                function () {
-
-                    // Ignore scanning errors
-                    // while the camera is searching.
-
-                }
-
-            ).catch(function () {
-
-                scannerStatus.textContent =
-                    "Unable to access the camera. Please allow camera access.";
-
-                startScanner.disabled = false;
-
-                startScanner.innerHTML =
-                    '<i class="bi bi-camera-fill"></i> Try Again';
-
-            });
-
-        });
-
-
-        /*
-         * CLOSE SCANNER
-         */
-
-        closeScanner.addEventListener("click", function () {
-
-            stopScanner();
-
-            scannerSection.style.display = "none";
-
-            startScanner.disabled = false;
-
-            startScanner.innerHTML =
-                '<i class="bi bi-camera-fill"></i> Scan QR Code';
-
-        });
-
-
-        /*
-         * STOP SCANNER
-         */
-
-        function stopScanner() {
-
-            if (qrScanner) {
-
-                qrScanner.stop()
-                    .then(function () {
-
-                        qrScanner.clear();
-
-                    })
-                    .catch(function () {
-
-                    });
-
-            }
-
-        }
-
-
-        /*
-         * SEND QR CODE TO SERVER
-         */
-
-        function verifyQrCode(qrData) {
-
-            const form =
-                document.createElement("form");
-
-            form.method = "POST";
-
-            form.action =
-                "@Url.Action("VerifyQrCheckIn", "Member")";
-
-
-            /*
-             * Anti-forgery token
-             */
-
-            const token =
-                document.querySelector(
-                    'input[name="__RequestVerificationToken"]'
-                );
-
-
-            if (token) {
-
-                const tokenInput =
-                    document.createElement("input");
-
-                tokenInput.type = "hidden";
-
-                tokenInput.name =
-                    "__RequestVerificationToken";
-
-                tokenInput.value =
-                    token.value;
-
-                form.appendChild(tokenInput);
-
-            }
-
-
-            /*
-             * QR DATA
-             */
-
-            const qrInput =
-                document.createElement("input");
-
-            qrInput.type = "hidden";
-
-            qrInput.name = "qrData";
-
-            qrInput.value = qrData;
-
-            form.appendChild(qrInput);
-
-
-            document.body.appendChild(form);
-
-            form.submit();
-
-        }
-
-    </script>
-
-}
-
-@section Styles {
-
-    <link rel="stylesheet"
-          href="~/css/checkin.css"
-          asp-append-version="true" />
 
     <link rel="stylesheet"
           href="~/css/checkin-result.css"

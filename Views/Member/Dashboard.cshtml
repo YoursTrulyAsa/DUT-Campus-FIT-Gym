@@ -7,10 +7,6 @@
 
     <div class="dashboard-content">
 
-        <!-- ========================================================= -->
-        <!-- TOP BAR -->
-        <!-- ========================================================= -->
-
         <div class="dashboard-topbar">
 
             <div class="dashboard-welcome">
@@ -53,16 +49,7 @@
         </div>
 
 
-        <!-- ========================================================= -->
-        <!-- DASHBOARD STATS -->
-        <!-- ========================================================= -->
-
         <div class="dashboard-stats">
-
-
-            <!-- ===================================================== -->
-            <!-- MEMBERSHIP -->
-            <!-- ===================================================== -->
 
             <a asp-controller="Member"
                asp-action="Membership"
@@ -124,10 +111,6 @@
             </a>
 
 
-            <!-- ===================================================== -->
-            <!-- ATTENDANCE -->
-            <!-- ===================================================== -->
-
             <a asp-controller="Member"
                asp-action="Attendance"
                class="stat-card stat-card-link">
@@ -158,11 +141,6 @@
 
             </a>
 
-
-            <!-- ===================================================== -->
-            <!-- RESERVATIONS -->
-            <!-- ===================================================== -->
-
             <a asp-controller="Member"
                asp-action="Reservations"
                class="stat-card stat-card-link">
@@ -187,10 +165,6 @@
 
             </a>
 
-
-            <!-- ===================================================== -->
-            <!-- ANNOUNCEMENTS -->
-            <!-- ===================================================== -->
 
             <a asp-controller="Member"
                asp-action="Announcements"
@@ -217,47 +191,9 @@
             </a>
 
 
-            <!-- ===================================================== -->
-            <!-- PAYMENT -->
-            <!-- ===================================================== -->
-
-            <a asp-controller="Member"
-               asp-action="Payment"
-               class="stat-card stat-card-link">
-
-                <div class="stat-icon">
-                    <i class="fa-solid fa-credit-card"></i>
-                </div>
-
-                <div class="stat-content">
-
-                    <span>
-                        Payments
-                    </span>
-
-                    <h3>
-                        Payment History
-                    </h3>
-
-                </div>
-
-                <i class="fa-solid fa-chevron-right stat-arrow"></i>
-
-            </a>
-
         </div>
 
-
-        <!-- ========================================================= -->
-        <!-- MAIN DASHBOARD GRID -->
-        <!-- ========================================================= -->
-
         <div class="dashboard-grid">
-
-
-            <!-- ===================================================== -->
-            <!-- WORKOUT -->
-            <!-- ===================================================== -->
 
             <section class="dashboard-card workout-card">
 
@@ -389,11 +325,6 @@
 
             </section>
 
-
-            <!-- ===================================================== -->
-            <!-- FITNESS PROFILE -->
-            <!-- ===================================================== -->
-
             <section class="dashboard-card">
 
                 <div class="card-heading">
@@ -517,10 +448,6 @@
 
             </section>
 
-
-            <!-- ===================================================== -->
-            <!-- MEMBERSHIP -->
-            <!-- ===================================================== -->
 
             <section class="dashboard-card membership-dashboard-card">
 
@@ -742,10 +669,6 @@
             </section>
 
 
-            <!-- ===================================================== -->
-            <!-- QUICK ACTIONS -->
-            <!-- ===================================================== -->
-
             <section class="dashboard-card quick-actions-card">
 
                 <div class="card-heading">
@@ -778,10 +701,6 @@
                 <div class="quick-actions">
 
 
-                    <!-- ================================================= -->
-                    <!-- CHECK-IN -->
-                    <!-- ================================================= -->
-
                     <a asp-controller="Member"
                        asp-action="CheckInPage"
                        class="quick-action">
@@ -809,11 +728,6 @@
                         <i class="fa-solid fa-arrow-right action-arrow"></i>
 
                     </a>
-
-
-                    <!-- ================================================= -->
-                    <!-- VIRTUAL GYM CARD -->
-                    <!-- ================================================= -->
 
                     <a asp-controller="Member"
                        asp-action="GymCard"
@@ -843,11 +757,6 @@
 
                     </a>
 
-
-                    <!-- ================================================= -->
-                    <!-- REQUEST TRAINER -->
-                    <!-- ================================================= -->
-
                     <a asp-controller="Member"
                        asp-action="RequestTrainer"
                        class="quick-action">
@@ -875,11 +784,6 @@
                         <i class="fa-solid fa-arrow-right action-arrow"></i>
 
                     </a>
-
-
-                    <!-- ================================================= -->
-                    <!-- MY TRAINER REQUESTS -->
-                    <!-- ================================================= -->
 
                     <a asp-controller="Member"
                        asp-action="MyTrainerRequests"
@@ -919,10 +823,6 @@
 
 </div>
 
-
-<!-- ========================================================= -->
-<!-- PAGE STYLES -->
-<!-- ========================================================= -->
 @section Styles {
 
     <link rel="stylesheet"

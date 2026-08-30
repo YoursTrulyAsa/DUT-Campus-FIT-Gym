@@ -1,0 +1,97 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<aside class="trainer-sidebar">
+
+    <div class="trainer-sidebar-header">
+
+        <div class="trainer-logo">
+            <img src="~/images/DUT-logo.jpg"
+                 alt="DUT Campus FIT Gym" />
+        </div>
+
+        <div>
+            <span>DUT CAMPUS</span>
+            <strong>FIT GYM</strong>
+        </div>
+
+    </div>
+
+    <div class="trainer-profile">
+
+        <div class="trainer-profile-icon">
+            <i class="fa-solid fa-user-tie"></i>
+        </div>
+
+        <div>
+            <span>TRAINER</span>
+            <strong>@User.Identity?.Name</strong>
+        </div>
+
+    </div>
+
+    <nav class="trainer-nav">
+
+        <a asp-controller="Trainer"
+           asp-action="Index"
+           class="@(currentAction == "Index" ? "active" : "")">
+
+            <i class="fa-solid fa-gauge-high"></i>
+            <span>Dashboard</span>
+
+        </a>
+
+        <a asp-controller="Trainer"
+           asp-action="Requests"
+           class="@(currentAction == "Requests" ? "active" : "")">
+
+            <i class="fa-solid fa-user-clock"></i>
+            <span>Trainer Requests</span>
+
+        </a>
+
+        <a asp-controller="Trainer"
+           asp-action="StudentProfiles"
+           class="@(currentAction == "StudentProfiles" || currentAction == "ViewProfile" ? "active" : "")">
+
+            <i class="fa-solid fa-users"></i>
+            <span>Student Profiles</span>
+
+        </a>
+
+        <a asp-controller="Trainer"
+           asp-action="Workouts"
+           class="@(currentAction == "Workouts" || currentAction == "CreateWorkout" ? "active" : "")">
+
+            <i class="fa-solid fa-dumbbell"></i>
+            <span>Workout Plans</span>
+
+        </a>
+
+        <a asp-controller="Trainer"
+           asp-action="Equipment"
+           class="@(currentAction == "Equipment" || currentAction == "AddEquipment" ? "active" : "")">
+
+            <i class="fa-solid fa-person-running"></i>
+            <span>Equipment</span>
+
+        </a>
+
+    </nav>
+
+    <div class="trainer-sidebar-bottom">
+
+        <a asp-controller="Account"
+           asp-action="Logout"
+           class="trainer-logout">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Logout</span>
+
+        </a>
+
+    </div>
+
+</aside>

@@ -18,34 +18,16 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _passwordHasher = new PasswordHasher<Member>();
         }
 
-
-        // =========================================================
-        // ADMIN DASHBOARD
-        // =========================================================
-
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var model = new AdminDashboardViewModel
             {
-                // ==========================================
-                // MEMBERS
-                // ==========================================
-
                 TotalMembers = await _context.Members
                     .CountAsync(),
 
-
-                // ==========================================
-                // PENDING MEMBERSHIP APPLICATIONS
-                // ==========================================
-
                 PendingApplications = await _context.MembershipApplications
                     .CountAsync(a => a.Status == "Pending"),
-
-
-                // ==========================================
-                // ACTIVE MEMBERSHIPS
-                // ==========================================
 
                 ActiveMemberships = await _context.Memberships
                     .CountAsync(m =>
@@ -53,34 +35,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         m.EndDate.HasValue &&
                         m.EndDate.Value.Date >= DateTime.Today),
 
-
-                // ==========================================
-                // AVAILABLE EQUIPMENT
-                // ==========================================
-
                 AvailableEquipment = await _context.Equipment
                     .CountAsync(e => e.IsAvailable),
-
-
-                // ==========================================
-                // UNAVAILABLE EQUIPMENT
-                // ==========================================
 
                 UnavailableEquipment = await _context.Equipment
                     .CountAsync(e => !e.IsAvailable),
 
-
-                // ==========================================
-                // ACTIVE RESERVATIONS
-                // ==========================================
-
                 ActiveReservations = await _context.Reservations
                     .CountAsync(r => r.Status == "Active"),
-
-
-                // ==========================================
-                // RECENT APPLICATIONS
-                // ==========================================
 
                 RecentApplications = await _context.MembershipApplications
                     .Include(a => a.Member)
@@ -92,17 +54,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(model);
         }
 
-
-        // =========================================================
-        // ADD TRAINER
-        // =========================================================
+        [HttpGet]
+        public IActionResult Dashboard()
+        {
+            return RedirectToAction(nameof(Index));
+        }
 
         [HttpGet]
         public IActionResult AddTrainer()
         {
             return View();
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -113,17 +75,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-
-            // ==========================================
-            // CHECK EMAIL
-            // ==========================================
-
             bool emailExistsInMembers = _context.Members
                 .Any(m => m.Email == model.Email);
 
             bool emailExistsInTrainers = _context.Trainers
                 .Any(t => t.Email == model.Email);
-
 
             if (emailExistsInMembers || emailExistsInTrainers)
             {
@@ -134,15 +90,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-
-            // ==========================================
-            // CHECK STAFF/STUDENT NUMBER
-            // ==========================================
-
             bool numberExists = _context.Members
                 .Any(m =>
                     m.StudentNumber == model.StaffStudentNumber);
-
 
             if (numberExists)
             {
@@ -153,45 +103,24 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-
-            // ==========================================
-            // CREATE MEMBER LOGIN ACCOUNT
-            // ==========================================
-
             var member = new Member
             {
                 Name = model.FirstName,
-
                 Surname = model.LastName,
-
                 StudentNumber = model.StaffStudentNumber,
-
                 Email = model.Email,
-
                 PhoneNumber = model.PhoneNumber,
-
                 Role = "Trainer"
             };
-
-
-            // ==========================================
-            // HASH PASSWORD
-            // ==========================================
 
             member.PasswordHash =
                 _passwordHasher.HashPassword(
                     member,
                     model.Password);
 
-
             _context.Members.Add(member);
 
             _context.SaveChanges();
-
-
-            // ==========================================
-            // CREATE TRAINER PROFILE
-            // ==========================================
 
             var trainer = new Trainer
             {
@@ -201,26 +130,15 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 Email = model.Email
             };
 
-
             _context.Trainers.Add(trainer);
 
             _context.SaveChanges();
-
-
-            // ==========================================
-            // SUCCESS
-            // ==========================================
 
             TempData["Success"] =
                 "Trainer account created successfully.";
 
             return RedirectToAction(nameof(Index));
         }
-
-
-        // =========================================================
-        // MANAGE EQUIPMENT
-        // =========================================================
 
         [HttpGet]
         public async Task<IActionResult> Equipment()
@@ -232,46 +150,16 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(equipment);
         }
 
-
-        // =========================================================
-        // SCANNER
-        // =========================================================
-
+        [HttpGet]
         public IActionResult Scanner()
         {
             return View();
         }
 
-
-        // =========================================================
-        // VERIFY MEMBER BARCODE CHECK-IN
-        // =========================================================
-        //
-        // The Virtual Gym Card contains the member's
-        // StudentNumber as a Code 128 barcode.
-        //
-        // Example:
-        //
-        // 220123456
-        //
-        // Admin/Staff scans the barcode.
-        // The system:
-        // 1. Finds the member
-        // 2. Checks their membership
-        // 3. Checks expiry
-        // 4. Checks whether they are already inside
-        // 5. Records attendance
-        // 6. Displays member information
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult VerifyBarcodeCheckIn(string barcodeData)
         {
-            // =========================================================
-            // VALIDATE BARCODE
-            // =========================================================
-
             if (string.IsNullOrWhiteSpace(barcodeData))
             {
                 TempData["CheckInError"] =
@@ -282,15 +170,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             barcodeData = barcodeData.Trim();
 
-
-            // =========================================================
-            // FIND MEMBER USING STUDENT/STAFF NUMBER
-            // =========================================================
-
             var member = _context.Members
                 .FirstOrDefault(m =>
                     m.StudentNumber == barcodeData);
-
 
             if (member == null)
             {
@@ -300,18 +182,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Scanner));
             }
 
-
-            // =========================================================
-            // FIND LATEST MEMBERSHIP
-            // =========================================================
-
             var membership = _context.Memberships
                 .Where(m =>
                     m.MemberId == member.MemberId)
                 .OrderByDescending(m =>
                     m.MembershipId)
                 .FirstOrDefault();
-
 
             if (membership == null)
             {
@@ -321,11 +197,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Scanner));
             }
 
-
-            // =========================================================
-            // CHECK MEMBERSHIP STATUS
-            // =========================================================
-
             if (membership.Status != "Active")
             {
                 TempData["CheckInError"] =
@@ -333,11 +204,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return RedirectToAction(nameof(Scanner));
             }
-
-
-            // =========================================================
-            // CHECK MEMBERSHIP EXPIRY
-            // =========================================================
 
             if (membership.EndDate.HasValue &&
                 membership.EndDate.Value.Date < DateTime.Today)
@@ -348,16 +214,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Scanner));
             }
 
-
-            // =========================================================
-            // CHECK IF MEMBER IS ALREADY CHECKED IN
-            // =========================================================
-
             var existingAttendance = _context.Attendances
                 .FirstOrDefault(a =>
                     a.MemberId == member.MemberId &&
                     a.CheckOutTime == null);
-
 
             if (existingAttendance != null)
             {
@@ -367,67 +227,43 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Scanner));
             }
 
-
-            // =========================================================
-            // CREATE ATTENDANCE
-            // =========================================================
-
             var attendance = new Attendance
             {
                 MemberId = member.MemberId,
-
                 CheckInTime = DateTime.Now,
-
                 CheckOutTime = null
             };
-
 
             _context.Attendances.Add(attendance);
 
             _context.SaveChanges();
 
-
-            // =========================================================
-            // SAVE SUCCESS INFORMATION
-            // =========================================================
-
             TempData["CheckInSuccess"] =
                 $"ACCESS GRANTED — Welcome {member.Name} {member.Surname}!";
-
 
             TempData["ScannedMemberName"] =
                 $"{member.Name} {member.Surname}";
 
-
             TempData["ScannedStudentNumber"] =
                 member.StudentNumber;
-
 
             TempData["ScannedMembershipType"] =
                 membership.MembershipType;
 
-
             TempData["ScannedMembershipStatus"] =
                 membership.Status;
-
 
             TempData["ScannedExpiryDate"] =
                 membership.EndDate.HasValue
                     ? membership.EndDate.Value.ToString("dd MMM yyyy")
                     : "N/A";
 
-
             TempData["ScannedCheckInTime"] =
                 attendance.CheckInTime.ToString(
                     "dd MMM yyyy, HH:mm");
 
-
             return RedirectToAction(nameof(Scanner));
         }
-
-        // =========================================================
-        // MEMBERSHIP APPLICATIONS
-        // =========================================================
 
         [HttpGet]
         public IActionResult MembershipApplications()
@@ -439,15 +275,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(applications);
         }
-
-
-        // =========================================================
-        // APPROVE MEMBERSHIP APPLICATION
-        // =========================================================
-
-        // =========================================================
-        // APPROVE MEMBERSHIP APPLICATION
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -467,11 +294,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(MembershipApplications));
             }
 
-
-            // =========================================================
-            // MUST STILL BE PENDING
-            // =========================================================
-
             if (application.Status != "Pending")
             {
                 TempData["Error"] =
@@ -480,11 +302,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(
                     nameof(MembershipApplications));
             }
-
-
-            // =========================================================
-            // CHECK FOR CURRENT ACTIVE MEMBERSHIP
-            // =========================================================
 
             var existingActiveMembership =
                 _context.Memberships
@@ -503,11 +320,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(MembershipApplications));
             }
 
-
-            // =========================================================
-            // CHECK IF MEMBERSHIP WAS ALREADY CREATED
-            // =========================================================
-
             var existingMembership =
                 _context.Memberships
                     .FirstOrDefault(m =>
@@ -524,11 +336,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(
                     nameof(MembershipApplications));
             }
-
-
-            // =========================================================
-            // DETERMINE MEMBERSHIP DATES
-            // =========================================================
 
             DateTime startDate = DateTime.Today;
 
@@ -551,43 +358,18 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(MembershipApplications));
             }
 
-
-            // =========================================================
-            // CREATE MEMBERSHIP
-            // =========================================================
-            //
-            // IMPORTANT:
-            //
-            // Approval NEVER makes the membership Active.
-            //
-            // It MUST remain WaitingForPayment until PayFast
-            // confirms the payment.
-            //
-
             var membership = new Membership
             {
                 MemberId = application.MemberId,
-
                 MembershipType = application.MembershipType,
-
                 StartDate = startDate,
-
                 EndDate = endDate,
-
                 Status = "WaitingForPayment",
-
                 Price = application.Price,
-
                 PaymentMethod = application.PaymentMethod
             };
 
-
             _context.Memberships.Add(membership);
-
-
-            // =========================================================
-            // UPDATE APPLICATION
-            // =========================================================
 
             application.Status = "Approved";
 
@@ -596,13 +378,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             application.AdminComment =
                 "Membership application approved. Awaiting payment.";
 
-
             _context.SaveChanges();
-
-
-            // =========================================================
-            // SUCCESS
-            // =========================================================
 
             TempData["Success"] =
                 "Membership application approved successfully. The student can now complete payment.";
@@ -610,11 +386,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(
                 nameof(MembershipApplications));
         }
-
-
-        // =========================================================
-        // REJECT MEMBERSHIP APPLICATION
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -627,7 +398,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     .FirstOrDefault(a =>
                         a.MembershipApplicationId == id);
 
-
             if (application == null)
             {
                 TempData["Error"] =
@@ -636,11 +406,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(
                     nameof(MembershipApplications));
             }
-
-
-            // ==========================================
-            // MAKE SURE IT IS STILL PENDING
-            // ==========================================
 
             if (application.Status != "Pending")
             {
@@ -651,11 +416,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(MembershipApplications));
             }
 
-
-            // ==========================================
-            // REQUIRE A REASON
-            // ==========================================
-
             if (string.IsNullOrWhiteSpace(adminComment))
             {
                 TempData["Error"] =
@@ -664,11 +424,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(
                     nameof(MembershipApplications));
             }
-
-
-            // ==========================================
-            // UPDATE APPLICATION
-            // ==========================================
 
             application.Status =
                 "Rejected";
@@ -679,9 +434,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             application.AdminComment =
                 adminComment.Trim();
 
-
             _context.SaveChanges();
-
 
             TempData["Success"] =
                 "Membership application rejected.";
@@ -690,11 +443,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 nameof(MembershipApplications));
         }
 
-
-        // =========================================================
-        // MANAGE MEMBERS
-        // =========================================================
-
+        [HttpGet]
         public async Task<IActionResult> Members()
         {
             var members = await _context.Members
@@ -705,11 +454,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(members);
         }
 
-
-        // =========================================================
-        // VIEW RESERVATIONS
-        // =========================================================
-
+        [HttpGet]
         public async Task<IActionResult> Reservations()
         {
             var reservations = await _context.Reservations
@@ -752,17 +497,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(reservations);
         }
 
-
-        // =========================================================
-        // ADD EQUIPMENT
-        // =========================================================
-
         [HttpGet]
         public IActionResult AddEquipment()
         {
             return View();
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -774,24 +513,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(equipment);
             }
 
-
             equipment.IsAvailable = true;
 
             _context.Equipment.Add(equipment);
 
             await _context.SaveChangesAsync();
 
-
             TempData["Success"] =
                 "Equipment added successfully.";
 
             return RedirectToAction(nameof(Equipment));
         }
-
-
-        // =========================================================
-        // REMOVE EQUIPMENT
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -801,7 +533,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 .FirstOrDefaultAsync(e =>
                     e.EquipmentID == id);
 
-
             if (equipment == null)
             {
                 TempData["Error"] =
@@ -810,16 +541,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Equipment));
             }
 
-
-            // ==========================================
-            // CHECK FOR RESERVATIONS
-            // ==========================================
-
             var hasReservations =
                 await _context.Reservations
                     .AnyAsync(r =>
                         r.EquipmentID == id);
-
 
             if (hasReservations)
             {
@@ -829,11 +554,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Equipment));
             }
 
-
             _context.Equipment.Remove(equipment);
 
             await _context.SaveChangesAsync();
-
 
             TempData["Success"] =
                 "Equipment removed successfully.";
@@ -841,20 +564,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(nameof(Equipment));
         }
 
-        // =========================================================
-        // ADD STAFF - GET
-        // =========================================================
-
         [HttpGet]
         public IActionResult AddStaff()
         {
             return View();
         }
-
-
-        // =========================================================
-        // ADD STAFF - POST
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -864,11 +578,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 return View(model);
             }
-
-
-            // =========================================================
-            // CHECK EMAIL
-            // =========================================================
 
             bool emailExists =
                 _context.Members
@@ -882,11 +591,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return View(model);
             }
-
-
-            // =========================================================
-            // CHECK STAFF NUMBER
-            // =========================================================
 
             bool numberExists =
                 _context.Members
@@ -902,11 +606,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return View(model);
             }
-
-
-            // =========================================================
-            // CREATE STAFF MEMBER
-            // =========================================================
 
             var staff = new Member
             {
@@ -929,35 +628,99 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Staff"
             };
 
-
-            // =========================================================
-            // HASH PASSWORD
-            // =========================================================
-
             staff.PasswordHash =
                 _passwordHasher.HashPassword(
                     staff,
                     model.Password);
 
-
-            // =========================================================
-            // SAVE STAFF ACCOUNT
-            // =========================================================
-
             _context.Members.Add(staff);
 
             _context.SaveChanges();
-
-
-            // =========================================================
-            // SUCCESS
-            // =========================================================
 
             TempData["Success"] =
                 $"Staff account for {staff.Name} {staff.Surname} was created successfully.";
 
             return RedirectToAction(
                 nameof(Members));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Announcements()
+        {
+            var announcements = await _context.Announcements
+                .OrderByDescending(a => a.DatePosted)
+                .ToListAsync();
+
+            // Explicitly specify the view location.
+            return View(
+                "~/Views/Admin/Announcements.cshtml",
+                announcements);
+        }
+
+        [HttpGet]
+        public IActionResult AddAnnouncement()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddAnnouncement(
+            Announcement announcement)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(announcement);
+            }
+
+            announcement.DatePosted = DateTime.Now;
+
+            if (string.IsNullOrWhiteSpace(
+                announcement.Category))
+            {
+                announcement.Category = "General";
+            }
+
+            _context.Announcements.Add(announcement);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Announcement posted successfully.";
+
+            return RedirectToAction(
+                nameof(Announcements));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAnnouncement(
+            int id)
+        {
+            var announcement =
+                await _context.Announcements
+                    .FirstOrDefaultAsync(a =>
+                        a.AnnouncementID == id);
+
+            if (announcement == null)
+            {
+                TempData["Error"] =
+                    "Announcement was not found.";
+
+                return RedirectToAction(
+                    nameof(Announcements));
+            }
+
+            _context.Announcements.Remove(
+                announcement);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Announcement deleted successfully.";
+
+            return RedirectToAction(
+                nameof(Announcements));
         }
     }
 }

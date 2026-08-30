@@ -15,10 +15,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context = context;
         }
 
-        // =========================================================
-        // EQUIPMENT LIST
-        // =========================================================
-
         public IActionResult Index()
         {
             ExpireOldReservations();
@@ -35,10 +31,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(equipment);
         }
-
-        // =========================================================
-        // CREATE EQUIPMENT
-        // =========================================================
 
         public IActionResult Create()
         {
@@ -62,10 +54,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(equipment);
         }
 
-        // =========================================================
-        // RESERVE EQUIPMENT
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Reserve(int id)
@@ -81,9 +69,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // -----------------------------------------------------
-            // CHECK EXISTING ACTIVE RESERVATION
-            // -----------------------------------------------------
 
             var existingReservation = _context.Reservations
                 .FirstOrDefault(r =>
@@ -99,10 +84,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // -----------------------------------------------------
-            // FIND EQUIPMENT
-            // -----------------------------------------------------
-
             var equipment = _context.Equipment
                 .FirstOrDefault(e => e.EquipmentID == id);
 
@@ -110,11 +91,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 return NotFound();
             }
-
-            // -----------------------------------------------------
-            // CHECK AVAILABILITY
-            // -----------------------------------------------------
-
             if (!equipment.IsAvailable)
             {
                 TempData["Error"] =
@@ -122,10 +98,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-
-            // -----------------------------------------------------
-            // CREATE 10-MINUTE RESERVATION
-            // -----------------------------------------------------
 
             var startTime = DateTime.Now;
             var endTime = startTime.AddMinutes(10);
@@ -149,10 +121,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return RedirectToAction(nameof(MyReservations));
         }
-
-        // =========================================================
-        // MY RESERVATIONS
-        // =========================================================
 
         public IActionResult MyReservations()
         {
@@ -204,10 +172,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View("Reserve", reservations);
         }
 
-        // =========================================================
-        // CANCEL / UNRESERVE
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Unreserve(int id)
@@ -253,10 +217,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return RedirectToAction(nameof(MyReservations));
         }
-
-        // =========================================================
-        // AUTOMATICALLY EXPIRE OLD RESERVATIONS
-        // =========================================================
 
         private void ExpireOldReservations()
         {

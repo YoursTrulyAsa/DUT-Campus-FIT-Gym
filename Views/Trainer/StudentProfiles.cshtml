@@ -4,97 +4,183 @@
     ViewData["Title"] = "Student Workout Profiles";
 }
 
-<div class="container mt-5">
+<div class="trainer-page">
 
-    <h1 class="mb-4">Student Workout Profiles</h1>
 
-    <p class="text-muted">
-        View student workout information and assigned workout plans.
-    </p>
-
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info">
-            No students are currently registered.
+    <div class="trainer-page-header">
+        <div>
+            <span class="trainer-page-label">DUT CAMPUS FIT GYM</span>
+            <h1>Student Workout Profiles</h1>
+            <p>View student fitness information and manage their workout plans.</p>
         </div>
-    }
-    else
-    {
-        <div class="table-responsive">
 
-            <table class="table table-bordered table-striped">
+        <a asp-controller="Trainer"
+           asp-action="Index"
+           class="trainer-back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+            Dashboard
+        </a>
+    </div>
 
-                <thead class="table-dark">
-                    <tr>
-                        <th>Name</th>
-                        <th>Student Number</th>
-                        <th>Email</th>
-                        <th>Workout Profile</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
+    <div class="profile-summary">
 
-                <tbody>
+        <div class="profile-summary-icon">
+            <i class="fa-solid fa-users"></i>
+        </div>
+
+        <div>
+            <span>REGISTERED MEMBERS</span>
+            <strong>@(Model?.Count() ?? 0)</strong>
+        </div>
+
+    </div>
+
+    <div class="student-profiles-card">
+
+        <div class="student-profiles-header">
+
+            <div>
+                <span class="trainer-section-label">
+                    MEMBER FITNESS
+                </span>
+
+                <h2>Student Profiles</h2>
+
+                <p>
+                    Select a student to view their complete workout profile.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="student-profiles-body">
+
+            @if (Model == null || !Model.Any())
+            {
+                <div class="trainer-empty-state">
+
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-users-slash"></i>
+                    </div>
+
+                    <h3>No Students Found</h3>
+
+                    <p>
+                        There are currently no registered students.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <div class="student-profile-grid">
 
                     @foreach (var student in Model)
                     {
-                        var profile = student.WorkoutProfiles.FirstOrDefault();
+                        var profile = student.WorkoutProfiles?.FirstOrDefault();
 
-                        <tr>
+                        <div class="student-profile-card">
 
-                            <td>
-                                @student.Name @student.Surname
-                            </td>
+                            <div class="student-profile-top">
 
-                            <td>
-                                @student.StudentNumber
-                            </td>
+                                <div class="student-profile-avatar">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
 
-                            <td>
-                                @student.Email
-                            </td>
+                                <div class="student-profile-name">
 
-                            <td>
-                                @if (profile != null)
-                                {
-                                    <span class="badge bg-success">
-                                        Profile Available
+                                    <h3>
+                                        @student.Name @student.Surname
+                                    </h3>
+
+                                    <span>
+                                        @student.StudentNumber
                                     </span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">
-                                        No Profile
-                                    </span>
-                                }
-                            </td>
 
-                            <td>
+                                </div>
+
+                            </div>
+
+                            <div class="student-profile-details">
+
+                                <div class="profile-detail">
+
+                                    <span>
+                                        <i class="fa-regular fa-envelope"></i>
+                                        EMAIL
+                                    </span>
+
+                                    <strong>
+                                        @student.Email
+                                    </strong>
+
+                                </div>
+
+                                <div class="profile-detail">
+
+                                    <span>
+                                        <i class="fa-solid fa-dumbbell"></i>
+                                        WORKOUT PROFILE
+                                    </span>
+
+                                    @if (profile != null)
+                                    {
+                                        <strong class="profile-available">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            Available
+                                        </strong>
+                                    }
+                                    else
+                                    {
+                                        <strong class="profile-missing">
+                                            <i class="fa-solid fa-circle-exclamation"></i>
+                                            Not Created
+                                        </strong>
+                                    }
+
+                                </div>
+
+                            </div>
+
+                            <div class="student-profile-actions">
 
                                 <a asp-controller="Trainer"
                                    asp-action="ViewProfile"
                                    asp-route-id="@student.MemberId"
-                                   class="btn btn-primary btn-sm">
+                                   class="profile-view-btn">
+
+                                    <i class="fa-solid fa-eye"></i>
                                     View Profile
+
                                 </a>
 
                                 <a asp-controller="Trainer"
                                    asp-action="CreateWorkout"
                                    asp-route-memberId="@student.MemberId"
-                                   class="btn btn-success btn-sm">
+                                   class="profile-workout-btn">
+
+                                    <i class="fa-solid fa-plus"></i>
                                     Assign Workout
+
                                 </a>
 
-                            </td>
+                            </div>
 
-                        </tr>
+                        </div>
                     }
 
-                </tbody>
-
-            </table>
+                </div>
+            }
 
         </div>
-    }
+
+    </div>
+    
 
 </div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/trainer.css"
+          asp-append-version="true" />
+}

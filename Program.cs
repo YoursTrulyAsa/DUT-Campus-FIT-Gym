@@ -7,31 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =========================================================
-// MVC
-// =========================================================
-
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ActiveMembershipFilter>();
 builder.Services.AddSession();
 
-// =========================================================
-// HTTP CLIENT
-// Required by the Ask Us Gemini support service
-// =========================================================
-
 builder.Services.AddHttpClient();
-
-// =========================================================
-// PAYFAST SETTINGS
-// =========================================================
 
 builder.Services.Configure<PayFastSettings>(
 builder.Configuration.GetSection("PayFast"));
-
-// =========================================================
-// AUTHENTICATION
-// =========================================================
 
 builder.Services.AddAuthentication(
 CookieAuthenticationDefaults.AuthenticationScheme)
@@ -54,24 +37,12 @@ CookieAuthenticationDefaults.AuthenticationScheme)
     options.SlidingExpiration = true;
 });
 
-// =========================================================
-// DATABASE
-// =========================================================
-
 builder.Services.AddDbContext<GymDbContext>(options =>
 options.UseSqlServer(
 builder.Configuration.GetConnectionString("GymDatabase")
 ));
 
-// =========================================================
-// BUILD APPLICATION
-// =========================================================
-
 var app = builder.Build();
-
-// =========================================================
-// ERROR HANDLING
-// =========================================================
 
 if (!app.Environment.IsDevelopment())
 {
@@ -81,33 +52,13 @@ app.UseHsts();
 
 }
 
-// =========================================================
-// HTTPS
-// =========================================================
-
 app.UseHttpsRedirection();
-
-// =========================================================
-// STATIC FILES
-// =========================================================
 
 app.UseStaticFiles();
 
-// =========================================================
-// ROUTING
-// =========================================================
-
 app.UseRouting();
 
-// =========================================================
-// AUTHENTICATION
-// =========================================================
-
 app.UseAuthentication();
-
-// =========================================================
-// AUTHORIZATION
-// =========================================================
 
 app.UseAuthorization();
 
@@ -155,10 +106,6 @@ var passwordHasher =
     }
 
 }
-
-// =========================================================
-// DEFAULT ROUTE
-// =========================================================
 
 app.MapControllerRoute(
     name: "default",

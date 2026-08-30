@@ -4,67 +4,133 @@
     ViewData["Title"] = "Student Profile";
 }
 
-<div class="container mt-5">
+<div class="trainer-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+ 
+    <div class="trainer-page-header">
+
         <div>
+            <span class="trainer-page-label">DUT CAMPUS FIT GYM</span>
+
             <h1>Student Profile</h1>
-            <p class="text-muted">
-                View the full workout profile of your accepted student.
+
+            <p>
+                View the student's personal information, fitness profile and assigned workouts.
             </p>
         </div>
 
         <a asp-controller="Trainer"
-           asp-action="Index"
-           class="btn btn-secondary">
-            Back to Dashboard
+           asp-action="StudentProfiles"
+           class="trainer-back-btn">
+
+            <i class="fa-solid fa-arrow-left"></i>
+            Student Profiles
+
         </a>
+
     </div>
 
 
-    <!-- STUDENT INFORMATION -->
+    <div class="student-profile-hero">
 
-    <div class="card shadow mb-4">
-
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">
-                Personal Information
-            </h4>
+        <div class="profile-large-avatar">
+            <i class="fa-solid fa-user"></i>
         </div>
 
-        <div class="card-body">
+        <div class="profile-hero-info">
 
-            <div class="row">
+            <span class="profile-role">
+                GYM MEMBER
+            </span>
 
-                <div class="col-md-6 mb-3">
-                    <strong>First Name</strong>
-                    <p>@Model.Name</p>
-                </div>
+            <h2>
+                @Model.Name @Model.Surname
+            </h2>
 
-                <div class="col-md-6 mb-3">
-                    <strong>Last Name</strong>
-                    <p>@Model.Surname</p>
-                </div>
+            <p>
+                <i class="fa-solid fa-id-card"></i>
+                @Model.StudentNumber
+            </p>
 
-                <div class="col-md-6 mb-3">
-                    <strong>Student Number</strong>
-                    <p>@Model.StudentNumber</p>
-                </div>
+        </div>
 
-                <div class="col-md-6 mb-3">
-                    <strong>Email</strong>
-                    <p>@Model.Email</p>
-                </div>
+    </div>
 
-                <div class="col-md-6 mb-3">
-                    <strong>Phone Number</strong>
-                    <p>@Model.PhoneNumber</p>
-                </div>
 
-                <div class="col-md-6 mb-3">
-                    <strong>Role</strong>
-                    <p>@Model.Role</p>
-                </div>
+    <div class="profile-section-card">
+
+        <div class="profile-section-header">
+
+            <div class="profile-section-icon">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div>
+                <span>MEMBER DETAILS</span>
+                <h2>Personal Information</h2>
+            </div>
+
+        </div>
+
+        <div class="profile-details-grid">
+
+            <div class="profile-info-item">
+
+                <span>FIRST NAME</span>
+
+                <strong>
+                    @Model.Name
+                </strong>
+
+            </div>
+
+            <div class="profile-info-item">
+
+                <span>LAST NAME</span>
+
+                <strong>
+                    @Model.Surname
+                </strong>
+
+            </div>
+
+            <div class="profile-info-item">
+
+                <span>STUDENT NUMBER</span>
+
+                <strong>
+                    @Model.StudentNumber
+                </strong>
+
+            </div>
+
+            <div class="profile-info-item">
+
+                <span>EMAIL ADDRESS</span>
+
+                <strong>
+                    @Model.Email
+                </strong>
+
+            </div>
+
+            <div class="profile-info-item">
+
+                <span>PHONE NUMBER</span>
+
+                <strong>
+                    @Model.PhoneNumber
+                </strong>
+
+            </div>
+
+            <div class="profile-info-item">
+
+                <span>ROLE</span>
+
+                <strong>
+                    @Model.Role
+                </strong>
 
             </div>
 
@@ -73,59 +139,102 @@
     </div>
 
 
-    <!-- WORKOUT PROFILE -->
+    <div class="profile-section-card">
 
-    <div class="card shadow mb-4">
+        <div class="profile-section-header">
 
-        <div class="card-header bg-success text-white">
-            <h4 class="mb-0">
-                Workout Profile
-            </h4>
+            <div class="profile-section-icon fitness-icon">
+                <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+
+            <div>
+                <span>FITNESS INFORMATION</span>
+                <h2>Workout Profile</h2>
+            </div>
+
         </div>
 
-        <div class="card-body">
+        <div class="profile-section-body">
 
             @if (Model.WorkoutProfiles != null &&
-                 Model.WorkoutProfiles.Any())
+                        Model.WorkoutProfiles.Any())
             {
                 var profile = Model.WorkoutProfiles.First();
 
-                <div class="row">
+                <div class="fitness-details-grid">
 
-                    <div class="col-md-3 mb-3">
-                        <strong>Age</strong>
-                        <p>
+                    <div class="fitness-detail">
+
+                        <div class="fitness-detail-icon">
+                            <i class="fa-solid fa-cake-candles"></i>
+                        </div>
+
+                        <span>AGE</span>
+
+                        <strong>
                             @profile.Age
-                        </p>
+                        </strong>
+
                     </div>
 
-                    <div class="col-md-3 mb-3">
-                        <strong>Weight</strong>
-                        <p>
+                    <div class="fitness-detail">
+
+                        <div class="fitness-detail-icon">
+                            <i class="fa-solid fa-weight-scale"></i>
+                        </div>
+
+                        <span>WEIGHT</span>
+
+                        <strong>
                             @profile.Weight kg
-                        </p>
+                        </strong>
+
                     </div>
 
-                    <div class="col-md-3 mb-3">
-                        <strong>Height</strong>
-                        <p>
+                    <div class="fitness-detail">
+
+                        <div class="fitness-detail-icon">
+                            <i class="fa-solid fa-ruler-vertical"></i>
+                        </div>
+
+                        <span>HEIGHT</span>
+
+                        <strong>
                             @profile.Height cm
-                        </p>
+                        </strong>
+
                     </div>
 
-                    <div class="col-md-3 mb-3">
-                        <strong>Fitness Goal</strong>
-                        <p>
+                    <div class="fitness-detail">
+
+                        <div class="fitness-detail-icon">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+
+                        <span>FITNESS GOAL</span>
+
+                        <strong>
                             @profile.Goal
-                        </p>
+                        </strong>
+
                     </div>
 
                 </div>
             }
             else
             {
-                <div class="alert alert-info">
-                    This student has not created a workout profile yet.
+                <div class="trainer-empty-state">
+
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-dumbbell"></i>
+                    </div>
+
+                    <h3>No Workout Profile</h3>
+
+                    <p>
+                        This student has not created a workout profile yet.
+                    </p>
+
                 </div>
             }
 
@@ -134,81 +243,115 @@
     </div>
 
 
-    <!-- WORKOUT PLANS -->
+    <div class="profile-section-card">
 
-    <div class="card shadow mb-4">
+        <div class="profile-section-header">
 
-        <div class="card-header bg-warning">
-            <h4 class="mb-0">
-                Assigned Workout Plans
-            </h4>
+            <div class="profile-section-icon workout-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <div>
+                <span>TRAINING PROGRAM</span>
+                <h2>Assigned Workout Plans</h2>
+            </div>
+
         </div>
 
-        <div class="card-body">
+        <div class="profile-section-body">
 
             @if (Model.WorkoutPlans != null &&
-                 Model.WorkoutPlans.Any())
+                        Model.WorkoutPlans.Any())
             {
-                <div class="table-responsive">
+                <div class="workout-plan-list">
 
-                    <table class="table table-bordered table-striped">
+                    @foreach (var workout in Model.WorkoutPlans)
+                    {
+                        <div class="workout-plan-item">
 
-                        <thead class="table-dark">
+                            <div class="workout-plan-icon">
+                                <i class="fa-solid fa-person-running"></i>
+                            </div>
 
-                            <tr>
-                                <th>Workout</th>
-                                <th>Exercise</th>
-                                <th>Day</th>
-                                <th>Sets</th>
-                                <th>Repetitions</th>
-                                <th>Rest Time</th>
-                            </tr>
+                            <div class="workout-plan-main">
 
-                        </thead>
+                                <h3>
+                                    @workout.WorkoutName
+                                </h3>
 
-                        <tbody>
+                                <span>
+                                    @workout.ExerciseName
+                                </span>
 
-                            @foreach (var workout in Model.WorkoutPlans)
-                            {
-                                <tr>
+                            </div>
 
-                                    <td>
-                                        @workout.WorkoutName
-                                    </td>
+                            <div class="workout-plan-day">
 
-                                    <td>
-                                        @workout.ExerciseName
-                                    </td>
+                                <span>
+                                    DAY
+                                </span>
 
-                                    <td>
-                                        @workout.WorkoutDay
-                                    </td>
+                                <strong>
+                                    @workout.WorkoutDay
+                                </strong>
 
-                                    <td>
-                                        @workout.Sets
-                                    </td>
+                            </div>
 
-                                    <td>
-                                        @workout.Repetitions
-                                    </td>
+                            <div class="workout-plan-stat">
 
-                                    <td>
-                                        @workout.RestTime
-                                    </td>
+                                <span>
+                                    SETS
+                                </span>
 
-                                </tr>
-                            }
+                                <strong>
+                                    @workout.Sets
+                                </strong>
 
-                        </tbody>
+                            </div>
 
-                    </table>
+                            <div class="workout-plan-stat">
+
+                                <span>
+                                    REPS
+                                </span>
+
+                                <strong>
+                                    @workout.Repetitions
+                                </strong>
+
+                            </div>
+
+                            <div class="workout-plan-stat">
+
+                                <span>
+                                    REST
+                                </span>
+
+                                <strong>
+                                    @workout.RestTime sec
+                                </strong>
+
+                            </div>
+
+                        </div>
+                    }
 
                 </div>
             }
             else
             {
-                <div class="alert alert-info">
-                    No workout plan has been assigned to this student yet.
+                <div class="trainer-empty-state">
+
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+
+                    <h3>No Workout Plans</h3>
+
+                    <p>
+                        No workout plan has been assigned to this student yet.
+                    </p>
+
                 </div>
             }
 
@@ -217,23 +360,33 @@
     </div>
 
 
-    <!-- ACTIONS -->
-
-    <div class="mb-5">
+    <div class="profile-actions">
 
         <a asp-controller="Trainer"
            asp-action="CreateWorkout"
            asp-route-memberId="@Model.MemberId"
-           class="btn btn-success me-2">
+           class="trainer-primary-btn">
+
+            <i class="fa-solid fa-plus"></i>
             Assign Workout Plan
+
         </a>
 
         <a asp-controller="Trainer"
            asp-action="Requests"
-           class="btn btn-secondary">
-            Manage Trainer Request
+           class="trainer-secondary-btn">
+
+            <i class="fa-solid fa-user-check"></i>
+            Manage Trainer Requests
+
         </a>
 
     </div>
 
 </div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/trainer.css"
+          asp-append-version="true" />
+}

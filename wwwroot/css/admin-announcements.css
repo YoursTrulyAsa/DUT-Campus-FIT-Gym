@@ -1,0 +1,281 @@
+﻿
+.admin-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 0 50px;
+}
+
+.admin-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.admin-page-label {
+    display: inline-block;
+    margin-bottom: 7px;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.admin-page-header h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.admin-page-header p {
+    margin: 8px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.admin-page-header .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 10px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s ease;
+}
+
+    .admin-page-header .btn-primary:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    }
+
+.admin-page .alert {
+    border: none;
+    border-radius: 12px;
+    padding: 14px 17px;
+    margin-bottom: 22px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.admin-page .alert-success {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.admin-page .alert-danger {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.announcements-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.announcement-admin-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+    padding: 22px 24px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+    .announcement-admin-card:hover {
+        transform: translateY(-2px);
+        border-color: #bfdbfe;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+
+.announcement-admin-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.announcement-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.announcement-category {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.announcement-date {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.announcement-admin-content h3 {
+    margin: 0 0 7px;
+    color: #0f172a;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.announcement-admin-content p {
+    margin: 0;
+    max-width: 800px;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.65;
+    white-space: pre-line;
+}
+
+.announcement-admin-actions {
+    flex-shrink: 0;
+}
+
+    .announcement-admin-actions form {
+        margin: 0;
+    }
+
+    .announcement-admin-actions .btn-outline-danger {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 14px;
+        border: 1px solid #fecaca;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #dc2626;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+        .announcement-admin-actions .btn-outline-danger:hover {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #b91c1c;
+        }
+
+.empty-state {
+    padding: 65px 30px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
+}
+
+    .empty-state > i {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 65px;
+        height: 65px;
+        margin: 0 auto 18px;
+        border-radius: 18px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 25px;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 8px;
+        color: #0f172a;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .empty-state p {
+        margin: 0 0 22px;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .empty-state .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 17px;
+        border: none;
+        border-radius: 9px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+@media (max-width: 768px) {
+
+    .admin-page {
+        padding: 5px 0 40px;
+    }
+
+    .admin-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+        .admin-page-header h1 {
+            font-size: 27px;
+        }
+
+        .admin-page-header .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+
+    .announcement-admin-card {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+        padding: 19px;
+    }
+
+    .announcement-admin-actions {
+        width: 100%;
+    }
+
+        .announcement-admin-actions .btn-outline-danger {
+            width: 100%;
+            justify-content: center;
+        }
+}
+
+@media (max-width: 480px) {
+
+    .announcement-top {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .announcement-admin-content h3 {
+        font-size: 16px;
+    }
+
+    .announcement-admin-content p {
+        font-size: 13px;
+    }
+}

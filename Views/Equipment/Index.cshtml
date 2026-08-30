@@ -5,12 +5,11 @@
 
     var activeReservations =
         ViewBag.ActiveReservations
-        as List<DUT_Campus_FIT_Gym.Models.Reservation>;
+        as List<DUT_Campus_FIT_Gym.Models.Reservation>
+        ?? new List<DUT_Campus_FIT_Gym.Models.Reservation>();
 }
 
 <div class="container mt-5">
-
-    <!-- PAGE HEADER -->
 
     <div class="d-flex justify-content-between align-items-center mb-4">
 
@@ -111,7 +110,7 @@
                             @foreach (var item in Model)
                             {
                                 var activeReservation =
-                                    activeReservations?
+                                    activeReservations
                                     .FirstOrDefault(r =>
                                         r.EquipmentID == item.EquipmentID &&
                                         r.Status == "Reserved" &&
@@ -120,7 +119,7 @@
 
                                 <tr>
 
-                                    <!-- EQUIPMENT NAME -->
+                                    <!-- EQUIPMENT -->
 
                                     <td class="px-4">
 
@@ -152,20 +151,45 @@
                                         @if (activeReservation == null)
                                         {
                                             <span class="badge bg-success">
+
                                                 Available
+
                                             </span>
 
                                             <div class="small text-success mt-1">
+
                                                 Ready to use
+
                                             </div>
                                         }
                                         else
                                         {
                                             <span class="badge bg-danger">
+
                                                 Reserved
+
                                             </span>
 
+
+                                            <!-- COUNTDOWN -->
+
                                             <div class="small text-danger mt-1">
+
+                                                Available in:
+
+                                                <strong class="reservation-countdown"
+                                                        data-end-time="@activeReservation.EndTime.ToString("o")">
+
+                                                    Calculating...
+
+                                                </strong>
+
+                                            </div>
+
+
+                                            <!-- EXACT END TIME -->
+
+                                            <div class="small text-muted">
 
                                                 Available again at
 
@@ -255,7 +279,7 @@
     </div>
 
 
-    <!-- RESERVATION INFORMATION -->
+    <!-- RESERVATION RULES -->
 
     <div class="alert alert-info mt-4">
 
@@ -298,3 +322,141 @@
     </div>
 
 </div>
+
+
+<!-- =========================================================
+     LIVE RESERVATION COUNTDOWN
+     ========================================================= -->
+
+<script>
+
+    let countdownTimer;
+
+
+    function updateReservationCountdowns() {
+
+        const countdowns =
+            document.querySelectorAll(
+                ".reservation-countdown"
+            );
+
+
+        const now =
+            new Date().getTime();
+
+
+        let reservationExpired = false;
+
+
+        countdowns.forEach(function(element) {
+
+            const endTime =
+                new Date(
+                    element.dataset.endTime
+                ).getTime();
+
+
+            const difference =
+                endTime - now;
+
+
+            // =========================================
+            // RESERVATION EXPIRED
+            // =========================================
+
+            if (difference <= 0) {
+
+                element.textContent = "00:00";
+
+                reservationExpired = true;
+
+                return;
+            }
+
+
+            // =========================================
+            // CALCULATE REMAINING TIME
+            // =========================================
+
+            const totalSeconds =
+                Math.floor(
+                    difference / 1000
+                );
+
+
+            const minutes =
+                Math.floor(
+                    totalSeconds / 60
+                );
+
+
+            const seconds =
+                totalSeconds % 60;
+
+
+            // =========================================
+            // DISPLAY COUNTDOWN
+            // =========================================
+
+            element.textContent =
+                minutes
+                    .toString()
+                    .padStart(2, "0")
+                + ":"
+                + seconds
+                    .toString()
+                    .padStart(2, "0");
+
+        });
+
+
+        // =========================================
+        // AUTOMATICALLY REFRESH PAGE
+        // =========================================
+
+        if (reservationExpired) {
+
+            clearInterval(countdownTimer);
+
+            /*
+             * The page reloads.
+             *
+             * EquipmentController.Index()
+             * runs ExpireOldReservations().
+             *
+             * The expired reservation becomes:
+             *
+             * Status = "Expired"
+             *
+             * Equipment becomes:
+             *
+             * IsAvailable = true
+             *
+             * Then the Reserve button appears.
+             */
+
+            location.reload();
+
+        }
+
+    }
+
+
+    // =========================================
+    // START COUNTDOWN
+    // =========================================
+
+    updateReservationCountdowns();
+
+
+    // =========================================
+    // UPDATE EVERY SECOND
+    // =========================================
+
+    countdownTimer =
+        setInterval(
+            updateReservationCountdowns,
+            1000
+        );
+
+</script>

@@ -29,51 +29,27 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _config = config;
         }
 
-
-        // =========================================================
-        // REGISTER - GET
-        // =========================================================
-
         [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
-
-        // =========================================================
-        // REGISTER - POST
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(
             RegisterViewModel model)
         {
-            // -----------------------------------------------------
-            // VALIDATE MODEL
-            // -----------------------------------------------------
-
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-
-
-            // -----------------------------------------------------
-            // CLEAN INPUT
-            // -----------------------------------------------------
 
             string email =
                 model.Email?.Trim().ToLower() ?? "";
 
             string studentNumber =
                 model.StudentNumber?.Trim() ?? "";
-
-
-            // -----------------------------------------------------
-            // CHECK EMAIL
-            // -----------------------------------------------------
 
             if (string.IsNullOrWhiteSpace(email))
             {
@@ -84,11 +60,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-
-            // -----------------------------------------------------
-            // CHECK STUDENT NUMBER
-            // -----------------------------------------------------
-
             if (string.IsNullOrWhiteSpace(studentNumber))
             {
                 ModelState.AddModelError(
@@ -97,17 +68,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return View(model);
             }
-
-
-            // -----------------------------------------------------
-            // DUT EMAIL VALIDATION
-            // -----------------------------------------------------
-            //
-            // DUT students should use:
-            //
-            // 25081017@dut4life.ac.za
-            //
-            // -----------------------------------------------------
 
             string expectedStudentEmail =
                 $"{studentNumber}@dut4life.ac.za";
@@ -125,11 +85,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-
-            // -----------------------------------------------------
-            // CHECK DUPLICATE EMAIL
-            // -----------------------------------------------------
-
             bool emailExists =
                 await _context.Members
                     .AnyAsync(m =>
@@ -145,11 +100,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View(model);
             }
 
-
-            // -----------------------------------------------------
-            // CHECK DUPLICATE STUDENT NUMBER
-            // -----------------------------------------------------
-
             bool numberExists =
                 await _context.Members
                     .AnyAsync(m =>
@@ -164,11 +114,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return View(model);
             }
-
-
-            // -----------------------------------------------------
-            // CREATE MEMBER
-            // -----------------------------------------------------
 
             var member = new Member
             {
@@ -191,20 +136,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Student"
             };
 
-
-            // -----------------------------------------------------
-            // HASH PASSWORD
-            // -----------------------------------------------------
-
             member.PasswordHash =
                 _passwordHasher.HashPassword(
                     member,
                     model.Password);
 
-
-            // -----------------------------------------------------
-            // SAVE MEMBER
-            // -----------------------------------------------------
 
             try
             {
@@ -255,26 +191,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // -----------------------------------------------------
-            // SUCCESS MESSAGE
-            // -----------------------------------------------------
-
             TempData["RegistrationSuccess"] =
                 "Your account has been created successfully. You can now log in.";
-
-
-            // -----------------------------------------------------
-            // REDIRECT TO LOGIN
-            // -----------------------------------------------------
 
             return RedirectToAction(
                 nameof(Login));
         }
-
-
-        // =========================================================
-        // REGISTRATION EMAIL
-        // =========================================================
 
         private async Task SendRegistrationEmail(
             Member member)
@@ -358,62 +280,28 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 new SmtpClient();
 
 
-            // -----------------------------------------------------
-            // SMTP CERTIFICATE
-            // -----------------------------------------------------
-
             client.ServerCertificateValidationCallback =
                 (s, c, h, e) => true;
-
-
-            // -----------------------------------------------------
-            // CONNECT
-            // -----------------------------------------------------
 
             await client.ConnectAsync(
                 server,
                 port,
                 SecureSocketOptions.StartTls);
 
-
-            // -----------------------------------------------------
-            // AUTHENTICATE
-            // -----------------------------------------------------
-
             await client.AuthenticateAsync(
                 senderEmail,
                 password);
 
-
-            // -----------------------------------------------------
-            // SEND
-            // -----------------------------------------------------
-
             await client.SendAsync(message);
-
-
-            // -----------------------------------------------------
-            // DISCONNECT
-            // -----------------------------------------------------
 
             await client.DisconnectAsync(true);
         }
-
-
-        // =========================================================
-        // LOGIN - GET
-        // =========================================================
 
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
-
-
-        // =========================================================
-        // LOGIN - POST
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -457,10 +345,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // -----------------------------------------------------
-            // VERIFY PASSWORD
-            // -----------------------------------------------------
-
             var passwordResult =
                 _passwordHasher.VerifyHashedPassword(
                     member,
@@ -477,11 +361,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return View(model);
             }
-
-
-            // -----------------------------------------------------
-            // CREATE CLAIMS
-            // -----------------------------------------------------
 
             var claims =
                 new List<Claim>
@@ -519,10 +398,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 principal);
 
 
-            // -----------------------------------------------------
-            // ADMIN
-            // -----------------------------------------------------
-
             if (string.Equals(
                 member.Role,
                 "Admin",
@@ -534,10 +409,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
 
-            // -----------------------------------------------------
-            // TRAINER
-            // -----------------------------------------------------
-
             if (string.Equals(
                 member.Role,
                 "Trainer",
@@ -548,20 +419,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Trainer");
             }
 
-
-            // -----------------------------------------------------
-            // STUDENT
-            // -----------------------------------------------------
-
             return RedirectToAction(
                 "Dashboard",
                 "Member");
         }
-
-
-        // =========================================================
-        // EQUIPMENT RESERVATION
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -639,21 +500,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "Equipment");
         }
 
-
-        // =========================================================
-        // FORGOT PASSWORD - GET
-        // =========================================================
-
         [HttpGet]
         public IActionResult ForgotPassword()
         {
             return View();
         }
-
-
-        // =========================================================
-        // FORGOT PASSWORD - POST
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -727,11 +578,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "VerifyOtp");
         }
 
-
-        // =========================================================
-        // PASSWORD RESET EMAIL
-        // =========================================================
-
         private void SendPasswordResetOtp(
             Member member,
             string otp)
@@ -802,11 +648,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             client.Disconnect(true);
         }
 
-
-        // =========================================================
-        // VERIFY OTP - GET
-        // =========================================================
-
         [HttpGet]
         public IActionResult VerifyOtp()
         {
@@ -827,10 +668,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View();
         }
 
-
-        // =========================================================
-        // VERIFY OTP - POST
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -910,10 +747,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
 
-        // =========================================================
-        // RESET PASSWORD - GET
-        // =========================================================
-
         [HttpGet]
         public IActionResult ResetPassword()
         {
@@ -941,11 +774,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View();
         }
-
-
-        // =========================================================
-        // RESET PASSWORD - POST
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -1032,11 +860,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(
                 "Login");
         }
-
-
-        // =========================================================
-        // LOGOUT
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]

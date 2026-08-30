@@ -2,45 +2,86 @@
     ViewData["Title"] = "Request Trainer";
 }
 
-<div class="container mt-4">
+<div class="trainer-page">
 
-    <div class="card shadow">
+    <div class="trainer-page-header">
 
-        <div class="card-header">
+        <div>
 
-            <h3>
-                Request Trainer Assistance
-            </h3>
+            <span class="trainer-page-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Request a Trainer
+            </h1>
+
+            <p>
+                Get assistance from one of our gym trainers.
+            </p>
 
         </div>
 
+        <div class="trainer-header-icon">
 
-        <div class="card-body">
+            <i class="bi bi-person-plus-fill"></i>
+
+        </div>
+
+    </div>
+
+    <div class="trainer-form-card">
 
 
-            <!-- SUCCESS MESSAGE -->
+        <div class="trainer-form-header">
+
+            <h2>
+                Request Trainer Assistance
+            </h2>
+
+            <p>
+                Select a trainer and explain how they can assist you.
+            </p>
+
+        </div>
+
+        <div class="trainer-form-body">
+
+
             @if (TempData["TrainerRequestSuccess"] != null)
             {
-                <div class="alert alert-success">
+                <div class="trainer-alert trainer-alert-success">
+
+                    <i class="bi bi-check-circle-fill"></i>
 
                     @TempData["TrainerRequestSuccess"]
 
                 </div>
             }
 
+            @if (TempData["TrainerRequestError"] != null)
+            {
+                <div class="trainer-alert trainer-alert-danger">
 
-            <!-- VALIDATION ERRORS -->
+                    <i class="bi bi-exclamation-circle-fill"></i>
+
+                    @TempData["TrainerRequestError"]
+
+                </div>
+            }
+
+
             @if (!ViewData.ModelState.IsValid)
             {
-                <div class="alert alert-danger">
+                <div class="trainer-alert trainer-alert-danger">
+
+                    <i class="bi bi-exclamation-triangle-fill"></i>
 
                     @Html.ValidationSummary(false)
 
                 </div>
             }
 
-
-            <!-- FORM -->
 
             <form asp-controller="Member"
                   asp-action="RequestTrainer"
@@ -49,16 +90,21 @@
                 @Html.AntiForgeryToken()
 
 
-                <!-- TRAINER -->
 
-                <div class="mb-3">
+                <div class="mb-4">
 
-                    <label class="form-label">
+                    <label class="trainer-form-label">
+
                         Select Trainer
+
+                        <span class="trainer-required">
+                            *
+                        </span>
+
                     </label>
 
                     <select name="trainerId"
-                            class="form-select"
+                            class="trainer-form-control"
                             required>
 
                         <option value="">
@@ -79,46 +125,75 @@
 
                     </select>
 
+                    <div class="trainer-help-text">
+
+                        Choose the trainer you would like to work with.
+
+                    </div>
+
                 </div>
 
+                <div class="mb-4">
 
-                <!-- REQUEST MESSAGE -->
-
-                <div class="mb-3">
-
-                    <label class="form-label">
+                    <label class="trainer-form-label">
 
                         What assistance do you need?
+
+                        <span class="trainer-required">
+                            *
+                        </span>
 
                     </label>
 
                     <textarea name="requestMessage"
-                              class="form-control"
-                              rows="5"
+                              class="trainer-form-control"
+                              rows="6"
                               maxlength="500"
                               placeholder="Explain what you need help with..."
                               required></textarea>
 
+                    <div class="trainer-help-text">
+
+                        Maximum 500 characters.
+
+                    </div>
+
                 </div>
 
+                <div class="trainer-form-actions">
 
-                <!-- BUTTONS -->
+                    <button type="submit"
+                            class="trainer-button trainer-button-primary">
 
-                <button type="submit"
-                        class="btn btn-primary">
+                        <i class="bi bi-send-fill"></i>
 
-                    Send Request
+                        Send Request
 
-                </button>
+                    </button>
 
 
-                <a asp-controller="Member"
-                   asp-action="Dashboard"
-                   class="btn btn-secondary">
+                    <a asp-controller="Member"
+                       asp-action="MyTrainerRequests"
+                       class="trainer-button trainer-button-secondary">
 
-                    Cancel
+                        <i class="bi bi-list-check"></i>
 
-                </a>
+                        My Requests
+
+                    </a>
+
+
+                    <a asp-controller="Member"
+                       asp-action="Dashboard"
+                       class="trainer-button trainer-button-secondary">
+
+                        <i class="bi bi-x-lg"></i>
+
+                        Cancel
+
+                    </a>
+
+                </div>
 
             </form>
 
@@ -126,4 +201,22 @@
 
     </div>
 
+
+    <a asp-controller="Member"
+       asp-action="Dashboard"
+       class="trainer-back-button">
+
+        <i class="bi bi-arrow-left"></i>
+
+        Back to Dashboard
+
+    </a>
 </div>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/trainer-requests.css"
+          asp-append-version="true" />
+
+}

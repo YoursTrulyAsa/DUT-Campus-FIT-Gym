@@ -19,20 +19,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        // =========================================================
-        // ASK US PAGE
-        // =========================================================
-
-        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
-
-        // =========================================================
-        // ASK GEMINI
-        // =========================================================
 
         [HttpPost]
         [ValidateAntiForgeryToken]
