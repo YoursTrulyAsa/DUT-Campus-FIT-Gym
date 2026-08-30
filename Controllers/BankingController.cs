@@ -216,15 +216,15 @@ namespace DUT_Campus_FIT_Gym.Controllers
                             _payFast.MerchantKey,
 
                         ["return_url"] =
-                            "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentSuccess?membershipId="
+                            "https://shrank-exodus-pager.ngrok-free.dev/Banking/PaymentSuccess?membershipId="
                             + membershipId,
 
                         ["cancel_url"] =
-                            "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentCancelled?membershipId="
+                            "https://shrank-exodus-pager.ngrok-free.dev/Banking/PaymentCancelled?membershipId="
                             + membershipId,
 
                         ["notify_url"] =
-                            "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentNotify",
+                            "https://shrank-exodus-pager.ngrok-free.dev/Banking/PaymentNotify",
 
                         ["name_first"] =
                             membership.Member?.Name ?? "DUT",
