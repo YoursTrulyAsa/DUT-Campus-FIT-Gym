@@ -34,6 +34,50 @@
     font-size: 14px;
 }
 
+.trainer-dashboard-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid var(--gym-border);
+    border-radius: 30px;
+    background: var(--gym-white);
+    color: var(--gym-muted);
+    font-size: 11px;
+    font-weight: 700;
+    box-shadow: 0 5px 18px rgba(7, 26, 51, 0.04);
+}
+
+.trainer-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #16a34a;
+}
+
+.trainer-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.trainer-alert-success {
+    background: #ecfdf3;
+    border: 1px solid #c8f0d8;
+    color: #087443;
+}
+
+.trainer-alert-danger {
+    background: #fff1f2;
+    border: 1px solid #ffd4d9;
+    color: #b4232f;
+}
+
 .trainer-stat-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -44,24 +88,24 @@
 .trainer-stat-card {
     background: var(--gym-white);
     border: 1px solid var(--gym-border);
-    border-radius: 16px;
+    border-radius: 18px;
     padding: 22px;
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 5px 18px rgba(7, 26, 51, 0.05);
+    box-shadow: 0 6px 22px rgba(7, 26, 51, 0.05);
     transition: 0.2s ease;
 }
 
     .trainer-stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 9px 24px rgba(7, 26, 51, 0.08);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(7, 26, 51, 0.09);
     }
 
 .trainer-stat-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
+    width: 54px;
+    height: 54px;
+    border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -95,7 +139,7 @@
 .trainer-stat-card h3 {
     margin: 4px 0 1px;
     color: var(--gym-dark);
-    font-size: 21px;
+    font-size: 19px;
 }
 
 .trainer-stat-card p {
@@ -105,6 +149,9 @@
 }
 
 .trainer-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 18px;
 }
 
@@ -125,7 +172,7 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 18px;
-    margin-bottom: 35px;
+    margin-bottom: 38px;
 }
 
 .trainer-tool-card {
@@ -136,7 +183,7 @@
     padding: 22px;
     background: var(--gym-white);
     border: 1px solid var(--gym-border);
-    border-radius: 16px;
+    border-radius: 17px;
     text-decoration: none;
     box-shadow: 0 5px 18px rgba(7, 26, 51, 0.04);
     transition: 0.2s ease;
@@ -145,24 +192,39 @@
     .trainer-tool-card:hover {
         transform: translateY(-3px);
         border-color: #a9d9f7;
-        box-shadow: 0 10px 25px rgba(7, 26, 51, 0.08);
+        box-shadow: 0 11px 27px rgba(7, 26, 51, 0.08);
     }
 
 .trainer-tool-icon {
-    flex-shrink: 0;
-    width: 50px;
-    height: 50px;
-    border-radius: 13px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
     background: #edf7ff;
     color: var(--gym-light-blue);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 19px;
+    flex-shrink: 0;
+}
+
+.workout-tool-icon {
+    background: #f1edff;
+    color: #6750d6;
+}
+
+.request-tool-icon {
+    background: #fff4df;
+    color: #d98200;
+}
+
+.profile-tool-icon {
+    background: #ecfdf3;
+    color: #087443;
 }
 
 .trainer-tool-content {
-    padding-right: 25px;
+    padding-right: 28px;
 }
 
     .trainer-tool-content h3 {
@@ -193,7 +255,7 @@
 .trainer-pending-badge {
     display: inline-block;
     margin-top: 9px;
-    padding: 4px 9px;
+    padding: 5px 10px;
     border-radius: 20px;
     background: #fff1d6;
     color: #a86200;
@@ -201,19 +263,17 @@
     font-weight: 700;
 }
 
-.active-student-section,
-.active-workout-card {
+.active-student-section {
     background: var(--gym-white);
     border: 1px solid var(--gym-border);
-    border-radius: 18px;
+    border-radius: 19px;
     overflow: hidden;
-    box-shadow: 0 7px 22px rgba(7, 26, 51, 0.05);
+    box-shadow: 0 7px 24px rgba(7, 26, 51, 0.05);
     margin-bottom: 30px;
 }
 
-.active-student-header,
-.active-workout-header {
-    padding: 22px 25px;
+.active-student-header {
+    padding: 23px 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -221,16 +281,14 @@
     border-bottom: 1px solid #e8edf2;
 }
 
-.active-student-label,
-.active-workout-title span {
+.active-student-label {
     color: var(--gym-light-blue);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.5px;
 }
 
-.active-student-header h2,
-.active-workout-title h2 {
+.active-student-header h2 {
     margin: 5px 0 0;
     color: var(--gym-dark);
     font-size: 21px;
@@ -256,23 +314,23 @@
 }
 
 .active-student-body {
-    padding: 25px;
+    padding: 26px;
     display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 35px;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 38px;
 }
 
-.student-profile-main,
-.active-student {
+.student-profile-main {
     display: flex;
     align-items: center;
     gap: 15px;
+    margin-bottom: 25px;
 }
 
 .student-avatar {
-    width: 62px;
-    height: 62px;
-    border-radius: 16px;
+    width: 64px;
+    height: 64px;
+    border-radius: 17px;
     background: #eaf6ff;
     color: var(--gym-light-blue);
     display: flex;
@@ -289,15 +347,13 @@
     letter-spacing: 1.3px;
 }
 
-.student-profile-main h3,
-.active-student h3 {
+.student-profile-main h3 {
     margin: 3px 0;
     color: var(--gym-dark);
     font-size: 20px;
 }
 
-.student-profile-main p,
-.active-student p {
+.student-profile-main p {
     margin: 0;
     color: var(--gym-muted);
     font-size: 13px;
@@ -306,33 +362,31 @@
 .student-details {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 15px;
 }
 
-.student-detail span,
-.fitness-item span {
-    display: block;
-    margin-bottom: 5px;
-    color: #8794a5;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
+.student-detail {
+    padding: 14px;
+    background: #f7f9fc;
+    border: 1px solid #edf0f4;
+    border-radius: 12px;
 }
 
-.student-detail strong {
-    color: #26384d;
-    font-size: 13px;
-    line-height: 1.5;
-}
+    .student-detail span,
+    .fitness-item span {
+        display: block;
+        margin-bottom: 5px;
+        color: #8794a5;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+    }
 
-.active-student-divider {
-    height: 1px;
-    background: #e8edf2;
-}
-
-.profile-section {
-    padding: 25px;
-}
+    .student-detail strong {
+        color: #26384d;
+        font-size: 13px;
+        line-height: 1.5;
+    }
 
 .profile-section-heading span {
     color: var(--gym-light-blue);
@@ -342,9 +396,39 @@
 }
 
 .profile-section-heading h3 {
-    margin: 4px 0 20px;
+    margin: 4px 0 17px;
     color: var(--gym-dark);
     font-size: 18px;
+}
+
+.trainer-request-box {
+    min-height: 120px;
+    padding: 20px;
+    border-radius: 14px;
+    background: #f7f9fc;
+    border: 1px solid #edf0f4;
+}
+
+    .trainer-request-box i {
+        color: var(--gym-light-blue);
+        font-size: 17px;
+        margin-bottom: 10px;
+    }
+
+    .trainer-request-box p {
+        margin: 0;
+        color: #52657a;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+.active-student-divider {
+    height: 1px;
+    background: #e8edf2;
+}
+
+.profile-section {
+    padding: 26px;
 }
 
 .fitness-grid {
@@ -354,8 +438,8 @@
 }
 
 .fitness-item {
-    padding: 16px;
-    border-radius: 12px;
+    padding: 17px;
+    border-radius: 13px;
     background: #f7f9fc;
     border: 1px solid #edf0f4;
 }
@@ -383,25 +467,49 @@
 
 .trainer-primary-button,
 .trainer-secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     padding: 11px 17px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    transition: 0.2s ease;
 }
 
-.trainer-empty-profile,
-.no-active-student {
-    display: flex;
-    align-items: center;
-    gap: 17px;
-    padding: 20px;
-    background: var(--gym-white);
-    border: 1px solid var(--gym-border);
-    border-radius: 16px;
-    box-shadow: 0 5px 18px rgba(7, 26, 51, 0.04);
+.trainer-primary-button {
+    background: var(--gym-dark);
+    color: #ffffff;
 }
+
+    .trainer-primary-button:hover {
+        background: #0c3158;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+.trainer-secondary-button {
+    background: #f3f6f9;
+    color: #52657a;
+    border: 1px solid #e2e8ee;
+}
+
+    .trainer-secondary-button:hover {
+        background: #eaf6ff;
+        color: var(--gym-light-blue);
+        border-color: #c8e7fa;
+    }
 
 .trainer-empty-profile {
+    display: flex;
+    align-items: center;
     gap: 12px;
-    padding: 15px;
+    padding: 16px;
     background: #f0f8ff;
+    border: 1px solid #dceffc;
+    border-radius: 13px;
     color: var(--gym-light-blue);
 }
 
@@ -417,10 +525,21 @@
         font-size: 12px;
     }
 
+.no-active-student {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    padding: 22px;
+    background: var(--gym-white);
+    border: 1px solid var(--gym-border);
+    border-radius: 17px;
+    box-shadow: 0 5px 18px rgba(7, 26, 51, 0.04);
+}
+
 .no-active-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 13px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
     background: #f2f5f8;
     color: var(--gym-muted);
     display: flex;
@@ -473,9 +592,9 @@
         align-items: flex-start;
     }
 
-        .trainer-dashboard-header h1 {
-            font-size: 27px;
-        }
+    .trainer-dashboard-header h1 {
+        font-size: 27px;
+    }
 
     .trainer-tools-grid {
         grid-template-columns: 1fr;
@@ -487,6 +606,12 @@
 
     .fitness-grid {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .active-student-header {
+        align-items: flex-start;
+        gap: 15px;
+        flex-direction: column;
     }
 
     .active-student-actions {

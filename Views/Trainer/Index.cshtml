@@ -1,220 +1,369 @@
 ﻿@{
     ViewData["Title"] = "Trainer Dashboard";
+
+    var pendingRequests = ViewBag.PendingRequests ?? 0;
+    var activeRequest = ViewBag.ActiveRequest;
+    var student = activeRequest?.Student;
+    var profile = ViewBag.StudentProfile;
+
 }
 
-<div class="trainer-page">
+<div class="trainer-dashboard">
 
-    <div class="trainer-page-header">
+    <div class="trainer-dashboard-header">
 
-        <span class="trainer-page-label">
-            DUT CAMPUS FIT GYM
-        </span>
+        <div>
+            <span class="trainer-dashboard-label">
+                DUT CAMPUS FIT GYM
+            </span>
 
-        <h1>
-            Trainer Dashboard
-        </h1>
+            <h1>
+                Trainer Dashboard
+            </h1>
 
-        <p>
-            Manage equipment, workouts and student training requests.
-        </p>
+            <p>
+                Manage your students, workouts and gym equipment.
+            </p>
+        </div>
+
+        <div class="trainer-dashboard-status">
+            <span class="trainer-status-dot"></span>
+            Trainer Portal
+        </div>
 
     </div>
 
     @if (TempData["Success"] != null)
     {
         <div class="trainer-alert trainer-alert-success">
-            @TempData["Success"]
+            <i class="fa-solid fa-circle-check"></i>
+            <span>@TempData["Success"]</span>
         </div>
     }
 
     @if (TempData["Error"] != null)
     {
         <div class="trainer-alert trainer-alert-danger">
-            @TempData["Error"]
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>@TempData["Error"]</span>
         </div>
     }
 
-    <div class="trainer-dashboard-grid">
+    <div class="trainer-stat-grid">
 
-        <div class="trainer-dashboard-card">
+        <div class="trainer-stat-card">
 
-            <div class="trainer-card-icon">
+            <div class="trainer-stat-icon equipment-icon">
                 <i class="fa-solid fa-dumbbell"></i>
             </div>
 
-            <h4>
-                Manage Equipment
-            </h4>
+            <div>
+                <span class="trainer-stat-label">
+                    EQUIPMENT
+                </span>
 
-            <p>
-                View, add and manage gym equipment available to members.
-            </p>
+                <h3>
+                    Manage Equipment
+                </h3>
 
-            <a asp-controller="Trainer"
-               asp-action="Equipment"
-               class="trainer-btn trainer-btn-primary">
-
-                <i class="fa-solid fa-arrow-right"></i>
-                Manage Equipment
-
-            </a>
+                <p>
+                    Gym equipment
+                </p>
+            </div>
 
         </div>
 
-        <div class="trainer-dashboard-card">
+        <div class="trainer-stat-card">
 
-            <div class="trainer-card-icon">
+            <div class="trainer-stat-icon workout-icon">
                 <i class="fa-solid fa-clipboard-list"></i>
             </div>
 
-            <h4>
-                Manage Workouts
-            </h4>
+            <div>
+                <span class="trainer-stat-label">
+                    WORKOUTS
+                </span>
 
-            <p>
-                View and manage workout plans assigned to gym members.
-            </p>
+                <h3>
+                    Workout Plans
+                </h3>
 
-            <a asp-controller="Trainer"
-               asp-action="Workouts"
-               class="trainer-btn trainer-btn-primary">
-
-                <i class="fa-solid fa-arrow-right"></i>
-                Manage Workouts
-
-            </a>
+                <p>
+                    Student training plans
+                </p>
+            </div>
 
         </div>
 
-        <div class="trainer-dashboard-card">
+        <div class="trainer-stat-card">
 
-            <div class="trainer-card-icon">
+            <div class="trainer-stat-icon request-icon">
                 <i class="fa-solid fa-user-clock"></i>
             </div>
 
-            <h4>
-                Trainer Requests
-            </h4>
+            <div>
+                <span class="trainer-stat-label">
+                    REQUESTS
+                </span>
 
-            <p>
-                View and respond to training requests from students.
-            </p>
+                <h3>
+                    @pendingRequests
+                </h3>
 
-            @if (ViewBag.PendingRequests != null &&
-                        ViewBag.PendingRequests > 0)
-            {
-                <div class="mb-3">
-
-                    <span class="trainer-badge trainer-badge-danger">
-                        @ViewBag.PendingRequests pending request(s)
-                    </span>
-
-                </div>
-            }
-
-            <a asp-controller="Trainer"
-               asp-action="Requests"
-               class="trainer-btn trainer-btn-primary">
-
-                <i class="fa-solid fa-arrow-right"></i>
-                View Requests
-
-            </a>
+                <p>
+                    Pending trainer requests
+                </p>
+            </div>
 
         </div>
 
     </div>
 
-    @if (ViewBag.ActiveRequest != null)
-    {
-        var student = ViewBag.ActiveRequest.Student;
-        var profile = ViewBag.StudentProfile;
-        var workoutPlans = ViewBag.StudentWorkoutPlans;
+    <div class="trainer-section-title">
 
-        <div class="trainer-active-card">
+        <div>
+            <span>TRAINER TOOLS</span>
+            <h2>Quick Actions</h2>
+        </div>
 
-            <div class="trainer-active-header">
+    </div>
 
-                <h4>
-                    <i class="fa-solid fa-person-running"></i>
-                    Current Active Student
-                </h4>
+    <div class="trainer-tools-grid">
+
+        <a asp-controller="Trainer"
+           asp-action="Equipment"
+           class="trainer-tool-card">
+
+            <div class="trainer-tool-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <div class="trainer-tool-content">
+
+                <h3>
+                    Manage Equipment
+                </h3>
+
+                <p>
+                    View, add and manage equipment available to gym members.
+                </p>
 
             </div>
 
-            <div class="trainer-active-body">
+            <i class="fa-solid fa-arrow-right trainer-tool-arrow"></i>
 
-                <div class="trainer-student-grid">
+        </a>
 
-                    <div class="trainer-student-info">
+        <a asp-controller="Trainer"
+           asp-action="Workouts"
+           class="trainer-tool-card">
 
-                        <span>
-                            Student
-                        </span>
+            <div class="trainer-tool-icon workout-tool-icon">
+                <i class="fa-solid fa-clipboard-list"></i>
+            </div>
 
-                        <strong>
-                            @student.Name @student.Surname
-                        </strong>
+            <div class="trainer-tool-content">
 
-                    </div>
+                <h3>
+                    Manage Workouts
+                </h3>
 
-                    <div class="trainer-student-info">
+                <p>
+                    Create and manage workout plans assigned to students.
+                </p>
 
-                        <span>
-                            Student Number
-                        </span>
+            </div>
 
-                        <strong>
-                            @student.StudentNumber
-                        </strong>
+            <i class="fa-solid fa-arrow-right trainer-tool-arrow"></i>
 
-                    </div>
+        </a>
 
-                    <div class="trainer-student-info">
+        <a asp-controller="Trainer"
+           asp-action="Requests"
+           class="trainer-tool-card">
 
-                        <span>
-                            Email
-                        </span>
+            <div class="trainer-tool-icon request-tool-icon">
+                <i class="fa-solid fa-user-clock"></i>
+            </div>
 
-                        <strong>
-                            @student.Email
-                        </strong>
+            <div class="trainer-tool-content">
 
-                    </div>
+                <h3>
+                    Trainer Requests
+                </h3>
 
-                    <div class="trainer-student-info">
+                <p>
+                    Review and respond to student training requests.
+                </p>
 
-                        <span>
-                            Status
-                        </span>
+                @if (pendingRequests > 0)
+                {
+                    <span class="trainer-pending-badge">
+                        @pendingRequests pending request@(pendingRequests == 1 ? "" : "s")
+                    </span>
+                }
 
-                        <strong>
-                            <span class="trainer-badge trainer-badge-success">
-                                Active
+            </div>
+
+            <i class="fa-solid fa-arrow-right trainer-tool-arrow"></i>
+
+        </a>
+
+        @if (student != null)
+        {
+            <a asp-controller="Trainer"
+               asp-action="ViewProfile"
+               asp-route-id="@student.MemberId"
+               class="trainer-tool-card">
+
+                <div class="trainer-tool-icon profile-tool-icon">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <div class="trainer-tool-content">
+
+                    <h3>
+                        Student Profile
+                    </h3>
+
+                    <p>
+                        View the profile and training information of your active student.
+                    </p>
+
+                </div>
+
+                <i class="fa-solid fa-arrow-right trainer-tool-arrow"></i>
+
+            </a>
+        }
+
+    </div>
+
+    <div class="trainer-section-title">
+
+        <div>
+            <span>STUDENT MANAGEMENT</span>
+            <h2>Current Active Student</h2>
+        </div>
+
+    </div>
+
+    @if (activeRequest != null && student != null)
+    {
+        <div class="active-student-section">
+
+            <div class="active-student-header">
+
+                <div>
+                    <span class="active-student-label">
+                        ACTIVE TRAINING REQUEST
+                    </span>
+
+                    <h2>
+                        Student Overview
+                    </h2>
+                </div>
+
+                <div class="active-status">
+                    <span class="active-dot"></span>
+                    Active
+                </div>
+
+            </div>
+
+            <div class="active-student-body">
+
+                <div>
+
+                    <div class="student-profile-main">
+
+                        <div class="student-avatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+
+                        <div>
+                            <span class="student-small-label">
+                                STUDENT
                             </span>
-                        </strong>
+
+                            <h3>
+                                @student.Name @student.Surname
+                            </h3>
+
+                            <p>
+                                @student.Email
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="student-details">
+
+                        <div class="student-detail">
+
+                            <span>
+                                STUDENT NUMBER
+                            </span>
+
+                            <strong>
+                                @student.StudentNumber
+                            </strong>
+
+                        </div>
+
+                        <div class="student-detail">
+
+                            <span>
+                                STATUS
+                            </span>
+
+                            <strong>
+                                Active Training
+                            </strong>
+
+                        </div>
 
                     </div>
 
                 </div>
 
-                <div class="mt-4">
+                <div>
 
-                    <div class="trainer-profile-item">
+                    <div class="profile-section-heading">
 
-                        <strong>
-                            Training Request
-                        </strong>
+                        <span>
+                            TRAINING REQUEST
+                        </span>
+
+                        <h3>
+                            Student's Request
+                        </h3>
+
+                    </div>
+
+                    <div class="trainer-request-box">
+
+                        <i class="fa-solid fa-quote-left"></i>
 
                         <p>
-                            @ViewBag.ActiveRequest.RequestMessage
+                            @activeRequest.RequestMessage
                         </p>
 
                     </div>
 
                 </div>
 
-                <div class="trainer-section-title mt-4">
+            </div>
+
+            <div class="active-student-divider"></div>
+
+            <div class="profile-section">
+
+                <div class="profile-section-heading">
+
+                    <span>
+                        FITNESS PROFILE
+                    </span>
 
                     <h3>
                         Student Workout Profile
@@ -224,48 +373,60 @@
 
                 @if (profile != null)
                 {
-                    <div class="trainer-student-grid">
+                    <div class="fitness-grid">
 
-                        <div class="trainer-student-info">
+                        <div class="fitness-item">
 
                             <span>
-                                Age
+                                AGE
                             </span>
 
                             <strong>
                                 @profile.Age
                             </strong>
 
+                            <small>
+                                years
+                            </small>
+
                         </div>
 
-                        <div class="trainer-student-info">
+                        <div class="fitness-item">
 
                             <span>
-                                Weight
+                                WEIGHT
                             </span>
 
                             <strong>
-                                @profile.Weight kg
+                                @profile.Weight
                             </strong>
+
+                            <small>
+                                kg
+                            </small>
 
                         </div>
 
-                        <div class="trainer-student-info">
+                        <div class="fitness-item">
 
                             <span>
-                                Height
+                                HEIGHT
                             </span>
 
                             <strong>
-                                @profile.Height cm
+                                @profile.Height
                             </strong>
+
+                            <small>
+                                cm
+                            </small>
 
                         </div>
 
-                        <div class="trainer-student-info">
+                        <div class="fitness-item">
 
                             <span>
-                                Fitness Goal
+                                FITNESS GOAL
                             </span>
 
                             <strong>
@@ -276,12 +437,12 @@
 
                     </div>
 
-                    <div class="trainer-actions">
+                    <div class="active-student-actions">
 
                         <a asp-controller="Trainer"
                            asp-action="ViewProfile"
                            asp-route-id="@student.MemberId"
-                           class="trainer-btn trainer-btn-primary">
+                           class="trainer-primary-button">
 
                             <i class="fa-solid fa-user"></i>
                             View Full Profile
@@ -290,7 +451,7 @@
 
                         <a asp-controller="Trainer"
                            asp-action="Requests"
-                           class="trainer-btn trainer-btn-secondary">
+                           class="trainer-secondary-button">
 
                             <i class="fa-solid fa-list"></i>
                             Manage Request
@@ -301,17 +462,27 @@
                 }
                 else
                 {
-                    <div class="trainer-alert trainer-alert-info">
+                    <div class="trainer-empty-profile">
 
-                        This student has not created a workout profile yet.
+                        <i class="fa-solid fa-circle-info"></i>
+
+                        <div>
+                            <strong>
+                                No workout profile available
+                            </strong>
+
+                            <p>
+                                This student has not created a workout profile yet.
+                            </p>
+                        </div>
 
                     </div>
 
-                    <div class="trainer-actions">
+                    <div class="active-student-actions">
 
                         <a asp-controller="Trainer"
                            asp-action="Requests"
-                           class="trainer-btn trainer-btn-secondary">
+                           class="trainer-secondary-button">
 
                             <i class="fa-solid fa-list"></i>
                             Manage Request
@@ -325,11 +496,44 @@
 
         </div>
     }
+    else
+    {
+        <div class="no-active-student">
+
+            <div class="no-active-icon">
+                <i class="fa-solid fa-user-clock"></i>
+            </div>
+
+            <div>
+                <span>
+                    NO ACTIVE STUDENT
+                </span>
+
+                <h3>
+                    No active training request
+                </h3>
+
+                <p>
+                    Student training requests will appear here when assigned.
+                </p>
+            </div>
+
+            <a asp-controller="Trainer"
+               asp-action="Requests"
+               class="trainer-primary-button">
+
+                <i class="fa-solid fa-list"></i>
+                View Requests
+
+            </a>
+
+        </div>
+    }
 
 </div>
 
 @section Styles {
     <link rel="stylesheet"
-          href="~/css/trainer.css"
+          href="~/css/trainer-dashboard.css"
           asp-append-version="true" />
 }
