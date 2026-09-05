@@ -44,10 +44,29 @@ public class FitnessChallengesController : Controller
             return RedirectToAction("Login", "Account");
         }
 
+        var exercise = model.ExercisePreference;
+
+        if (exercise == "Any")
+        {
+            var exercises = new[]
+            {
+             "Push-ups",
+             "Squats",
+             "Sit-ups",
+             "Lunges",
+             "Burpees",
+             "Plank"
+            };
+
+            exercise = exercises[
+                Random.Shared.Next(exercises.Length)
+            ];
+        }
+
         // Temporary fallback challenge
         var challenge = CreateFallbackChallenge(
             model.FitnessLevel,
-            model.ExercisePreference
+             exercise
         );
 
         // Apply safety validation
