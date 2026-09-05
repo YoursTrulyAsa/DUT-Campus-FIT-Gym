@@ -94,7 +94,38 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Membership",
                     "Member");
             }
+            DateTime startDate = DateTime.Today;
 
+            // Calculate the normal membership expiry date
+            DateTime normalEndDate;
+
+            if (membership.MembershipType == "Semester")
+            {
+                normalEndDate = startDate.AddMonths(5).AddDays(-1);
+            }
+            else if (membership.MembershipType == "Annual")
+            {
+                normalEndDate = startDate.AddYears(1).AddDays(-1);
+            }
+            else
+            {
+                normalEndDate = startDate;
+            }
+
+            // Maximum allowed expiry date is 30 November
+            // of the current year
+            DateTime maximumEndDate =
+                new DateTime(startDate.Year, 11, 30);
+
+            // Use the earlier of the two dates
+            DateTime endDate =
+                normalEndDate <= maximumEndDate
+                    ? normalEndDate
+                    : maximumEndDate;
+
+            // Update membership
+            membership.StartDate = startDate;
+            membership.EndDate = endDate;
             membership.Status = "Active";
 
             _context.SaveChanges();

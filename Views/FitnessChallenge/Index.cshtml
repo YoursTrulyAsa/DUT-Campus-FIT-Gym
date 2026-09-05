@@ -1,0 +1,89 @@
+@model IEnumerable<DUT_Campus_FIT_Gym.Models.FitnessChallenge>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MemberId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FitnessLevel)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ExerciseType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DurationDays)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AcceptedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Member)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Days)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(model => item.MemberId)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.FitnessLevel)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.ExerciseType)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.DurationDays)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.CreatedDate)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.AcceptedDate)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Member)
+            </td>
+            <td>
+                @Html.DisplayFor(model => item.Days)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.FitnessChallengeId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.FitnessChallengeId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.FitnessChallengeId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

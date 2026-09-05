@@ -689,3 +689,234 @@ body.sidebar-collapsed .nav-title {
         background: #1e293b;
         color: #ffffff;
     }
+
+.fitness-challenges-page {
+    padding: 30px;
+}
+
+.challenges-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+    .challenges-header h1 {
+        margin-bottom: 5px;
+    }
+
+    .challenges-header p {
+        margin: 0;
+        color: #777;
+    }
+
+.challenge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+}
+
+.challenge-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.10);
+    border: 1px solid #e5e5e5;
+}
+
+.challenge-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+    .challenge-card-header h2 {
+        margin: 0;
+    }
+
+.challenge-exercise {
+    color: #777;
+    margin-top: 5px;
+}
+
+.challenge-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+    .challenge-status.generated {
+        background: #e9ecef;
+    }
+
+    .challenge-status.accepted {
+        background: #fff3cd;
+    }
+
+    .challenge-status.inprogress {
+        background: #cfe2ff;
+    }
+
+    .challenge-status.completed {
+        background: #d1e7dd;
+    }
+
+    .challenge-status.cancelled {
+        background: #f8d7da;
+    }
+
+    .challenge-status.expired {
+        background: #e2e3e5;
+    }
+
+.challenge-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+    .detail-item strong {
+        font-size: 13px;
+        color: #777;
+    }
+
+    .detail-item span {
+        font-weight: 500;
+    }
+
+.daily-target-title {
+    margin-bottom: 15px;
+}
+
+.challenge-day {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    margin-bottom: 10px;
+    background: #f7f7f7;
+    border-radius: 10px;
+}
+
+.day-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+    .day-info span {
+        color: #777;
+    }
+
+.progress-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.target {
+    font-weight: bold;
+}
+
+.completed {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.in-progress {
+    font-size: 12px;
+    color: #777;
+}
+
+.challenge-actions {
+    margin-top: 20px;
+}
+
+.accept-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.challenge-message {
+    display: block;
+    padding: 12px;
+    text-align: center;
+    background: #f7f7f7;
+    border-radius: 8px;
+}
+
+.completed-message {
+    font-weight: bold;
+}
+
+.no-challenges {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 16px;
+}
+
+.challenge-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.challenge-action-form {
+    width: 100%;
+}
+
+.accept-btn,
+.start-btn,
+.progress-btn,
+.delete-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.accept-btn {
+    background: #198754;
+    color: white;
+}
+
+.start-btn {
+    background: #0d6efd;
+    color: white;
+}
+
+.progress-btn {
+    background: #6f42c1;
+    color: white;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+}
+
+    .accept-btn:hover,
+    .start-btn:hover,
+    .progress-btn:hover,
+    .delete-btn:hover {
+        opacity: 0.9;
+    }

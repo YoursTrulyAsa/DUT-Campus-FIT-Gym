@@ -1,0 +1,131 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.FitnessChallengeViewModel
+
+@{
+    ViewData["Title"] = "Create Fitness Challenge";
+}
+
+<div class="fitness-challenge-page">
+
+    ```
+    <div class="challenge-container">
+
+        <h1>Create Fitness Challenge</h1>
+
+        <p>
+            Choose your fitness level and preferred exercise
+            to generate a challenge.
+        </p>
+
+        <form asp-controller="FitnessChallenges"
+              asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger">
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="FitnessLevel">
+                    Fitness Level
+                </label>
+
+                <select asp-for="FitnessLevel"
+                        class="form-control">
+
+                    <option value="">
+                        -- Select Fitness Level --
+                    </option>
+
+                    <option value="Beginner">
+                        Beginner
+                    </option>
+
+                    <option value="Intermediate">
+                        Intermediate
+                    </option>
+
+                    <option value="Advanced">
+                        Advanced
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="FitnessLevel"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <div class="form-group">
+
+                <label asp-for="ExercisePreference">
+                    Exercise
+                </label>
+
+                <select asp-for="ExercisePreference"
+                        class="form-control">
+
+                    <option value="">
+                        -- Select Exercise --
+                    </option>
+
+                    <option value="Push-ups">
+                        Push-ups
+                    </option>
+
+                    <option value="Squats">
+                        Squats
+                    </option>
+
+                    <option value="Sit-ups">
+                        Sit-ups
+                    </option>
+
+                    <option value="Lunges">
+                        Lunges
+                    </option>
+
+                    <option value="Burpees">
+                        Burpees
+                    </option>
+
+                    <option value="Plank">
+                        Plank
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="ExercisePreference"
+                      class="text-danger">
+                </span>
+
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                Generate Challenge
+            </button>
+
+        </form>
+
+        <br />
+
+        <a asp-controller="FitnessChallenges"
+           asp-action="MyChallenges"
+           class="btn btn-secondary">
+            My Challenges
+        </a>
+
+    </div>
+    ```
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

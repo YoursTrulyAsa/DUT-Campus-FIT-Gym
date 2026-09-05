@@ -29,6 +29,8 @@ namespace DUT_Campus_FIT_Gym.Data
 
         public DbSet<BankDetails> BankingDetails { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<FitnessChallenge> FitnessChallenges { get; set; }
+        public DbSet<FitnessChallengeDay> FitnessChallengeDays { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
