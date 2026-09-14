@@ -28,11 +28,6 @@
 
     </div>
 
-
-    @* =========================================================
-       SUCCESS MESSAGE
-       ========================================================= *@
-
     @if (TempData["EquipmentSuccess"] != null)
     {
         <div class="alert alert-success">
@@ -42,11 +37,6 @@
         </div>
     }
 
-
-    @* =========================================================
-       ERROR MESSAGE
-       ========================================================= *@
-
     @if (TempData["EquipmentError"] != null)
     {
         <div class="alert alert-danger">
@@ -55,7 +45,6 @@
 
         </div>
     }
-
 
     <div class="equipment-grid">
 
@@ -79,10 +68,18 @@
             {
                 <div class="equipment-card">
 
-                    <div class="equipment-icon">
-                        🏋️
-                    </div>
-
+                    @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                    {
+                        <img src="@item.ImagePath"
+                             alt="@item.EquipmentName"
+                             class="equipment-image" />
+                    }
+                    else
+                    {
+                        <div class="equipment-icon">
+                            🏋️
+                        </div>
+                    }
 
                     <div class="equipment-info">
 
@@ -98,7 +95,6 @@
                             📍 @item.Location
                         </p>
 
-
                         @if (item.IsAvailable)
                         {
                             <span class="status available">
@@ -113,7 +109,6 @@
                         }
 
                     </div>
-
 
                     <div class="equipment-action">
 

@@ -1,0 +1,551 @@
+﻿.fitness-profile-page,
+.fitness-profile-form-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 35px 25px 60px;
+}
+
+.fitness-profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.fitness-profile-eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #2563eb;
+    margin-bottom: 8px;
+}
+
+.fitness-profile-header h1,
+.fitness-profile-form-header h1 {
+    margin: 0;
+    font-size: 38px;
+    font-weight: 800;
+    color: #071a33;
+}
+
+.fitness-profile-header p,
+.fitness-profile-form-header p {
+    margin: 10px 0 0;
+    color: #64748b;
+    font-size: 15px;
+}
+
+.fitness-profile-header-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #071a33;
+    color: #ffffff;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.fitness-profile-empty {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 45px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.fitness-profile-empty-icon {
+    width: 85px;
+    height: 85px;
+    border-radius: 24px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.fitness-profile-card-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: #64748b;
+    margin-bottom: 7px;
+}
+
+.fitness-profile-empty h2,
+.fitness-profile-main-card h2,
+.fitness-profile-side-card h2,
+.fitness-profile-info-card h2 {
+    margin: 0;
+    color: #071a33;
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.fitness-profile-empty p {
+    color: #64748b;
+    max-width: 650px;
+    line-height: 1.7;
+    margin: 10px 0 22px;
+}
+
+.fitness-profile-primary-btn,
+.fitness-profile-ai-btn,
+.fitness-profile-save-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: none;
+    border-radius: 12px;
+    background: #071a33;
+    color: #ffffff;
+    padding: 12px 20px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+
+    .fitness-profile-primary-btn:hover,
+    .fitness-profile-ai-btn:hover,
+    .fitness-profile-save-btn:hover {
+        background: #102b4f;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+.fitness-profile-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    gap: 22px;
+}
+
+.fitness-profile-main-card,
+.fitness-profile-side-card,
+.fitness-profile-info-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.fitness-profile-main-card {
+    padding: 28px;
+}
+
+.fitness-profile-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.fitness-profile-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 15px;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+    .fitness-profile-edit-btn:hover {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+.fitness-profile-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.fitness-profile-stat {
+    padding: 20px;
+    border-radius: 17px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.fitness-profile-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    flex-shrink: 0;
+}
+
+.fitness-profile-stat span {
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.fitness-profile-stat strong {
+    font-size: 22px;
+    color: #071a33;
+}
+
+.fitness-profile-stat small {
+    color: #64748b;
+    margin-left: 4px;
+}
+
+.fitness-profile-goal {
+    font-size: 16px !important;
+}
+
+.fitness-profile-side-card {
+    padding: 28px;
+}
+
+.fitness-profile-side-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    margin-bottom: 22px;
+}
+
+.fitness-profile-side-card h2 {
+    margin-bottom: 22px;
+}
+
+.fitness-profile-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.fitness-profile-progress-track {
+    height: 9px;
+    flex: 1;
+    background: #e5e7eb;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.fitness-profile-progress-bar {
+    height: 100%;
+    background: #2563eb;
+    border-radius: 20px;
+}
+
+.fitness-profile-progress strong {
+    font-size: 14px;
+    color: #071a33;
+}
+
+.fitness-profile-side-card p,
+.fitness-profile-info-card p {
+    color: #64748b;
+    line-height: 1.7;
+    font-size: 14px;
+    margin: 0;
+}
+
+.fitness-profile-secondary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+    margin-top: 22px;
+}
+
+.fitness-profile-info-card {
+    padding: 28px;
+}
+
+.fitness-profile-info-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.fitness-profile-info-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.fitness-profile-bmi-value {
+    font-size: 42px;
+    line-height: 1;
+    font-weight: 800;
+    color: #071a33;
+    margin-bottom: 14px;
+}
+
+.fitness-profile-ai-text {
+    margin-bottom: 20px !important;
+}
+
+.fitness-profile-ai-btn {
+    margin-top: 20px;
+}
+
+.fitness-profile-form-header {
+    margin-bottom: 28px;
+}
+
+.fitness-profile-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 28px;
+}
+
+    .fitness-profile-back-btn:hover {
+        color: #2563eb;
+    }
+
+.fitness-profile-form-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 35px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.fitness-profile-form-card-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 32px;
+}
+
+.fitness-profile-form-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 17px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.fitness-profile-form-card-header h2 {
+    margin: 0;
+    color: #071a33;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.fitness-profile-form-card-header p {
+    margin: 5px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.fitness-profile-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.fitness-profile-field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #071a33;
+    margin-bottom: 8px;
+}
+
+.fitness-profile-input-wrapper {
+    height: 52px;
+    border: 1px solid #dbe2ea;
+    border-radius: 13px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    transition: 0.2s ease;
+}
+
+    .fitness-profile-input-wrapper:focus-within {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .fitness-profile-input-wrapper > i {
+        color: #64748b;
+        width: 25px;
+    }
+
+    .fitness-profile-input-wrapper input,
+    .fitness-profile-input-wrapper select {
+        width: 100%;
+        height: 100%;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: #071a33;
+        font-size: 14px;
+    }
+
+    .fitness-profile-input-wrapper select {
+        cursor: pointer;
+    }
+
+    .fitness-profile-input-wrapper > span {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+.fitness-profile-field-error {
+    display: block;
+    margin-top: 6px;
+    color: #dc2626;
+    font-size: 12px;
+}
+
+.fitness-profile-validation {
+    margin-bottom: 20px;
+    color: #dc2626;
+    font-size: 13px;
+}
+
+.fitness-profile-form-note {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 28px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+    .fitness-profile-form-note i {
+        color: #2563eb;
+        margin-top: 2px;
+    }
+
+    .fitness-profile-form-note p {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+.fitness-profile-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.fitness-profile-cancel-btn {
+    padding: 12px 20px;
+    border-radius: 12px;
+    color: #475569;
+    background: #f1f5f9;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+    .fitness-profile-cancel-btn:hover {
+        background: #e2e8f0;
+        color: #334155;
+    }
+
+@media (max-width: 850px) {
+    .fitness-profile-grid,
+    .fitness-profile-secondary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .fitness-profile-header {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 650px) {
+    .fitness-profile-page,
+    .fitness-profile-form-page {
+        padding: 25px 15px 45px;
+    }
+
+    .fitness-profile-header h1,
+    .fitness-profile-form-header h1 {
+        font-size: 30px;
+    }
+
+    .fitness-profile-stat-grid,
+    .fitness-profile-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .fitness-profile-empty {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 30px;
+    }
+
+    .fitness-profile-form-card,
+    .fitness-profile-main-card,
+    .fitness-profile-side-card,
+    .fitness-profile-info-card {
+        padding: 22px;
+    }
+
+    .fitness-profile-form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .fitness-profile-cancel-btn,
+    .fitness-profile-save-btn {
+        width: 100%;
+        text-align: center;
+    }
+}

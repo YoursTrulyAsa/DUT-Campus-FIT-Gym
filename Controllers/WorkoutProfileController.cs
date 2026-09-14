@@ -1,10 +1,12 @@
 ﻿using DUT_Campus_FIT_Gym.Data;
 using DUT_Campus_FIT_Gym.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
+    [Authorize(Roles = "Student,Staff")]
     public class WorkoutProfileController : Controller
     {
         private readonly GymDbContext _context;
@@ -14,6 +16,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context = context;
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
             var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -39,6 +42,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
             if (string.IsNullOrEmpty(memberId))
             {
                 return RedirectToAction("Login", "Account");
+            }
+
+            var existingProfile = _context.WorkoutProfiles
+                .FirstOrDefault(p => p.MemberId == int.Parse(memberId));
+
+            if (existingProfile != null)
+            {
+                return RedirectToAction("Index");
             }
 
             return View();
@@ -113,8 +124,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
             int currentMemberId = int.Parse(memberId);
 
             var existingProfile = _context.WorkoutProfiles
-                .FirstOrDefault(p => p.WorkoutProfileId == profile.WorkoutProfileId &&
-                                     p.MemberId == currentMemberId);
+                .FirstOrDefault(p =>
+                    p.WorkoutProfileId == profile.WorkoutProfileId &&
+                    p.MemberId == currentMemberId);
 
             if (existingProfile == null)
             {

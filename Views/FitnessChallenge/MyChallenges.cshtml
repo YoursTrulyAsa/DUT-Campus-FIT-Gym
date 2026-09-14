@@ -1,0 +1,262 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.FitnessChallenge>
+
+@{
+    ViewData["Title"] = "My Fitness Challenges";
+
+    var challenges =
+        Model?.ToList() ??
+        new List<DUT_Campus_FIT_Gym.Models.FitnessChallenge>();
+}
+
+<div class="challenge-list-page">
+
+    <div class="challenge-list-header">
+
+        <div>
+            <span class="challenge-eyebrow">
+                FITNESS
+            </span>
+
+            <h1>
+                My Fitness Challenges
+            </h1>
+
+            <p>
+                Complete your accepted challenges and earn reward points.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="challenge-create-btn">
+
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+            Create Challenge
+
+        </a>
+
+    </div>
+
+    @if (!challenges.Any())
+    {
+        <div class="challenge-empty">
+
+            <div class="challenge-empty-icon">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+
+            <h2>
+                No Challenges Yet
+            </h2>
+
+            <p>
+                Generate your first AI fitness challenge and start earning reward points.
+            </p>
+
+            <a asp-action="Index"
+               class="challenge-create-btn">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Create Challenge
+
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <div class="challenge-list">
+
+            @foreach (var challenge in challenges)
+            {
+                var level =
+                    challenge.Level?.Trim() ?? "Beginner";
+
+                if (level.Equals(
+                    "Advanced",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    level = "Pro";
+                }
+
+                var levelClass =
+                    level.ToLower();
+
+                var rewardPoints =
+                    level.ToLower() switch
+                    {
+                        "beginner" => 2,
+                        "intermediate" => 4,
+                        "pro" => 6,
+                        _ => 2
+                    };
+
+                var isCompleted =
+                    challenge.Participation?.Status
+                        ?.Equals(
+                            "Completed",
+                            StringComparison.OrdinalIgnoreCase)
+                    == true;
+
+                <div class="challenge-card">
+
+                    <div class="challenge-card-top">
+
+                        <div class="challenge-card-title">
+
+                            <div class="challenge-card-icon">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="challenge-card-category">
+                                    @challenge.Category
+                                </span>
+
+                                <h2>
+                                    @challenge.Title
+                                </h2>
+
+                            </div>
+
+                        </div>
+
+                        <div class="challenge-reward-badge">
+
+                            <i class="fa-solid fa-star"></i>
+
+                            <div>
+                                <span>REWARD</span>
+                                <strong>+@rewardPoints</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="challenge-level-row">
+
+                        <span class="challenge-level-badge @levelClass">
+                            @level
+                        </span>
+
+                        <span>
+                            @rewardPoints reward points available
+                        </span>
+
+                    </div>
+
+                    <div class="challenge-card-content">
+
+                        <p class="challenge-description">
+                            @challenge.Description
+                        </p>
+
+                        <div class="challenge-target-box">
+
+                            <div class="challenge-target-icon">
+                                <i class="fa-solid fa-bullseye"></i>
+                            </div>
+
+                            <div>
+
+                                <span>
+                                    TARGET
+                                </span>
+
+                                <strong>
+                                    @challenge.Target
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    @if (isCompleted)
+                    {
+                        <div class="challenge-completed">
+
+                            <div class="challenge-completed-icon">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Challenge completed
+                                </strong>
+
+                                <span>
+                                    You earned +@rewardPoints reward points.
+                                </span>
+
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="challenge-card-footer">
+
+                            <div class="challenge-footer-info">
+
+                                <i class="fa-solid fa-star"></i>
+
+                                <div>
+
+                                    <strong>
+                                        Ready to complete this challenge?
+                                    </strong>
+
+                                    <span>
+                                        Earn +@rewardPoints reward points.
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <form asp-action="Complete"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@challenge.FitnessChallengeId" />
+
+                                <button type="submit"
+                                        class="challenge-complete-btn">
+
+                                    <i class="fa-solid fa-check"></i>
+
+                                    Complete Challenge
+
+                                    <span>
+                                        +@rewardPoints
+                                    </span>
+
+                                </button>
+
+                            </form>
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/fitness-challenge.css"
+          asp-append-version="true" />
+}

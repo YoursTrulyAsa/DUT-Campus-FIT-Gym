@@ -1,0 +1,179 @@
+﻿.my-meal-plans-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.my-meal-plans-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 35px;
+}
+
+    .my-meal-plans-header span {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        opacity: 0.65;
+    }
+
+    .my-meal-plans-header h1 {
+        margin: 8px 0;
+    }
+
+    .my-meal-plans-header p {
+        margin: 0;
+        opacity: 0.7;
+    }
+
+.my-meal-plans-header-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.my-meal-plans-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.my-meal-plan-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 25px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.my-meal-plan-card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+    .my-meal-plan-card-top span {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        opacity: 0.6;
+    }
+
+.my-meal-plan-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    font-size: 19px;
+}
+
+.my-meal-plan-card h2 {
+    margin: 0 0 20px;
+}
+
+.my-meal-plan-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+    .my-meal-plan-info div {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .my-meal-plan-info span {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        opacity: 0.55;
+    }
+
+    .my-meal-plan-info strong {
+        font-size: 14px;
+    }
+
+.my-meal-plan-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+    .my-meal-plan-actions form {
+        margin: 0;
+    }
+
+.ai-delete-btn {
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.my-meal-plans-empty {
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 60px 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.my-meal-plans-empty-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+    background: #f1f5f9;
+}
+
+.my-meal-plans-empty h2 {
+    margin-bottom: 10px;
+}
+
+.my-meal-plans-empty p {
+    margin-bottom: 25px;
+    opacity: 0.7;
+}
+
+@media (max-width: 800px) {
+    .my-meal-plans-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .my-meal-plans-header {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 600px) {
+    .my-meal-plans-page {
+        padding: 20px;
+    }
+
+    .my-meal-plan-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace DUT_Campus_FIT_Gym.Models
 {
@@ -21,6 +22,8 @@ namespace DUT_Campus_FIT_Gym.Models
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; } = "Active";
+        public string Status { get; set; } = "Reserved";
+
+        public bool NotificationDismissed { get; set; } = false;
     }
 }

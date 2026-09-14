@@ -1,120 +1,237 @@
 ﻿@model DUT_Campus_FIT_Gym.Models.WorkoutProfile
 
 @{
-    ViewData["Title"] = "Edit Workout Profile";
+    ViewData["Title"] = "Edit Fitness Profile";
 }
 
-<div class="container mt-4">
+<div class="fitness-profile-form-page">
 
-    <div class="mb-4">
-        <h2>Edit Workout Profile</h2>
-        <p class="text-muted">
-            Update your workout profile information.
+    <div class="fitness-profile-form-header">
+
+        <a asp-action="Index"
+           class="fitness-profile-back-btn">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Back to Profile
+
+        </a>
+
+        <span class="fitness-profile-eyebrow">
+            DUT CAMPUS FIT GYM
+        </span>
+
+        <h1>
+            Edit Your Fitness Profile
+        </h1>
+
+        <p>
+            Keep your information up to date for more relevant fitness suggestions.
         </p>
+
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
+    <div class="fitness-profile-form-card">
 
-            <form asp-action="Edit" method="post">
+        <div class="fitness-profile-form-card-header">
 
-                @Html.AntiForgeryToken()
+            <div class="fitness-profile-form-icon">
+                <i class="fa-solid fa-user-pen"></i>
+            </div>
 
-                <input type="hidden" asp-for="WorkoutProfileId" />
+            <div>
+                <span class="fitness-profile-card-label">
+                    PROFILE INFORMATION
+                </span>
 
-                <div asp-validation-summary="ModelOnly"
-                     class="text-danger mb-3">
-                </div>
+                <h2>
+                    Update Your Details
+                </h2>
 
-                <div class="mb-3">
-                    <label asp-for="Age" class="form-label">
+                <p>
+                    Make any changes to your fitness profile below.
+                </p>
+            </div>
+
+        </div>
+
+        <form asp-action="Edit"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   asp-for="WorkoutProfileId" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="fitness-profile-validation">
+            </div>
+
+            <div class="fitness-profile-form-grid">
+
+                <div class="fitness-profile-field">
+
+                    <label asp-for="Age">
                         Age
                     </label>
 
-                    <input asp-for="Age"
-                           class="form-control"
-                           type="number"
-                           min="13"
-                           max="100" />
+                    <div class="fitness-profile-input-wrapper">
+
+                        <i class="fa-solid fa-cake-candles"></i>
+
+                        <input asp-for="Age"
+                               type="number"
+                               min="13"
+                               max="100" />
+
+                    </div>
 
                     <span asp-validation-for="Age"
-                          class="text-danger">
+                          class="fitness-profile-field-error">
                     </span>
+
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Weight" class="form-label">
-                        Weight (kg)
+                <div class="fitness-profile-field">
+
+                    <label asp-for="Weight">
+                        Weight
                     </label>
 
-                    <input asp-for="Weight"
-                           class="form-control"
-                           type="number"
-                           step="0.1"
-                           min="1"
-                           max="500" />
+                    <div class="fitness-profile-input-wrapper">
+
+                        <i class="fa-solid fa-weight-scale"></i>
+
+                        <input asp-for="Weight"
+                               type="number"
+                               step="0.1"
+                               min="1"
+                               max="500" />
+
+                        <span>
+                            kg
+                        </span>
+
+                    </div>
 
                     <span asp-validation-for="Weight"
-                          class="text-danger">
+                          class="fitness-profile-field-error">
                     </span>
+
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Height" class="form-label">
-                        Height (cm)
+                <div class="fitness-profile-field">
+
+                    <label asp-for="Height">
+                        Height
                     </label>
 
-                    <input asp-for="Height"
-                           class="form-control"
-                           type="number"
-                           step="0.1"
-                           min="1"
-                           max="300" />
+                    <div class="fitness-profile-input-wrapper">
+
+                        <i class="fa-solid fa-ruler-vertical"></i>
+
+                        <input asp-for="Height"
+                               type="number"
+                               step="0.1"
+                               min="1"
+                               max="300" />
+
+                        <span>
+                            cm
+                        </span>
+
+                    </div>
 
                     <span asp-validation-for="Height"
-                          class="text-danger">
+                          class="fitness-profile-field-error">
                     </span>
+
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Goal" class="form-label">
+                <div class="fitness-profile-field">
+
+                    <label asp-for="Goal">
                         Fitness Goal
                     </label>
 
-                    <select asp-for="Goal" class="form-select">
-                        <option value="">-- Select your goal --</option>
-                        <option value="Weight Loss">Weight Loss</option>
-                        <option value="Muscle Gain">Muscle Gain</option>
-                        <option value="Strength">Strength</option>
-                        <option value="General Fitness">General Fitness</option>
-                        <option value="Endurance">Endurance</option>
-                    </select>
+                    <div class="fitness-profile-input-wrapper">
+
+                        <i class="fa-solid fa-bullseye"></i>
+
+                        <select asp-for="Goal">
+
+                            <option value="">
+                                Select your goal
+                            </option>
+
+                            <option value="Strength">
+                                Strength
+                            </option>
+
+                            <option value="General Fitness">
+                                General Fitness
+                            </option>
+
+                            <option value="Endurance">
+                                Endurance
+                            </option>
+
+                            <option value="Mobility and Flexibility">
+                                Mobility and Flexibility
+                            </option>
+
+                        </select>
+
+                    </div>
 
                     <span asp-validation-for="Goal"
-                          class="text-danger">
+                          class="fitness-profile-field-error">
                     </span>
-                </div>
-
-                <div class="mt-4">
-
-                    <button type="submit"
-                            class="btn btn-primary">
-                        Save Changes
-                    </button>
-
-                    <a asp-action="Index"
-                       class="btn btn-secondary ms-2">
-                        Cancel
-                    </a>
 
                 </div>
 
-            </form>
+            </div>
 
-        </div>
+            <div class="fitness-profile-form-note">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <p>
+                    Keeping your profile updated helps FIT Gym provide
+                    more relevant general fitness suggestions.
+                </p>
+
+            </div>
+
+            <div class="fitness-profile-form-actions">
+
+                <a asp-action="Index"
+                   class="fitness-profile-cancel-btn">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="fitness-profile-save-btn">
+
+                    <i class="fa-solid fa-check"></i>
+
+                    Save Changes
+
+                </button>
+
+            </div>
+
+        </form>
+
     </div>
 
 </div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/workout-profile.css"
+          asp-append-version="true" />
+}
 
 @section Scripts {
     @{

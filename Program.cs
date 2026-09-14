@@ -3,6 +3,7 @@ using DUT_Campus_FIT_Gym.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using DUT_Campus_FIT_Gym.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,9 @@ builder.Services.AddDbContext<GymDbContext>(options =>
 options.UseSqlServer(
 builder.Configuration.GetConnectionString("GymDatabase")
 ));
+
+builder.Services.AddScoped<MembershipPricingService>();
+builder.Services.AddScoped<RewardService>();
 
 var app = builder.Build();
 

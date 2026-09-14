@@ -1,0 +1,176 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.FitnessChallengeViewModel
+
+@{
+    ViewData["Title"] = "Fitness Challenges";
+}
+
+<div class="fitness-challenge-page">
+
+    <div class="fitness-challenge-header">
+
+        <div>
+            <span class="fitness-challenge-eyebrow">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Fitness Challenges
+            </h1>
+
+            <p>
+                Choose your level and category to create a reasonable AI-generated challenge.
+            </p>
+        </div>
+
+        <div class="fitness-challenge-header-icon">
+            <i class="fa-solid fa-trophy"></i>
+        </div>
+
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="fitness-challenge-error">
+            @ViewBag.Error
+        </div>
+    }
+
+    <div class="fitness-challenge-form-card">
+
+        <div class="fitness-challenge-form-header">
+            <span>
+                CREATE CHALLENGE
+            </span>
+
+            <h2>
+                Build your challenge
+            </h2>
+
+            <p>
+                The AI will create a challenge based on your selected level and category.
+            </p>
+        </div>
+
+        <form asp-action="Generate"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div class="fitness-challenge-form-grid">
+
+                <div class="fitness-challenge-field">
+
+                    <label for="level">
+                        Fitness Level
+                    </label>
+
+                    <select id="level"
+                            name="level"
+                            required>
+
+                        <option value="">
+                            Select your level
+                        </option>
+
+                        <option value="Beginner">
+                            Beginner
+                        </option>
+
+                        <option value="Intermediate">
+                            Intermediate
+                        </option>
+
+                        <option value="Pro">
+                            Pro
+                        </option>
+
+                </div>
+
+                <div class="fitness-challenge-field">
+
+                    <label for="category">
+                        Category
+                    </label>
+
+                    <select id="category"
+                            name="category"
+                            required>
+
+                        <option value="">
+                            Select a category
+                        </option>
+
+                        <option value="Cardio">
+                            Cardio
+                        </option>
+
+                        <option value="Strength">
+                            Strength
+                        </option>
+
+                        <option value="Yoga">
+                            Yoga
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <button type="submit"
+                    class="fitness-challenge-button">
+
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                Generate Challenge
+
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="fitness-challenge-info-grid">
+
+        <div class="fitness-challenge-info-card">
+
+            <i class="fa-solid fa-shield-heart"></i>
+
+            <div>
+                <h3>
+                    Safe challenges
+                </h3>
+
+                <p>
+                    Challenges are checked against reasonable limits before they are shown.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="fitness-challenge-info-card">
+
+            <i class="fa-solid fa-star"></i>
+
+            <div>
+                    <h3>
+                        Earn reward points
+                    </h3>
+
+                    <p>
+                        Complete an accepted challenge to earn 2, 4 or 6 reward points based on your fitness level.
+                    </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/fitness-challenge.css"
+          asp-append-version="true" />
+}

@@ -1,0 +1,163 @@
+﻿.fitness-ai-page {
+    min-height: 100%;
+    padding: 42px;
+}
+
+.fitness-ai-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 38px;
+}
+
+.fitness-ai-eyebrow {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #64748b;
+}
+
+.fitness-ai-header h1 {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.fitness-ai-header p {
+    margin: 8px 0 0;
+    max-width: 650px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.fitness-ai-header-icon {
+    width: 76px;
+    height: 76px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0f2f5f;
+    color: #ffffff;
+    font-size: 30px;
+    box-shadow: 0 12px 28px rgba(15, 47, 95, 0.2);
+}
+
+.fitness-ai-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    max-width: 1100px;
+}
+
+.fitness-ai-card {
+    position: relative;
+    min-height: 230px;
+    padding: 28px;
+    display: flex;
+    gap: 22px;
+    text-decoration: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .fitness-ai-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.1);
+    }
+
+.fitness-ai-card-icon {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eaf2ff;
+    color: #0b5ed7;
+    font-size: 21px;
+}
+
+.fitness-ai-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+    .fitness-ai-card-content > span {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.13em;
+        color: #64748b;
+    }
+
+    .fitness-ai-card-content h2 {
+        margin: 7px 0 8px;
+        font-size: 20px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .fitness-ai-card-content p {
+        margin: 0;
+        max-width: 390px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .fitness-ai-card-content strong {
+        margin-top: auto;
+        padding-top: 22px;
+        color: #0b5ed7;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .fitness-ai-card-content strong i {
+            margin-left: 6px;
+            transition: transform 0.2s ease;
+        }
+
+.fitness-ai-card:hover .fitness-ai-card-content strong i {
+    transform: translateX(4px);
+}
+
+@media (max-width: 850px) {
+    .fitness-ai-page {
+        padding: 28px 20px;
+    }
+
+    .fitness-ai-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .fitness-ai-header {
+        align-items: flex-start;
+    }
+
+    .fitness-ai-header-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        font-size: 24px;
+    }
+
+    .fitness-ai-header h1 {
+        font-size: 28px;
+    }
+
+    .fitness-ai-card {
+        padding: 22px;
+    }
+}

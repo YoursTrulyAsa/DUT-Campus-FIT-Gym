@@ -1,0 +1,161 @@
+﻿@model List<DUT_Campus_FIT_Gym.Models.MealPlan>
+
+@{
+    ViewData["Title"] = "My Meal Plans";
+}
+
+<div class="my-meal-plans-page">
+
+    <div class="my-meal-plans-header">
+
+        <div>
+
+            <span>
+                FITNESS AI
+            </span>
+
+            <h1>
+                My Meal Plans
+            </h1>
+
+            <p>
+                View and manage your saved AI meal plans.
+            </p>
+
+        </div>
+
+        <div class="my-meal-plans-header-icon">
+            <i class="fa-solid fa-book-open"></i>
+        </div>
+
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="my-meal-plans-empty">
+
+            <div class="my-meal-plans-empty-icon">
+                <i class="fa-solid fa-bowl-food"></i>
+            </div>
+
+            <h2>
+                No saved meal plans yet
+            </h2>
+
+            <p>
+                Generate a meal plan, review it, and save it here for later.
+            </p>
+
+            <a asp-controller="FitnessAI"
+               asp-action="AIMeal"
+               class="ai-primary-btn">
+
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                Create Meal Plan
+
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <div class="my-meal-plans-grid">
+
+            @foreach (var plan in Model)
+            {
+                <div class="my-meal-plan-card">
+
+                    <div class="my-meal-plan-card-top">
+
+                        <div class="my-meal-plan-icon">
+                            <i class="fa-solid fa-bowl-food"></i>
+                        </div>
+
+                        <span>
+                            SAVED MEAL PLAN
+                        </span>
+
+                    </div>
+
+                    <h2>
+                        @plan.FitnessGoal
+                    </h2>
+
+                    <div class="my-meal-plan-info">
+
+                        <div>
+                            <span>
+                                CREATED
+                            </span>
+
+                            <strong>
+                                @plan.CreatedAt.ToString("dd MMM yyyy")
+                            </strong>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(plan.DietaryPreference))
+                        {
+                            <div>
+                                <span>
+                                    DIETARY PREFERENCE
+                                </span>
+
+                                <strong>
+                                    @plan.DietaryPreference
+                                </strong>
+                            </div>
+                        }
+
+                    </div>
+
+                    <div class="my-meal-plan-actions">
+
+                        <a asp-controller="FitnessAI"
+                           asp-action="MealPlanDetails"
+                           asp-route-id="@plan.MealPlanId"
+                           class="ai-primary-btn">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                            View Plan
+
+                        </a>
+
+                        <form asp-controller="FitnessAI"
+                              asp-action="DeleteMealPlan"
+                              asp-route-id="@plan.MealPlanId"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="ai-delete-btn">
+
+                                <i class="fa-solid fa-trash"></i>
+
+                                Delete
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/ai-meal.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/my-meal-plans.css"
+          asp-append-version="true" />
+}

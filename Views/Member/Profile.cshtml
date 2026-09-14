@@ -30,7 +30,6 @@
 
     </div>
 
-
     @if (TempData["ProfileSuccess"] != null)
     {
         <div class="alert alert-success">
@@ -38,13 +37,38 @@
         </div>
     }
 
+    @if (TempData["ProfileError"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ProfileError"]
+        </div>
+    }
 
     <div class="profile-container">
 
         <div class="profile-summary">
 
             <div class="profile-avatar">
-                <i class="fa-solid fa-user"></i>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ProfilePicture))
+                {
+                    <img src="@Model.ProfilePicture"
+                         alt="Profile picture"
+                         class="profile-avatar-image"
+                         id="profilePreview" />
+                }
+                else
+                {
+                    <img src=""
+                         alt="Profile preview"
+                         class="profile-avatar-image"
+                         id="profilePreview"
+                         style="display: none;" />
+
+                    <i class="fa-solid fa-user"
+                       id="profilePlaceholder"></i>
+                }
+
             </div>
 
             <h2>
@@ -58,6 +82,83 @@
             <p>
                 DUT Campus FIT Gym Member
             </p>
+
+            <div class="profile-photo-actions">
+
+                <form asp-controller="Profile"
+                      asp-action="UploadPhoto"
+                      method="post"
+                      enctype="multipart/form-data"
+                      id="photoUploadForm">
+
+                    @Html.AntiForgeryToken()
+
+                    <label for="profilePicture"
+                           class="profile-photo-btn">
+
+                        <i class="fa-solid fa-camera"></i>
+
+                        @(string.IsNullOrWhiteSpace(Model.ProfilePicture)
+                            ? "Add Photo"
+                            : "Change Photo")
+
+                    </label>
+
+                    <input type="file"
+                           id="profilePicture"
+                           name="profilePicture"
+                           accept=".jpg,.jpeg,.png,.webp"
+                           hidden />
+
+                    <button type="submit"
+                            class="profile-photo-btn"
+                            id="uploadPhotoBtn"
+                            style="display: none;">
+
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                        Upload Photo
+
+                    </button>
+
+                    <button type="button"
+                            class="remove-photo-btn"
+                            id="cancelPhotoBtn"
+                            style="display: none;">
+
+                        <i class="fa-solid fa-xmark"></i>
+
+                        Cancel
+
+                    </button>
+
+                </form>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ProfilePicture))
+                {
+                    <form asp-controller="Profile"
+                          asp-action="RemovePhoto"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="remove-photo-btn">
+
+                            <i class="fa-solid fa-trash"></i>
+
+                            Remove
+
+                        </button>
+
+                    </form>
+                }
+
+            </div>
+
+            <small class="profile-photo-hint">
+                JPG, PNG or WebP · Maximum 5 MB
+            </small>
 
         </div>
 
@@ -89,7 +190,6 @@
                      class="text-danger mb-3">
                 </div>
 
-
                 <div class="profile-details">
 
                     <div class="profile-field">
@@ -110,7 +210,6 @@
                         </span>
 
                     </div>
-
 
                     <div class="profile-field">
 
@@ -209,11 +308,93 @@
 
 </div>
 
-
 @section Styles {
 
     <link rel="stylesheet"
           href="~/css/member-profile.css"
           asp-append-version="true" />
+
+}
+
+@section Scripts {
+
+    <script>
+        const profilePicture = document.getElementById("profilePicture");
+        const profilePreview = document.getElementById("profilePreview");
+        const profilePlaceholder = document.getElementById("profilePlaceholder");
+        const uploadPhotoBtn = document.getElementById("uploadPhotoBtn");
+        const cancelPhotoBtn = document.getElementById("cancelPhotoBtn");
+
+        profilePicture.addEventListener("change", function () {
+
+            const file = this.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert("Please select a JPG, PNG or WebP image.");
+                this.value = "";
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("The profile picture must be 5 MB or smaller.");
+                this.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+
+                profilePreview.src = event.target.result;
+                profilePreview.style.display = "block";
+
+                if (profilePlaceholder) {
+                    profilePlaceholder.style.display = "none";
+                }
+
+                uploadPhotoBtn.style.display = "inline-flex";
+                cancelPhotoBtn.style.display = "inline-flex";
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        cancelPhotoBtn.addEventListener("click", function () {
+
+            profilePicture.value = "";
+
+            uploadPhotoBtn.style.display = "none";
+            cancelPhotoBtn.style.display = "none";
+
+            @if (!string.IsNullOrWhiteSpace(Model.ProfilePicture))
+            {
+                <text>
+                profilePreview.src = "@Model.ProfilePicture";
+                profilePreview.style.display = "block";
+                </text>
+            }
+            else
+            {
+                <text>
+                profilePreview.src = "";
+                profilePreview.style.display = "none";
+
+                if (profilePlaceholder) {
+                    profilePlaceholder.style.display = "block";
+                }
+                </text>
+            }
+        });
+    </script>
 
 }

@@ -1,0 +1,285 @@
+﻿@model List<DUT_Campus_FIT_Gym.ViewModels.AIWorkoutExerciseViewModel>
+
+@{
+    ViewData["Title"] = "AI Workout Plan";
+
+    string fitnessLevel = ViewBag.FitnessLevel ?? "";
+    string fitnessGoal = ViewBag.FitnessGoal ?? "";
+    int daysAvailable = ViewBag.DaysAvailable ?? 0;
+
+    var groupedExercises = Model
+        .GroupBy(x => x.WorkoutDay)
+        .ToList();
+}
+
+<div class="ai-workout-result-page">
+
+    <div class="ai-workout-result-header">
+
+        <div class="ai-workout-result-header-content">
+            <span class="ai-workout-result-eyebrow">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Your AI Workout Plan
+            </h1>
+
+            <p>
+                Your personalized training plan is ready. Review the exercises before saving it to your workout plan.
+            </p>
+        </div>
+
+        <div class="ai-workout-result-icon">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+
+    </div>
+
+    <div class="ai-workout-summary">
+
+        <div class="ai-workout-summary-card">
+            <div class="ai-workout-summary-icon">
+                <i class="fa-solid fa-signal"></i>
+            </div>
+
+            <div>
+                <span>FITNESS LEVEL</span>
+                <strong>@fitnessLevel</strong>
+            </div>
+        </div>
+
+        <div class="ai-workout-summary-card">
+            <div class="ai-workout-summary-icon">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+
+            <div>
+                <span>GOAL</span>
+                <strong>@fitnessGoal</strong>
+            </div>
+        </div>
+
+        <div class="ai-workout-summary-card">
+            <div class="ai-workout-summary-icon">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
+
+            <div>
+                <span>TRAINING DAYS</span>
+                <strong>@daysAvailable days</strong>
+            </div>
+        </div>
+
+    </div>
+
+    <form asp-controller="FitnessAI"
+          asp-action="SaveWorkout"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="fitnessLevel"
+               value="@fitnessLevel" />
+
+        <div class="ai-workout-plan-card">
+
+            <div class="ai-workout-plan-header">
+
+                <div>
+                    <span class="ai-workout-plan-eyebrow">
+                        GENERATED PLAN
+                    </span>
+
+                    <h2>
+                        Your Training Schedule
+                    </h2>
+
+                    <p>
+                        Review each training day and exercise before saving.
+                    </p>
+                </div>
+
+                <div class="ai-workout-plan-header-icon">
+                    <i class="fa-solid fa-dumbbell"></i>
+                </div>
+
+            </div>
+
+            <div class="ai-workout-days">
+
+                @foreach (var dayGroup in groupedExercises)
+                {
+                    <div class="ai-workout-day-section">
+
+                        <div class="ai-workout-day-header">
+
+                            <div class="ai-workout-day-title">
+
+                                <div class="ai-workout-day-icon">
+                                    <i class="fa-solid fa-calendar-day"></i>
+                                </div>
+
+                                <div>
+                                    <span>TRAINING DAY</span>
+                                    <h3>
+                                        @dayGroup.Key
+                                    </h3>
+                                </div>
+
+                            </div>
+
+                            <div class="ai-workout-exercise-count">
+                                @dayGroup.Count()
+                                @(dayGroup.Count() == 1 ? "Exercise" : "Exercises")
+                            </div>
+
+                        </div>
+
+                        <div class="ai-workout-exercise-list">
+
+                            @foreach (var exercise in dayGroup)
+                            {
+                                var originalIndex = Model.IndexOf(exercise);
+
+                                <div class="ai-workout-exercise">
+
+                                    <div class="ai-workout-exercise-number">
+                                        @((dayGroup.ToList().IndexOf(exercise) + 1).ToString("00"))
+                                    </div>
+
+                                    <div class="ai-workout-exercise-main">
+
+                                        <div class="ai-workout-exercise-heading">
+
+                                            <div>
+                                                <h4>
+                                                    @exercise.ExerciseName
+                                                </h4>
+
+                                                <p>
+                                                    @exercise.Description
+                                                </p>
+                                            </div>
+
+                                            <div class="ai-workout-exercise-check">
+                                                <i class="fa-solid fa-check"></i>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="ai-workout-exercise-stats">
+
+                                            <div class="ai-workout-stat">
+                                                <span>SETS</span>
+                                                <strong>
+                                                    @exercise.Sets
+                                                </strong>
+                                            </div>
+
+                                            <div class="ai-workout-stat">
+                                                <span>REPS</span>
+                                                <strong>
+                                                    @exercise.Repetitions
+                                                </strong>
+                                            </div>
+
+                                            <div class="ai-workout-stat">
+                                                <span>REST</span>
+                                                <strong>
+                                                    @exercise.RestTime sec
+                                                </strong>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <input type="hidden"
+                                           name="exercises[@originalIndex].WorkoutDay"
+                                           value="@exercise.WorkoutDay" />
+
+                                    <input type="hidden"
+                                           name="exercises[@originalIndex].ExerciseName"
+                                           value="@exercise.ExerciseName" />
+
+                                    <input type="hidden"
+                                           name="exercises[@originalIndex].Sets"
+                                           value="@exercise.Sets" />
+
+                                    <input type="hidden"
+                                           name="exercises[@originalIndex].Repetitions"
+                                           value="@exercise.Repetitions" />
+
+                                    <input type="hidden"
+                                           name="exercises[@originalIndex].RestTime"
+                                           value="@exercise.RestTime" />
+
+                                    <input type="hidden"
+                                           name="exercises[@originalIndex].Description"
+                                           value="@exercise.Description" />
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+        <div class="ai-workout-safety">
+
+            <div class="ai-workout-safety-icon">
+                <i class="fa-solid fa-shield-heart"></i>
+            </div>
+
+            <div>
+                <strong>
+                    Review before saving
+                </strong>
+
+                <p>
+                    Make sure the suggested exercises are appropriate for you
+                    and that you understand how to perform them safely.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="ai-workout-result-actions">
+
+            <a asp-controller="FitnessAI"
+               asp-action="AIWorkout"
+               class="ai-workout-secondary-btn">
+
+                <i class="fa-solid fa-arrow-left"></i>
+
+                Create Another Plan
+
+            </a>
+
+            <button type="submit"
+                    class="ai-workout-primary-btn">
+
+                <i class="fa-solid fa-bookmark"></i>
+
+                Save Workout Plan
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/ai-workout-result.css"
+          asp-append-version="true" />
+}

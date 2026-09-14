@@ -30,10 +30,17 @@ namespace DUT_Campus_FIT_Gym.Data
         public DbSet<BankDetails> BankingDetails { get; set; }
         public DbSet<Payment> Payments { get; set; }
 
+        public DbSet<MealPlan> MealPlans { get; set; }
+        public DbSet<MealPlanItem> MealPlanItems { get; set; }
+
+        public DbSet<FitnessChallenge> FitnessChallenges { get; set; }
+        public DbSet<ChallengeParticipation> ChallengeParticipations { get; set; }
+        public DbSet<RewardPoint> RewardPoints { get; set; }
+        public DbSet<WorkoutCompletion> WorkoutCompletions { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
 
             modelBuilder.Entity<TrainerRequest>()
                 .HasOne(r => r.Student)
@@ -48,10 +55,10 @@ namespace DUT_Campus_FIT_Gym.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Payment>()
-              .HasOne(p => p.Member)
-              .WithMany(m => m.Payments)
-              .HasForeignKey(p => p.MemberId)
-              .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(p => p.Member)
+                .WithMany(m => m.Payments)
+                .HasForeignKey(p => p.MemberId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Payment>()
                 .HasOne(p => p.Membership)
@@ -71,7 +78,6 @@ namespace DUT_Campus_FIT_Gym.Data
                 .HasForeignKey(a => a.MemberId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
             modelBuilder.Entity<Attendance>()
                 .HasOne(a => a.Member)
                 .WithMany()
@@ -87,6 +93,48 @@ namespace DUT_Campus_FIT_Gym.Data
             modelBuilder.Entity<WorkoutPlan>()
                 .HasOne(w => w.Member)
                 .WithMany(m => m.WorkoutPlans)
+                .HasForeignKey(w => w.MemberId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MealPlan>()
+                .HasOne(m => m.Member)
+                .WithMany(m => m.MealPlans)
+                .HasForeignKey(m => m.MemberId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<MealPlanItem>()
+                .HasOne(m => m.MealPlan)
+                .WithMany(m => m.MealPlanItems)
+                .HasForeignKey(m => m.MealPlanId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<FitnessChallenge>()
+                .HasOne(c => c.Member)
+                .WithMany(m => m.FitnessChallenges)
+                .HasForeignKey(c => c.MemberId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ChallengeParticipation>()
+                .HasOne(p => p.FitnessChallenge)
+                .WithOne(c => c.Participation)
+                .HasForeignKey<ChallengeParticipation>(p => p.FitnessChallengeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ChallengeParticipation>()
+                .HasOne(p => p.Member)
+                .WithMany(m => m.ChallengeParticipations)
+                .HasForeignKey(p => p.MemberId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RewardPoint>()
+                .HasOne(r => r.Member)
+                .WithMany(m => m.RewardPoints)
+                .HasForeignKey(r => r.MemberId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<WorkoutCompletion>()
+                .HasOne(w => w.Member)
+                .WithMany(m => m.WorkoutCompletions)
                 .HasForeignKey(w => w.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

@@ -1,59 +1,294 @@
 ﻿@model DUT_Campus_FIT_Gym.Models.WorkoutPlan
 
-<h2>Edit Workout Plan</h2>
+@{
+    ViewData["Title"] = "Edit Workout Plan";
+}
 
-<form asp-action="Edit" method="post">
+<div class="workout-form-page">
 
-    <input type="hidden" asp-for="WorkoutPlanId" />
+    <div class="workout-form-header">
 
-    <div class="mb-3">
-        <label asp-for="WorkoutName" class="form-label"></label>
-        <input asp-for="WorkoutName" class="form-control" />
-        <span asp-validation-for="WorkoutName" class="text-danger"></span>
+        <div>
+            <span class="workout-form-eyebrow">
+                FITNESS
+            </span>
+
+            <h1>
+                Edit Workout Plan
+            </h1>
+
+            <p>
+                Update the details of your workout exercise.
+            </p>
+        </div>
+
+        <div class="workout-form-header-icon">
+            <i class="fa-solid fa-pen"></i>
+        </div>
+
     </div>
 
-    <div class="mb-3">
-        <label asp-for="ExerciseName" class="form-label"></label>
-        <input asp-for="ExerciseName" class="form-control" />
-        <span asp-validation-for="ExerciseName" class="text-danger"></span>
+    <div class="workout-form-card">
+
+        <form asp-action="Edit"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   asp-for="WorkoutPlanId" />
+
+            <div class="workout-form-section">
+
+                <div class="workout-form-section-title">
+
+                    <i class="fa-solid fa-clipboard-list"></i>
+
+                    <div>
+                        <h2>
+                            Workout Details
+                        </h2>
+
+                        <p>
+                            Update your workout information.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="workout-form-grid">
+
+                    <div class="workout-form-group">
+
+                        <label asp-for="WorkoutName">
+                            Workout Name
+                        </label>
+
+                        <input asp-for="WorkoutName"
+                               class="form-control" />
+
+                        <span asp-validation-for="WorkoutName"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="workout-form-group">
+
+                        <label asp-for="Level">
+                            Fitness Level
+                        </label>
+
+                        <select asp-for="Level"
+                                class="form-control">
+
+                            <option value="Beginner">
+                                Beginner — +3 points
+                            </option>
+
+                            <option value="Intermediate">
+                                Intermediate — +5 points
+                            </option>
+
+                            <option value="Pro">
+                                Pro — +7 points
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="Level"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="workout-form-group">
+
+                        <label asp-for="WorkoutDay">
+                            Training Day
+                        </label>
+
+                        <input asp-for="WorkoutDay"
+                               class="form-control" />
+
+                        <span asp-validation-for="WorkoutDay"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="workout-form-group">
+
+                        <label asp-for="ExerciseName">
+                            Exercise
+                        </label>
+
+                        <input asp-for="ExerciseName"
+                               class="form-control" />
+
+                        <span asp-validation-for="ExerciseName"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="workout-form-section">
+
+                <div class="workout-form-section-title">
+
+                    <i class="fa-solid fa-sliders"></i>
+
+                    <div>
+                        <h2>
+                            Exercise Details
+                        </h2>
+
+                        <p>
+                            Update the exercise volume and rest period.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="workout-form-grid workout-form-grid-three">
+
+                    <div class="workout-form-group">
+
+                        <label asp-for="Sets">
+                            Sets
+                        </label>
+
+                        <input asp-for="Sets"
+                               type="number"
+                               min="1"
+                               max="100"
+                               class="form-control" />
+
+                        <span asp-validation-for="Sets"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="workout-form-group">
+
+                        <label asp-for="Repetitions">
+                            Repetitions
+                        </label>
+
+                        <input asp-for="Repetitions"
+                               type="number"
+                               min="1"
+                               max="500"
+                               class="form-control" />
+
+                        <span asp-validation-for="Repetitions"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <div class="workout-form-group">
+
+                        <label asp-for="RestTime">
+                            Rest Time
+                        </label>
+
+                        <div class="workout-input-with-suffix">
+
+                            <input asp-for="RestTime"
+                                   type="number"
+                                   min="1"
+                                   max="3600"
+                                   class="form-control" />
+
+                            <span>
+                                sec
+                            </span>
+
+                        </div>
+
+                        <span asp-validation-for="RestTime"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="workout-form-section">
+
+                <div class="workout-form-section-title">
+
+                    <i class="fa-solid fa-align-left"></i>
+
+                    <div>
+                        <h2>
+                            Description
+                        </h2>
+
+                        <p>
+                            Update the exercise instructions.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="workout-form-group">
+
+                    <textarea asp-for="Description"
+                              class="form-control workout-description-input"
+                              rows="5">
+                    </textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="workout-form-actions">
+
+                <a asp-action="MyWorkout"
+                   class="workout-form-cancel-btn">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                    Cancel
+
+                </a>
+
+                <button type="submit"
+                        class="workout-form-submit-btn">
+
+                    <i class="fa-solid fa-check"></i>
+
+                    Save Changes
+
+                </button>
+
+            </div>
+
+        </form>
+
     </div>
 
-    <div class="mb-3">
-        <label asp-for="WorkoutDay" class="form-label"></label>
-        <input asp-for="WorkoutDay" class="form-control" />
-        <span asp-validation-for="WorkoutDay" class="text-danger"></span>
-    </div>
+</div>
 
-    <div class="mb-3">
-        <label asp-for="Sets" class="form-label"></label>
-        <input asp-for="Sets" class="form-control" />
-        <span asp-validation-for="Sets" class="text-danger"></span>
-    </div>
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/workout-form.css"
+          asp-append-version="true" />
+}
 
-    <div class="mb-3">
-        <label asp-for="Repetitions" class="form-label"></label>
-        <input asp-for="Repetitions" class="form-control" />
-        <span asp-validation-for="Repetitions" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="RestTime" class="form-label"></label>
-        <input asp-for="RestTime" class="form-control" />
-        <span asp-validation-for="RestTime" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-success">
-        Save Changes
-    </button>
-
-    <a asp-action="MyWorkout" class="btn btn-secondary">
-        Cancel
-    </a>
-
-</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -34,7 +34,8 @@
 
         <form asp-controller="Trainer"
               asp-action="AddEquipment"
-              method="post">
+              method="post"
+              enctype="multipart/form-data">
 
             @Html.AntiForgeryToken()
 
@@ -87,6 +88,23 @@
                 <span asp-validation-for="Location"
                       class="text-danger">
                 </span>
+
+            </div>
+
+            <div class="trainer-form-group">
+
+                <label>
+                    Equipment Picture
+                </label>
+
+                <input type="file"
+                       name="imageFile"
+                       class="trainer-form-control"
+                       accept=".jpg,.jpeg,.png,.webp" />
+
+                <small class="text-muted">
+                    Upload a JPG, JPEG, PNG or WEBP image.
+                </small>
 
             </div>
 

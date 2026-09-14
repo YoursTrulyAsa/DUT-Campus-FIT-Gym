@@ -32,7 +32,8 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<string>("Category")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("DatePosted")
                         .HasColumnType("datetime2");
@@ -43,7 +44,8 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("AnnouncementID");
 
@@ -113,6 +115,41 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.ToTable("BankingDetails");
                 });
 
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.ChallengeParticipation", b =>
+                {
+                    b.Property<int>("ChallengeParticipationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChallengeParticipationId"));
+
+                    b.Property<DateTime>("AcceptedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FitnessChallengeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("ChallengeParticipationId");
+
+                    b.HasIndex("FitnessChallengeId")
+                        .IsUnique();
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("ChallengeParticipations");
+                });
+
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Equipment", b =>
                 {
                     b.Property<int>("EquipmentID")
@@ -131,6 +168,10 @@ namespace DUT_Campus_FIT_Gym.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("ImagePath")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
@@ -142,6 +183,138 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasKey("EquipmentID");
 
                     b.ToTable("Equipment");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.FitnessChallenge", b =>
+                {
+                    b.Property<int>("FitnessChallengeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FitnessChallengeId"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RewardPoints")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Target")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("FitnessChallengeId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("FitnessChallenges");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.MealPlan", b =>
+                {
+                    b.Property<int>("MealPlanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MealPlanId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DietaryPreference")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FitnessGoal")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("FoodPreferences")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MealPlanId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("MealPlans");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.MealPlanItem", b =>
+                {
+                    b.Property<int>("MealPlanItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MealPlanItemId"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Ingredients")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MealName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("MealPlanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MealType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Preparation")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("MealPlanItemId");
+
+                    b.HasIndex("MealPlanId");
+
+                    b.ToTable("MealPlanItems");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Member", b =>
@@ -167,6 +340,9 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfilePicture")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
@@ -196,6 +372,12 @@ namespace DUT_Campus_FIT_Gym.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MembershipId"));
+
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DiscountPercentage")
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
@@ -257,6 +439,15 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<DateTime>("ApplicationDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("DiscountPercentage")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<bool>("FirstTimeMember")
+                        .HasColumnType("bit");
 
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
@@ -349,6 +540,9 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Property<int>("MemberID")
                         .HasColumnType("int");
 
+                    b.Property<bool>("NotificationDismissed")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("ReservationDate")
                         .HasColumnType("datetime2");
 
@@ -360,6 +554,35 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasKey("ReservationID");
 
                     b.ToTable("Reservations");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.RewardPoint", b =>
+                {
+                    b.Property<int>("RewardPointId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RewardPointId"));
+
+                    b.Property<DateTime>("EarnedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("RewardPointId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("RewardPoints");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Trainer", b =>
@@ -426,6 +649,35 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.ToTable("TrainerRequests");
                 });
 
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutCompletion", b =>
+                {
+                    b.Property<int>("WorkoutCompletionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WorkoutCompletionId"));
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RewardPoints")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WorkoutName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("WorkoutCompletionId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("WorkoutCompletions");
+                });
+
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutPlan", b =>
                 {
                     b.Property<int>("WorkoutPlanId")
@@ -435,14 +687,18 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WorkoutPlanId"));
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("ExerciseName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
@@ -458,8 +714,8 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<string>("WorkoutDay")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("WorkoutName")
                         .IsRequired()
@@ -516,6 +772,58 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Navigation("Member");
                 });
 
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.ChallengeParticipation", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.FitnessChallenge", "FitnessChallenge")
+                        .WithOne("Participation")
+                        .HasForeignKey("DUT_Campus_FIT_Gym.Models.ChallengeParticipation", "FitnessChallengeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany("ChallengeParticipations")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FitnessChallenge");
+
+                    b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.FitnessChallenge", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany("FitnessChallenges")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.MealPlan", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany("MealPlans")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.MealPlanItem", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.MealPlan", "MealPlan")
+                        .WithMany("MealPlanItems")
+                        .HasForeignKey("MealPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MealPlan");
+                });
+
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Membership", b =>
                 {
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
@@ -556,6 +864,17 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Navigation("Membership");
                 });
 
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.RewardPoint", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany("RewardPoints")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+                });
+
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.TrainerRequest", b =>
                 {
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Student")
@@ -573,6 +892,17 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Navigation("Student");
 
                     b.Navigation("Trainer");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutCompletion", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany("WorkoutCompletions")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutPlan", b =>
@@ -597,13 +927,33 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Navigation("Member");
                 });
 
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.FitnessChallenge", b =>
+                {
+                    b.Navigation("Participation");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.MealPlan", b =>
+                {
+                    b.Navigation("MealPlanItems");
+                });
+
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Member", b =>
                 {
+                    b.Navigation("ChallengeParticipations");
+
+                    b.Navigation("FitnessChallenges");
+
+                    b.Navigation("MealPlans");
+
                     b.Navigation("MembershipApplications");
 
                     b.Navigation("Memberships");
 
                     b.Navigation("Payments");
+
+                    b.Navigation("RewardPoints");
+
+                    b.Navigation("WorkoutCompletions");
 
                     b.Navigation("WorkoutPlans");
 

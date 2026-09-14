@@ -8,7 +8,7 @@ namespace DUT_Campus_FIT_Gym.Models
         [Key]
         public int WorkoutPlanId { get; set; }
 
-    [Required]
+        [Required]
         public int MemberId { get; set; }
 
         [ForeignKey("MemberId")]
@@ -17,6 +17,10 @@ namespace DUT_Campus_FIT_Gym.Models
         [Required]
         [StringLength(100)]
         public string WorkoutName { get; set; } = "";
+
+        [Required]
+        [StringLength(30)]
+        public string Level { get; set; } = "Beginner";
 
         [Required]
         [StringLength(150)]

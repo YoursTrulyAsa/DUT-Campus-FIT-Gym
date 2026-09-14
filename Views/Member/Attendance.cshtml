@@ -1,4 +1,4 @@
-﻿@model List<DUT_Campus_FIT_Gym.Models.Attendance>
+﻿@model List<DUT_Campus_FIT_Gym.ViewModels.AttendanceViewModel>
 
 @{
     ViewData["Title"] = "Attendance";
@@ -11,6 +11,9 @@
 
     var currentlyCheckedIn = Model.Any(a =>
         a.CheckOutTime == null);
+
+    var totalRewardPoints = Model.Sum(a =>
+        a.TotalRewardPoints);
 }
 
 <div class="attendance-page">
@@ -18,12 +21,16 @@
     <div class="attendance-header">
 
         <div>
-            <span class="attendance-label">ACTIVITY</span>
+            <span class="attendance-label">
+                ACTIVITY
+            </span>
 
-            <h1>Attendance</h1>
+            <h1>
+                Attendance
+            </h1>
 
             <p>
-                View your gym visit history.
+                View your gym visit history and activity rewards.
             </p>
         </div>
 
@@ -48,7 +55,9 @@
             </div>
 
             <div>
-                <span>Total Visits</span>
+                <span>
+                    Total Visits
+                </span>
 
                 <strong>
                     @totalVisits
@@ -57,7 +66,6 @@
 
         </div>
 
-
         <div class="attendance-stat">
 
             <div class="attendance-stat-icon">
@@ -65,7 +73,9 @@
             </div>
 
             <div>
-                <span>This Month</span>
+                <span>
+                    This Month
+                </span>
 
                 <strong>
                     @thisMonth
@@ -74,6 +84,23 @@
 
         </div>
 
+        <div class="attendance-stat">
+
+            <div class="attendance-stat-icon">
+                <i class="fa-solid fa-star"></i>
+            </div>
+
+            <div>
+                <span>
+                    Attendance Rewards
+                </span>
+
+                <strong>
+                    +@totalRewardPoints
+                </strong>
+            </div>
+
+        </div>
 
         <div class="attendance-stat">
 
@@ -82,7 +109,9 @@
             </div>
 
             <div>
-                <span>Current Status</span>
+                <span>
+                    Current Status
+                </span>
 
                 <strong>
                     @(currentlyCheckedIn ? "Checked In" : "Not Checked In")
@@ -111,7 +140,6 @@
 
         </div>
 
-
         @if (Model.Any())
         {
             <div class="attendance-table-wrapper">
@@ -125,6 +153,8 @@
                             <th>Check In</th>
                             <th>Check Out</th>
                             <th>Duration</th>
+                            <th>Equipment</th>
+                            <th>Rewards</th>
                         </tr>
 
                     </thead>
@@ -133,10 +163,6 @@
 
                         @foreach (var record in Model)
                         {
-                            var duration = record.CheckOutTime.HasValue
-                            ? record.CheckOutTime.Value - record.CheckInTime
-                            : (TimeSpan?)null;
-
                             <tr>
 
                                 <td>
@@ -161,14 +187,58 @@
                                 </td>
 
                                 <td>
-                                    @if (duration.HasValue)
+                                    @if (record.Duration.HasValue)
                                     {
-                                        @duration.Value.ToString(@"hh\:mm")
+                                        @record.Duration.Value.ToString(@"hh\:mm")
                                     }
                                     else
                                     {
-                                        <span>—</span>
+                                        <span>
+                                            —
+                                        </span>
                                     }
+                                </td>
+
+                                <td>
+
+                                    @if (record.EquipmentCount > 0)
+                                    {
+                                        <span>
+                                            @record.EquipmentCount
+                                        </span>
+
+                                        <small>
+                                            @(record.EquipmentCount == 1
+                                                ? "item"
+                                                : "items")
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            0
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    <div class="attendance-reward">
+
+                                        <i class="fa-solid fa-star"></i>
+
+                                        <strong>
+                                            +@record.TotalRewardPoints
+                                        </strong>
+
+                                    </div>
+
+                                    <small class="attendance-reward-breakdown">
+                                        Check-in +@record.CheckInRewardPoints
+                                        · Equipment +@record.EquipmentRewardPoints
+                                    </small>
+
                                 </td>
 
                             </tr>
@@ -186,7 +256,9 @@
 
                 <i class="fa-solid fa-calendar-xmark"></i>
 
-                <h3>No attendance records</h3>
+                <h3>
+                    No attendance records
+                </h3>
 
                 <p>
                     Your gym visits will appear here.
@@ -198,7 +270,6 @@
     </div>
 
 </div>
-
 
 @section Styles {
 

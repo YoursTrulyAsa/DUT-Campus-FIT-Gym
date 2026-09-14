@@ -1,6 +1,19 @@
-﻿@{
+﻿@model DUT_Campus_FIT_Gym.ViewModels.MemberDashboardViewModel
+
+@{
     ViewData["Title"] = "Member Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var totalGymMinutes = Model.TotalGymMinutes;
+    var totalGymHours = (int)(totalGymMinutes / 60);
+    var remainingMinutes = (int)(totalGymMinutes % 60);
+    var averageVisitMinutes = (int)Math.Round(Model.AverageVisitMinutes);
+
+    var weeklyGymHours = (int)(Model.WeeklyGymMinutes / 60);
+    var weeklyRemainingMinutes = (int)(Model.WeeklyGymMinutes % 60);
+
+    var weeklyLabelsJson = System.Text.Json.JsonSerializer.Serialize(Model.WeeklyLabels);
+    var weeklyVisitsJson = System.Text.Json.JsonSerializer.Serialize(Model.WeeklyVisitCounts);
 }
 
 <div class="member-dashboard">
@@ -20,11 +33,10 @@
                 </h1>
 
                 <p>
-                    Here's what's happening with your gym membership.
+                    Here's what's happening with your gym activity.
                 </p>
 
             </div>
-
 
             <div class="user-badge">
 
@@ -39,7 +51,7 @@
                     </strong>
 
                     <span>
-                        Student
+                        @Model.Member.Role
                     </span>
 
                 </div>
@@ -47,7 +59,6 @@
             </div>
 
         </div>
-
 
         <div class="dashboard-stats">
 
@@ -110,7 +121,6 @@
 
             </a>
 
-
             <a asp-controller="Member"
                asp-action="Attendance"
                class="stat-card stat-card-link">
@@ -122,17 +132,12 @@
                 <div class="stat-content">
 
                     <span>
-                        Attendance
+                        Total Visits
                     </span>
 
                     <h3>
-
                         @Model.AttendanceCount
-
-                        @(Model.AttendanceCount == 1
-                                                ? "Visit"
-                                                : "Visits")
-
+                        @(Model.AttendanceCount == 1 ? "Visit" : "Visits")
                     </h3>
 
                 </div>
@@ -152,11 +157,11 @@
                 <div class="stat-content">
 
                     <span>
-                        Reservations
+                        Active Reservations
                     </span>
 
                     <h3>
-                        @Model.ReservationCount Active
+                        @Model.ReservationCount
                     </h3>
 
                 </div>
@@ -165,23 +170,22 @@
 
             </a>
 
-
             <a asp-controller="Member"
-               asp-action="Announcements"
+               asp-action="Reservations"
                class="stat-card stat-card-link">
 
                 <div class="stat-icon">
-                    <i class="fa-solid fa-bullhorn"></i>
+                    <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
 
                 <div class="stat-content">
 
                     <span>
-                        Announcements
+                        Total Reservations
                     </span>
 
                     <h3>
-                        Latest Updates
+                        @Model.TotalReservations
                     </h3>
 
                 </div>
@@ -190,101 +194,268 @@
 
             </a>
 
-
         </div>
 
         <div class="dashboard-grid">
 
-            <section class="dashboard-card workout-card">
+            <section class="dashboard-card analytics-card">
 
                 <div class="card-heading">
 
                     <div>
 
                         <span class="card-label">
-                            WORKOUT PLAN
+                            ANALYTICS
                         </span>
 
                         <h2>
-                            My Workout
+                            My Gym Insights
                         </h2>
 
                     </div>
 
-
                     <div class="card-icon">
-                        <i class="fa-solid fa-person-running"></i>
+                        <i class="fa-solid fa-chart-line"></i>
                     </div>
 
                 </div>
 
+                <div class="analytics-week-header">
 
-                @if (Model.Workouts != null &&
-                                Model.Workouts.Count > 0)
-                {
-                    var latestWorkout = Model.Workouts[0];
+                    <div>
 
-                    <div class="workout-preview">
+                        <span>
+                            THIS WEEK
+                        </span>
 
-                        <p class="workout-name">
-                            @latestWorkout.WorkoutName
-                        </p>
+                        <strong>
+                            Gym Activity
+                        </strong>
 
+                    </div>
 
-                        <div class="workout-details">
+                    <div class="weekly-total">
 
-                            <div>
+                        <strong>
+                            @Model.WeeklyVisitCounts.Sum()
+                        </strong>
 
-                                <span>
-                                    Exercise
-                                </span>
+                        <span>
+                            @(Model.WeeklyVisitCounts.Sum() == 1 ? "visit" : "visits")
+                        </span>
 
-                                <strong>
-                                    @latestWorkout.ExerciseName
-                                </strong>
+                    </div>
 
-                            </div>
+                </div>
 
+                <div class="weekly-chart">
 
-                            <div>
+                    <canvas id="weeklyGymChart"></canvas>
 
-                                <span>
-                                    Day
-                                </span>
+                </div>
 
-                                <strong>
-                                    @latestWorkout.WorkoutDay
-                                </strong>
+                <div class="analytics-summary">
 
-                            </div>
+                    <div class="analytics-item">
 
+                        <div class="analytics-item-icon">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
 
-                            <div>
+                        <div>
 
-                                <span>
-                                    Sets
-                                </span>
+                            <span>
+                                Total Visits
+                            </span>
 
-                                <strong>
-                                    @latestWorkout.Sets
-                                </strong>
-
-                            </div>
-
-
-                            <div>
-
-                                <span>
-                                    Reps
-                                </span>
-
-                                <strong>
-                                    @latestWorkout.Repetitions
-                                </strong>
-
-                            </div>
+                            <strong>
+                                @Model.AttendanceCount
+                            </strong>
 
                         </div>
+
+                    </div>
+
+                    <div class="analytics-item">
+
+                        <div class="analytics-item-icon">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Total Gym Time
+                            </span>
+
+                            <strong>
+
+                                @if (totalGymHours > 0)
+                                {
+                                    <text>
+                                        @totalGymHours h @remainingMinutes min
+                                    </text>
+                                }
+                                else
+                                {
+                                    <text>
+                                        @remainingMinutes min
+                                    </text>
+                                }
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="analytics-item">
+
+                        <div class="analytics-item-icon">
+                            <i class="fa-solid fa-stopwatch"></i>
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Average Visit
+                            </span>
+
+                            <strong>
+                                @averageVisitMinutes min
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="analytics-item">
+
+                        <div class="analytics-item-icon">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+
+                        <div>
+
+                            <span>
+                                This Week
+                            </span>
+
+                            <strong>
+
+                                @if (weeklyGymHours > 0)
+                                {
+                                    <text>
+                                        @weeklyGymHours h @weeklyRemainingMinutes min
+                                    </text>
+                                }
+                                else
+                                {
+                                    <text>
+                                        @weeklyRemainingMinutes min
+                                    </text>
+                                }
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="dashboard-card">
+
+                <div class="card-heading">
+
+                    <div>
+
+                        <span class="card-label">
+                            ACTIVITY
+                        </span>
+
+                        <h2>
+                            Recent Attendance
+                        </h2>
+
+                    </div>
+
+                    <div class="card-icon">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+
+                </div>
+
+                @if (Model.RecentAttendance.Any())
+                {
+                    <div class="activity-list">
+
+                        @foreach (var attendance in Model.RecentAttendance)
+                        {
+                            <div class="activity-item">
+
+                                <div class="activity-date">
+
+                                    <strong>
+                                        @attendance.CheckInTime.ToString("dd")
+                                    </strong>
+
+                                    <span>
+                                        @attendance.CheckInTime.ToString("MMM")
+                                    </span>
+
+                                </div>
+
+                                <div class="activity-icon">
+                                    <i class="fa-solid fa-person-walking"></i>
+                                </div>
+
+                                <div class="activity-details">
+
+                                    <strong>
+                                        Gym Visit
+                                    </strong>
+
+                                    <span>
+                                        Check-in:
+                                        @attendance.CheckInTime.ToString("HH:mm")
+                                    </span>
+
+                                </div>
+
+                                <div class="activity-duration">
+
+                                    @if (attendance.CheckOutTime.HasValue)
+                                    {
+                                        var duration =
+                                            attendance.CheckOutTime.Value -
+                                            attendance.CheckInTime;
+
+                                        <strong>
+                                            @((int)duration.TotalMinutes) min
+                                        </strong>
+
+                                        <span>
+                                            @attendance.CheckOutTime.Value.ToString("HH:mm")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <strong>
+                                            Active
+                                        </strong>
+
+                                        <span>
+                                            Still checked in
+                                        </span>
+                                    }
+
+                                </div>
+
+                            </div>
+                        }
 
                     </div>
                 }
@@ -293,30 +464,26 @@
                     <div class="empty-state">
 
                         <div class="empty-state-icon">
-                            <i class="fa-solid fa-person-running"></i>
+                            <i class="fa-solid fa-calendar-xmark"></i>
                         </div>
 
-
                         <p>
-                            No workout plan yet.
+                            No attendance yet.
                         </p>
 
-
                         <span>
-                            Your personalized workout plan will appear
-                            here once it has been created.
+                            Your gym visits will appear here once you check in.
                         </span>
 
                     </div>
                 }
 
-
-                <a asp-controller="Workout"
-                   asp-action="MyWorkout"
+                <a asp-controller="Member"
+                   asp-action="Attendance"
                    class="dashboard-btn">
 
                     <span>
-                        View Workout
+                        View Attendance History
                     </span>
 
                     <i class="fa-solid fa-arrow-right"></i>
@@ -332,68 +499,26 @@
                     <div>
 
                         <span class="card-label">
-                            WORKOUT PROFILE
+                            FITNESS INSIGHTS
                         </span>
 
                         <h2>
-                            Fitness Profile
+                            My Progress
                         </h2>
 
                     </div>
 
-
                     <div class="card-icon">
-                        <i class="fa-solid fa-clipboard-user"></i>
+                        <i class="fa-solid fa-chart-simple"></i>
                     </div>
 
                 </div>
 
-
                 @if (Model.WorkoutProfile != null)
                 {
-                    <div class="fitness-profile">
+                    <div class="insight-grid">
 
-
-                        <div class="fitness-item">
-
-                            <span>
-                                Age
-                            </span>
-
-                            <strong>
-                                @Model.WorkoutProfile.Age
-                            </strong>
-
-                        </div>
-
-
-                        <div class="fitness-item">
-
-                            <span>
-                                Weight
-                            </span>
-
-                            <strong>
-                                @Model.WorkoutProfile.Weight kg
-                            </strong>
-
-                        </div>
-
-
-                        <div class="fitness-item">
-
-                            <span>
-                                Height
-                            </span>
-
-                            <strong>
-                                @Model.WorkoutProfile.Height cm
-                            </strong>
-
-                        </div>
-
-
-                        <div class="fitness-item">
+                        <div class="insight-item">
 
                             <span>
                                 Goal
@@ -405,6 +530,42 @@
 
                         </div>
 
+                        <div class="insight-item">
+
+                            <span>
+                                Workout Plans
+                            </span>
+
+                            <strong>
+                                @Model.Workouts.Count
+                            </strong>
+
+                        </div>
+
+                        <div class="insight-item">
+
+                            <span>
+                                Exercises
+                            </span>
+
+                            <strong>
+                                @Model.Workouts.Count
+                            </strong>
+
+                        </div>
+
+                        <div class="insight-item">
+
+                            <span>
+                                Gym Visits
+                            </span>
+
+                            <strong>
+                                @Model.AttendanceCount
+                            </strong>
+
+                        </div>
+
                     </div>
                 }
                 else
@@ -412,34 +573,28 @@
                     <div class="empty-state">
 
                         <div class="empty-state-icon">
-                            <i class="fa-solid fa-clipboard-user"></i>
+                            <i class="fa-solid fa-chart-line"></i>
                         </div>
 
-
                         <p>
-                            No fitness profile yet.
+                            Build your fitness profile.
                         </p>
 
-
                         <span>
-                            Create your fitness profile to help
-                            personalize your gym experience.
+                            Add your fitness profile to receive more personalized insights.
                         </span>
 
                     </div>
                 }
-
 
                 <a asp-controller="WorkoutProfile"
                    asp-action="Index"
                    class="dashboard-btn">
 
                     <span>
-
                         @(Model.WorkoutProfile != null
-                                                ? "View Profile"
-                                                : "Create Profile")
-
+                            ? "View Fitness Profile"
+                            : "Create Fitness Profile")
                     </span>
 
                     <i class="fa-solid fa-arrow-right"></i>
@@ -447,227 +602,6 @@
                 </a>
 
             </section>
-
-
-            <section class="dashboard-card membership-dashboard-card">
-
-                <div class="card-heading">
-
-                    <div>
-
-                        <span class="card-label">
-                            MEMBERSHIP
-                        </span>
-
-                        <h2>
-                            My Membership
-                        </h2>
-
-                    </div>
-
-
-                    <div class="card-icon">
-                        <i class="fa-solid fa-id-card"></i>
-                    </div>
-
-                </div>
-
-
-                @if (Model.Membership != null)
-                {
-                    var membershipStatus =
-                    Model.Membership.Status?.ToString() ?? "Unknown";
-
-
-                    var statusClass =
-                    membershipStatus == "Active"
-                    ? "active"
-                    : membershipStatus == "Pending"
-                    ? "pending"
-                    : membershipStatus == "WaitingForPayment"
-                    ? "waiting"
-                    : membershipStatus == "Rejected"
-                    ? "rejected"
-                    : "inactive";
-
-
-                    <div class="membership-status @statusClass">
-
-                        <span class="status-dot"></span>
-
-
-                        <span>
-
-                            @if (membershipStatus == "WaitingForPayment")
-                            {
-                                <text>Waiting for Payment</text>
-                            }
-                            else
-                            {
-                                @membershipStatus
-                            }
-
-                        </span>
-
-                    </div>
-
-
-                    <p class="card-description">
-
-                        @if (membershipStatus == "Active")
-                        {
-                            <text>
-                                Your gym membership is active.
-                                You can access the gym and use your
-                                membership benefits.
-                            </text>
-                        }
-                        else if (membershipStatus == "WaitingForPayment")
-                        {
-                            <text>
-                                Your membership has been approved.
-                                Complete your payment to activate it.
-                            </text>
-                        }
-                        else if (membershipStatus == "Pending")
-                        {
-                            <text>
-                                Your membership application is waiting
-                                for admin approval.
-                            </text>
-                        }
-                        else if (membershipStatus == "Rejected")
-                        {
-                            <text>
-                                Your membership application was rejected.
-                                Please contact gym administration for
-                                more information.
-                            </text>
-                        }
-                        else
-                        {
-                            <text>
-                                Your membership is currently
-                                @membershipStatus.ToLower().
-                            </text>
-                        }
-
-                    </p>
-                }
-                else if (Model.LatestApplication != null)
-                {
-                    var applicationStatus =
-                    Model.LatestApplication.Status ?? "Unknown";
-
-
-                    if (applicationStatus == "Pending")
-                    {
-                        <div class="membership-status pending">
-
-                            <span class="status-dot"></span>
-
-                            <span>
-                                Pending
-                            </span>
-
-                        </div>
-
-
-                        <p class="card-description">
-                            Your membership application has been
-                            submitted and is waiting for admin approval.
-                        </p>
-                    }
-                    else if (applicationStatus == "Approved")
-                    {
-                        <div class="membership-status waiting">
-
-                            <span class="status-dot"></span>
-
-                            <span>
-                                Waiting for Payment
-                            </span>
-
-                        </div>
-
-
-                        <p class="card-description">
-                            Your membership has been approved.
-                            Complete your payment to activate your
-                            membership.
-                        </p>
-                    }
-                    else if (applicationStatus == "Rejected")
-                    {
-                        <div class="membership-status rejected">
-
-                            <span class="status-dot"></span>
-
-                            <span>
-                                Rejected
-                            </span>
-
-                        </div>
-
-
-                        <p class="card-description">
-                            Your membership application was rejected.
-                            Please review the application details or
-                            contact gym administration.
-                        </p>
-                    }
-                    else
-                    {
-                        <div class="membership-status inactive">
-
-                            <span class="status-dot"></span>
-
-                            <span>
-                                @applicationStatus
-                            </span>
-
-                        </div>
-
-
-                        <p class="card-description">
-                            Your membership application is currently
-                            @applicationStatus.ToLower().
-                        </p>
-                    }
-                }
-                else
-                {
-                    <div class="membership-status inactive">
-
-                        <span class="status-dot"></span>
-
-                        <span>
-                            No Membership
-                        </span>
-
-                    </div>
-
-
-                    <p class="card-description">
-                        You currently do not have a gym membership.
-                    </p>
-                }
-
-
-                <a asp-controller="Member"
-                   asp-action="Membership"
-                   class="dashboard-btn">
-
-                    <span>
-                        View Membership
-                    </span>
-
-                    <i class="fa-solid fa-arrow-right"></i>
-
-                </a>
-
-            </section>
-
 
             <section class="dashboard-card quick-actions-card">
 
@@ -683,13 +617,11 @@
                             Gym Access
                         </h2>
 
-
                         <p class="quick-actions-description">
                             Access the features you use most.
                         </p>
 
                     </div>
-
 
                     <div class="card-icon">
                         <i class="fa-solid fa-bolt"></i>
@@ -697,20 +629,15 @@
 
                 </div>
 
-
                 <div class="quick-actions">
-
 
                     <a asp-controller="Member"
                        asp-action="CheckInPage"
                        class="quick-action">
 
                         <div class="quick-action-icon">
-
                             <i class="fa-solid fa-qrcode"></i>
-
                         </div>
-
 
                         <div>
 
@@ -724,7 +651,6 @@
 
                         </div>
 
-
                         <i class="fa-solid fa-arrow-right action-arrow"></i>
 
                     </a>
@@ -734,11 +660,8 @@
                        class="quick-action">
 
                         <div class="quick-action-icon">
-
                             <i class="fa-solid fa-id-card"></i>
-
                         </div>
-
 
                         <div>
 
@@ -752,7 +675,6 @@
 
                         </div>
 
-
                         <i class="fa-solid fa-arrow-right action-arrow"></i>
 
                     </a>
@@ -762,11 +684,8 @@
                        class="quick-action">
 
                         <div class="quick-action-icon">
-
                             <i class="fa-solid fa-user-plus"></i>
-
                         </div>
-
 
                         <div>
 
@@ -780,7 +699,6 @@
 
                         </div>
 
-
                         <i class="fa-solid fa-arrow-right action-arrow"></i>
 
                     </a>
@@ -790,11 +708,8 @@
                        class="quick-action">
 
                         <div class="quick-action-icon">
-
                             <i class="fa-solid fa-user-check"></i>
-
                         </div>
-
 
                         <div>
 
@@ -807,7 +722,6 @@
                             </span>
 
                         </div>
-
 
                         <i class="fa-solid fa-arrow-right action-arrow"></i>
 
@@ -828,5 +742,209 @@
     <link rel="stylesheet"
           href="~/css/member-dashboard.css"
           asp-append-version="true" />
+}
 
+@section Scripts {
+
+    <script>
+        const weeklyLabels = @Html.Raw(weeklyLabelsJson);
+        const weeklyVisits = @Html.Raw(weeklyVisitsJson);
+
+        const canvas = document.getElementById("weeklyGymChart");
+
+        if (canvas) {
+            const ctx = canvas.getContext("2d");
+            const dpr = window.devicePixelRatio || 1;
+
+            function drawWeeklyChart() {
+                const rect = canvas.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.clearRect(0, 0, width, height);
+
+                const paddingLeft = 42;
+                const paddingRight = 18;
+                const paddingTop = 18;
+                const paddingBottom = 34;
+
+                const chartWidth =
+                    width - paddingLeft - paddingRight;
+
+                const chartHeight =
+                    height - paddingTop - paddingBottom;
+
+                const maxVisits =
+                    Math.max(1, ...weeklyVisits);
+
+                const stepX =
+                    chartWidth / (weeklyVisits.length - 1);
+
+                const points = weeklyVisits.map((value, index) => {
+                    const x =
+                        paddingLeft + index * stepX;
+
+                    const y =
+                        paddingTop +
+                        chartHeight -
+                        (value / maxVisits) * chartHeight;
+
+                    return { x, y, value };
+                });
+
+                ctx.font = "12px Poppins, sans-serif";
+                ctx.textAlign = "right";
+                ctx.textBaseline = "middle";
+
+                for (let i = 0; i <= maxVisits; i++) {
+                    const y =
+                        paddingTop +
+                        chartHeight -
+                        (i / maxVisits) * chartHeight;
+
+                    ctx.beginPath();
+                    ctx.moveTo(paddingLeft, y);
+                    ctx.lineTo(width - paddingRight, y);
+                    ctx.strokeStyle = "rgba(148, 163, 184, 0.14)";
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    ctx.fillStyle = "#94a3b8";
+                    ctx.fillText(i, paddingLeft - 10, y);
+                }
+
+                ctx.beginPath();
+
+                points.forEach((point, index) => {
+                    if (index === 0) {
+                        ctx.moveTo(point.x, point.y);
+                        return;
+                    }
+
+                    const previous = points[index - 1];
+
+                    const controlX =
+                        (previous.x + point.x) / 2;
+
+                    ctx.bezierCurveTo(
+                        controlX,
+                        previous.y,
+                        controlX,
+                        point.y,
+                        point.x,
+                        point.y
+                    );
+                });
+
+                ctx.lineTo(
+                    points[points.length - 1].x,
+                    paddingTop + chartHeight
+                );
+
+                ctx.lineTo(
+                    points[0].x,
+                    paddingTop + chartHeight
+                );
+
+                ctx.closePath();
+
+                const gradient =
+                    ctx.createLinearGradient(
+                        0,
+                        paddingTop,
+                        0,
+                        paddingTop + chartHeight
+                    );
+
+                gradient.addColorStop(
+                    0,
+                    "rgba(37, 99, 235, 0.22)"
+                );
+
+                gradient.addColorStop(
+                    1,
+                    "rgba(37, 99, 235, 0.02)"
+                );
+
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                ctx.beginPath();
+
+                points.forEach((point, index) => {
+                    if (index === 0) {
+                        ctx.moveTo(point.x, point.y);
+                        return;
+                    }
+
+                    const previous = points[index - 1];
+
+                    const controlX =
+                        (previous.x + point.x) / 2;
+
+                    ctx.bezierCurveTo(
+                        controlX,
+                        previous.y,
+                        controlX,
+                        point.y,
+                        point.x,
+                        point.y
+                    );
+                });
+
+                ctx.strokeStyle = "#2563eb";
+                ctx.lineWidth = 3;
+                ctx.lineJoin = "round";
+                ctx.lineCap = "round";
+                ctx.stroke();
+
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top";
+
+                points.forEach((point, index) => {
+                    ctx.beginPath();
+                    ctx.arc(
+                        point.x,
+                        point.y,
+                        5,
+                        0,
+                        Math.PI * 2
+                    );
+
+                    ctx.fillStyle = "#2563eb";
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.arc(
+                        point.x,
+                        point.y,
+                        2,
+                        0,
+                        Math.PI * 2
+                    );
+
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fill();
+
+                    ctx.fillStyle = "#94a3b8";
+                    ctx.fillText(
+                        weeklyLabels[index],
+                        point.x,
+                        height - 22
+                    );
+                });
+            }
+
+            drawWeeklyChart();
+
+            window.addEventListener(
+                "resize",
+                drawWeeklyChart
+            );
+        }
+    </script>
 }

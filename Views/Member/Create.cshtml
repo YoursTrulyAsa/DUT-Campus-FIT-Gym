@@ -4,8 +4,40 @@
     ViewData["Title"] = "Apply for Membership";
 
     bool firstTimeMember =
-        ViewBag.FirstTimeMember != null &&
-        (bool)ViewBag.FirstTimeMember;
+        ViewBag.IsFirstTimeMember != null &&
+        (bool)ViewBag.IsFirstTimeMember;
+
+    string memberRole =
+        ViewBag.MemberRole?.ToString() ?? "Student";
+
+    decimal annualPrice =
+        memberRole.Equals("Staff", StringComparison.OrdinalIgnoreCase)
+            ? 340m
+            : 300m;
+
+    decimal semesterPrice =
+        memberRole.Equals("Staff", StringComparison.OrdinalIgnoreCase)
+            ? 170m
+            : 150m;
+
+    decimal discountPercentage =
+        firstTimeMember
+            ? memberRole.Equals("Staff", StringComparison.OrdinalIgnoreCase)
+                ? 6m
+                : 10m
+            : 0m;
+
+    bool semester1Available =
+        ViewBag.Semester1Available != null &&
+        (bool)ViewBag.Semester1Available;
+
+    bool semester2Available =
+        ViewBag.Semester2Available != null &&
+        (bool)ViewBag.Semester2Available;
+
+    bool annualAvailable =
+        ViewBag.AnnualAvailable != null &&
+        (bool)ViewBag.AnnualAvailable;
 }
 
 <div class="membership-page">
@@ -32,7 +64,6 @@
 
         </div>
 
-
         <div class="membership-card">
 
             <h2 class="membership-title">
@@ -54,7 +85,7 @@
                     <p class="mb-0">
                         Welcome to DUT Campus FIT Gym!
                         You qualify for a
-                        <strong>10% discount</strong>
+                        <strong>@discountPercentage% discount</strong>
                         on your first membership.
                     </p>
 
@@ -68,7 +99,6 @@
 
                 @Html.AntiForgeryToken()
 
-
                 <div class="membership-section">
 
                     <h4 class="membership-section-title">
@@ -76,7 +106,6 @@
                     </h4>
 
                     <hr class="membership-divider" />
-
 
                     <div class="user-detail">
 
@@ -90,7 +119,6 @@
 
                     </div>
 
-
                     <div class="user-detail">
 
                         <label asp-for="Surname">
@@ -102,7 +130,6 @@
                                readonly />
 
                     </div>
-
 
                     <div class="user-detail">
 
@@ -116,15 +143,26 @@
 
                     </div>
 
-
                     <div class="user-detail">
 
                         <label asp-for="StudentNo">
-                            Student No
+                            Student / Staff No
                         </label>
 
                         <input asp-for="StudentNo"
                                class="form-control"
+                               readonly />
+
+                    </div>
+
+                    <div class="user-detail">
+
+                        <label>
+                            Member Type
+                        </label>
+
+                        <input class="form-control"
+                               value="@memberRole"
                                readonly />
 
                     </div>
@@ -138,7 +176,6 @@
                     </h4>
 
                     <hr class="membership-divider" />
-
 
                     <div class="user-detail">
 
@@ -154,20 +191,44 @@
                                 Select membership period
                             </option>
 
-                            <option value="Semester">
-                                Semester
+                            <option value="Semester1"
+                                    disabled="@(!semester1Available)">
+                                Semester 1
+                                @if (!semester1Available)
+                                {
+                                    <text> - Currently Unavailable</text>
+                                }
                             </option>
 
-                            <option value="Annual">
+                            <option value="Semester2"
+                                    disabled="@(!semester2Available)">
+                                Semester 2
+                                @if (!semester2Available)
+                                {
+                                    <text> - Currently Unavailable</text>
+                                }
+                            </option>
+
+                            <option value="Annual"
+                                    disabled="@(!annualAvailable)">
                                 Annual
+                                @if (!annualAvailable)
+                                {
+                                    <text> - Currently Unavailable</text>
+                                }
                             </option>
 
                         </select>
 
-
                         <span asp-validation-for="MembershipPeriod"
                               class="text-danger">
                         </span>
+
+                        <small class="text-muted d-block mt-2">
+                            Semester 1 is available during the first semester period.
+                            Semester 2 is available during the second semester period.
+                            Annual membership is available during the academic year.
+                        </small>
 
                     </div>
 
@@ -180,7 +241,6 @@
                     </h4>
 
                     <hr class="membership-divider" />
-
 
                     <div class="payment-options">
 
@@ -197,7 +257,6 @@
 
                         </div>
 
-
                         <div class="payment-option">
 
                             <input asp-for="PaymentMethod"
@@ -213,13 +272,11 @@
 
                     </div>
 
-
                     <span asp-validation-for="PaymentMethod"
                           class="text-danger">
                     </span>
 
                 </div>
-
 
                 <div class="membership-section">
 
@@ -229,12 +286,10 @@
 
                     <hr class="membership-divider" />
 
-
                     <p>
                         Please upload your DUT student/staff card
                         for verification.
                     </p>
-
 
                     <div class="user-detail">
 
@@ -242,12 +297,10 @@
                             Student / Staff Card
                         </label>
 
-
                         <input asp-for="VerificationDocument"
                                type="file"
                                class="form-control"
                                accept=".jpg,.jpeg,.png,.pdf" />
-
 
                         <span asp-validation-for="VerificationDocument"
                               class="text-danger">
@@ -255,14 +308,12 @@
 
                     </div>
 
-
                     <small class="text-muted">
                         Accepted files: JPG, JPEG, PNG or PDF.
                         Maximum size: 5 MB.
                     </small>
 
                 </div>
-
 
                 <div class="membership-price-box">
 
@@ -277,7 +328,6 @@
                         </strong>
 
                     </div>
-
 
                     @if (firstTimeMember)
                     {
@@ -294,9 +344,7 @@
                         </div>
                     }
 
-
                     <hr />
-
 
                     <div class="price-total">
 
@@ -309,7 +357,6 @@
                         </strong>
 
                     </div>
-
 
                     <div class="price-row mt-2">
 
@@ -336,7 +383,6 @@
 
                     </button>
 
-
                     <a asp-controller="Member"
                        asp-action="Membership"
                        class="membership-back-btn">
@@ -357,7 +403,6 @@
 
 </div>
 
-
 @section Scripts {
 
     <partial name="_ValidationScriptsPartial" />
@@ -376,15 +421,23 @@
         const membershipTotal =
             document.getElementById("membershipTotal");
 
-
         const prices = {
-            Semester: 150,
-            Annual: 300
-        };
+            Semester1: @semesterPrice,
+            Semester2: @semesterPrice,
+            Annual: @annualPrice
+                };
+
+        const availablePeriods = {
+            Semester1: @semester1Available.ToString().ToLower(),
+            Semester2: @semester2Available.ToString().ToLower(),
+            Annual: @annualAvailable.ToString().ToLower()
+                };
 
         const firstTimeMember =
-            @(firstTimeMember.ToString().ToLower());
+                    @(firstTimeMember.ToString().ToLower());
 
+        const discountPercentage =
+                    @discountPercentage;
 
         function updatePrice() {
 
@@ -395,13 +448,12 @@
                 return;
             }
 
-
             const selected =
                 membershipPeriod.value;
 
-
             if (selected &&
-                prices[selected]) {
+                prices[selected] &&
+                availablePeriods[selected]) {
 
                 const basePrice =
                     prices[selected];
@@ -411,22 +463,19 @@
                 if (firstTimeMember) {
 
                     discount =
-                        basePrice * 0.10;
+                        basePrice *
+                        (discountPercentage / 100);
 
                 }
-
 
                 const finalPrice =
                     basePrice - discount;
 
-
                 membershipPrice.textContent =
                     "R" + basePrice.toFixed(2);
 
-
                 membershipTotal.textContent =
                     "R" + finalPrice.toFixed(2);
-
 
                 if (membershipDiscount) {
 
@@ -435,16 +484,13 @@
 
                 }
 
-            }
-            else {
+            } else {
 
                 membershipPrice.textContent =
                     "Select a membership period";
 
-
                 membershipTotal.textContent =
                     "Select a membership period";
-
 
                 if (membershipDiscount) {
 
@@ -454,7 +500,6 @@
                 }
 
             }
-
         }
 
         if (membershipPeriod) {
@@ -465,7 +510,6 @@
             );
 
         }
-
 
         updatePrice();
 

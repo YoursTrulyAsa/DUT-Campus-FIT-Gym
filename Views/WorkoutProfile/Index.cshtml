@@ -1,75 +1,312 @@
 ﻿@model DUT_Campus_FIT_Gym.Models.WorkoutProfile
 
 @{
-    ViewData["Title"] = "My Workout Profile";
+    ViewData["Title"] = "Fitness Profile";
+
+    double bmi = 0;
+
+    if (Model != null && Model.Height > 0)
+    {
+        var heightInMetres = Model.Height / 100;
+        bmi = Model.Weight / (heightInMetres * heightInMetres);
+    }
+
+    int completion = Model == null
+        ? 0
+        : 100;
 }
 
-<div class="container mt-4">
+<div class="fitness-profile-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="fitness-profile-header">
+
         <div>
-            <h2>My Workout Profile</h2>
-            <p class="text-muted">
-                Your personal information used for your workout planning.
+            <span class="fitness-profile-eyebrow">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Fitness Profile
+            </h1>
+
+            <p>
+                Manage the information used to personalize your fitness experience.
             </p>
         </div>
 
-        @if (Model != null)
-        {
-            <a asp-controller="WorkoutProfile"
-               asp-action="Edit"
-               class="btn btn-primary">
-                Edit Profile
-            </a>
-        }
+        <div class="fitness-profile-header-icon">
+            <i class="fa-solid fa-user"></i>
+        </div>
+
     </div>
 
     @if (Model == null)
     {
-        <div class="alert alert-info">
-            <h5>No Workout Profile Found</h5>
-            <p>You have not created your workout profile yet.</p>
+        <div class="fitness-profile-empty">
 
-            <a asp-controller="WorkoutProfile"
-               asp-action="Create"
-               class="btn btn-primary">
-                Create Workout Profile
-            </a>
+            <div class="fitness-profile-empty-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+
+            <div>
+                <span class="fitness-profile-card-label">
+                    GET STARTED
+                </span>
+
+                <h2>
+                    Create your fitness profile
+                </h2>
+
+                <p>
+                    Add a few basic details so FIT Gym can provide more
+                    relevant workout suggestions and fitness features.
+                </p>
+
+                <a asp-action="Create"
+                   class="fitness-profile-primary-btn">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Create Profile
+
+                </a>
+            </div>
+
         </div>
     }
     else
     {
-        <div class="card shadow-sm">
-            <div class="card-body">
+        <div class="fitness-profile-grid">
 
-                <h4 class="card-title mb-4">My Profile</h4>
+            <div class="fitness-profile-main-card">
 
-                <div class="row">
+                <div class="fitness-profile-card-header">
 
-                    <div class="col-md-6 mb-3">
-                        <strong>Age</strong>
-                        <p>@Model.Age years</p>
+                    <div>
+                        <span class="fitness-profile-card-label">
+                            YOUR PROFILE
+                        </span>
+
+                        <h2>
+                            Fitness Information
+                        </h2>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <strong>Weight</strong>
-                        <p>@Model.Weight kg</p>
+                    <a asp-action="Edit"
+                       class="fitness-profile-edit-btn">
+
+                        <i class="fa-solid fa-pen"></i>
+
+                        Edit
+
+                    </a>
+
+                </div>
+
+                <div class="fitness-profile-stat-grid">
+
+                    <div class="fitness-profile-stat">
+
+                        <div class="fitness-profile-stat-icon">
+                            <i class="fa-solid fa-cake-candles"></i>
+                        </div>
+
+                        <div>
+                            <span>
+                                AGE
+                            </span>
+
+                            <strong>
+                                @Model.Age
+                            </strong>
+
+                            <small>
+                                years
+                            </small>
+                        </div>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <strong>Height</strong>
-                        <p>@Model.Height cm</p>
+                    <div class="fitness-profile-stat">
+
+                        <div class="fitness-profile-stat-icon">
+                            <i class="fa-solid fa-weight-scale"></i>
+                        </div>
+
+                        <div>
+                            <span>
+                                WEIGHT
+                            </span>
+
+                            <strong>
+                                @Model.Weight.ToString("0.0")
+                            </strong>
+
+                            <small>
+                                kg
+                            </small>
+                        </div>
+
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <strong>Fitness Goal</strong>
-                        <p>@Model.Goal</p>
+                    <div class="fitness-profile-stat">
+
+                        <div class="fitness-profile-stat-icon">
+                            <i class="fa-solid fa-ruler-vertical"></i>
+                        </div>
+
+                        <div>
+                            <span>
+                                HEIGHT
+                            </span>
+
+                            <strong>
+                                @Model.Height.ToString("0.0")
+                            </strong>
+
+                            <small>
+                                cm
+                            </small>
+                        </div>
+
+                    </div>
+
+                    <div class="fitness-profile-stat">
+
+                        <div class="fitness-profile-stat-icon">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+
+                        <div>
+                            <span>
+                                FITNESS GOAL
+                            </span>
+
+                            <strong class="fitness-profile-goal">
+                                @Model.Goal
+                            </strong>
+                        </div>
+
                     </div>
 
                 </div>
 
             </div>
+
+            <div class="fitness-profile-side-card">
+
+                <div class="fitness-profile-side-icon">
+                    <i class="fa-solid fa-chart-simple"></i>
+                </div>
+
+                <span class="fitness-profile-card-label">
+                    PROFILE STATUS
+                </span>
+
+                <h2>
+                    Profile Complete
+                </h2>
+
+                <div class="fitness-profile-progress">
+
+                    <div class="fitness-profile-progress-track">
+                        <div class="fitness-profile-progress-bar"
+                             style="width: @completion%;">
+                        </div>
+                    </div>
+
+                    <strong>
+                        @completion%
+                    </strong>
+
+                </div>
+
+                <p>
+                    Your profile has the information needed to personalize
+                    your FIT Gym experience.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="fitness-profile-secondary-grid">
+
+            <div class="fitness-profile-info-card">
+
+                <div class="fitness-profile-info-header">
+
+                    <div class="fitness-profile-info-icon">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+
+                    <div>
+                        <span class="fitness-profile-card-label">
+                            INFORMATIONAL
+                        </span>
+
+                        <h2>
+                            BMI
+                        </h2>
+                    </div>
+
+                </div>
+
+                <div class="fitness-profile-bmi-value">
+                    @bmi.ToString("0.0")
+                </div>
+
+                <p>
+                    BMI is a general height-to-weight screening measure.
+                    It does not provide a complete picture of fitness or health.
+                </p>
+
+            </div>
+
+            <div class="fitness-profile-info-card">
+
+                <div class="fitness-profile-info-header">
+
+                    <div class="fitness-profile-info-icon">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+
+                    <div>
+                        <span class="fitness-profile-card-label">
+                            FITNESS AI
+                        </span>
+
+                        <h2>
+                            Personalized Suggestions
+                        </h2>
+                    </div>
+
+                </div>
+
+                <p class="fitness-profile-ai-text">
+                    Your fitness profile can be used to make your workout
+                    suggestions more relevant to your selected goal and preferences.
+                </p>
+
+                <a asp-controller="FitnessAI"
+                   asp-action="AIWorkout"
+                   class="fitness-profile-ai-btn">
+
+                    <i class="fa-solid fa-dumbbell"></i>
+
+                    Create AI Workout
+
+                </a>
+
+            </div>
+
         </div>
     }
 
 </div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/workout-profile.css"
+          asp-append-version="true" />
+}

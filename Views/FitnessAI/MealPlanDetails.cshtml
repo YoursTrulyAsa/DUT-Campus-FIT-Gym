@@ -1,0 +1,201 @@
+﻿@model DUT_Campus_FIT_Gym.Models.MealPlan
+
+@{
+    ViewData["Title"] = "Meal Plan Details";
+}
+
+<div class="ai-meal-result-page">
+
+    <div class="ai-meal-result-header">
+
+        <div>
+
+            <span class="ai-meal-eyebrow">
+                SAVED MEAL PLAN
+            </span>
+
+            <h1>
+                @Model.FitnessGoal
+            </h1>
+
+            <p>
+                Saved on @Model.CreatedAt.ToString("dd MMMM yyyy")
+            </p>
+
+        </div>
+
+        <div class="ai-meal-result-icon">
+            <i class="fa-solid fa-book-open"></i>
+        </div>
+
+    </div>
+
+    <div class="ai-meal-goal-card">
+
+        <div>
+            <span>
+                FITNESS GOAL
+            </span>
+
+            <strong>
+                @Model.FitnessGoal
+            </strong>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.DietaryPreference))
+        {
+            <div>
+                <span>
+                    DIETARY PREFERENCE
+                </span>
+
+                <strong>
+                    @Model.DietaryPreference
+                </strong>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Model.FoodPreferences))
+        {
+            <div>
+                <span>
+                    FOOD PREFERENCES
+                </span>
+
+                <strong>
+                    @Model.FoodPreferences
+                </strong>
+            </div>
+        }
+
+    </div>
+
+    <div class="ai-meal-grid">
+
+        @foreach (var meal in Model.MealPlanItems)
+        {
+            <div class="ai-meal-card">
+
+                <div class="ai-meal-card-top">
+
+                    <span class="ai-meal-type">
+                        @meal.MealType
+                    </span>
+
+                    <div class="ai-meal-card-icon">
+
+                        @if (meal.MealType.Equals(
+                            "Breakfast",
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            <i class="fa-solid fa-sun"></i>
+                        }
+                        else if (meal.MealType.Equals(
+                            "Lunch",
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            <i class="fa-solid fa-bowl-food"></i>
+                        }
+                        else if (meal.MealType.Equals(
+                            "Snack",
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            <i class="fa-solid fa-apple-whole"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-moon"></i>
+                        }
+
+                    </div>
+
+                </div>
+
+                <h2>
+                    @meal.MealName
+                </h2>
+
+                <p class="ai-meal-description">
+                    @meal.Description
+                </p>
+
+                <div class="ai-meal-section">
+
+                    <h3>
+                        <i class="fa-solid fa-carrot"></i>
+                        Ingredients
+                    </h3>
+
+                    <ul>
+
+                        @foreach (var ingredient in meal.Ingredients
+                            .Split(
+                                new[] { '\r', '\n' },
+                                StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <li>
+                                @ingredient
+                            </li>
+                        }
+
+                    </ul>
+
+                </div>
+
+                <div class="ai-meal-section">
+
+                    <h3>
+                        <i class="fa-solid fa-kitchen-set"></i>
+                        Preparation
+                    </h3>
+
+                    <p>
+                        @meal.Preparation
+                    </p>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+    <div class="ai-meal-actions">
+
+        <a asp-controller="FitnessAI"
+           asp-action="MyMealPlans"
+           class="ai-secondary-btn">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            My Meal Plans
+
+        </a>
+
+        <form asp-controller="FitnessAI"
+              asp-action="DeleteMealPlan"
+              asp-route-id="@Model.MealPlanId"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <button type="submit"
+                    class="ai-primary-btn">
+
+                <i class="fa-solid fa-trash"></i>
+
+                Delete Meal Plan
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/ai-meal.css"
+          asp-append-version="true" />
+}

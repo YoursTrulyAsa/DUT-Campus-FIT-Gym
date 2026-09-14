@@ -6,7 +6,7 @@
 }
 
 <div class="admin-equipment-page">
-  
+
     <div class="admin-page-header">
 
         <div>
@@ -31,7 +31,6 @@
 
     </div>
 
-
     <div class="admin-form-card">
 
         <div class="admin-form-heading">
@@ -54,21 +53,18 @@
 
         </div>
 
-
         <form asp-controller="Admin"
               asp-action="AddEquipment"
-              method="post">
+              method="post"
+              enctype="multipart/form-data">
 
             @Html.AntiForgeryToken()
-
 
             <div asp-validation-summary="ModelOnly"
                  class="admin-validation">
             </div>
 
-
             <div class="admin-form-grid">
-
 
                 <div class="admin-form-group">
 
@@ -133,6 +129,32 @@
 
                 </div>
 
+                <div class="admin-form-group admin-form-full">
+
+                    <label>
+                        Equipment Picture
+                    </label>
+
+                    <div class="admin-input-wrapper">
+
+                        <i class="fa-solid fa-image"></i>
+
+                        <input type="file"
+                               name="imageFile"
+                               accept=".jpg,.jpeg,.png,.webp" />
+
+                    </div>
+
+                    <small class="text-muted">
+                        Upload a JPG, JPEG, PNG or WEBP image.
+                    </small>
+
+                    <span asp-validation-for="ImagePath"
+                          class="admin-field-error">
+                    </span>
+
+                </div>
+
             </div>
 
             <div class="admin-form-actions">
@@ -146,7 +168,6 @@
                     Cancel
 
                 </a>
-
 
                 <button type="submit"
                         class="admin-submit-btn">
@@ -169,10 +190,8 @@
     <link rel="stylesheet"
           href="~/css/admin-equipment.css"
           asp-append-version="true" />
-
 }
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
 }

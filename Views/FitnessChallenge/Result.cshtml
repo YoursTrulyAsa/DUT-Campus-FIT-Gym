@@ -1,0 +1,191 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.FitnessChallengeViewModel
+
+@{
+    ViewData["Title"] = "Challenge Generated";
+
+    var levelClass =
+        Model.Level?.Trim().ToLower() switch
+        {
+            "beginner" => "beginner",
+            "intermediate" => "intermediate",
+            "pro" => "pro",
+            _ => "beginner"
+        };
+}
+
+<div class="challenge-result-page">
+
+    <div class="challenge-result-header">
+
+        <div>
+            <span class="challenge-eyebrow">
+                FITNESS AI
+            </span>
+
+            <h1>
+                Challenge Generated
+            </h1>
+
+            <p>
+                Your AI-generated fitness challenge is ready.
+            </p>
+        </div>
+
+        <div class="challenge-header-icon">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+
+    </div>
+
+    <div class="challenge-result-card">
+
+        <div class="challenge-result-top">
+
+            <div class="challenge-title-area">
+
+                <div class="challenge-main-icon">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+
+                <div>
+
+                    <span class="challenge-category">
+                        @Model.Category
+                    </span>
+
+                    <h2>
+                        @Model.Title
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="challenge-reward-badge">
+
+                <i class="fa-solid fa-star"></i>
+
+                <div>
+                    <span>REWARD</span>
+                    <strong>+@Model.RewardPoints</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="challenge-level-row">
+
+            <span class="challenge-level-badge @levelClass">
+                @Model.Level
+            </span>
+
+            <span>
+                Complete this challenge to earn
+                <strong>+@Model.RewardPoints reward points.</strong>
+            </span>
+
+        </div>
+
+        <div class="challenge-result-content">
+
+            <div class="challenge-info-section">
+
+                <span class="challenge-section-label">
+                    CHALLENGE
+                </span>
+
+                <p>
+                    @Model.Description
+                </p>
+
+            </div>
+
+            <div class="challenge-target-box">
+
+                <div class="challenge-target-icon">
+                    <i class="fa-solid fa-bullseye"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        TARGET
+                    </span>
+
+                    <strong>
+                        @Model.Target
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="challenge-result-footer">
+
+            <a asp-action="Index"
+               class="challenge-back-btn">
+
+                <i class="fa-solid fa-arrow-left"></i>
+
+                Generate Another
+
+            </a>
+
+            <form asp-action="Accept"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="Level"
+                       value="@Model.Level" />
+
+                <input type="hidden"
+                       name="Category"
+                       value="@Model.Category" />
+
+                <input type="hidden"
+                       name="Title"
+                       value="@Model.Title" />
+
+                <input type="hidden"
+                       name="Description"
+                       value="@Model.Description" />
+
+                <input type="hidden"
+                       name="Target"
+                       value="@Model.Target" />
+
+                <input type="hidden"
+                       name="RewardPoints"
+                       value="@Model.RewardPoints" />
+
+                <button type="submit"
+                        class="challenge-accept-btn">
+
+                    <i class="fa-solid fa-check"></i>
+
+                    Accept Challenge
+
+                    <span>
+                        +@Model.RewardPoints
+                    </span>
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/fitness-challenge.css"
+          asp-append-version="true" />
+}

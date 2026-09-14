@@ -1,5 +1,6 @@
 ﻿using DUT_Campus_FIT_Gym.Data;
 using DUT_Campus_FIT_Gym.Models;
+using DUT_Campus_FIT_Gym.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
     public class MembershipController : Controller
     {
         private readonly GymDbContext _context;
+        private readonly MembershipPricingService _pricingService;
 
-        public MembershipController(GymDbContext context)
+        public MembershipController(
+            GymDbContext context,
+            MembershipPricingService pricingService)
         {
             _context = context;
+            _pricingService = pricingService;
         }
 
         [HttpGet]
@@ -31,11 +36,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ApproveMembership(
-            int id)
+        public async Task<IActionResult> ApproveMembership(int id)
         {
             var application =
                 await _context.MembershipApplications
+                    .Include(a => a.Member)
                     .FirstOrDefaultAsync(a =>
                         a.MembershipApplicationId == id);
 
@@ -44,8 +49,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 TempData["Error"] =
                     "Membership application could not be found.";
 
-                return RedirectToAction(
-                    nameof(Applications));
+                return RedirectToAction(nameof(Applications));
             }
 
             if (application.Status != "Pending")
@@ -53,27 +57,55 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 TempData["Error"] =
                     "This membership application has already been reviewed.";
 
-                return RedirectToAction(
-                    nameof(Applications));
+                return RedirectToAction(nameof(Applications));
             }
 
+            var existingMembership =
+                await _context.Memberships
+                    .Where(m =>
+                        m.MemberId == application.MemberId &&
+                        (m.Status == "WaitingForPayment" ||
+                         m.Status == "Active"))
+                    .OrderByDescending(m => m.MembershipId)
+                    .FirstOrDefaultAsync();
 
-            application.Status =
-                "WaitingForPayment";
+            if (existingMembership != null)
+            {
+                TempData["Error"] =
+                    "This member already has an active or unpaid membership.";
 
+                return RedirectToAction(nameof(Applications));
+            }
+
+            var membership = new Membership
+            {
+                MemberId = application.MemberId,
+                MembershipType = application.MembershipType,
+                FirstTimeMember = application.FirstTimeMember,
+                BasePrice = application.BasePrice,
+                DiscountPercentage = application.DiscountPercentage,
+                Price = application.Price,
+                StartDate = null,
+                EndDate = null,
+                Status = "WaitingForPayment",
+                PaymentMethod = application.PaymentMethod,
+                PaymentReference = null,
+                PaymentDate = null,
+                PaymentStatus = "Pending"
+            };
+
+            _context.Memberships.Add(membership);
+
+            application.Status = "Approved";
+            application.ReviewedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
-
             TempData["Success"] =
-                "Membership application approved. " +
-                "The student can now proceed with payment.";
+                "Membership application approved. The member can now proceed with payment.";
 
-
-            return RedirectToAction(
-                nameof(Applications));
+            return RedirectToAction(nameof(Applications));
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -91,8 +123,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 TempData["Error"] =
                     "Membership application could not be found.";
 
-                return RedirectToAction(
-                    nameof(Applications));
+                return RedirectToAction(nameof(Applications));
             }
 
             if (application.Status != "Pending")
@@ -100,29 +131,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 TempData["Error"] =
                     "This membership application has already been reviewed.";
 
-                return RedirectToAction(
-                    nameof(Applications));
+                return RedirectToAction(nameof(Applications));
             }
 
-            application.Status =
-                "Rejected";
-
-
-            application.AdminComment =
-                adminComment;
-
+            application.Status = "Rejected";
+            application.AdminComment = adminComment;
+            application.ReviewedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
-
 
             TempData["Success"] =
                 "Membership application rejected.";
 
-
-            return RedirectToAction(
-                nameof(Applications));
+            return RedirectToAction(nameof(Applications));
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -137,7 +159,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(memberships);
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Approve(int id)
@@ -146,7 +167,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 nameof(ApproveMembership),
                 new { id });
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]

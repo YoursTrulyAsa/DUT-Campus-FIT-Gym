@@ -1,0 +1,261 @@
+﻿@{
+    ViewData["Title"] = "AI Workout Plan";
+}
+
+<div class="ai-workout-page">
+
+    <div class="ai-workout-header">
+
+        <div>
+            <span class="ai-workout-eyebrow">
+                FITNESS AI
+            </span>
+
+            <h1>
+                AI Workout Plan
+            </h1>
+
+            <p>
+                Tell Fitness AI a little about what you want to work on
+                and it will create a sensible workout suggestion for you.
+            </p>
+        </div>
+
+        <div class="ai-workout-icon">
+            <i class="fa-solid fa-dumbbell"></i>
+        </div>
+
+    </div>
+
+    <div class="ai-workout-layout">
+
+        <div class="ai-workout-form-card">
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger mb-4">
+                    @ViewBag.Error
+                </div>
+            }
+
+            <div class="ai-section-heading">
+
+                <span>
+                    01
+                </span>
+
+                <div>
+                    <h2>
+                        Your preferences
+                    </h2>
+
+                    <p>
+                        Choose the options that best describe what you want.
+                    </p>
+                </div>
+
+            </div>
+
+            <form asp-controller="FitnessAI"
+                  asp-action="GenerateWorkout"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="ai-form-group">
+
+                    <label for="fitnessLevel">
+                        Fitness Level
+                    </label>
+
+                    <select id="fitnessLevel"
+                            name="fitnessLevel"
+                            required>
+
+                        <option value="">
+                            Select your level
+                        </option>
+
+                        <option value="Beginner">
+                            Beginner
+                        </option>
+
+                        <option value="Intermediate">
+                            Intermediate
+                        </option>
+
+                        <option value="Advanced">
+                            Advanced
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="ai-form-group">
+
+                    <label for="fitnessGoal">
+                        Fitness Goal
+                    </label>
+
+                    <select id="fitnessGoal"
+                            name="fitnessGoal"
+                            required>
+
+                        <option value="">
+                            Select your goal
+                        </option>
+
+                        <option value="General fitness">
+                            General fitness
+                        </option>
+
+                        <option value="Strength">
+                            Strength
+                        </option>
+
+                        <option value="Endurance">
+                            Endurance
+                        </option>
+
+                        <option value="Mobility and flexibility">
+                            Mobility and flexibility
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="ai-form-group">
+
+                    <label for="preferredExercises">
+                        Preferred Exercises
+                    </label>
+
+                    <textarea id="preferredExercises"
+                              name="preferredExercises"
+                              rows="4"
+                              maxlength="500"
+                              placeholder="Optional — e.g. squats, walking, cycling, push-ups"></textarea>
+
+                    <span class="ai-input-hint">
+                        Leave this blank if you want Fitness AI to choose suitable exercises.
+                    </span>
+
+                </div>
+
+                <div class="ai-form-group">
+
+                    <label for="daysAvailable">
+                        Days Available
+                    </label>
+
+                    <select id="daysAvailable"
+                            name="daysAvailable"
+                            required>
+
+                        <option value="">
+                            Select days per week
+                        </option>
+
+                        <option value="2">
+                            2 days
+                        </option>
+
+                        <option value="3">
+                            3 days
+                        </option>
+
+                        <option value="4">
+                            4 days
+                        </option>
+
+                        <option value="5">
+                            5 days
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="ai-safety-note">
+
+                    <i class="fa-solid fa-shield-halved"></i>
+
+                    <p>
+                        Fitness AI provides general fitness suggestions.
+                        Listen to your body, use safe technique and speak
+                        with a qualified trainer if you need individual guidance.
+                    </p>
+
+                </div>
+
+                <button type="submit"
+                        class="ai-generate-btn">
+
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                    Generate Workout Plan
+
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="ai-workout-info-card">
+
+            <div class="ai-info-icon">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+
+            <span>
+                POWERED BY FITNESS AI
+            </span>
+
+            <h2>
+                Your plan,
+                intelligently generated.
+            </h2>
+
+            <p>
+                Fitness AI will use your selected level, goal and preferences
+                to create a structured suggestion that you can review before
+                adding it to your workout plan.
+            </p>
+
+            <div class="ai-info-list">
+
+                <div>
+                    <i class="fa-solid fa-check"></i>
+                    <span>Level-based suggestions</span>
+                </div>
+
+                <div>
+                    <i class="fa-solid fa-check"></i>
+                    <span>Reasonable training volume</span>
+                </div>
+
+                <div>
+                    <i class="fa-solid fa-check"></i>
+                    <span>Exercise preferences</span>
+                </div>
+
+                <div>
+                    <i class="fa-solid fa-check"></i>
+                    <span>Review before saving</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/ai-workout.css"
+          asp-append-version="true" />
+}

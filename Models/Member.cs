@@ -33,6 +33,8 @@ namespace DUT_Campus_FIT_Gym.Models
 
         public string PasswordHash { get; set; } = "";
 
+        public string? ProfilePicture { get; set; }
+
         public ICollection<WorkoutPlan> WorkoutPlans { get; set; }
             = new List<WorkoutPlan>();
 
@@ -47,5 +49,21 @@ namespace DUT_Campus_FIT_Gym.Models
 
         public ICollection<Payment> Payments { get; set; }
             = new List<Payment>();
+
+        public ICollection<MealPlan> MealPlans { get; set; }
+            = new List<MealPlan>();
+
+        public ICollection<FitnessChallenge> FitnessChallenges { get; set; }
+           = new List<FitnessChallenge>();
+
+        public ICollection<ChallengeParticipation> ChallengeParticipations { get; set; }
+            = new List<ChallengeParticipation>();
+
+        public ICollection<RewardPoint> RewardPoints { get; set; }
+            = new List<RewardPoint>();
+
+        public ICollection<WorkoutCompletion> WorkoutCompletions { get; set; }
+            = new List<WorkoutCompletion>();
+
     }
 }

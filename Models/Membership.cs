@@ -20,6 +20,12 @@ namespace DUT_Campus_FIT_Gym.Models
         public bool FirstTimeMember { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
+        public decimal BasePrice { get; set; }
+
+        [Column(TypeName = "decimal(5,2)")]
+        public decimal DiscountPercentage { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
         public DateTime? StartDate { get; set; }

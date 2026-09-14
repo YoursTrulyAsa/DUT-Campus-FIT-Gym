@@ -1,0 +1,234 @@
+﻿@model List<DUT_Campus_FIT_Gym.ViewModels.AIMealSuggestionViewModel>
+
+@{
+    ViewData["Title"] = "Review Meal Plan";
+}
+
+<div class="ai-meal-result-page">
+
+    <div class="ai-meal-result-header">
+
+        <div>
+
+            <span class="ai-meal-eyebrow">
+                FITNESS AI
+            </span>
+
+            <h1>
+                Review Your Meal Plan
+            </h1>
+
+            <p>
+                Review the suggestions below before saving your meal plan.
+            </p>
+
+        </div>
+
+        <div class="ai-meal-result-icon">
+            <i class="fa-solid fa-bowl-food"></i>
+        </div>
+
+    </div>
+
+    <div class="ai-meal-goal-card">
+
+        <div>
+            <span>
+                FITNESS GOAL
+            </span>
+
+            <strong>
+                @ViewBag.FitnessGoal
+            </strong>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(ViewBag.DietaryPreference))
+        {
+            <div>
+                <span>
+                    DIETARY PREFERENCE
+                </span>
+
+                <strong>
+                    @ViewBag.DietaryPreference
+                </strong>
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(ViewBag.FoodPreferences))
+        {
+            <div>
+                <span>
+                    FOOD PREFERENCES
+                </span>
+
+                <strong>
+                    @ViewBag.FoodPreferences
+                </strong>
+            </div>
+        }
+
+    </div>
+
+    <form asp-controller="FitnessAI"
+          asp-action="SaveMealPlan"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="fitnessGoal"
+               value="@ViewBag.FitnessGoal" />
+
+        <input type="hidden"
+               name="dietaryPreference"
+               value="@ViewBag.DietaryPreference" />
+
+        <input type="hidden"
+               name="foodPreferences"
+               value="@ViewBag.FoodPreferences" />
+
+        <div class="ai-meal-grid">
+
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var meal = Model[i];
+
+                <div class="ai-meal-card">
+
+                    <input type="hidden"
+                           name="meals[@i].MealType"
+                           value="@meal.MealType" />
+
+                    <input type="hidden"
+                           name="meals[@i].MealName"
+                           value="@meal.MealName" />
+
+                    <input type="hidden"
+                           name="meals[@i].Description"
+                           value="@meal.Description" />
+
+                    <input type="hidden"
+                           name="meals[@i].Preparation"
+                           value="@meal.Preparation" />
+
+                    @foreach (var ingredient in meal.Ingredients)
+                    {
+                        <input type="hidden"
+                               name="meals[@i].Ingredients"
+                               value="@ingredient" />
+                    }
+
+                    <div class="ai-meal-card-top">
+
+                        <span class="ai-meal-type">
+                            @meal.MealType
+                        </span>
+
+                        <div class="ai-meal-card-icon">
+
+                            @if (meal.MealType.Equals(
+                                "Breakfast",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <i class="fa-solid fa-sun"></i>
+                            }
+                            else if (meal.MealType.Equals(
+                                "Lunch",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <i class="fa-solid fa-bowl-food"></i>
+                            }
+                            else if (meal.MealType.Equals(
+                                "Snack",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <i class="fa-solid fa-apple-whole"></i>
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-moon"></i>
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <h2>
+                        @meal.MealName
+                    </h2>
+
+                    <p class="ai-meal-description">
+                        @meal.Description
+                    </p>
+
+                    <div class="ai-meal-section">
+
+                        <h3>
+                            <i class="fa-solid fa-carrot"></i>
+                            Ingredients
+                        </h3>
+
+                        <ul>
+
+                            @foreach (var ingredient in meal.Ingredients)
+                            {
+                                <li>
+                                    @ingredient
+                                </li>
+                            }
+
+                        </ul>
+
+                    </div>
+
+                    <div class="ai-meal-section">
+
+                        <h3>
+                            <i class="fa-solid fa-kitchen-set"></i>
+                            Preparation
+                        </h3>
+
+                        <p>
+                            @meal.Preparation
+                        </p>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+        <div class="ai-meal-actions">
+
+            <a asp-controller="FitnessAI"
+               asp-action="AIMeal"
+               class="ai-secondary-btn">
+
+                <i class="fa-solid fa-rotate"></i>
+
+                Generate Another
+
+            </a>
+
+            <button type="submit"
+                    class="ai-primary-btn">
+
+                <i class="fa-solid fa-bookmark"></i>
+
+                Save Meal Plan
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/ai-meal.css"
+          asp-append-version="true" />
+}

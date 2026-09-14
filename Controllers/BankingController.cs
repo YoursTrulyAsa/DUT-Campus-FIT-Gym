@@ -1,5 +1,6 @@
 ﻿using DUT_Campus_FIT_Gym.Data;
 using DUT_Campus_FIT_Gym.Models;
+using DUT_Campus_FIT_Gym.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -13,28 +14,28 @@ namespace DUT_Campus_FIT_Gym.Controllers
     {
         private readonly GymDbContext _context;
         private readonly PayFastSettings _payFast;
+        private readonly MembershipPricingService _pricingService;
         private readonly ILogger<BankingController> _logger;
 
         public BankingController(
             GymDbContext context,
             IOptions<PayFastSettings> payFast,
+            MembershipPricingService pricingService,
             ILogger<BankingController> logger)
         {
             _context = context;
             _payFast = payFast.Value;
+            _pricingService = pricingService;
             _logger = logger;
         }
 
-        // =========================================================
-        // BANKING DETAILS - GET
-        // =========================================================
-
         [HttpGet]
-        public IActionResult Index(int membershipId)
+        public async Task<IActionResult> Index(int membershipId)
         {
-            var membership = _context.Memberships
-                .FirstOrDefault(m =>
-                    m.MembershipId == membershipId);
+            var membership =
+                await _context.Memberships
+                    .FirstOrDefaultAsync(m =>
+                        m.MembershipId == membershipId);
 
             if (membership == null)
             {
@@ -54,19 +55,16 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View();
         }
 
-        // =========================================================
-        // BANKING DETAILS - POST
-        // =========================================================
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Index(
+        public async Task<IActionResult> Index(
             BankDetails objBank,
             int membershipId)
         {
-            var membership = _context.Memberships
-                .FirstOrDefault(m =>
-                    m.MembershipId == membershipId);
+            var membership =
+                await _context.Memberships
+                    .FirstOrDefaultAsync(m =>
+                        m.MembershipId == membershipId);
 
             if (membership == null)
             {
@@ -83,7 +81,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             if (ModelState.IsValid)
             {
                 return RedirectToAction(
-                    "PayFast",
+                    nameof(PayFast),
                     new { membershipId });
             }
 
@@ -93,55 +91,32 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(objBank);
         }
 
-        // =========================================================
-        // PAYFAST - GET
-        // =========================================================
-
         [HttpGet]
-        public IActionResult PayFast(int membershipId)
+        public async Task<IActionResult> PayFast(int membershipId)
         {
             try
             {
-                var membership = _context.Memberships
-                    .Include(m => m.Member)
-                    .FirstOrDefault(m =>
-                        m.MembershipId == membershipId);
+                var membership =
+                    await _context.Memberships
+                        .Include(m => m.Member)
+                        .FirstOrDefaultAsync(m =>
+                            m.MembershipId == membershipId);
 
                 if (membership == null)
                 {
-                    _logger.LogWarning(
-                        "Membership not found: {MembershipId}",
-                        membershipId);
-
                     return NotFound();
                 }
 
-                // =====================================================
-                // ONLY WAITING-FOR-PAYMENT MEMBERSHIPS CAN PAY
-                // =====================================================
-
                 if (membership.Status != "WaitingForPayment")
                 {
-                    _logger.LogWarning(
-                        "Invalid membership status: {Status} for ID: {MembershipId}",
-                        membership.Status,
-                        membershipId);
-
                     return RedirectToAction(
                         "Membership",
                         "Member");
                 }
 
-                // =====================================================
-                // MEMBER ID MUST EXIST
-                // =====================================================
-
-                if (!membership.MemberId.HasValue)
+                if (!membership.MemberId.HasValue ||
+                    membership.Member == null)
                 {
-                    _logger.LogError(
-                        "Membership {MembershipId} has no MemberId.",
-                        membership.MembershipId);
-
                     TempData["Error"] =
                         "This membership is not linked to a member.";
 
@@ -150,61 +125,54 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         "Member");
                 }
 
-                // =====================================================
-                // GENERATE UNIQUE PAYMENT ID
-                // =====================================================
-
                 var paymentId =
-                    Guid.NewGuid().ToString();
+                    Guid.NewGuid().ToString("N");
 
-                // =====================================================
-                // SAVE PAYMENT REFERENCE
-                // =====================================================
-
-                membership.PaymentReference =
-                    paymentId;
-
-                membership.PaymentStatus =
-                    "Pending";
-
-                membership.PaymentDate =
-                    DateTime.Now;
-
-                // =====================================================
-                // CREATE PAYMENT HISTORY RECORD
-                // =====================================================
+                membership.PaymentReference = paymentId;
+                membership.PaymentStatus = "Pending";
 
                 var payment = new Payment
                 {
-                    MemberId =
-                        membership.MemberId.Value,
-
-                    MembershipId =
-                        membership.MembershipId,
-
-                    Amount =
-                        membership.Price,
-
-                    PaymentMethod =
-                        "PayFast",
-
-                    PaymentStatus =
-                        "Pending",
-
-                    PaymentDate =
-                        DateTime.Now,
-
-                    ReceiptNumber =
-                        paymentId
+                    MemberId = membership.MemberId.Value,
+                    MembershipId = membership.MembershipId,
+                    Amount = membership.Price,
+                    PaymentMethod = "PayFast",
+                    PaymentStatus = "Pending",
+                    ReceiptNumber = paymentId
                 };
 
                 _context.Payments.Add(payment);
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
-                // =====================================================
-                // BUILD PAYFAST DATA
-                // =====================================================
+                var returnUrl =
+                    Url.Action(
+                        nameof(PaymentSuccess),
+                        "Banking",
+                        new { membershipId },
+                        Request.Scheme);
+
+                var cancelUrl =
+                    Url.Action(
+                        nameof(PaymentCancelled),
+                        "Banking",
+                        new { membershipId },
+                        Request.Scheme);
+
+                var notifyUrl =
+                    Url.Action(
+                        nameof(PaymentNotify),
+                        "Banking",
+                        null,
+                        Request.Scheme);
+
+                if (string.IsNullOrWhiteSpace(returnUrl) ||
+                    string.IsNullOrWhiteSpace(cancelUrl) ||
+                    string.IsNullOrWhiteSpace(notifyUrl))
+                {
+                    throw new InvalidOperationException(
+                        "Could not generate PayFast callback URLs.");
+                }
 
                 var paymentData =
                     new Dictionary<string, string>
@@ -216,24 +184,22 @@ namespace DUT_Campus_FIT_Gym.Controllers
                             _payFast.MerchantKey,
 
                         ["return_url"] =
-                            "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentSuccess?membershipId="
-                            + membershipId,
+                            returnUrl,
 
                         ["cancel_url"] =
-                            "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentCancelled?membershipId="
-                            + membershipId,
+                            cancelUrl,
 
                         ["notify_url"] =
-                            "https://unguided-handful-comma.ngrok-free.dev/Banking/PaymentNotify",
+                            notifyUrl,
 
                         ["name_first"] =
-                            membership.Member?.Name ?? "DUT",
+                            membership.Member.Name,
 
                         ["name_last"] =
-                            membership.Member?.Surname ?? "Student",
+                            membership.Member.Surname,
 
                         ["email_address"] =
-                            membership.Member?.Email ?? "test@test.com",
+                            membership.Member.Email,
 
                         ["m_payment_id"] =
                             paymentId,
@@ -247,24 +213,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                             "DUT Campus FIT Gym Membership"
                     };
 
-                // =====================================================
-                // GENERATE CHECKOUT SIGNATURE
-                // =====================================================
-
                 var signature =
                     GenerateSignature(paymentData);
 
-                paymentData["signature"] =
-                    signature;
-
-                _logger.LogInformation(
-                    "PayFast payment initiated for Membership: {MembershipId}, Payment ID: {PaymentId}",
-                    membershipId,
-                    paymentId);
-
-                // =====================================================
-                // PAYFAST SANDBOX
-                // =====================================================
+                paymentData["signature"] = signature;
 
                 ViewBag.PaymentUrl =
                     "https://sandbox.payfast.co.za/eng/process";
@@ -278,7 +230,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 _logger.LogError(
                     ex,
-                    "Error in PayFast for Membership: {MembershipId}",
+                    "Error initiating PayFast payment for Membership {MembershipId}",
                     membershipId);
 
                 TempData["Error"] =
@@ -289,10 +241,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Member");
             }
         }
-
-        // =========================================================
-        // CHECKOUT SIGNATURE
-        // =========================================================
 
         private string GenerateSignature(
             Dictionary<string, string> data)
@@ -308,11 +256,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 }
 
                 var value =
-                    item.Value.Trim();
-
-                value =
-                    Uri.EscapeDataString(value)
-                        .Replace("%20", "+");
+                    Uri.EscapeDataString(
+                        item.Value.Trim())
+                    .Replace("%20", "+");
 
                 parameterString.Append(
                     item.Key);
@@ -329,10 +275,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     .ToString()
                     .TrimEnd('&');
 
-            // =====================================================
-            // ADD PASSPHRASE
-            // =====================================================
-
             if (!string.IsNullOrWhiteSpace(
                 _payFast.Passphrase))
             {
@@ -343,16 +285,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     .Replace("%20", "+");
             }
 
-            _logger.LogInformation(
-                "PAYFAST CHECKOUT SIGNATURE STRING: {SignatureString}",
-                signatureString);
-
-            // =====================================================
-            // MD5
-            // =====================================================
-
-            using var md5 =
-                MD5.Create();
+            using var md5 = MD5.Create();
 
             var hash =
                 md5.ComputeHash(
@@ -363,87 +296,34 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 .ToLowerInvariant();
         }
 
-        // =========================================================
-        // GET MEMBERSHIP DURATION
-        // =========================================================
-
-        private int GetMembershipDurationMonths(
-            string? membershipType)
-        {
-            return membershipType?
-                .Trim()
-                .ToLowerInvariant()
-                switch
-            {
-                "semester" => 6,
-
-                "annual" => 12,
-
-                "monthly" => 1,
-
-                "quarterly" => 3,
-
-                "half_yearly" => 6,
-
-                "half-yearly" => 6,
-
-                "half yearly" => 6,
-
-                "annually" => 12,
-
-                _ => 1
-            };
-        }
-
-        // =========================================================
-        // PAYMENT SUCCESS / PAYFAST RETURN URL
-        // =========================================================
-
         [HttpGet]
-        public IActionResult PaymentSuccess(
+        public async Task<IActionResult> PaymentSuccess(
             int membershipId)
         {
             try
             {
                 var membership =
-                    _context.Memberships
-                        .FirstOrDefault(
-                            m =>
-                                m.MembershipId ==
-                                membershipId);
+                    await _context.Memberships
+                        .FirstOrDefaultAsync(m =>
+                            m.MembershipId == membershipId);
 
                 if (membership == null)
                 {
-                    _logger.LogWarning(
-                        "PaymentSuccess: Membership not found: {MembershipId}",
-                        membershipId);
-
                     return NotFound();
                 }
-
-                // =====================================================
-                // ITN HAS ALREADY ACTIVATED MEMBERSHIP
-                // =====================================================
 
                 if (membership.Status == "Active")
                 {
                     return RedirectToAction(
-                        "PaymentComplete",
-                        new
-                        {
-                            membershipId
-                        });
+                        nameof(PaymentComplete),
+                        new { membershipId });
                 }
-
-                // =====================================================
-                // ITN MAY STILL BE PROCESSING
-                // =====================================================
 
                 ViewBag.MembershipId =
                     membershipId;
 
                 ViewBag.Message =
-                    "Your payment was successful. We are confirming your payment with PayFast.";
+                    "Your payment was submitted successfully. We are confirming your payment with PayFast.";
 
                 return View("Processing");
             }
@@ -451,7 +331,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 _logger.LogError(
                     ex,
-                    "Error in PaymentSuccess for Membership: {MembershipId}",
+                    "Error in PaymentSuccess for Membership {MembershipId}",
                     membershipId);
 
                 return RedirectToAction(
@@ -460,8 +340,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
         }
 
-        // 
+        [HttpGet]
+        public IActionResult PaymentCancelled(
+            int membershipId)
+        {
+            TempData["Error"] =
+                "Your payment was cancelled. Your membership is still waiting for payment.";
+
+            return RedirectToAction(
+                "Membership",
+                "Member");
+        }
+
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> PaymentNotify()
         {
             try
@@ -479,10 +371,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 Request.Body.Position = 0;
 
-                _logger.LogInformation(
-                    "PAYFAST RAW ITN BODY: {RawBody}",
-                    rawBody);
-
                 var form =
                     await Request.ReadFormAsync();
 
@@ -491,10 +379,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         .ToString()
                         .Trim()
                         .ToLowerInvariant();
-
-                _logger.LogInformation(
-                    "RECEIVED ITN SIGNATURE: {Signature}",
-                    receivedSignature);
 
                 var signatureParts =
                     new List<string>();
@@ -509,14 +393,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     }
 
                     var value =
-                        form[key].ToString();
+                        form[key]
+                            .ToString()
+                            .Trim();
 
                     var encodedValue =
-                        Uri.EscapeDataString(
-                            value.Trim())
-                            .Replace(
-                                "%20",
-                                "+");
+                        Uri.EscapeDataString(value)
+                            .Replace("%20", "+");
 
                     signatureParts.Add(
                         $"{key}={encodedValue}");
@@ -530,23 +413,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 if (!string.IsNullOrWhiteSpace(
                     _payFast.Passphrase))
                 {
-                    var encodedPassphrase =
+                    signatureString +=
+                        "&passphrase=" +
                         Uri.EscapeDataString(
                             _payFast.Passphrase.Trim())
-                        .Replace(
-                            "%20",
-                            "+");
-
-                    signatureString +=
-                        $"&passphrase={encodedPassphrase}";
+                        .Replace("%20", "+");
                 }
 
-                _logger.LogInformation(
-                    "ITN SIGNATURE STRING: {SignatureString}",
-                    signatureString);
-
-                using var md5 =
-                    MD5.Create();
+                using var md5 = MD5.Create();
 
                 var calculatedSignature =
                     Convert.ToHexString(
@@ -555,26 +429,34 @@ namespace DUT_Campus_FIT_Gym.Controllers
                                 signatureString)))
                     .ToLowerInvariant();
 
-                _logger.LogInformation(
-                    "CALCULATED ITN SIGNATURE: {Signature}",
-                    calculatedSignature);
-
                 if (!string.Equals(
                     receivedSignature,
                     calculatedSignature,
                     StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogWarning(
-                        "INVALID PAYFAST ITN SIGNATURE");
+                        "Invalid PayFast ITN signature.");
 
                     return BadRequest(
                         "Invalid signature");
                 }
 
-                _logger.LogInformation(
-                    "PAYFAST ITN SIGNATURE VERIFIED SUCCESSFULLY");
+                var merchantId =
+                    form["merchant_id"]
+                        .ToString();
 
-                
+                if (!string.Equals(
+                    merchantId,
+                    _payFast.MerchantId,
+                    StringComparison.Ordinal))
+                {
+                    _logger.LogWarning(
+                        "Invalid PayFast merchant ID.");
+
+                    return BadRequest(
+                        "Invalid merchant");
+                }
+
                 var paymentStatus =
                     form["payment_status"]
                         .ToString();
@@ -583,52 +465,70 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     form["m_payment_id"]
                         .ToString();
 
-                var amount =
+                var amountGross =
                     form["amount_gross"]
                         .ToString();
 
-                _logger.LogInformation(
-                    "Payment Status: {Status}",
-                    paymentStatus);
-
-                _logger.LogInformation(
-                    "Payment ID: {PaymentId}",
-                    mPaymentId);
-
-                _logger.LogInformation(
-                    "Amount: {Amount}",
-                    amount);
+                if (string.IsNullOrWhiteSpace(
+                    mPaymentId))
+                {
+                    return BadRequest(
+                        "Missing payment ID");
+                }
 
                 var payment =
-                    _context.Payments
-                        .FirstOrDefault(
-                            p =>
-                                p.ReceiptNumber ==
-                                mPaymentId);
+                    await _context.Payments
+                        .FirstOrDefaultAsync(p =>
+                            p.ReceiptNumber == mPaymentId);
 
                 if (payment == null)
                 {
                     _logger.LogWarning(
-                        "Payment not found for Payment ID: {PaymentId}",
+                        "Payment not found for {PaymentId}",
                         mPaymentId);
 
                     return Ok();
                 }
 
                 var membership =
-                    _context.Memberships
-                        .FirstOrDefault(
-                            m =>
-                                m.PaymentReference ==
-                                mPaymentId);
+                    await _context.Memberships
+                        .FirstOrDefaultAsync(m =>
+                            m.PaymentReference == mPaymentId);
 
                 if (membership == null)
                 {
                     _logger.LogWarning(
-                        "Membership not found for Payment ID: {PaymentId}",
+                        "Membership not found for {PaymentId}",
                         mPaymentId);
 
                     return Ok();
+                }
+
+                if (!decimal.TryParse(
+                    amountGross,
+                    NumberStyles.Number,
+                    CultureInfo.InvariantCulture,
+                    out var paidAmount))
+                {
+                    _logger.LogWarning(
+                        "Invalid PayFast amount for {PaymentId}",
+                        mPaymentId);
+
+                    return BadRequest(
+                        "Invalid amount");
+                }
+
+                if (Math.Abs(
+                    paidAmount - payment.Amount) > 0.01m)
+                {
+                    _logger.LogWarning(
+                        "PayFast amount mismatch for {PaymentId}. Expected {Expected}, Received {Received}",
+                        mPaymentId,
+                        payment.Amount,
+                        paidAmount);
+
+                    return BadRequest(
+                        "Amount mismatch");
                 }
 
                 if (paymentStatus.Equals(
@@ -636,109 +536,43 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     StringComparison.OrdinalIgnoreCase))
                 {
                     if (membership.Status == "Active" &&
-                        membership.PaymentStatus == "Completed")
+                        payment.PaymentStatus == "Completed")
                     {
-                        _logger.LogInformation(
-                            "Membership already activated: {MembershipId}",
-                            membership.MembershipId);
-
                         return Ok();
                     }
 
-                    var durationMonths =
-                        GetMembershipDurationMonths(
-                            membership.MembershipType);
+                    var dates =
+                        _pricingService.GetMembershipDates(
+                            membership.MembershipType,
+                            DateTime.Today.Year);
 
-                    var startDate =
-                        DateTime.Now;
+                    membership.Status = "Active";
+                    membership.PaymentStatus = "Completed";
+                    membership.PaymentDate = DateTime.Now;
+                    membership.StartDate = dates.StartDate;
+                    membership.EndDate = dates.EndDate;
 
-                    var endDate =
-                        startDate.AddMonths(
-                            durationMonths);
-
-                    membership.Status =
-                        "Active";
-
-                    membership.PaymentStatus =
-                        "Completed";
-
-                    membership.PaymentDate =
-                        DateTime.Now;
-
-                    membership.StartDate =
-                        startDate;
-
-                    membership.EndDate =
-                        endDate;
-
-                
-                    payment.PaymentStatus =
-                        "Completed";
-
-                    payment.PaymentDate =
-                        DateTime.Now;
+                    payment.PaymentStatus = "Completed";
+                    payment.PaymentDate = DateTime.Now;
 
                     await _context.SaveChangesAsync();
 
                     _logger.LogInformation(
-                        "========================================");
-
-                    _logger.LogInformation(
-                        "PAYMENT SUCCESSFUL");
-
-                    _logger.LogInformation(
-                        "MEMBERSHIP ACTIVATED");
-
-                    _logger.LogInformation(
-                        "Membership ID: {MembershipId}",
+                        "Membership {MembershipId} activated after successful PayFast payment.",
                         membership.MembershipId);
-
-                    _logger.LogInformation(
-                        "Membership Type: {MembershipType}",
-                        membership.MembershipType);
-
-                    _logger.LogInformation(
-                        "Duration: {DurationMonths} month(s)",
-                        durationMonths);
-
-                    _logger.LogInformation(
-                        "Start Date: {StartDate}",
-                        startDate);
-
-                    _logger.LogInformation(
-                        "End Date: {EndDate}",
-                        endDate);
-
-                    _logger.LogInformation(
-                        "Payment ID: {PaymentId}",
-                        mPaymentId);
-
-                    _logger.LogInformation(
-                        "========================================");
                 }
-
-                
                 else if (
                     paymentStatus.Equals(
                         "CANCELLED",
-                        StringComparison.OrdinalIgnoreCase)
-                    ||
+                        StringComparison.OrdinalIgnoreCase) ||
                     paymentStatus.Equals(
                         "FAILED",
                         StringComparison.OrdinalIgnoreCase))
                 {
-                    membership.PaymentStatus =
-                        "Failed";
-
-                    payment.PaymentStatus =
-                        "Failed";
+                    membership.PaymentStatus = "Failed";
+                    payment.PaymentStatus = "Failed";
 
                     await _context.SaveChangesAsync();
-
-                    _logger.LogWarning(
-                        "Payment failed: {PaymentId}, Status: {Status}",
-                        mPaymentId,
-                        paymentStatus);
                 }
 
                 return Ok();
@@ -747,26 +581,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 _logger.LogError(
                     ex,
-                    "Error processing PayFast ITN");
-
-                // PayFast should receive an HTTP response
-                // even when an internal error occurs.
+                    "Error processing PayFast ITN.");
 
                 return Ok();
             }
         }
 
-       
         [HttpGet]
-        public IActionResult CheckPaymentStatus(
+        public async Task<IActionResult> CheckPaymentStatus(
             int membershipId)
         {
             var membership =
-                _context.Memberships
-                    .FirstOrDefault(
-                        m =>
-                            m.MembershipId ==
-                            membershipId);
+                await _context.Memberships
+                    .FirstOrDefaultAsync(m =>
+                        m.MembershipId == membershipId);
 
             if (membership == null)
             {
@@ -776,31 +604,32 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return Json(
                 new
                 {
-                    status =
-                        membership.PaymentStatus,
-
-                    membershipStatus =
-                        membership.Status
+                    status = membership.PaymentStatus,
+                    membershipStatus = membership.Status
                 });
         }
 
-      
         [HttpGet]
-        public IActionResult PaymentComplete(
+        public async Task<IActionResult> PaymentComplete(
             int membershipId)
         {
             try
             {
                 var membership =
-                    _context.Memberships
-                        .FirstOrDefault(
-                            m =>
-                                m.MembershipId ==
-                                membershipId);
+                    await _context.Memberships
+                        .FirstOrDefaultAsync(m =>
+                            m.MembershipId == membershipId);
 
                 if (membership == null)
                 {
                     return NotFound();
+                }
+
+                if (membership.Status != "Active")
+                {
+                    return RedirectToAction(
+                        nameof(PaymentSuccess),
+                        new { membershipId });
                 }
 
                 ViewBag.MembershipType =
@@ -820,7 +649,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 _logger.LogError(
                     ex,
-                    "Error in PaymentComplete for Membership: {MembershipId}",
+                    "Error in PaymentComplete for Membership {MembershipId}",
                     membershipId);
 
                 return RedirectToAction(

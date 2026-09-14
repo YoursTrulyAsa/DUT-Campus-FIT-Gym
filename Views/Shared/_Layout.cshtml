@@ -309,6 +309,50 @@
 
                     </a>
 
+                    <a asp-controller="FitnessAI"
+                       asp-action="Index"
+                       class="sidebar-link @(controller == "FitnessAI" ? "active" : "")">
+
+                        <span class="sidebar-icon">
+                            <i class="fa-solid fa-robot"></i>
+                        </span>
+
+                        <span>
+                            Fitness AI
+                        </span>
+
+                    </a>
+
+                    <a asp-controller="FitnessInsights"
+                       asp-action="Index"
+                       class="sidebar-link @(controller == "FitnessInsights" && action == "Index" ? "active" : "")">
+
+                        <span class="sidebar-icon">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </span>
+
+                        <span>
+                            Fitness Insights
+                        </span>
+
+                    </a>
+
+                    <a asp-controller="FitnessAI"
+                       asp-action="MyMealPlans"
+                       class="sidebar-link @(controller == "FitnessAI" && action == "MyMealPlans" ? "active" : "")">
+
+                        <span class="sidebar-icon">
+                            <i class="fa-solid fa-bookmark"></i>
+                        </span>
+
+                        <span>
+                            My Meal Plans
+                        </span>
+
+                    </a>
+
+
+
                     <a asp-controller="Member"
                        asp-action="Payment"
                        class="sidebar-link @(controller == "Banking" ? "active" : "")">
@@ -524,6 +568,18 @@
 
     </script>
 
+@if (showStudentSidebar)
+{
+    <a asp-controller="Support"
+       asp-action="Index"
+       class="floating-ask-us"
+       aria-label="Ask Us"
+       title="Ask Us">
+
+        <i class="fa-solid fa-comments"></i>
+
+    </a>
+}
 
 </body>
 

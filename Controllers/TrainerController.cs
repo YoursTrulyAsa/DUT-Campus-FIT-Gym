@@ -87,15 +87,65 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddEquipment(
-            Equipment equipment)
+            Equipment equipment,
+            IFormFile? imageFile)
         {
             if (!ModelState.IsValid)
             {
                 return View(equipment);
+            }
+
+            equipment.IsAvailable = true;
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var allowedExtensions = new[]
+                {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp"
+        };
+
+                var extension =
+                    Path.GetExtension(imageFile.FileName)
+                        .ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError(
+                        "ImagePath",
+                        "Only JPG, JPEG, PNG and WEBP images are allowed.");
+
+                    return View(equipment);
+                }
+
+                var uploadFolder = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    "uploads",
+                    "equipment");
+
+                Directory.CreateDirectory(uploadFolder);
+
+                var fileName =
+                    $"{Guid.NewGuid()}{extension}";
+
+                var filePath =
+                    Path.Combine(uploadFolder, fileName);
+
+                using (var stream = new FileStream(
+                    filePath,
+                    FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+
+                equipment.ImagePath =
+                    $"/uploads/equipment/{fileName}";
             }
 
             _context.Equipment.Add(equipment);
@@ -107,6 +157,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return RedirectToAction(nameof(Equipment));
         }
+
 
         public async Task<IActionResult> Workouts()
         {

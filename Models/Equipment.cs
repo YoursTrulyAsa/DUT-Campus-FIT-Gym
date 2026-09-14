@@ -20,5 +20,8 @@ namespace DUT_Campus_FIT_Gym.Models
         [Required]
         [StringLength(100)]
         public string Location { get; set; } = "";
+
+        [StringLength(255)]
+        public string? ImagePath { get; set; }
     }
 }

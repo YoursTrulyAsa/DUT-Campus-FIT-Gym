@@ -1,0 +1,369 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.FitnessInsightsViewModel
+
+@{
+    ViewData["Title"] = "Fitness Insights";
+}
+
+<div class="fitness-insights-page">
+
+    <div class="fitness-insights-header">
+
+        <div>
+            <span class="fitness-insights-eyebrow">
+                FITNESS INSIGHTS
+            </span>
+
+            <h1>
+                Your Fitness Progress
+            </h1>
+
+            <p>
+                Track your gym activity, workouts, rewards and fitness profile in one place.
+            </p>
+        </div>
+
+        <div class="fitness-insights-header-icon">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+
+    </div>
+
+    <div class="insights-grid">
+
+        <div class="insight-card">
+
+            <div class="insight-card-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <div>
+                <span>Saved Exercises</span>
+                <strong>@Model.SavedWorkoutExercises</strong>
+            </div>
+
+        </div>
+
+        <div class="insight-card">
+
+            <div class="insight-card-icon">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
+
+            <div>
+                <span>Workout Days</span>
+                <strong>@Model.WorkoutDays</strong>
+            </div>
+
+        </div>
+
+        <div class="insight-card">
+
+            <div class="insight-card-icon">
+                <i class="fa-solid fa-door-open"></i>
+            </div>
+
+            <div>
+                <span>Gym Visits</span>
+                <strong>@Model.TotalGymVisits</strong>
+            </div>
+
+        </div>
+
+        <div class="insight-card">
+
+            <div class="insight-card-icon">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+
+            <div>
+                <span>Gym Hours</span>
+                <strong>@Model.TotalGymHours.ToString("0.0")</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="insights-main-grid">
+
+        <div class="insights-section">
+
+            <div class="section-header">
+
+                <div>
+                    <span class="section-eyebrow">
+                        ACTIVITY
+                    </span>
+
+                    <h2>
+                        Gym Activity
+                    </h2>
+                </div>
+
+                <i class="fa-solid fa-chart-simple"></i>
+
+            </div>
+
+            <div class="activity-stats">
+
+                <div class="activity-stat">
+                    <span>Total Visits</span>
+                    <strong>@Model.TotalGymVisits</strong>
+                </div>
+
+                <div class="activity-stat">
+                    <span>Completed Visits</span>
+                    <strong>@Model.CompletedVisits</strong>
+                </div>
+
+                <div class="activity-stat">
+                    <span>This Week</span>
+                    <strong>@Model.WeeklyVisits</strong>
+                </div>
+
+                <div class="activity-stat">
+                    <span>Average Visit</span>
+                    <strong>@Model.AverageVisitMinutes.ToString("0") min</strong>
+                </div>
+
+                <div class="activity-stat">
+                    <span>Total Gym Time</span>
+                    <strong>@Model.TotalGymHours.ToString("0.0") hrs</strong>
+                </div>
+
+                <div class="activity-stat">
+                    <span>This Week</span>
+                    <strong>@Model.WeeklyGymHours.ToString("0.0") hrs</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="insights-section">
+
+            <div class="section-header">
+
+                <div>
+                    <span class="section-eyebrow">
+                        FITNESS PROFILE
+                    </span>
+
+                    <h2>
+                        Your Goal
+                    </h2>
+                </div>
+
+                <i class="fa-solid fa-bullseye"></i>
+
+            </div>
+
+            <div class="goal-display">
+
+                <span>
+                    CURRENT FITNESS GOAL
+                </span>
+
+                <strong>
+                    @Model.FitnessGoal
+                </strong>
+
+            </div>
+
+            @if (Model.Age > 0)
+            {
+                <div class="profile-stat-grid">
+
+                    <div>
+                        <span>Age</span>
+                        <strong>@Model.Age</strong>
+                    </div>
+
+                    <div>
+                        <span>Height</span>
+                        <strong>@Model.Height.ToString("0.##") cm</strong>
+                    </div>
+
+                    <div>
+                        <span>Weight</span>
+                        <strong>@Model.Weight.ToString("0.##") kg</strong>
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <p class="empty-insight">
+                    Complete your Fitness Profile to see more personalised insights.
+                </p>
+            }
+
+        </div>
+
+    </div>
+
+    <div class="insights-main-grid">
+
+        <div class="insights-section">
+
+            <div class="section-header">
+
+                <div>
+                    <span class="section-eyebrow">
+                        WORKOUT
+                    </span>
+
+                    <h2>
+                        Workout Summary
+                    </h2>
+                </div>
+
+                <i class="fa-solid fa-person-running"></i>
+
+            </div>
+
+            <div class="workout-summary">
+
+                <div>
+                    <span>Exercises</span>
+                    <strong>@Model.SavedWorkoutExercises</strong>
+                </div>
+
+                <div>
+                    <span>Workout Days</span>
+                    <strong>@Model.WorkoutDays</strong>
+                </div>
+
+                <div>
+                    <span>Total Sets</span>
+                    <strong>@Model.TotalSets</strong>
+                </div>
+
+                <div>
+                    <span>Total Repetitions</span>
+                    <strong>@Model.TotalRepetitions</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="insights-section">
+
+            <div class="section-header">
+
+                <div>
+                    <span class="section-eyebrow">
+                        REWARDS
+                    </span>
+
+                    <h2>
+                        Reward Points
+                    </h2>
+                </div>
+
+                <i class="fa-solid fa-trophy"></i>
+
+            </div>
+
+            <div class="reward-points-display">
+
+                <div class="reward-points-icon">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+
+                <div>
+                    <span>
+                        TOTAL REWARD POINTS
+                    </span>
+
+                    <strong>
+                        @Model.TotalRewardPoints
+                    </strong>
+
+                    <p>
+                        Keep completing workouts, challenges and gym activities to earn more points.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="reward-points-actions">
+
+                <a asp-controller="FitnessChallenge"
+                   asp-action="MyChallenges"
+                   class="insight-action-btn">
+
+                    <i class="fa-solid fa-trophy"></i>
+
+                    My Challenges
+
+                </a>
+
+                <a asp-controller="Workout"
+                   asp-action="MyWorkout"
+                   class="insight-action-btn">
+
+                    <i class="fa-solid fa-dumbbell"></i>
+
+                    My Workouts
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="insights-section meal-insight-section">
+
+        <div class="section-header">
+
+            <div>
+                <span class="section-eyebrow">
+                    NUTRITION
+                </span>
+
+                <h2>
+                    Meal Plans
+                </h2>
+            </div>
+
+            <i class="fa-solid fa-bowl-food"></i>
+
+        </div>
+
+        <div class="meal-insight-content">
+
+            <div>
+                <strong>
+                    @Model.SavedMealPlans
+                </strong>
+
+                <span>
+                    Saved AI meal plans
+                </span>
+            </div>
+
+            <a asp-controller="FitnessAI"
+               asp-action="MyMealPlans"
+               class="insight-action-btn">
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+                View Meal Plans
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/fitness-insights.css"
+          asp-append-version="true" />
+}

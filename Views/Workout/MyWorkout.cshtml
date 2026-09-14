@@ -2,11 +2,16 @@
 
 @{
     ViewData["Title"] = "My Workout Plan";
+    var completedWorkouts = ViewBag.CompletedWorkouts as HashSet<string> ?? new HashSet<string>();
+    var workouts = Model?.ToList() ?? new List<DUT_Campus_FIT_Gym.Models.WorkoutPlan>();
+
+    var groupedWorkouts = workouts
+        .GroupBy(w => new { w.WorkoutName, w.Level })
+        .ToList();
 }
 
 <div class="workout-page">
 
-    <!-- PAGE HEADER -->
     <div class="workout-header">
 
         <div>
@@ -15,7 +20,7 @@
             <h1>My Workout Plan</h1>
 
             <p>
-                View and manage your personalized workout exercises.
+                View and manage your personalized workout plans.
             </p>
         </div>
 
@@ -31,11 +36,21 @@
 
     </div>
 
-
-    @if (Model == null || !Model.Any())
+    @if (TempData["WorkoutCompleted"] != null)
     {
-        <!-- EMPTY STATE -->
+        <div class="workout-success-message">
 
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                @TempData["WorkoutCompleted"]
+            </span>
+
+        </div>
+    }
+
+    @if (!workouts.Any())
+    {
         <div class="workout-empty">
 
             <div class="empty-icon">
@@ -63,152 +78,274 @@
     }
     else
     {
-        <!-- WORKOUT CARDS -->
+        <div class="workout-plan-list">
 
-        <div class="workout-grid">
-
-            @foreach (var workout in Model)
+            @foreach (var workoutGroup in groupedWorkouts)
             {
-                <div class="workout-card">
+                var level = workoutGroup.Key.Level;
 
-                    <!-- CARD HEADER -->
+                if (string.IsNullOrWhiteSpace(level))
+                {
+                    level = "Beginner";
+                }
 
-                    <div class="workout-card-header">
+                if (level.Equals("Advanced", StringComparison.OrdinalIgnoreCase))
+                {
+                    level = "Pro";
+                }
 
-                        <div>
+                var rewardPoints = level.ToLower() switch
+                {
+                    "beginner" => 3,
+                    "intermediate" => 5,
+                    "pro" => 7,
+                    _ => 3
+                };
 
-                            <span class="workout-day">
-                                @workout.WorkoutDay
-                            </span>
+                var isCompleted =
+                    completedWorkouts.Contains(workoutGroup.Key.WorkoutName);
 
-                            <h2>
-                                @workout.WorkoutName
-                            </h2>
+                var trainingDays = workoutGroup
+                    .GroupBy(w => w.WorkoutDay)
+                    .ToList();
+
+                <div class="workout-plan-card">
+
+                    <div class="workout-plan-top">
+
+                        <div class="workout-plan-heading">
+
+                            <div class="workout-plan-icon">
+                                <i class="fa-solid fa-dumbbell"></i>
+                            </div>
+
+                            <div>
+
+                                <span class="workout-plan-label">
+                                    @level WORKOUT
+                                </span>
+
+                                <h2>
+                                    @workoutGroup.Key.WorkoutName
+                                </h2>
+
+                                <p>
+                                    @workoutGroup.Count()
+                                    @(workoutGroup.Count() == 1 ? "exercise" : "exercises")
+                                    across
+                                    @trainingDays.Count
+                                    @(trainingDays.Count == 1 ? "training day" : "training days")
+                                </p>
+
+                            </div>
 
                         </div>
 
-                        <i class="fa-solid fa-dumbbell workout-card-icon"></i>
+                        <div class="workout-reward-badge">
+
+                            <i class="fa-solid fa-star"></i>
+
+                            <div>
+                                <span>REWARD</span>
+                                <strong>+@rewardPoints</strong>
+                            </div>
+
+                        </div>
 
                     </div>
 
+                    <div class="workout-level-row">
 
-                    <!-- EXERCISE -->
-
-                    <div class="workout-section">
-
-                        <span class="workout-label">
-                            EXERCISE
+                        <span class="workout-level-badge @level.ToLower()">
+                            @level
                         </span>
 
-                        <h3>
-                            @workout.ExerciseName
-                        </h3>
+                        <span class="workout-level-text">
+                            Complete this workout to earn @rewardPoints reward points.
+                        </span>
 
                     </div>
 
+                    <div class="workout-days">
 
-                    <!-- WORKOUT DETAILS -->
+                        @foreach (var dayGroup in trainingDays)
+                        {
+                            <div class="workout-day-section">
 
-                    <div class="workout-details">
+                                <div class="workout-day-heading">
 
-                        <div class="workout-detail">
+                                    <div class="workout-day-title">
 
-                            <i class="fa-solid fa-layer-group"></i>
+                                        <div class="workout-day-icon">
+                                            <i class="fa-solid fa-calendar-day"></i>
+                                        </div>
 
-                            <div>
+                                        <div>
+                                            <span>TRAINING DAY</span>
 
-                                <span>Sets</span>
+                                            <h3>
+                                                @dayGroup.Key
+                                            </h3>
+                                        </div>
 
-                                <strong>
-                                    @workout.Sets
-                                </strong>
+                                    </div>
+
+                                    <span class="workout-exercise-count">
+                                        @dayGroup.Count()
+                                        @(dayGroup.Count() == 1 ? "Exercise" : "Exercises")
+                                    </span>
+
+                                </div>
+
+                                <div class="workout-exercise-list">
+
+                                    @foreach (var exercise in dayGroup)
+                                    {
+                                        <div class="workout-exercise-row">
+
+                                            <div class="workout-exercise-icon">
+                                                <i class="fa-solid fa-person-running"></i>
+                                            </div>
+
+                                            <div class="workout-exercise-content">
+
+                                                <h4>
+                                                    @exercise.ExerciseName
+                                                </h4>
+
+                                                @if (!string.IsNullOrWhiteSpace(exercise.Description))
+                                                {
+                                                    <p>
+                                                        @exercise.Description
+                                                    </p>
+                                                }
+
+                                            </div>
+
+                                            <div class="workout-exercise-stats">
+
+                                                <div>
+                                                    <span>SETS</span>
+                                                    <strong>
+                                                        @exercise.Sets
+                                                    </strong>
+                                                </div>
+
+                                                <div>
+                                                    <span>REPS</span>
+                                                    <strong>
+                                                        @exercise.Repetitions
+                                                    </strong>
+                                                </div>
+
+                                                <div>
+                                                    <span>REST</span>
+                                                    <strong>
+                                                        @exercise.RestTime sec
+                                                    </strong>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="workout-exercise-actions">
+
+                                                <a asp-controller="Workout"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@exercise.WorkoutPlanId"
+                                                   class="workout-edit-btn">
+
+                                                    <i class="fa-solid fa-pen"></i>
+
+                                                </a>
+
+                                                <a asp-controller="Workout"
+                                                   asp-action="Delete"
+                                                   asp-route-id="@exercise.WorkoutPlanId"
+                                                   class="workout-delete-btn">
+
+                                                    <i class="fa-solid fa-trash"></i>
+
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+                                    }
+
+                                </div>
 
                             </div>
-
-                        </div>
-
-
-                        <div class="workout-detail">
-
-                            <i class="fa-solid fa-repeat"></i>
-
-                            <div>
-
-                                <span>Repetitions</span>
-
-                                <strong>
-                                    @workout.Repetitions
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="workout-detail">
-
-                            <i class="fa-solid fa-clock"></i>
-
-                            <div>
-
-                                <span>Rest</span>
-
-                                <strong>
-                                    @workout.RestTime
-                                </strong>
-
-                            </div>
-
-                        </div>
+                        }
 
                     </div>
 
-
-                    <!-- DESCRIPTION -->
-                    @if (!string.IsNullOrWhiteSpace(workout.Description))
+                    @if (isCompleted)
                     {
-                        <div class="workout-description">
+                        <div class="workout-completed">
 
-                            <span class="workout-label">
-                                DESCRIPTION
-                            </span>
+                            <div class="workout-completed-icon">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
 
-                            <p>
-                                @workout.Description
-                            </p>
+                            <div>
+                                <strong>
+                                    Workout completed
+                                </strong>
+
+                                <span>
+                                    You earned +@rewardPoints reward points today.
+                                </span>
+                            </div>
 
                         </div>
                     }
+                    else
+                    {
+                        <div class="workout-plan-footer">
 
+                            <div class="workout-footer-info">
 
-                    <!-- ACTIONS -->
+                                <i class="fa-solid fa-trophy"></i>
 
-                    <div class="workout-actions">
+                                <div>
+                                    <strong>
+                                        Ready to complete this workout?
+                                    </strong>
 
-                        <a asp-controller="Workout"
-                           asp-action="Edit"
-                           asp-route-id="@workout.WorkoutPlanId"
-                           class="workout-edit-btn">
+                                    <span>
+                                        Earn +@rewardPoints reward points.
+                                    </span>
+                                </div>
 
-                            <i class="fa-solid fa-pen"></i>
+                            </div>
 
-                            Edit
+                            <form asp-controller="Workout"
+                                  asp-action="CompleteWorkout"
+                                  method="post">
 
-                        </a>
+                                @Html.AntiForgeryToken()
 
+                                <input type="hidden"
+                                       name="workoutName"
+                                       value="@workoutGroup.Key.WorkoutName" />
 
-                        <a asp-controller="Workout"
-                           asp-action="Delete"
-                           asp-route-id="@workout.WorkoutPlanId"
-                           class="workout-delete-btn">
+                                <button type="submit"
+                                        class="workout-complete-btn">
 
-                            <i class="fa-solid fa-trash"></i>
+                                    <i class="fa-solid fa-check"></i>
 
-                            Delete
+                                    Complete Workout
 
-                        </a>
+                                    <span>
+                                        +@rewardPoints
+                                    </span>
 
-                    </div>
+                                </button>
+
+                            </form>
+
+                        </div>
+                    }
 
                 </div>
             }
@@ -217,3 +354,9 @@
     }
 
 </div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/workout.css"
+          asp-append-version="true" />
+}

@@ -4,199 +4,613 @@
     ViewData["Title"] = "My Reservations";
 }
 
-<div class="container mt-5">
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/member-reservations.css"
+          asp-append-version="true" />
+}
 
-    <div class="mb-4">
-        <h1>My Reservations</h1>
+<div class="reservations-page">
 
-        <p class="text-muted">
-            View and manage your equipment reservations.
-        </p>
+    <div class="page-header">
+
+        <div>
+
+            <span class="page-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                My Reservations
+            </h1>
+
+            <p>
+                Manage your equipment reservations and track your reservation time.
+            </p>
+
+        </div>
+
+        <a asp-controller="Member"
+           asp-action="Equipment"
+           class="btn reserve-more-btn">
+
+            <i class="fa-solid fa-plus"></i>
+
+            Browse Equipment
+
+        </a>
+
     </div>
 
-    @if (TempData["Success"] != null)
+
+    @if (TempData["EquipmentSuccess"] != null)
     {
         <div class="alert alert-success">
-            @TempData["Success"]
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                @TempData["EquipmentSuccess"]
+            </span>
+
         </div>
     }
 
-    @if (TempData["Error"] != null)
+
+    @if (TempData["EquipmentError"] != null)
     {
-        <div class="alert alert-danger">
-            @TempData["Error"]
+        <div class="alert alert-warning">
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <span>
+                @TempData["EquipmentError"]
+            </span>
+
         </div>
     }
 
 
     @if (Model != null && Model.Any())
     {
-        <div class="card shadow-sm">
+        <div class="reservation-grid">
 
-            <div class="card-header">
-                <strong>Equipment Reservations</strong>
-            </div>
+            @foreach (var reservation in Model)
+            {
+                var isActive = reservation.Status == "Reserved";
+                var isExpired = reservation.Status == "Expired";
+                var isCancelled = reservation.Status == "Cancelled";
 
-            <div class="card-body p-0">
+                <div class="reservation-card">
 
-                <div class="table-responsive">
+                    <div class="reservation-card-header">
 
-                    <table class="table table-bordered table-hover mb-0">
+                        <div class="equipment-title">
 
-                        <thead class="table-dark">
+                            <div class="equipment-icon">
 
-                            <tr>
+                                <i class="fa-solid fa-dumbbell"></i>
 
-                                <th>
-                                    Equipment
-                                </th>
+                            </div>
 
-                                <th>
-                                    Reserved At
-                                </th>
+                            <div>
 
-                                <th>
-                                    End Time
-                                </th>
+                                <span class="equipment-label">
+                                    EQUIPMENT
+                                </span>
 
-                                <th>
-                                    Status
-                                </th>
+                                <h3>
+                                    @reservation.EquipmentName
+                                </h3>
 
-                                <th class="text-center">
-                                    Action
-                                </th>
+                            </div>
 
-                            </tr>
-
-                        </thead>
+                        </div>
 
 
-                        <tbody>
+                        @if (isActive)
+                        {
+                            <span class="reservation-status status-reserved">
+                                Active
+                            </span>
+                        }
+                        else if (isExpired)
+                        {
+                            <span class="reservation-status status-expired">
+                                Expired
+                            </span>
+                        }
+                        else if (isCancelled)
+                        {
+                            <span class="reservation-status status-cancelled">
+                                Cancelled
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="reservation-status status-cancelled">
+                                @reservation.Status
+                            </span>
+                        }
 
-                            @foreach (var reservation in Model)
-                            {
-                                <tr>
-
-                                    <td>
-
-                                        <strong>
-                                            @reservation.EquipmentName
-                                        </strong>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        @reservation.ReservationDate.ToString(
-                                        "dd MMM yyyy HH:mm:ss")
-
-                            </td>
-
-                            <td>
-
-                                @reservation.EndTime.ToString(
-                                                                "dd MMM yyyy HH:mm:ss")
-
-                            </td>
-
-                            <td>
-
-                                @if (reservation.Status == "Reserved")
-                                        {
-                                            <span class="badge bg-success">
-                                                Reserved
-                                            </span>
-                                        }
-                                        else if (reservation.Status == "Expired")
-                                        {
-                                            <span class="badge bg-secondary">
-                                                Expired
-                                            </span>
-                                        }
-                                        else if (reservation.Status == "Cancelled")
-                                        {
-                                            <span class="badge bg-danger">
-                                                Cancelled
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">
-                                                @reservation.Status
-                                            </span>
-                                        }
-
-                                    </td>
+                    </div>
 
 
+                    <div class="reservation-info">
 
-                                    <td class="text-center">
+                        <div class="reservation-info-row">
 
-                                        @if (reservation.Status == "Reserved")
-                                        {
-                                            <form asp-controller="Equipment"
-                                                  asp-action="Unreserve"
-                                                  method="post">
+                            <span class="reservation-info-label">
+                                Reservation No.
+                            </span>
 
-                                                @Html.AntiForgeryToken()
+                            <span class="reservation-info-value">
+                                #@reservation.ReservationID
+                            </span>
 
-                                                <input type="hidden"
-                                                       name="id"
-                                                       value="@reservation.ReservationID" />
+                        </div>
 
-                                                <button type="submit"
-                                                        class="btn btn-danger btn-sm">
 
-                                                    Unreserve
+                        <div class="reservation-info-row">
 
-                                                </button>
+                            <span class="reservation-info-label">
+                                Reserved At
+                            </span>
 
-                                            </form>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">
-                                                —
-                                            </span>
-                                        }
+                            <span class="reservation-info-value">
+                                @reservation.ReservationDate.ToString("dd MMM yyyy, HH:mm")
+                            </span>
 
-                                    </td>
+                        </div>
 
-                                </tr>
-                            }
 
-                        </tbody>
+                        <div class="reservation-info-row">
 
-                    </table>
+                            <span class="reservation-info-label">
+                                Ends At
+                            </span>
+
+                            <span class="reservation-info-value">
+
+                                @if (reservation.EndTime > DateTime.MinValue)
+                                {
+                                    @reservation.EndTime.ToString("dd MMM yyyy, HH:mm")
+                                }
+                                else
+                                {
+                                    <span class="text-danger">
+                                        Not set
+                                    </span>
+                                }
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    @if (isActive && reservation.EndTime > DateTime.Now)
+                    {
+                        <div class="reservation-countdown-container">
+
+                            <span class="countdown-label">
+                                TIME REMAINING
+                            </span>
+
+                            <span class="countdown"
+                                  data-end-time="@reservation.EndTime.ToUniversalTime().ToString("o")"
+                                  data-reservation-id="@reservation.ReservationID">
+                                --:--
+                            </span>
+
+                        </div>
+
+
+                        <div class="reservation-actions">
+
+                            <form asp-controller="Member"
+                                  asp-action="Unreserve"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="reservationId"
+                                       value="@reservation.ReservationID" />
+
+                                <button type="submit"
+                                        class="btn unreserve-btn">
+
+                                    <i class="fa-solid fa-xmark"></i>
+
+                                    Unreserve
+
+                                </button>
+
+                            </form>
+
+                        </div>
+                    }
+                    else if (isExpired)
+                    {
+                        <div class="reservation-countdown-container expired">
+
+                            <span class="countdown-label">
+                                RESERVATION STATUS
+                            </span>
+
+                            <span class="countdown expired-text">
+                                Reservation Expired
+                            </span>
+
+                        </div>
+                    }
+                    else if (isCancelled)
+                    {
+                        <div class="reservation-countdown-container cancelled">
+
+                            <span class="countdown-label">
+                                RESERVATION STATUS
+                            </span>
+
+                            <span class="countdown cancelled-text">
+                                Reservation Cancelled
+                            </span>
+
+                        </div>
+                    }
 
                 </div>
-
-            </div>
+            }
 
         </div>
     }
     else
     {
-        <div class="alert alert-info">
+        <div class="empty-reservations">
 
-            You currently have no equipment reservations.
+            <div class="empty-icon">
+
+                <i class="fa-solid fa-dumbbell"></i>
+
+            </div>
+
+            <h2>
+                No Reservations Yet
+            </h2>
+
+            <p>
+                You don't have any equipment reservations
+                at the moment.
+            </p>
+
+            <a asp-controller="Member"
+               asp-action="Equipment"
+               class="btn reserve-more-btn">
+
+                <i class="fa-solid fa-dumbbell"></i>
+
+                Browse Equipment
+
+            </a>
 
         </div>
     }
 
 
-    <div class="mt-4">
+    <div class="reservation-information">
 
-        <a asp-controller="Equipment"
-           asp-action="Index"
-           class="btn btn-primary">
+        <div class="information-icon">
 
-            Reserve Equipment
+            <i class="fa-solid fa-circle-info"></i>
 
-        </a>
+        </div>
+
+        <div>
+
+            <h3>
+                Reservation Information
+            </h3>
+
+            <ul>
+
+                <li>
+                    Your equipment reservation lasts for
+                    <strong>10 minutes</strong>.
+                </li>
+
+                <li>
+                    You can cancel your reservation at any time
+                    before it expires.
+                </li>
+
+                <li>
+                    After the reservation expires, the equipment
+                    becomes available for other students.
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+    
+</div>
+
+<div id="reservationExpiryNotification"
+     class="expiry-notification">
+
+    <div class="expiry-icon">
+
+        <i class="fa-solid fa-clock"></i>
 
     </div>
 
+    <div>
+
+        <h3>
+            Reservation Expired
+        </h3>
+
+        <p>
+            Your equipment reservation has ended.
+        </p>
+
+        <div id="notificationTimer"
+             class="expiry-notification-timer">
+            01:00
+        </div>
+
+        <button type="button"
+                id="dismissNotification"
+                class="btn reserve-more-btn">
+
+            Dismiss
+
+        </button>
+
+    </div>
 </div>
+
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const countdowns =
+                document.querySelectorAll(".countdown[data-end-time]");
+
+            let notificationShown = false;
+            let activeReservationId = null;
+            let notificationEndTime = null;
+
+
+            function updateCountdowns() {
+
+                countdowns.forEach(function(element) {
+
+                    const endTimeString =
+                        element.getAttribute("data-end-time");
+
+                    if (!endTimeString) {
+                        element.textContent = "Expired";
+                        return;
+                    }
+
+                    const endTime =
+                        new Date(endTimeString).getTime();
+
+                    const now =
+                        Date.now();
+
+                    const difference =
+                        endTime - now;
+
+
+                    if (difference <= 0) {
+
+                        element.textContent =
+                            "Reservation Expired";
+
+                        element.classList.add("expired-text");
+
+                        const reservationId =
+                            element.dataset.reservationId;
+
+                        if (!notificationShown && reservationId) {
+
+                            notificationShown = true;
+                            activeReservationId = reservationId;
+
+                            showExpiryNotification();
+
+                        }
+
+                        return;
+                    }
+
+
+                    const totalSeconds =
+                        Math.floor(difference / 1000);
+
+                    const minutes =
+                        Math.floor(totalSeconds / 60);
+
+                    const seconds =
+                        totalSeconds % 60;
+
+
+                    element.textContent =
+                        "⏱️ " +
+                        String(minutes).padStart(2, "0") +
+                        ":" +
+                        String(seconds).padStart(2, "0") +
+                        " remaining";
+
+                });
+
+            }
+
+
+            function showExpiryNotification() {
+
+                const notification =
+                    document.getElementById(
+                        "reservationExpiryNotification"
+                    );
+
+                const timer =
+                    document.getElementById(
+                        "notificationTimer"
+                    );
+
+
+                notification.style.display =
+                    "flex";
+
+
+                notificationEndTime =
+                    Date.now() + 60000;
+
+
+                function updateNotificationTimer() {
+
+                    const remaining =
+                        notificationEndTime - Date.now();
+
+
+                    if (remaining <= 0) {
+
+                        timer.textContent =
+                            "00:00";
+
+                        notification.style.display =
+                            "none";
+
+                        return;
+
+                    }
+
+
+                    const totalSeconds =
+                        Math.ceil(remaining / 1000);
+
+                    const minutes =
+                        Math.floor(totalSeconds / 60);
+
+                    const seconds =
+                        totalSeconds % 60;
+
+
+                    timer.textContent =
+                        String(minutes).padStart(2, "0") +
+                        ":" +
+                        String(seconds).padStart(2, "0");
+
+                }
+
+
+                updateNotificationTimer();
+
+
+                const notificationInterval =
+                    setInterval(function() {
+
+                        if (
+                            notification.style.display ===
+                            "none"
+                        ) {
+
+                            clearInterval(
+                                notificationInterval
+                            );
+
+                            return;
+
+                        }
+
+                        updateNotificationTimer();
+
+                    }, 1000);
+
+            }
+
+
+            updateCountdowns();
+
+
+            setInterval(
+                updateCountdowns,
+                1000
+            );
+
+
+            document
+                .getElementById("dismissNotification")
+                .addEventListener("click", async function() {
+
+                    if (!activeReservationId) {
+                        return;
+                    }
+
+
+                    const token =
+                        document.querySelector(
+                            'input[name="__RequestVerificationToken"]'
+                        )?.value;
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                '@Url.Action("DismissReservationNotification", "Equipment")',
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/x-www-form-urlencoded"
+                                    },
+
+                                    body:
+                                        "reservationId=" +
+                                        encodeURIComponent(
+                                            activeReservationId
+                                        ) +
+                                        "&__RequestVerificationToken=" +
+                                        encodeURIComponent(
+                                            token
+                                        )
+                                }
+                            );
+
+
+                        if (response.ok) {
+
+                            document.getElementById(
+                                "reservationExpiryNotification"
+                            ).style.display =
+                                "none";
+
+                            activeReservationId =
+                                null;
+
+                        }
+
+                    }
+                    catch (error) {
+
+                        console.error(error);
+
+                    }
+
+                });
+
+        });
+
+    </script>
+  
+}

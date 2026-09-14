@@ -176,3 +176,127 @@
         grid-template-columns: 1fr;
     }
 }
+
+.profile-photo-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.profile-photo-btn,
+.remove-photo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.profile-photo-btn {
+    background: #071a33;
+    color: #ffffff;
+    border: 1px solid #071a33;
+}
+
+    .profile-photo-btn:hover {
+        transform: translateY(-2px);
+        opacity: 0.92;
+    }
+
+.remove-photo-btn {
+    background: #ffffff;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+    .remove-photo-btn:hover {
+        background: #fef2f2;
+        transform: translateY(-2px);
+    }
+
+.profile-avatar {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef2f7;
+    border: 4px solid #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+    .profile-avatar i {
+        font-size: 48px;
+        color: #64748b;
+    }
+
+.profile-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-photo-hint {
+    display: block;
+    margin-top: 10px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.alert-danger {
+    margin-bottom: 20px;
+}
+
+
+#photoUploadForm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.profile-photo-actions form {
+    margin: 0;
+}
+
+#uploadPhotoBtn,
+#cancelPhotoBtn {
+    border: none;
+}
+
+#uploadPhotoBtn {
+    background: #0f766e;
+    color: #ffffff;
+    border: 1px solid #0f766e;
+}
+
+    #uploadPhotoBtn:hover {
+        background: #115e59;
+        transform: translateY(-2px);
+    }
+
+#cancelPhotoBtn {
+    background: #ffffff;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+}
+
+    #cancelPhotoBtn:hover {
+        background: #f8fafc;
+        transform: translateY(-2px);
+    }
+

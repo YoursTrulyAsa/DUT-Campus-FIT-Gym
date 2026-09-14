@@ -337,19 +337,15 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(MembershipApplications));
             }
 
-            DateTime startDate = DateTime.Today;
-
-            DateTime endDate;
-
-            if (application.MembershipType == "Semester")
+            var validMembershipTypes = new[]
             {
-                endDate = startDate.AddMonths(6);
-            }
-            else if (application.MembershipType == "Annual")
-            {
-                endDate = startDate.AddYears(1);
-            }
-            else
+                "Annual",
+                "Semester1",
+                "Semester2"
+            };
+
+            if (!validMembershipTypes.Contains(
+                application.MembershipType))
             {
                 TempData["Error"] =
                     "Invalid membership type.";
@@ -362,11 +358,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 MemberId = application.MemberId,
                 MembershipType = application.MembershipType,
-                StartDate = startDate,
-                EndDate = endDate,
-                Status = "WaitingForPayment",
+                FirstTimeMember = application.FirstTimeMember,
+                BasePrice = application.BasePrice,
+                DiscountPercentage = application.DiscountPercentage,
                 Price = application.Price,
-                PaymentMethod = application.PaymentMethod
+                StartDate = null,
+                EndDate = null,
+                Status = "WaitingForPayment",
+                PaymentMethod = application.PaymentMethod,
+                PaymentReference = null,
+                PaymentDate = null,
+                PaymentStatus = "Pending"
             };
 
             _context.Memberships.Add(membership);
@@ -497,6 +499,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(reservations);
         }
 
+        
         [HttpGet]
         public IActionResult AddEquipment()
         {
@@ -506,7 +509,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddEquipment(
-            Equipment equipment)
+            Equipment equipment,
+            IFormFile? imageFile)
         {
             if (!ModelState.IsValid)
             {
@@ -514,6 +518,54 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             equipment.IsAvailable = true;
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var allowedExtensions = new[]
+                {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp"
+        };
+
+                var extension =
+                    Path.GetExtension(imageFile.FileName)
+                        .ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError(
+                        "ImagePath",
+                        "Only JPG, JPEG, PNG and WEBP images are allowed.");
+
+                    return View(equipment);
+                }
+
+                var uploadFolder = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    "uploads",
+                    "equipment");
+
+                Directory.CreateDirectory(uploadFolder);
+
+                var fileName =
+                    $"{Guid.NewGuid()}{extension}";
+
+                var filePath =
+                    Path.Combine(uploadFolder, fileName);
+
+                using (var stream = new FileStream(
+                    filePath,
+                    FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(stream);
+                }
+
+                equipment.ImagePath =
+                    $"/uploads/equipment/{fileName}";
+            }
 
             _context.Equipment.Add(equipment);
 
@@ -524,6 +576,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return RedirectToAction(nameof(Equipment));
         }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -651,7 +705,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 .OrderByDescending(a => a.DatePosted)
                 .ToListAsync();
 
-            // Explicitly specify the view location.
             return View(
                 "~/Views/Admin/Announcements.cshtml",
                 announcements);

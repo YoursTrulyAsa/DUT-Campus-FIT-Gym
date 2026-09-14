@@ -1,0 +1,172 @@
+﻿@{
+    ViewData["Title"] = "Fitness AI";
+}
+
+<div class="fitness-ai-page">
+
+    <div class="fitness-ai-header">
+
+        <div>
+            <span class="fitness-ai-eyebrow">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Fitness AI
+            </h1>
+
+            <p>
+                Your intelligent fitness companion for planning,
+                challenges and progress.
+            </p>
+        </div>
+
+        <div class="fitness-ai-header-icon">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+
+    </div>
+
+
+    <div class="fitness-ai-grid">
+
+        <a asp-controller="FitnessAI"
+           asp-action="AIWorkout"
+           class="fitness-ai-card">
+
+            <div class="fitness-ai-card-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <div class="fitness-ai-card-content">
+
+                <span>
+                    WORKOUT
+                </span>
+
+                <h2>
+                    AI Workout Plan
+                </h2>
+
+                <p>
+                    Get a structured workout suggestion based
+                    on your fitness level and goals.
+                </p>
+
+                <strong>
+                    Create your plan
+                    <i class="fa-solid fa-arrow-right"></i>
+                </strong>
+
+            </div>
+
+        </a>
+
+
+        <a asp-controller="FitnessAI"
+           asp-action="AIMeal"
+           class="fitness-ai-card">
+
+            <div class="fitness-ai-card-icon">
+                <i class="fa-solid fa-utensils"></i>
+            </div>
+
+            <div class="fitness-ai-card-content">
+
+                <span>
+                    NUTRITION
+                </span>
+
+                <h2>
+                    Meal Suggestions
+                </h2>
+
+                <p>
+                    Explore balanced meal ideas and general
+                    nutrition guidance.
+                </p>
+
+                <strong>
+                    Get meal suggestions
+                    <i class="fa-solid fa-arrow-right"></i>
+                </strong>
+
+            </div>
+
+        </a>
+
+
+        <a asp-controller="FitnessChallenge"
+           asp-action="Index"
+           class="fitness-ai-card">
+
+            <div class="fitness-ai-card-icon">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+
+            <div class="fitness-ai-card-content">
+
+                <span>
+                    CHALLENGES
+                </span>
+
+                <h2>
+                    Fitness Challenges
+                </h2>
+
+                <p>
+                    Choose your level and category to get a reasonable AI-generated fitness challenge.
+                </p>
+
+                <strong>
+                    Create your challenge
+                    <i class="fa-solid fa-arrow-right"></i>
+                </strong>
+
+            </div>
+
+        </a>
+
+
+
+        <a asp-controller="FitnessInsights"
+           asp-action="Index"
+           class="fitness-ai-card">
+
+            <div class="fitness-ai-card-icon">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+
+            <div class="fitness-ai-card-content">
+
+                <span>
+                    INSIGHTS
+                </span>
+
+                <h2>
+                    Fitness Insights
+                </h2>
+
+                <p>
+                    Understand your gym activity and see
+                    useful progress trends.
+                </p>
+
+                <strong>
+                    View your insights
+                    <i class="fa-solid fa-arrow-right"></i>
+                </strong>
+
+            </div>
+
+        </a>
+
+    </div>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/fitness-ai.css"
+          asp-append-version="true" />
+}

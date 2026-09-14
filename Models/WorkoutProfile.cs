@@ -15,7 +15,7 @@ namespace DUT_Campus_FIT_Gym.Models
         public Member? Member { get; set; }
 
         [Required]
-        [Range(13, 100)]
+        [Range(17, 69)]
         public int Age { get; set; }
 
         [Required]

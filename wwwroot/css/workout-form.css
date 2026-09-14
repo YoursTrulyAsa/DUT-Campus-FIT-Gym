@@ -1,0 +1,289 @@
+﻿al.workout-form-page {
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 35px;
+}
+
+.workout-form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.workout-form-eyebrow {
+    display: block;
+    margin-bottom: 7px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.workout-form-header h1 {
+    margin: 0 0 8px;
+    color: #071a33;
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.workout-form-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.workout-form-header-icon {
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: #071a33;
+    color: #ffffff;
+    font-size: 21px;
+}
+
+.workout-form-card {
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+}
+
+.workout-form-section {
+    padding: 28px 30px;
+}
+
+    .workout-form-section + .workout-form-section {
+        border-top: 1px solid #eef0f2;
+    }
+
+.workout-form-section-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin-bottom: 23px;
+}
+
+    .workout-form-section-title > i {
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #f1f5f9;
+        color: #071a33;
+        font-size: 14px;
+    }
+
+    .workout-form-section-title h2 {
+        margin: 1px 0 4px;
+        color: #071a33;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .workout-form-section-title p {
+        margin: 0;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+.workout-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.workout-form-grid-three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.workout-form-group {
+    min-width: 0;
+}
+
+    .workout-form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .workout-form-group .form-control {
+        width: 100%;
+        min-height: 45px;
+        padding: 10px 13px;
+        border: 1px solid #d9dee5;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #071a33;
+        font-size: 14px;
+        outline: none;
+        box-shadow: none;
+        transition: 0.2s ease;
+    }
+
+        .workout-form-group .form-control:focus {
+            border-color: #071a33;
+            box-shadow: 0 0 0 3px rgba(7, 26, 51, 0.08);
+        }
+
+        .workout-form-group .form-control::placeholder {
+            color: #a0a9b5;
+        }
+
+    .workout-form-group select.form-control {
+        cursor: pointer;
+    }
+
+.workout-description-input {
+    min-height: 130px !important;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.workout-input-with-suffix {
+    position: relative;
+}
+
+    .workout-input-with-suffix .form-control {
+        padding-right: 58px;
+    }
+
+    .workout-input-with-suffix span {
+        position: absolute;
+        top: 50%;
+        right: 13px;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 700;
+        pointer-events: none;
+    }
+
+.workout-form-group .text-danger {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+}
+
+.workout-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 20px 30px;
+    background: #f8fafc;
+    border-top: 1px solid #eef0f2;
+}
+
+.workout-form-cancel-btn,
+.workout-form-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 45px;
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.workout-form-cancel-btn {
+    background: #ffffff;
+    border: 1px solid #d9dee5;
+    color: #475569;
+}
+
+    .workout-form-cancel-btn:hover {
+        color: #071a33;
+        background: #f1f5f9;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+.workout-form-submit-btn {
+    border: none;
+    background: #071a33;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+    .workout-form-submit-btn:hover {
+        color: #ffffff;
+        background: #10294a;
+        transform: translateY(-1px);
+    }
+
+@media (max-width: 768px) {
+
+    .workout-form-page {
+        padding: 20px;
+    }
+
+    .workout-form-header {
+        align-items: flex-start;
+    }
+
+        .workout-form-header h1 {
+            font-size: 27px;
+        }
+
+    .workout-form-header-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 13px;
+    }
+
+    .workout-form-section {
+        padding: 23px 20px;
+    }
+
+    .workout-form-grid,
+    .workout-form-grid-three {
+        grid-template-columns: 1fr;
+    }
+
+    .workout-form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        padding: 18px 20px;
+    }
+
+    .workout-form-cancel-btn,
+    .workout-form-submit-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .workout-form-header {
+        gap: 15px;
+    }
+
+    .workout-form-header-icon {
+        display: none;
+    }
+
+    .workout-form-section-title {
+        gap: 10px;
+    }
+
+        .workout-form-section-title > i {
+            width: 34px;
+            height: 34px;
+        }
+}
