@@ -22,6 +22,10 @@ namespace DUT_Campus_FIT_Gym.ViewModels
 
         public double WeeklyGymMinutes { get; set; }
 
+        public double EstimatedCalories { get; set; }
+
+        public double WeeklyEstimatedCalories { get; set; }
+
         public List<string> WeeklyLabels { get; set; } = new();
 
         public List<int> WeeklyVisitCounts { get; set; } = new();

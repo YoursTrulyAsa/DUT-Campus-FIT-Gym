@@ -14,7 +14,7 @@
 
         <p>
             <strong>Exercise:</strong>
-            @Model.ExerciseName
+            @(Model.Exercise?.ExerciseName ?? "Exercise not assigned")
         </p>
 
         <p>

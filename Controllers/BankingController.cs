@@ -16,17 +16,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
         private readonly PayFastSettings _payFast;
         private readonly MembershipPricingService _pricingService;
         private readonly ILogger<BankingController> _logger;
+        private readonly NgrokService _ngrokService;
 
         public BankingController(
             GymDbContext context,
             IOptions<PayFastSettings> payFast,
             MembershipPricingService pricingService,
-            ILogger<BankingController> logger)
+            ILogger<BankingController> logger,
+            NgrokService ngrokService)
         {
             _context = context;
             _payFast = payFast.Value;
             _pricingService = pricingService;
             _logger = logger;
+            _ngrokService = ngrokService;
         }
 
         [HttpGet]
@@ -145,34 +148,47 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 await _context.SaveChangesAsync();
 
-                var returnUrl =
+                var ngrokUrl =
+                    await _ngrokService.GetPublicUrlAsync();
+
+                var baseUrl =
+                    string.IsNullOrWhiteSpace(ngrokUrl)
+                        ? $"{Request.Scheme}://{Request.Host}"
+                        : ngrokUrl;
+
+                var returnPath =
                     Url.Action(
                         nameof(PaymentSuccess),
                         "Banking",
-                        new { membershipId },
-                        Request.Scheme);
+                        new { membershipId });
 
-                var cancelUrl =
+                var cancelPath =
                     Url.Action(
                         nameof(PaymentCancelled),
                         "Banking",
-                        new { membershipId },
-                        Request.Scheme);
+                        new { membershipId });
 
-                var notifyUrl =
+                var notifyPath =
                     Url.Action(
                         nameof(PaymentNotify),
-                        "Banking",
-                        null,
-                        Request.Scheme);
+                        "Banking");
 
-                if (string.IsNullOrWhiteSpace(returnUrl) ||
-                    string.IsNullOrWhiteSpace(cancelUrl) ||
-                    string.IsNullOrWhiteSpace(notifyUrl))
+                if (string.IsNullOrWhiteSpace(returnPath) ||
+                    string.IsNullOrWhiteSpace(cancelPath) ||
+                    string.IsNullOrWhiteSpace(notifyPath))
                 {
                     throw new InvalidOperationException(
                         "Could not generate PayFast callback URLs.");
                 }
+
+                var returnUrl =
+                    $"{baseUrl}{returnPath}";
+
+                var cancelUrl =
+                    $"{baseUrl}{cancelPath}";
+
+                var notifyUrl =
+                    $"{baseUrl}{notifyPath}";
 
                 var paymentData =
                     new Dictionary<string, string>

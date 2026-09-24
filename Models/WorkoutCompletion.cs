@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DUT_Campus_FIT_Gym.Models
 {
@@ -7,9 +8,15 @@ namespace DUT_Campus_FIT_Gym.Models
         [Key]
         public int WorkoutCompletionId { get; set; }
 
-    [Required]
+        public int? WorkoutPlanId { get; set; }
+
+        [ForeignKey("WorkoutPlanId")]
+        public WorkoutPlan? WorkoutPlan { get; set; }
+
+        [Required]
         public int MemberId { get; set; }
 
+        [ForeignKey("MemberId")]
         public Member? Member { get; set; }
 
         [Required]

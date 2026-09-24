@@ -37,6 +37,7 @@ namespace DUT_Campus_FIT_Gym.Data
         public DbSet<ChallengeParticipation> ChallengeParticipations { get; set; }
         public DbSet<RewardPoint> RewardPoints { get; set; }
         public DbSet<WorkoutCompletion> WorkoutCompletions { get; set; }
+        public DbSet<Exercise> Exercises { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -137,6 +138,18 @@ namespace DUT_Campus_FIT_Gym.Data
                 .WithMany(m => m.WorkoutCompletions)
                 .HasForeignKey(w => w.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<WorkoutPlan>()
+                .HasOne(w => w.Exercise)
+                .WithMany()
+                .HasForeignKey(w => w.ExerciseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<WorkoutCompletion>()
+                .HasOne(w => w.WorkoutPlan)
+                .WithMany()
+                .HasForeignKey(w => w.WorkoutPlanId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

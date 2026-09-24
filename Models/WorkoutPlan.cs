@@ -18,13 +18,14 @@ namespace DUT_Campus_FIT_Gym.Models
         [StringLength(100)]
         public string WorkoutName { get; set; } = "";
 
+        public int? ExerciseId { get; set; }
+
+        [ForeignKey("ExerciseId")]
+        public virtual Exercise? Exercise { get; set; }
+
         [Required]
         [StringLength(30)]
         public string Level { get; set; } = "Beginner";
-
-        [Required]
-        [StringLength(150)]
-        public string ExerciseName { get; set; } = "";
 
         [Required]
         [StringLength(20)]

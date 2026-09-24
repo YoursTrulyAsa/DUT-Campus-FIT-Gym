@@ -17,38 +17,39 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context = context;
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Student,Staff")]
         public IActionResult Index()
         {
-            if (!User.IsInRole("Student") && !User.IsInRole("Staff"))
-            {
-                return Forbid();
-            }
-
             if (!IsCheckedIn())
             {
-                TempData["Error"] =
+                TempData["EquipmentError"] =
                     "Please check in to the gym before accessing equipment.";
 
-                return RedirectToAction("Attendance", "Member");
+                return RedirectToAction(
+                    "Attendance",
+                    "Member");
             }
 
-            ExpireOldReservations();
+            var equipment =
+                _context.Equipment
+                    .OrderBy(e => e.EquipmentName)
+                    .ToList();
 
-            var equipment = _context.Equipment
-                .OrderBy(e => e.EquipmentName)
-                .ToList();
+            var activeReservations =
+                _context.Reservations
+                    .Where(r =>
+                        r.Status == "Reserved" &&
+                        r.EndTime > DateTime.Now)
+                    .ToList();
 
-            var activeReservations = _context.Reservations
-                .Where(r =>
-                    r.Status == "Reserved" &&
-                    r.EndTime > DateTime.Now)
-                .ToList();
-
-            ViewBag.ActiveReservations = activeReservations;
+            ViewBag.ActiveReservations =
+                activeReservations;
 
             return View(equipment);
         }
 
+        [HttpGet]
         [Authorize(Roles = "Admin,Trainer")]
         public IActionResult Create()
         {
@@ -69,16 +70,25 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             equipment.IsAvailable = true;
 
-            if (imageFile != null && imageFile.Length > 0)
+            if (imageFile != null &&
+                imageFile.Length > 0)
             {
                 var extension =
-                    Path.GetExtension(imageFile.FileName)
+                    Path.GetExtension(
+                        imageFile.FileName)
                         .ToLowerInvariant();
 
                 var allowedExtensions =
-                    new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                    new[]
+                    {
+                        ".jpg",
+                        ".jpeg",
+                        ".png",
+                        ".webp"
+                    };
 
-                if (!allowedExtensions.Contains(extension))
+                if (!allowedExtensions.Contains(
+                        extension))
                 {
                     ModelState.AddModelError(
                         "imageFile",
@@ -94,7 +104,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         "uploads",
                         "equipment");
 
-                Directory.CreateDirectory(uploadsFolder);
+                Directory.CreateDirectory(
+                    uploadsFolder);
 
                 var fileName =
                     $"{Guid.NewGuid()}{extension}";
@@ -109,7 +120,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                            filePath,
                            FileMode.Create))
                 {
-                    await imageFile.CopyToAsync(stream);
+                    await imageFile.CopyToAsync(
+                        stream);
                 }
 
                 equipment.ImagePath =
@@ -123,7 +135,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
             TempData["Success"] =
                 "Equipment added successfully.";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(
+                nameof(Index));
         }
 
         [HttpPost]
@@ -133,160 +146,199 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             if (!IsCheckedIn())
             {
-                TempData["Error"] =
+                TempData["EquipmentError"] =
                     "Please check in to the gym before reserving equipment.";
 
-                return RedirectToAction("Attendance", "Member");
+                return RedirectToAction(
+                    "Attendance",
+                    "Member");
             }
-
-            ExpireOldReservations();
 
             var memberIdClaim =
-                User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(memberIdClaim) ||
-                !int.TryParse(memberIdClaim, out int memberId))
+                !int.TryParse(
+                    memberIdClaim,
+                    out int memberId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
 
-            var existingReservation = _context.Reservations
-                .FirstOrDefault(r =>
-                    r.MemberID == memberId &&
-                    r.Status == "Reserved" &&
-                    r.EndTime > DateTime.Now);
+            var existingReservation =
+                _context.Reservations
+                    .FirstOrDefault(r =>
+                        r.MemberID == memberId &&
+                        r.Status == "Reserved" &&
+                        r.EndTime > DateTime.Now);
 
             if (existingReservation != null)
             {
-                TempData["Error"] =
+                TempData["EquipmentError"] =
                     "You already have an equipment reservation. Cancel it or wait for it to expire.";
 
-                return RedirectToAction(nameof(MyReservations));
+                return RedirectToAction(
+                    nameof(MyReservations));
             }
 
-            var equipment = _context.Equipment
-                .FirstOrDefault(e => e.EquipmentID == id);
+            var equipment =
+                _context.Equipment
+                    .FirstOrDefault(e =>
+                        e.EquipmentID == id);
 
             if (equipment == null)
             {
                 return NotFound();
             }
 
-            var equipmentCooldown = _context.Reservations
-                .Where(r =>
-                    r.EquipmentID == id &&
-                    r.Status == "Expired")
-                .OrderByDescending(r => r.EndTime)
-                .FirstOrDefault();
+            var equipmentCooldown =
+                _context.Reservations
+                    .Where(r =>
+                        r.EquipmentID == id &&
+                        r.Status == "Expired")
+                    .OrderByDescending(r =>
+                        r.EndTime)
+                    .FirstOrDefault();
 
             if (equipmentCooldown != null)
             {
                 var cooldownEnd =
-                    equipmentCooldown.EndTime.AddMinutes(2);
+                    equipmentCooldown.EndTime
+                        .AddMinutes(2);
 
-                if (cooldownEnd > DateTime.Now)
+                if (cooldownEnd >
+                    DateTime.Now)
                 {
                     var secondsRemaining =
                         (int)Math.Ceiling(
-                            (cooldownEnd - DateTime.Now).TotalSeconds);
+                            (
+                                cooldownEnd -
+                                DateTime.Now
+                            ).TotalSeconds);
 
-                    TempData["Error"] =
+                    TempData["EquipmentError"] =
                         $"This equipment is cooling down. Please wait {secondsRemaining} seconds before reserving it.";
 
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(
+                        nameof(Index));
                 }
             }
 
             if (!equipment.IsAvailable)
             {
-                TempData["Error"] =
+                TempData["EquipmentError"] =
                     "This equipment is currently reserved by another student.";
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(
+                    nameof(Index));
             }
 
-            var startTime = DateTime.Now;
-            var endTime = startTime.AddMinutes(10);
+            var startTime =
+                DateTime.Now;
 
-            var reservation = new Reservation
-            {
-                MemberID = memberId,
-                EquipmentID = equipment.EquipmentID,
-                ReservationDate = startTime,
-                EndTime = endTime,
-                Status = "Reserved",
-                NotificationDismissed = false
-            };
+            var endTime =
+                startTime.AddMinutes(10);
 
-            equipment.IsAvailable = false;
+            var reservation =
+                new Reservation
+                {
+                    MemberID =
+                        memberId,
 
-            _context.Reservations.Add(reservation);
+                    EquipmentID =
+                        equipment.EquipmentID,
+
+                    ReservationDate =
+                        startTime,
+
+                    EndTime =
+                        endTime,
+
+                    Status =
+                        "Reserved",
+
+                    NotificationDismissed =
+                        false
+                };
+
+            equipment.IsAvailable =
+                false;
+
+            _context.Reservations.Add(
+                reservation);
+
             _context.SaveChanges();
 
-            TempData["Success"] =
-                $"{equipment.EquipmentName} reserved successfully for 10 minutes.";
+            TempData["EquipmentSuccess"] =
+                $"{equipment.EquipmentName} reserved successfully for 10 minutes for your workout";
 
-            return RedirectToAction(nameof(MyReservations));
+            return RedirectToAction(
+                nameof(MyReservations));
         }
 
+        [HttpGet]
         [Authorize(Roles = "Student,Staff")]
         public IActionResult MyReservations()
         {
-            if (!IsCheckedIn())
-            {
-                TempData["Error"] =
-                    "Please check in to the gym before accessing your reservations.";
-
-                return RedirectToAction("Attendance", "Member");
-            }
-
-            ExpireOldReservations();
-
             var memberIdClaim =
-                User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(memberIdClaim) ||
-                !int.TryParse(memberIdClaim, out int memberId))
+                !int.TryParse(
+                    memberIdClaim,
+                    out int memberId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
 
-            var reservations = _context.Reservations
-                .Where(r =>
-                    r.MemberID == memberId)
-                .Join(
-                    _context.Equipment,
-                    reservation => reservation.EquipmentID,
-                    equipment => equipment.EquipmentID,
-                    (reservation, equipment) =>
-                        new ReservationViewModel
-                        {
-                            ReservationID =
-                                reservation.ReservationID,
+            var reservations =
+                _context.Reservations
+                    .Where(r =>
+                        r.MemberID == memberId)
+                    .Join(
+                        _context.Equipment,
+                        reservation =>
+                            reservation.EquipmentID,
+                        equipment =>
+                            equipment.EquipmentID,
+                        (reservation, equipment) =>
+                            new ReservationViewModel
+                            {
+                                ReservationID =
+                                    reservation.ReservationID,
 
-                            MemberID =
-                                reservation.MemberID,
+                                MemberID =
+                                    reservation.MemberID,
 
-                            EquipmentName =
-                                equipment.EquipmentName,
+                                EquipmentName =
+                                    equipment.EquipmentName,
 
-                            ReservationDate =
-                                reservation.ReservationDate,
+                                ReservationDate =
+                                    reservation.ReservationDate,
 
-                            EndTime =
-                                reservation.EndTime,
+                                EndTime =
+                                    reservation.EndTime,
 
-                            Status =
-                                reservation.Status,
+                                Status =
+                                    reservation.Status,
 
-                            NotificationDismissed =
-                                reservation.NotificationDismissed
-                        }
-                )
-                .OrderByDescending(r => r.ReservationDate)
-                .ToList();
+                                NotificationDismissed =
+                                    reservation.NotificationDismissed
+                            }
+                    )
+                    .OrderByDescending(
+                        r => r.ReservationDate)
+                    .ToList();
 
-            return View("Reserve", reservations);
+            return View(
+                "Reserve",
+                reservations);
         }
 
         [HttpPost]
@@ -294,54 +346,71 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Unreserve(int id)
         {
-            if (!IsCheckedIn())
-            {
-                TempData["Error"] =
-                    "Please check in to the gym before managing equipment reservations.";
-
-                return RedirectToAction("Attendance", "Member");
-            }
-
             var memberIdClaim =
-                User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(memberIdClaim) ||
-                !int.TryParse(memberIdClaim, out int memberId))
+                !int.TryParse(
+                    memberIdClaim,
+                    out int memberId))
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
 
-            var reservation = _context.Reservations
-                .FirstOrDefault(r =>
-                    r.ReservationID == id &&
-                    r.MemberID == memberId &&
-                    r.Status == "Reserved");
+            var reservation =
+                _context.Reservations
+                    .FirstOrDefault(r =>
+                        r.ReservationID == id &&
+                        r.MemberID == memberId &&
+                        r.Status == "Reserved");
 
             if (reservation == null)
             {
-                TempData["Error"] =
+                TempData["EquipmentError"] =
                     "The reservation could not be found or has already expired.";
 
-                return RedirectToAction(nameof(MyReservations));
+                return RedirectToAction(
+                    nameof(MyReservations));
             }
 
-            var equipment = _context.Equipment
-                .FirstOrDefault(e =>
-                    e.EquipmentID == reservation.EquipmentID);
+            if (reservation.EndTime <=
+                DateTime.Now)
+            {
+                TempData["EquipmentError"] =
+                    "The reservation has already expired.";
+
+                return RedirectToAction(
+                    nameof(MyReservations));
+            }
+
+            var equipment =
+                _context.Equipment
+                    .FirstOrDefault(e =>
+                        e.EquipmentID ==
+                        reservation.EquipmentID);
 
             if (equipment != null)
             {
-                equipment.IsAvailable = true;
+                equipment.IsAvailable =
+                    true;
             }
 
-            reservation.Status = "Cancelled";
+            reservation.Status =
+                "Cancelled";
+
+            reservation.NotificationDismissed =
+                true;
 
             _context.SaveChanges();
 
-            TempData["Success"] =
+            TempData["EquipmentSuccess"] =
                 "Equipment reservation cancelled successfully.";
 
-            return RedirectToAction(nameof(MyReservations));
+            return RedirectToAction(
+                nameof(MyReservations));
         }
 
         [HttpPost]
@@ -351,25 +420,49 @@ namespace DUT_Campus_FIT_Gym.Controllers
             int reservationId)
         {
             var memberIdClaim =
-                User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(memberIdClaim) ||
-                !int.TryParse(memberIdClaim, out int memberId))
+                !int.TryParse(
+                    memberIdClaim,
+                    out int memberId))
             {
                 return Unauthorized();
             }
 
-            var reservation = _context.Reservations
-                .FirstOrDefault(r =>
-                    r.ReservationID == reservationId &&
-                    r.MemberID == memberId);
+            var reservation =
+                _context.Reservations
+                    .FirstOrDefault(r =>
+                        r.ReservationID ==
+                            reservationId &&
+                        r.MemberID ==
+                            memberId);
 
             if (reservation == null)
             {
                 return NotFound();
             }
 
-            reservation.NotificationDismissed = true;
+            if (reservation.Status !=
+                "Expired")
+            {
+                return BadRequest();
+            }
+
+            if (reservation.NotificationDismissed)
+            {
+                return Ok();
+            }
+
+            if (DateTime.Now >=
+                reservation.EndTime.AddMinutes(1))
+            {
+                return BadRequest();
+            }
+
+            reservation.NotificationDismissed =
+                true;
 
             _context.SaveChanges();
 
@@ -379,15 +472,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
         private bool IsCheckedIn()
         {
             var memberIdClaim =
-                User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrWhiteSpace(memberIdClaim) ||
-                !int.TryParse(memberIdClaim, out int memberId))
+            if (string.IsNullOrWhiteSpace(
+                    memberIdClaim) ||
+                !int.TryParse(
+                    memberIdClaim,
+                    out int memberId))
             {
                 return false;
             }
 
-            var now = DateTime.Now;
+            var now =
+                DateTime.Now;
 
             return _context.Attendances
                 .Any(a =>
@@ -397,70 +495,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         !a.CheckOutTime.HasValue ||
                         a.CheckOutTime.Value > now
                     ));
-        }
-
-        private void ExpireOldReservations()
-        {
-            var now = DateTime.Now;
-
-            var expiredReservations = _context.Reservations
-                .Where(r =>
-                    r.Status == "Reserved" &&
-                    r.EndTime <= now)
-                .ToList();
-
-            foreach (var reservation in expiredReservations)
-            {
-                reservation.Status = "Expired";
-
-                var equipment = _context.Equipment
-                    .FirstOrDefault(e =>
-                        e.EquipmentID == reservation.EquipmentID);
-
-                if (equipment != null)
-                {
-                    equipment.IsAvailable = false;
-                }
-            }
-
-            if (expiredReservations.Any())
-            {
-                _context.SaveChanges();
-            }
-
-            var cooldownFinished = _context.Reservations
-                .Where(r =>
-                    r.Status == "Expired" &&
-                    r.EndTime.AddMinutes(2) <= now)
-                .ToList();
-
-            foreach (var reservation in cooldownFinished)
-            {
-                var equipment = _context.Equipment
-                    .FirstOrDefault(e =>
-                        e.EquipmentID == reservation.EquipmentID);
-
-                if (equipment != null)
-                {
-                    var newerReservationExists =
-                        _context.Reservations.Any(r =>
-                            r.EquipmentID ==
-                                reservation.EquipmentID &&
-                            r.Status == "Reserved" &&
-                            r.ReservationDate >
-                                reservation.EndTime);
-
-                    if (!newerReservationExists)
-                    {
-                        equipment.IsAvailable = true;
-                    }
-                }
-            }
-
-            if (cooldownFinished.Any())
-            {
-                _context.SaveChanges();
-            }
         }
     }
 }

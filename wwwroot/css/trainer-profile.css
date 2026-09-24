@@ -1,0 +1,216 @@
+﻿.trainer-profile-page {
+    padding: 30px 35px 50px;
+    color: #1f2937;
+}
+
+.trainer-profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.trainer-profile-label {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: #1597e5;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+}
+
+.trainer-profile-header h1 {
+    margin: 0;
+    color: #071a33;
+    font-size: 34px;
+    font-weight: 800;
+}
+
+.trainer-profile-header p {
+    margin: 8px 0 0;
+    color: #6b7280;
+    font-size: 15px;
+}
+
+.trainer-profile-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid #dbe3ea;
+    color: #071a33;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+    .trainer-profile-back:hover {
+        border-color: #1597e5;
+        color: #1597e5;
+        transform: translateY(-1px);
+    }
+
+.trainer-profile-alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding: 14px 18px;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    background: #ecfdf3;
+    color: #166534;
+    font-size: 14px;
+}
+
+.trainer-profile-card {
+    max-width: 760px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 8px 28px rgba(7, 26, 51, 0.07);
+}
+
+.trainer-profile-card-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 30px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.trainer-profile-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 65px;
+    height: 65px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #eaf6ff;
+    color: #1597e5;
+    font-size: 25px;
+}
+
+.trainer-profile-card-header span {
+    display: block;
+    margin-bottom: 4px;
+    color: #9ca3af;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.trainer-profile-card-header h2 {
+    margin: 0;
+    color: #071a33;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.trainer-profile-card-header p {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.trainer-profile-field {
+    margin-bottom: 20px;
+}
+
+    .trainer-profile-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #071a33;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .trainer-profile-field input,
+    .trainer-profile-field select {
+        width: 100%;
+        padding: 13px 15px;
+        border: 1px solid #dbe3ea;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #1f2937;
+        font-size: 14px;
+        outline: none;
+        transition: 0.2s ease;
+    }
+
+        .trainer-profile-field input:focus,
+        .trainer-profile-field select:focus {
+            border-color: #1597e5;
+            box-shadow: 0 0 0 3px rgba(21, 151, 229, 0.1);
+        }
+
+        .trainer-profile-field input[readonly] {
+            background: #f8fafc;
+            color: #6b7280;
+        }
+
+.trainer-profile-validation {
+    display: block;
+    margin-top: 6px;
+    color: #dc2626;
+    font-size: 12px;
+}
+
+.trainer-profile-save {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 5px;
+    padding: 13px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #1597e5;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+    .trainer-profile-save:hover {
+        background: #0d83c9;
+        transform: translateY(-1px);
+    }
+
+@media (max-width: 768px) {
+    .trainer-profile-page {
+        padding: 20px 12px 35px;
+    }
+
+    .trainer-profile-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+        .trainer-profile-header h1 {
+            font-size: 28px;
+        }
+
+    .trainer-profile-back {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .trainer-profile-card {
+        padding: 22px;
+        border-radius: 15px;
+    }
+
+    .trainer-profile-card-header {
+        align-items: flex-start;
+    }
+}

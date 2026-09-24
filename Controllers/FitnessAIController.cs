@@ -93,6 +93,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return View("AIWorkout");
             }
 
+            apiKey = apiKey.Trim();
+
             string exercisePreference =
                 string.IsNullOrWhiteSpace(preferredExercises)
                     ? "No specific exercises were requested."
@@ -409,68 +411,114 @@ namespace DUT_Campus_FIT_Gym.Controllers
         public IActionResult SaveWorkout(
             List<AIWorkoutExerciseViewModel> exercises,
             string fitnessLevel)
-                {
-                    var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        {
+            var memberId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
 
-                    if (string.IsNullOrEmpty(memberId))
-                    {
-                        return RedirectToAction("Login", "Account");
-                    }
+            if (string.IsNullOrEmpty(memberId))
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
 
-                    if (exercises == null || !exercises.Any())
-                    {
-                        return RedirectToAction("AIWorkout");
-                    }
+            if (exercises == null ||
+                !exercises.Any())
+            {
+                return RedirectToAction(
+                    "AIWorkout");
+            }
 
-                    int currentMemberId = int.Parse(memberId);
+            int currentMemberId =
+                int.Parse(memberId);
 
-                    if (string.IsNullOrWhiteSpace(fitnessLevel))
-                    {
-                        fitnessLevel = "Beginner";
-                    }
+            if (string.IsNullOrWhiteSpace(fitnessLevel))
+            {
+                fitnessLevel = "Beginner";
+            }
 
-                    fitnessLevel = fitnessLevel.Trim();
+            fitnessLevel =
+                fitnessLevel.Trim();
 
-                    if (fitnessLevel.Equals("Advanced", StringComparison.OrdinalIgnoreCase))
-                    {
-                        fitnessLevel = "Pro";
-                    }
+            if (fitnessLevel.Equals(
+                    "Advanced",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                fitnessLevel = "Pro";
+            }
 
-                    var validLevels = new[]
-                    {
+            var validLevels = new[]
+            {
                 "Beginner",
                 "Intermediate",
                 "Pro"
             };
 
-                    if (!validLevels.Contains(fitnessLevel, StringComparer.OrdinalIgnoreCase))
-                    {
-                        fitnessLevel = "Beginner";
-                    }
+            if (!validLevels.Contains(
+                    fitnessLevel,
+                    StringComparer.OrdinalIgnoreCase))
+            {
+                fitnessLevel = "Beginner";
+            }
 
-                    var workoutName = $"{fitnessLevel} AI Workout";
+            var workoutName =
+                $"{fitnessLevel} AI Workout";
 
-                    foreach (var exercise in exercises)
-                    {
-                        _context.WorkoutPlans.Add(
-                            new WorkoutPlan
-                            {
-                                MemberId = currentMemberId,
-                                WorkoutName = workoutName,
-                                Level = fitnessLevel,
-                                ExerciseName = exercise.ExerciseName,
-                                WorkoutDay = exercise.WorkoutDay,
-                                Sets = exercise.Sets,
-                                Repetitions = exercise.Repetitions,
-                                RestTime = exercise.RestTime,
-                                Description = exercise.Description
-                            });
-                    }
+            var exerciseLibrary =
+                _context.Exercises.ToList();
 
-                    _context.SaveChanges();
+            foreach (var exercise in exercises)
+            {
+                var libraryExercise =
+                    exerciseLibrary.FirstOrDefault(e =>
+                        e.ExerciseName.Equals(
+                            exercise.ExerciseName.Trim(),
+                            StringComparison.OrdinalIgnoreCase));
 
-                    return RedirectToAction("MyWorkout", "Workout");
+                if (libraryExercise == null)
+                {
+                    continue;
                 }
+
+                _context.WorkoutPlans.Add(
+                    new WorkoutPlan
+                    {
+                        MemberId =
+                            currentMemberId,
+
+                        WorkoutName =
+                            workoutName,
+
+                        Level =
+                            fitnessLevel,
+
+                        ExerciseId =
+                            libraryExercise.ExerciseId,
+
+                        WorkoutDay =
+                            exercise.WorkoutDay,
+
+                        Sets =
+                            exercise.Sets,
+
+                        Repetitions =
+                            exercise.Repetitions,
+
+                        RestTime =
+                            exercise.RestTime,
+
+                        Description =
+                            exercise.Description
+                    });
+            }
+
+            _context.SaveChanges();
+
+            return RedirectToAction(
+                "MyWorkout",
+                "Workout");
+        }
 
         [HttpGet]
         public IActionResult AIMeal()
@@ -495,11 +543,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var validGoals = new[]
             {
-        "General fitness",
-        "Strength",
-        "Endurance",
-        "Mobility and flexibility"
-    };
+                "General fitness",
+                "Strength",
+                "Endurance",
+                "Mobility and flexibility"
+            };
 
             if (!validGoals.Contains(fitnessGoal))
             {
@@ -519,6 +567,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return View("AIMeal");
             }
+
+            apiKey = apiKey.Trim();
 
             string preferences =
                 string.IsNullOrWhiteSpace(foodPreferences)
@@ -592,12 +642,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     },
                     required = new[]
                     {
-                "mealType",
-                "mealName",
-                "description",
-                "ingredients",
-                "preparation"
-            }
+                        "mealType",
+                        "mealName",
+                        "description",
+                        "ingredients",
+                        "preparation"
+                    }
                 }
             };
 
@@ -605,17 +655,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 contents = new[]
                 {
-            new
-            {
-                parts = new[]
-                {
                     new
                     {
-                        text = prompt
+                        parts = new[]
+                        {
+                            new
+                            {
+                                text = prompt
+                            }
+                        }
                     }
-                }
-            }
-        },
+                },
                 generationConfig = new
                 {
                     responseMimeType = "application/json",
@@ -724,11 +774,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 var meals =
                     JsonSerializer.Deserialize<
                         List<AIMealSuggestionViewModel>>(
-                        aiText,
-                        new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
+                            aiText,
+                            new JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive = true
+                            });
 
                 if (meals == null ||
                     meals.Count != 4)
@@ -741,11 +791,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 var validMealTypes = new[]
                 {
-            "Breakfast",
-            "Lunch",
-            "Snack",
-            "Dinner"
-        };
+                    "Breakfast",
+                    "Lunch",
+                    "Snack",
+                    "Dinner"
+                };
 
                 meals =
                     meals
@@ -771,8 +821,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 var mealTypes =
                     meals
-                        .Select(m => m.MealType.Trim())
-                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .Select(m =>
+                            m.MealType.Trim())
+                        .Distinct(
+                            StringComparer.OrdinalIgnoreCase)
                         .Count();
 
                 if (mealTypes != 4)
@@ -826,16 +878,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
         }
 
-         [HttpPost]
-         [ValidateAntiForgeryToken]
-public IActionResult SaveMealPlan(
-    string fitnessGoal,
-    string foodPreferences,
-    string dietaryPreference,
-    List<AIMealSuggestionViewModel> meals)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveMealPlan(
+            string fitnessGoal,
+            string foodPreferences,
+            string dietaryPreference,
+            List<AIMealSuggestionViewModel> meals)
         {
             var memberId =
-                User.FindFirstValue(ClaimTypes.NameIdentifier);
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(memberId))
             {
@@ -844,30 +897,33 @@ public IActionResult SaveMealPlan(
                     "Account");
             }
 
-            if (meals == null || meals.Count != 4)
+            if (meals == null ||
+                meals.Count != 4)
             {
-                return RedirectToAction("AIMeal");
+                return RedirectToAction(
+                    "AIMeal");
             }
 
             var validGoals = new[]
             {
-        "General fitness",
-        "Strength",
-        "Endurance",
-        "Mobility and flexibility"
-    };
+                "General fitness",
+                "Strength",
+                "Endurance",
+                "Mobility and flexibility"
+            };
 
             var validMealTypes = new[]
             {
-        "Breakfast",
-        "Lunch",
-        "Snack",
-        "Dinner"
-    };
+                "Breakfast",
+                "Lunch",
+                "Snack",
+                "Dinner"
+            };
 
             if (!validGoals.Contains(fitnessGoal))
             {
-                return RedirectToAction("AIMeal");
+                return RedirectToAction(
+                    "AIMeal");
             }
 
             var validMeals =
@@ -886,18 +942,22 @@ public IActionResult SaveMealPlan(
 
             if (validMeals.Count != 4)
             {
-                return RedirectToAction("AIMeal");
+                return RedirectToAction(
+                    "AIMeal");
             }
 
             var mealTypes =
                 validMeals
-                    .Select(m => m.MealType.Trim())
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Select(m =>
+                        m.MealType.Trim())
+                    .Distinct(
+                        StringComparer.OrdinalIgnoreCase)
                     .Count();
 
             if (mealTypes != 4)
             {
-                return RedirectToAction("AIMeal");
+                return RedirectToAction(
+                    "AIMeal");
             }
 
             int currentMemberId =
@@ -906,13 +966,20 @@ public IActionResult SaveMealPlan(
             var mealPlan =
                 new MealPlan
                 {
-                    MemberId = currentMemberId,
-                    FitnessGoal = fitnessGoal.Trim(),
+                    MemberId =
+                        currentMemberId,
+
+                    FitnessGoal =
+                        fitnessGoal.Trim(),
+
                     DietaryPreference =
                         dietaryPreference?.Trim() ?? "",
+
                     FoodPreferences =
                         foodPreferences?.Trim() ?? "",
-                    CreatedAt = DateTime.Now
+
+                    CreatedAt =
+                        DateTime.Now
                 };
 
             foreach (var meal in validMeals)
@@ -935,7 +1002,8 @@ public IActionResult SaveMealPlan(
                                 meal.Ingredients
                                     .Where(i =>
                                         !string.IsNullOrWhiteSpace(i))
-                                    .Select(i => i.Trim())),
+                                    .Select(i =>
+                                        i.Trim())),
 
                         Preparation =
                             meal.Preparation.Trim()
@@ -944,7 +1012,8 @@ public IActionResult SaveMealPlan(
                 mealPlan.MealPlanItems.Add(item);
             }
 
-            _context.MealPlans.Add(mealPlan);
+            _context.MealPlans.Add(
+                mealPlan);
 
             _context.SaveChanges();
 
@@ -999,7 +1068,8 @@ public IActionResult SaveMealPlan(
 
             var mealPlan =
                 _context.MealPlans
-                    .Include(m => m.MealPlanItems)
+                    .Include(m =>
+                        m.MealPlanItems)
                     .FirstOrDefault(m =>
                         m.MealPlanId == id &&
                         m.MemberId == currentMemberId);
@@ -1038,14 +1108,14 @@ public IActionResult SaveMealPlan(
 
             if (mealPlan != null)
             {
-                _context.MealPlans.Remove(mealPlan);
+                _context.MealPlans.Remove(
+                    mealPlan);
+
                 _context.SaveChanges();
             }
 
             return RedirectToAction(
                 "MyMealPlans");
         }
-
-
     }
 }

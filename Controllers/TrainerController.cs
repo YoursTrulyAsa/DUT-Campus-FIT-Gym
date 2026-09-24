@@ -37,13 +37,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             var activeRequest = await _context.TrainerRequests
-     .Include(r => r.Student)
-         .ThenInclude(s => s.WorkoutProfiles)
-     .Include(r => r.Student)
-         .ThenInclude(s => s.WorkoutPlans)
-     .FirstOrDefaultAsync(r =>
-         r.TrainerId == trainer.TrainerId &&
-         r.Status == "Accepted");
+                .Include(r => r.Student)
+                    .ThenInclude(s => s.WorkoutProfiles)
+                .Include(r => r.Student)
+                    .ThenInclude(s => s.WorkoutPlans)
+                        .ThenInclude(w => w.Exercise)
+                .FirstOrDefaultAsync(r =>
+                    r.TrainerId == trainer.TrainerId &&
+                    r.Status == "Accepted");
 
             var pendingRequests = await _context.TrainerRequests
                 .CountAsync(r =>
@@ -60,6 +61,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         p.MemberId == activeRequest.Student.MemberId);
 
                 var workoutPlans = await _context.WorkoutPlans
+                    .Include(w => w.Exercise)
                     .Where(w =>
                         w.MemberId == activeRequest.Student.MemberId)
                     .ToListAsync();
@@ -71,7 +73,133 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View();
         }
 
-     public async Task<IActionResult> Equipment()
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            var trainerEmail =
+                User.FindFirstValue(ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(trainerEmail))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var trainer = await _context.Trainers
+                .FirstOrDefaultAsync(t =>
+                    t.Email == trainerEmail);
+
+            if (trainer == null)
+            {
+                return NotFound("Trainer account was not found.");
+            }
+
+            return View(trainer);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profile(Trainer trainer)
+        {
+            var trainerEmail =
+                User.FindFirstValue(ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(trainerEmail))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var existingTrainer = await _context.Trainers
+                .FirstOrDefaultAsync(t =>
+                    t.Email == trainerEmail);
+
+            if (existingTrainer == null)
+            {
+                return NotFound("Trainer account was not found.");
+            }
+
+            var validCategories = new[]
+            {
+                "General Fitness",
+                "Strength Training",
+                "Cardio & Endurance",
+                "Weight Management",
+                "Sports Training",
+                "Functional Training"
+            };
+
+            if (!validCategories.Contains(trainer.Category))
+            {
+                ModelState.AddModelError(
+                    "Category",
+                    "Please select a valid trainer category.");
+
+                trainer.TrainerId = existingTrainer.TrainerId;
+                trainer.TrainerName = existingTrainer.TrainerName;
+                trainer.Email = existingTrainer.Email;
+
+                return View(trainer);
+            }
+
+            existingTrainer.Category =
+                trainer.Category;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Trainer profile updated successfully.";
+
+            return RedirectToAction(nameof(Profile));
+        }
+
+        public async Task<IActionResult> Exercises()
+        {
+            var exercises = await _context.Exercises
+                .OrderBy(e => e.Category)
+                .ThenBy(e => e.ExerciseName)
+                .ToListAsync();
+
+            return View(exercises);
+        }
+
+        [HttpGet]
+        public IActionResult AddExercise()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddExercise(Exercise exercise)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(exercise);
+            }
+
+            var exists = await _context.Exercises
+                .AnyAsync(e =>
+                    e.ExerciseName == exercise.ExerciseName);
+
+            if (exists)
+            {
+                ModelState.AddModelError(
+                    "ExerciseName",
+                    "An exercise with this name already exists.");
+
+                return View(exercise);
+            }
+
+            _context.Exercises.Add(exercise);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] =
+                "Exercise added successfully.";
+
+            return RedirectToAction(nameof(Exercises));
+        }
+
+        public async Task<IActionResult> Equipment()
         {
             var equipment =
                 await _context.Equipment
@@ -104,11 +232,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 var allowedExtensions = new[]
                 {
-            ".jpg",
-            ".jpeg",
-            ".png",
-            ".webp"
-        };
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".webp"
+                };
 
                 var extension =
                     Path.GetExtension(imageFile.FileName)
@@ -158,18 +286,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(nameof(Equipment));
         }
 
-
         public async Task<IActionResult> Workouts()
         {
             var workouts = await _context.WorkoutPlans
                 .Include(w => w.Member)
+                .Include(w => w.Exercise)
                 .OrderByDescending(w => w.WorkoutPlanId)
                 .ToListAsync();
 
             return View(workouts);
         }
 
-       
         public async Task<IActionResult> StudentProfiles()
         {
             var students = await _context.Members
@@ -189,6 +316,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var student = await _context.Members
                 .Include(m => m.WorkoutProfiles)
                 .Include(m => m.WorkoutPlans)
+                    .ThenInclude(w => w.Exercise)
                 .FirstOrDefaultAsync(m =>
                     m.MemberId == id &&
                     (m.Role == "Student" ||
@@ -211,7 +339,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     m.Role == "Staff")
                 .ToListAsync();
 
+            var exercises = await _context.Exercises
+                .OrderBy(e => e.Category)
+                .ThenBy(e => e.ExerciseName)
+                .ToListAsync();
+
             ViewBag.Members = members;
+            ViewBag.Exercises = exercises;
 
             return View();
         }
@@ -227,6 +361,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     .Where(m =>
                         m.Role == "Student" ||
                         m.Role == "Staff")
+                    .ToListAsync();
+
+                ViewBag.Exercises = await _context.Exercises
+                    .OrderBy(e => e.Category)
+                    .ThenBy(e => e.ExerciseName)
                     .ToListAsync();
 
                 return View(workout);
@@ -250,7 +389,39 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         m.Role == "Staff")
                     .ToListAsync();
 
+                ViewBag.Exercises = await _context.Exercises
+                    .OrderBy(e => e.Category)
+                    .ThenBy(e => e.ExerciseName)
+                    .ToListAsync();
+
                 return View(workout);
+            }
+
+            if (workout.ExerciseId.HasValue)
+            {
+                var exerciseExists = await _context.Exercises
+                    .AnyAsync(e =>
+                        e.ExerciseId == workout.ExerciseId.Value);
+
+                if (!exerciseExists)
+                {
+                    ModelState.AddModelError(
+                        "ExerciseId",
+                        "Please select a valid exercise.");
+
+                    ViewBag.Members = await _context.Members
+                        .Where(m =>
+                            m.Role == "Student" ||
+                            m.Role == "Staff")
+                        .ToListAsync();
+
+                    ViewBag.Exercises = await _context.Exercises
+                        .OrderBy(e => e.Category)
+                        .ThenBy(e => e.ExerciseName)
+                        .ToListAsync();
+
+                    return View(workout);
+                }
             }
 
             _context.WorkoutPlans.Add(workout);
@@ -339,7 +510,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Requests));
             }
 
-
             var request =
                 await _context.TrainerRequests
                     .FirstOrDefaultAsync(r =>
@@ -354,8 +524,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Requests));
             }
 
-
-
             if (request.Status != "Pending")
             {
                 TempData["Error"] =
@@ -364,15 +532,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Requests));
             }
 
-
-
             request.Status = "Accepted";
             request.ResponseDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                "Trainer request accepted. Complete this workout before accepting another request.";
+                "Trainer request accepted. Complete this workout before accepting another student request.";
 
             return RedirectToAction(nameof(Requests));
         }
@@ -399,7 +565,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Trainer account was not found.");
             }
 
-
             var request =
                 await _context.TrainerRequests
                     .FirstOrDefaultAsync(r =>
@@ -414,7 +579,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Requests));
             }
 
-
             if (request.Status != "Pending")
             {
                 TempData["Error"] =
@@ -422,7 +586,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return RedirectToAction(nameof(Requests));
             }
-
 
             request.Status = "Rejected";
             request.ResponseDate = DateTime.Now;
@@ -457,7 +620,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Trainer account was not found.");
             }
 
-
             var request =
                 await _context.TrainerRequests
                     .FirstOrDefaultAsync(r =>
@@ -472,7 +634,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 return RedirectToAction(nameof(Requests));
             }
-
 
             request.Status = "Completed";
             request.ResponseDate = DateTime.Now;

@@ -1,5 +1,8 @@
 ﻿@{
     ViewData["Title"] = "Request Trainer";
+
+    var selectedCategory =
+        ViewBag.SelectedCategory ?? "All Categories";
 }
 
 <div class="trainer-page">
@@ -32,7 +35,6 @@
 
     <div class="trainer-form-card">
 
-
         <div class="trainer-form-header">
 
             <h2>
@@ -40,13 +42,12 @@
             </h2>
 
             <p>
-                Select a trainer and explain how they can assist you.
+                Select a training category, choose a trainer and explain how they can assist you.
             </p>
 
         </div>
 
         <div class="trainer-form-body">
-
 
             @if (TempData["TrainerRequestSuccess"] != null)
             {
@@ -70,7 +71,6 @@
                 </div>
             }
 
-
             @if (!ViewData.ModelState.IsValid)
             {
                 <div class="trainer-alert trainer-alert-danger">
@@ -82,14 +82,63 @@
                 </div>
             }
 
+            <div class="mb-4">
+
+                <label class="trainer-form-label">
+
+                    Training Category
+
+                    <span class="trainer-required">
+                        *
+                    </span>
+
+                </label>
+
+                <form asp-controller="Member"
+                      asp-action="RequestTrainer"
+                      method="get">
+
+                    <select name="category"
+                            class="trainer-form-control"
+                            onchange="this.form.submit()">
+
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var category in ViewBag.Categories)
+                            {
+                                if (category == selectedCategory)
+                                {
+                                    <option value="@category"
+                                            selected>
+                                        @category
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@category">
+                                        @category
+                                    </option>
+                                }
+                            }
+                        }
+
+                    </select>
+
+                </form>
+
+                <div class="trainer-help-text">
+
+                    Choose the type of training you need assistance with.
+
+                </div>
+
+            </div>
 
             <form asp-controller="Member"
                   asp-action="RequestTrainer"
                   method="post">
 
                 @Html.AntiForgeryToken()
-
-
 
                 <div class="mb-4">
 
@@ -118,6 +167,10 @@
                                 <option value="@trainer.TrainerId">
 
                                     @trainer.TrainerName
+                                    @if (!string.IsNullOrWhiteSpace(trainer.Category))
+                                    {
+                                        <text> — @trainer.Category</text>
+                                    }
 
                                 </option>
                             }
@@ -127,11 +180,36 @@
 
                     <div class="trainer-help-text">
 
-                        Choose the trainer you would like to work with.
+                        @if (selectedCategory == "All Categories")
+                        {
+                            <span>
+                                Choose a trainer based on their training specialization.
+                            </span>
+                        }
+                        else
+                        {
+                            <span>
+                                Showing trainers specializing in @selectedCategory.
+                            </span>
+                        }
 
                     </div>
 
                 </div>
+
+                @if (ViewBag.Trainers == null ||
+                    !((IEnumerable<dynamic>)ViewBag.Trainers).Any())
+                {
+                    <div class="trainer-alert trainer-alert-danger">
+
+                        <i class="bi bi-person-x-fill"></i>
+
+                        <span>
+                            No trainers are currently available in this category.
+                        </span>
+
+                    </div>
+                }
 
                 <div class="mb-4">
 
@@ -171,7 +249,6 @@
 
                     </button>
 
-
                     <a asp-controller="Member"
                        asp-action="MyTrainerRequests"
                        class="trainer-button trainer-button-secondary">
@@ -181,7 +258,6 @@
                         My Requests
 
                     </a>
-
 
                     <a asp-controller="Member"
                        asp-action="Dashboard"
@@ -201,7 +277,6 @@
 
     </div>
 
-
     <a asp-controller="Member"
        asp-action="Dashboard"
        class="trainer-back-button">
@@ -211,6 +286,7 @@
         Back to Dashboard
 
     </a>
+
 </div>
 
 @section Styles {

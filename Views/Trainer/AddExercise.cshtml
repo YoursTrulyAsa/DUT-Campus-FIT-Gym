@@ -1,0 +1,258 @@
+﻿@model DUT_Campus_FIT_Gym.Models.Exercise
+
+@{
+    ViewData["Title"] = "Add Exercise";
+}
+
+<div class="trainer-page">
+
+    <div class="trainer-page-header">
+
+        <div>
+
+            <span class="trainer-page-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Add Exercise
+            </h1>
+
+            <p>
+                Add an exercise to the trainer exercise library.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="trainer-form-card">
+
+        <div class="trainer-form-header">
+
+            <h2>
+                Exercise Details
+            </h2>
+
+            <p>
+                Enter the information trainers will use when assigning workouts.
+            </p>
+
+        </div>
+
+        <div class="trainer-form-body">
+
+            <form asp-controller="Trainer"
+                  asp-action="AddExercise"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="trainer-alert trainer-alert-danger">
+                </div>
+
+                <div class="trainer-form-group">
+
+                    <label asp-for="ExerciseName"
+                           class="trainer-form-label">
+
+                        Exercise Name
+
+                    </label>
+
+                    <input asp-for="ExerciseName"
+                           class="trainer-form-control"
+                           placeholder="Example: Barbell Squat" />
+
+                    <span asp-validation-for="ExerciseName"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="trainer-form-group">
+
+                    <label asp-for="Category"
+                           class="trainer-form-label">
+
+                        Category
+
+                    </label>
+
+                    <select asp-for="Category"
+                            class="trainer-form-control">
+
+                        <option value="">
+                            -- Select Category --
+                        </option>
+
+                        <option value="General Fitness">
+                            General Fitness
+                        </option>
+
+                        <option value="Strength Training">
+                            Strength Training
+                        </option>
+
+                        <option value="Cardio & Endurance">
+                            Cardio & Endurance
+                        </option>
+
+                        <option value="Weight Management">
+                            Weight Management
+                        </option>
+
+                        <option value="Sports Training">
+                            Sports Training
+                        </option>
+
+                        <option value="Functional Training">
+                            Functional Training
+                        </option>
+
+                    </select>
+
+                    <span asp-validation-for="Category"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="trainer-form-group">
+
+                    <label asp-for="Difficulty"
+                           class="trainer-form-label">
+
+                        Difficulty
+
+                    </label>
+
+                    <select asp-for="Difficulty"
+                            class="trainer-form-control">
+
+                        <option value="">
+                            -- Select Difficulty --
+                        </option>
+
+                        <option value="Beginner">
+                            Beginner
+                        </option>
+
+                        <option value="Intermediate">
+                            Intermediate
+                        </option>
+
+                        <option value="Advanced">
+                            Advanced
+                        </option>
+
+                    </select>
+
+                    <span asp-validation-for="Difficulty"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="trainer-form-group">
+
+                    <label asp-for="MuscleGroup"
+                           class="trainer-form-label">
+
+                        Muscle Group
+
+                    </label>
+
+                    <input asp-for="MuscleGroup"
+                           class="trainer-form-control"
+                           placeholder="Example: Legs" />
+
+                    <span asp-validation-for="MuscleGroup"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="trainer-form-group">
+
+                    <label asp-for="Description"
+                           class="trainer-form-label">
+
+                        Description
+
+                    </label>
+
+                    <textarea asp-for="Description"
+                              class="trainer-form-control"
+                              rows="4"
+                              placeholder="Describe the exercise..."></textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="trainer-form-group">
+
+                    <label asp-for="Instructions"
+                           class="trainer-form-label">
+
+                        Instructions
+
+                    </label>
+
+                    <textarea asp-for="Instructions"
+                              class="trainer-form-control"
+                              rows="6"
+                              placeholder="Explain how the exercise should be performed..."></textarea>
+
+                    <span asp-validation-for="Instructions"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <div class="trainer-actions">
+
+                    <button type="submit"
+                            class="trainer-btn trainer-btn-success">
+
+                        <i class="fa-solid fa-plus"></i>
+                        Add Exercise
+
+                    </button>
+
+                    <a asp-controller="Trainer"
+                       asp-action="Exercises"
+                       class="trainer-btn trainer-btn-secondary">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Cancel
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/trainer.css"
+          asp-append-version="true" />
+
+}

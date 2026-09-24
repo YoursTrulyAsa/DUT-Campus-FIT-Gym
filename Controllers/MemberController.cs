@@ -59,7 +59,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             var member = _context.Members
-                .FirstOrDefault(m => m.MemberId == memberId.Value);
+                .FirstOrDefault(m =>
+                    m.MemberId == memberId.Value);
 
             if (member == null)
             {
@@ -67,50 +68,66 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             var latestMembership = _context.Memberships
-                .Where(m => m.MemberId == memberId.Value)
-                .OrderByDescending(m => m.MembershipId)
+                .Where(m =>
+                    m.MemberId == memberId.Value)
+                .OrderByDescending(m =>
+                    m.MembershipId)
                 .FirstOrDefault();
 
             var latestApplication = _context.MembershipApplications
-                .Where(a => a.MemberId == memberId.Value)
-                .OrderByDescending(a => a.MembershipApplicationId)
+                .Where(a =>
+                    a.MemberId == memberId.Value)
+                .OrderByDescending(a =>
+                    a.MembershipApplicationId)
                 .FirstOrDefault();
 
             var attendance = _context.Attendances
-                .Where(a => a.MemberId == memberId.Value)
-                .OrderByDescending(a => a.CheckInTime)
+                .Where(a =>
+                    a.MemberId == memberId.Value)
+                .OrderByDescending(a =>
+                    a.CheckInTime)
                 .ToList();
 
-            var attendanceCount = attendance.Count;
+            var attendanceCount =
+                attendance.Count;
 
             var completedAttendance = attendance
-                .Where(a => a.CheckOutTime.HasValue)
+                .Where(a =>
+                    a.CheckOutTime.HasValue)
                 .ToList();
 
-            var totalGymMinutes = completedAttendance
-                .Sum(a =>
+            var totalGymMinutes =
+                completedAttendance.Sum(a =>
                     (a.CheckOutTime!.Value - a.CheckInTime)
                     .TotalMinutes);
 
-            var averageVisitMinutes = completedAttendance.Any()
-                ? completedAttendance.Average(a =>
-                    (a.CheckOutTime!.Value - a.CheckInTime)
-                    .TotalMinutes)
-                : 0;
+            var averageVisitMinutes =
+                completedAttendance.Any()
+                    ? completedAttendance.Average(a =>
+                        (a.CheckOutTime!.Value - a.CheckInTime)
+                        .TotalMinutes)
+                    : 0;
 
             var today = DateTime.Today;
 
             var monday = today.AddDays(
-                -((7 + (int)today.DayOfWeek - (int)DayOfWeek.Monday) % 7));
+                -((7 +
+                   (int)today.DayOfWeek -
+                   (int)DayOfWeek.Monday) % 7));
 
-            var weeklyLabels = new List<string>();
-            var weeklyVisitCounts = new List<int>();
+            var weeklyLabels =
+                new List<string>();
+
+            var weeklyVisitCounts =
+                new List<int>();
 
             for (int i = 0; i < 7; i++)
             {
-                var day = monday.AddDays(i);
+                var day =
+                    monday.AddDays(i);
 
-                weeklyLabels.Add(day.ToString("ddd"));
+                weeklyLabels.Add(
+                    day.ToString("ddd"));
 
                 weeklyVisitCounts.Add(
                     attendance.Count(a =>
@@ -126,50 +143,106 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     (a.CheckOutTime!.Value - a.CheckInTime)
                     .TotalMinutes);
 
-            var reservationCount = _context.Reservations
-                .Count(r =>
-                    r.MemberID == memberId.Value &&
-                    r.Status == "Reserved" &&
-                    r.EndTime > DateTime.Now);
+            var workoutProfile =
+                _context.WorkoutProfiles
+                    .FirstOrDefault(w =>
+                        w.MemberId == memberId.Value);
 
-            var totalReservations = _context.Reservations
-                .Count(r =>
-                    r.MemberID == memberId.Value);
+            double caloriesPerMinute = 5.0;
 
-            var workouts = _context.WorkoutPlans
-                .Where(w => w.MemberId == memberId.Value)
-                .OrderBy(w => w.WorkoutDay)
-                .ToList();
-
-            var workoutProfile = _context.WorkoutProfiles
-                .FirstOrDefault(w =>
-                    w.MemberId == memberId.Value);
-
-            var recentAttendance = attendance
-                .Take(5)
-                .ToList();
-
-            var dashboardData = new MemberDashboardViewModel
+            if (workoutProfile != null)
             {
-                Member = member,
-                Membership = latestMembership,
-                LatestApplication = latestApplication,
-                AttendanceCount = attendanceCount,
-                ReservationCount = reservationCount,
-                TotalReservations = totalReservations,
-                TotalGymMinutes = totalGymMinutes,
-                AverageVisitMinutes = averageVisitMinutes,
-                WeeklyGymMinutes = weeklyGymMinutes,
-                WeeklyLabels = weeklyLabels,
-                WeeklyVisitCounts = weeklyVisitCounts,
-                Workouts = workouts,
-                WorkoutProfile = workoutProfile,
-                RecentAttendance = recentAttendance
-            };
+                var weightFactor =
+                    Math.Clamp(
+                        workoutProfile.Weight / 70.0,
+                        0.75,
+                        1.5);
+
+                caloriesPerMinute *=
+                    weightFactor;
+            }
+
+            var estimatedCalories =
+                totalGymMinutes *
+                caloriesPerMinute;
+
+            var weeklyEstimatedCalories =
+                weeklyGymMinutes *
+                caloriesPerMinute;
+
+            var reservationCount =
+                _context.Reservations
+                    .Count(r =>
+                        r.MemberID == memberId.Value &&
+                        r.Status == "Reserved" &&
+                        r.EndTime > DateTime.Now);
+
+            var totalReservations =
+                _context.Reservations
+                    .Count(r =>
+                        r.MemberID == memberId.Value);
+
+            var workouts =
+                _context.WorkoutPlans
+                    .Where(w =>
+                        w.MemberId == memberId.Value)
+                    .OrderBy(w =>
+                        w.WorkoutDay)
+                    .ToList();
+
+            var dashboardData =
+                new MemberDashboardViewModel
+                {
+                    Member =
+                        member,
+
+                    Membership =
+                        latestMembership,
+
+                    LatestApplication =
+                        latestApplication,
+
+                    AttendanceCount =
+                        attendanceCount,
+
+                    ReservationCount =
+                        reservationCount,
+
+                    TotalReservations =
+                        totalReservations,
+
+                    TotalGymMinutes =
+                        totalGymMinutes,
+
+                    AverageVisitMinutes =
+                        averageVisitMinutes,
+
+                    WeeklyGymMinutes =
+                        weeklyGymMinutes,
+
+                    EstimatedCalories =
+                        estimatedCalories,
+
+                    WeeklyEstimatedCalories =
+                        weeklyEstimatedCalories,
+
+                    WeeklyLabels =
+                        weeklyLabels,
+
+                    WeeklyVisitCounts =
+                        weeklyVisitCounts,
+
+                    Workouts =
+                        workouts,
+
+                    WorkoutProfile =
+                        workoutProfile
+                };
 
             return View(dashboardData);
         }
 
+        
         [HttpGet]
         public IActionResult Profile()
         {
@@ -1482,7 +1555,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         [HttpGet]
-        public IActionResult RequestTrainer()
+        public IActionResult RequestTrainer(string? category)
         {
             var memberId = GetMemberId();
 
@@ -1502,22 +1575,37 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return NotFound();
             }
 
-            var trainers = _context.Trainers
+            var categories = new[]
+            {
+        "All Categories",
+        "General Fitness",
+        "Strength Training",
+        "Cardio & Endurance",
+        "Weight Management",
+        "Sports Training",
+        "Functional Training"
+    };
+
+            var trainersQuery = _context.Trainers
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(category) &&
+                category != "All Categories")
+            {
+                trainersQuery = trainersQuery
+                    .Where(t =>
+                        t.Category == category);
+            }
+
+            var trainers = trainersQuery
                 .OrderBy(t =>
                     t.TrainerName)
                 .ToList();
 
-            if (!trainers.Any())
-            {
-                TempData["TrainerRequestError"] =
-                    "There are currently no trainers available.";
-
-                return RedirectToAction(
-                    nameof(MyTrainerRequests));
-            }
-
-            ViewBag.Trainers =
-                trainers;
+            ViewBag.Trainers = trainers;
+            ViewBag.Categories = categories;
+            ViewBag.SelectedCategory =
+                category ?? "All Categories";
 
             return View();
         }

@@ -60,12 +60,10 @@
                         foreach (var member in ViewBag.Members)
                         {
                             <option value="@member.MemberId">
-
                                 @member.Name
                                 @member.Surname
                                 -
                                 @member.Email
-
                             </option>
                         }
                     }
@@ -96,15 +94,32 @@
 
             <div class="trainer-form-group">
 
-                <label asp-for="ExerciseName">
-                    Exercise Name
+                <label asp-for="ExerciseId">
+                    Exercise
                 </label>
 
-                <input asp-for="ExerciseName"
-                       class="trainer-form-control"
-                       placeholder="Example: Squats" />
+                <select asp-for="ExerciseId"
+                        class="trainer-form-control">
 
-                <span asp-validation-for="ExerciseName"
+                    <option value="">
+                        -- Select Exercise --
+                    </option>
+
+                    @if (ViewBag.Exercises != null)
+                    {
+                        foreach (var exercise in ViewBag.Exercises)
+                        {
+                            <option value="@exercise.ExerciseId">
+                                @exercise.ExerciseName
+                                -
+                                @exercise.MuscleGroup
+                            </option>
+                        }
+                    }
+
+                </select>
+
+                <span asp-validation-for="ExerciseId"
                       class="text-danger">
                 </span>
 

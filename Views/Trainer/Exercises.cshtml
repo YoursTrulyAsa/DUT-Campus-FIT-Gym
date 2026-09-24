@@ -1,7 +1,7 @@
-﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.WorkoutPlan>
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.Exercise>
 
 @{
-    ViewData["Title"] = "Manage Workouts";
+    ViewData["Title"] = "Exercise Library";
 }
 
 <div class="trainer-page">
@@ -9,27 +9,29 @@
     <div class="trainer-page-header">
 
         <div>
+
             <span class="trainer-page-label">
                 DUT CAMPUS FIT GYM
             </span>
 
             <h1>
-                Manage Workouts
+                Exercise Library
             </h1>
 
             <p>
-                View and manage workout plans assigned to gym members.
+                Manage the exercises available when creating workout plans.
             </p>
+
         </div>
 
         <div class="trainer-header-actions">
 
             <a asp-controller="Trainer"
-               asp-action="CreateWorkout"
+               asp-action="AddExercise"
                class="trainer-primary-btn">
 
                 <i class="fa-solid fa-plus"></i>
-                Assign Workout
+                Add Exercise
 
             </a>
 
@@ -46,7 +48,6 @@
 
     </div>
 
-
     @if (TempData["Success"] != null)
     {
         <div class="trainer-alert trainer-alert-success">
@@ -60,39 +61,27 @@
         </div>
     }
 
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="trainer-alert trainer-alert-error">
-
-            <i class="fa-solid fa-circle-exclamation"></i>
-
-            <span>
-                @TempData["Error"]
-            </span>
-
-        </div>
-    }
-
-
     <div class="workouts-summary">
 
         <div class="workouts-summary-icon">
+
             <i class="fa-solid fa-dumbbell"></i>
+
         </div>
 
         <div>
+
             <span>
-                TOTAL WORKOUT PLANS
+                TOTAL EXERCISES
             </span>
 
             <strong>
                 @(Model?.Count() ?? 0)
             </strong>
+
         </div>
 
     </div>
-
 
     <div class="workouts-card">
 
@@ -101,21 +90,22 @@
             <div>
 
                 <span class="trainer-section-label">
-                    TRAINING PROGRAMS
+                    EXERCISE LIBRARY
                 </span>
 
                 <h2>
-                    Assigned Workouts
+                    Available Exercises
                 </h2>
 
             </div>
 
             <div class="workout-header-icon">
-                <i class="fa-solid fa-clipboard-list"></i>
+
+                <i class="fa-solid fa-list"></i>
+
             </div>
 
         </div>
-
 
         <div class="workouts-card-body">
 
@@ -124,23 +114,25 @@
                 <div class="trainer-empty-state">
 
                     <div class="empty-icon">
+
                         <i class="fa-solid fa-dumbbell"></i>
+
                     </div>
 
                     <h3>
-                        No Workout Plans
+                        No Exercises
                     </h3>
 
                     <p>
-                        No workout plans have been assigned yet.
+                        No exercises have been added to the library yet.
                     </p>
 
                     <a asp-controller="Trainer"
-                       asp-action="CreateWorkout"
+                       asp-action="AddExercise"
                        class="trainer-primary-btn">
 
                         <i class="fa-solid fa-plus"></i>
-                        Assign First Workout
+                        Add First Exercise
 
                     </a>
 
@@ -150,125 +142,72 @@
             {
                 <div class="workout-list">
 
-                    @foreach (var workout in Model)
+                    @foreach (var exercise in Model)
                     {
                         <div class="workout-card-item">
 
                             <div class="workout-item-top">
 
                                 <div class="workout-item-icon">
+
                                     <i class="fa-solid fa-person-running"></i>
+
                                 </div>
 
                                 <div class="workout-item-title">
 
                                     <span class="trainer-section-label">
-                                        WORKOUT PLAN
+                                        @exercise.Category
                                     </span>
 
                                     <h3>
-                                        @workout.WorkoutName
+                                        @exercise.ExerciseName
                                     </h3>
 
                                 </div>
 
                                 <div class="workout-day-badge">
 
-                                    <i class="fa-regular fa-calendar"></i>
-
-                                    @workout.WorkoutDay
+                                    @exercise.Difficulty
 
                                 </div>
 
                             </div>
-
 
                             <div class="workout-item-details">
 
                                 <div class="workout-member">
 
                                     <span>
-                                        <i class="fa-solid fa-user"></i>
-                                        MEMBER
+                                        <i class="fa-solid fa-bullseye"></i>
+                                        MUSCLE GROUP
                                     </span>
 
-                                    @if (workout.Member != null)
-                                    {
+                                    <strong>
+                                        @exercise.MuscleGroup
+                                    </strong>
+
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(exercise.Description))
+                                {
+                                    <div class="workout-detail">
+
+                                        <span>
+                                            <i class="fa-solid fa-circle-info"></i>
+                                            DESCRIPTION
+                                        </span>
+
                                         <strong>
-                                            @workout.Member.Name
-                                            @workout.Member.Surname
+                                            @exercise.Description
                                         </strong>
 
-                                        <small>
-                                            @workout.Member.StudentNumber
-                                        </small>
-                                    }
-                                    else
-                                    {
-                                        <strong>
-                                            Member unavailable
-                                        </strong>
-                                    }
-
-                                </div>
-
-
-                                <div class="workout-detail">
-
-                                    <span>
-                                        <i class="fa-solid fa-dumbbell"></i>
-                                        EXERCISE
-                                    </span>
-
-                                    <strong>
-                                        @(workout.Exercise?.ExerciseName ?? "Exercise not assigned")
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="workout-stat">
-
-                                    <span>
-                                        SETS
-                                    </span>
-
-                                    <strong>
-                                        @workout.Sets
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="workout-stat">
-
-                                    <span>
-                                        REPS
-                                    </span>
-
-                                    <strong>
-                                        @workout.Repetitions
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="workout-stat">
-
-                                    <span>
-                                        REST
-                                    </span>
-
-                                    <strong>
-                                        @workout.RestTime sec
-                                    </strong>
-
-                                </div>
+                                    </div>
+                                }
 
                             </div>
 
-
-                            @if (!string.IsNullOrWhiteSpace(workout.Description))
+                            @if (!string.IsNullOrWhiteSpace(exercise.Instructions))
                             {
                                 <div class="workout-description">
 
@@ -277,7 +216,7 @@
                                     </span>
 
                                     <p>
-                                        @workout.Description
+                                        @exercise.Instructions
                                     </p>
 
                                 </div>
@@ -296,7 +235,9 @@
 </div>
 
 @section Styles {
+
     <link rel="stylesheet"
           href="~/css/trainer.css"
           asp-append-version="true" />
+
 }

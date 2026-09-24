@@ -30,8 +30,7 @@
 
     <div class="workout-form-card">
 
-        <form asp-action="Create"
-              method="post">
+        <form asp-action="Create" method="post">
 
             @Html.AntiForgeryToken()
 
@@ -116,15 +115,31 @@
 
                     <div class="workout-form-group">
 
-                        <label asp-for="ExerciseName">
+                        <label asp-for="ExerciseId">
                             Exercise
                         </label>
 
-                        <input asp-for="ExerciseName"
-                               class="form-control"
-                               placeholder="e.g. Bodyweight Squats" />
+                        <select asp-for="ExerciseId"
+                                class="form-control">
 
-                        <span asp-validation-for="ExerciseName"
+                            <option value="">
+                                -- Select Exercise --
+                            </option>
+
+                            @if (ViewBag.Exercises != null)
+                            {
+                                foreach (var exercise in ViewBag.Exercises)
+                                {
+                                    <option value="@exercise.ExerciseId">
+                                        @exercise.ExerciseName
+                                        — @exercise.MuscleGroup
+                                    </option>
+                                }
+                            }
+
+                        </select>
+
+                        <span asp-validation-for="ExerciseId"
                               class="text-danger">
                         </span>
 
@@ -246,8 +261,7 @@
                     <textarea asp-for="Description"
                               class="form-control workout-description-input"
                               rows="5"
-                              placeholder="Describe how the exercise should be performed...">
-                    </textarea>
+                              placeholder="Describe how the exercise should be performed..."></textarea>
 
                     <span asp-validation-for="Description"
                           class="text-danger">

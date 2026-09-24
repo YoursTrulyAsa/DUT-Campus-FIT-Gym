@@ -146,8 +146,8 @@
 
             </a>
 
-            <a asp-controller="Member"
-               asp-action="Reservations"
+            <a asp-controller="Equipment"
+               asp-action="MyReservations"
                class="stat-card stat-card-link">
 
                 <div class="stat-icon">
@@ -170,8 +170,8 @@
 
             </a>
 
-            <a asp-controller="Member"
-               asp-action="Reservations"
+            <a asp-controller="Equipment"
+               asp-action="MyReservations"
                class="stat-card stat-card-link">
 
                 <div class="stat-icon">
@@ -366,129 +366,56 @@
 
             </section>
 
-            <section class="dashboard-card">
+            <section class="dashboard-card calories-card">
 
-                <div class="card-heading">
+               <div class="dashboard-card calories-card">
+    <div class="dashboard-card-header">
+        <div>
+            <span class="dashboard-card-label">CALORIE MONITORING</span>
+            <h2>Estimated Calories</h2>
+        </div>
 
-                    <div>
+        <div class="calories-icon">
+            <i class="bi bi-fire"></i>
+        </div>
+    </div>
 
-                        <span class="card-label">
-                            ACTIVITY
-                        </span>
+    <div class="calories-content">
 
-                        <h2>
-                            Recent Attendance
-                        </h2>
+        <div class="calories-main">
+            <strong>
+                @Math.Round(Model.EstimatedCalories).ToString("N0")
+            </strong>
+            <span>estimated kcal</span>
+        </div>
 
-                    </div>
+        <div class="calories-details">
 
-                    <div class="card-icon">
-                        <i class="fa-solid fa-calendar-days"></i>
-                    </div>
+            <div class="calorie-detail">
+                <span>This Week</span>
+                <strong>
+                    @Math.Round(Model.WeeklyEstimatedCalories).ToString("N0") kcal
+                </strong>
+            </div>
 
-                </div>
+            <div class="calorie-detail">
+                <span>Total Gym Time</span>
+                <strong>
+                    @Math.Round(Model.TotalGymMinutes / 60, 1) hrs
+                </strong>
+            </div>
 
-                @if (Model.RecentAttendance.Any())
-                {
-                    <div class="activity-list">
+        </div>
 
-                        @foreach (var attendance in Model.RecentAttendance)
-                        {
-                            <div class="activity-item">
+    </div>
 
-                                <div class="activity-date">
-
-                                    <strong>
-                                        @attendance.CheckInTime.ToString("dd")
-                                    </strong>
-
-                                    <span>
-                                        @attendance.CheckInTime.ToString("MMM")
-                                    </span>
-
-                                </div>
-
-                                <div class="activity-icon">
-                                    <i class="fa-solid fa-person-walking"></i>
-                                </div>
-
-                                <div class="activity-details">
-
-                                    <strong>
-                                        Gym Visit
-                                    </strong>
-
-                                    <span>
-                                        Check-in:
-                                        @attendance.CheckInTime.ToString("HH:mm")
-                                    </span>
-
-                                </div>
-
-                                <div class="activity-duration">
-
-                                    @if (attendance.CheckOutTime.HasValue)
-                                    {
-                                        var duration =
-                                            attendance.CheckOutTime.Value -
-                                            attendance.CheckInTime;
-
-                                        <strong>
-                                            @((int)duration.TotalMinutes) min
-                                        </strong>
-
-                                        <span>
-                                            @attendance.CheckOutTime.Value.ToString("HH:mm")
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <strong>
-                                            Active
-                                        </strong>
-
-                                        <span>
-                                            Still checked in
-                                        </span>
-                                    }
-
-                                </div>
-
-                            </div>
-                        }
-
-                    </div>
-                }
-                else
-                {
-                    <div class="empty-state">
-
-                        <div class="empty-state-icon">
-                            <i class="fa-solid fa-calendar-xmark"></i>
-                        </div>
-
-                        <p>
-                            No attendance yet.
-                        </p>
-
-                        <span>
-                            Your gym visits will appear here once you check in.
-                        </span>
-
-                    </div>
-                }
-
-                <a asp-controller="Member"
-                   asp-action="Attendance"
-                   class="dashboard-btn">
-
-                    <span>
-                        View Attendance History
-                    </span>
-
-                    <i class="fa-solid fa-arrow-right"></i>
-
-                </a>
+    <div class="calories-note">
+        <i class="bi bi-info-circle"></i>
+        <span>
+            Calories are estimated from recorded gym time and your fitness profile.
+        </span>
+    </div>
+</div>
 
             </section>
 

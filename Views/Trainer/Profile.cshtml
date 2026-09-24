@@ -1,0 +1,161 @@
+﻿@model DUT_Campus_FIT_Gym.Models.Trainer
+
+@{
+    ViewData["Title"] = "Trainer Profile";
+}
+
+<div class="trainer-profile-page">
+
+    <div class="trainer-profile-header">
+
+        <div>
+            <span class="trainer-profile-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Trainer Profile
+            </h1>
+
+            <p>
+                Manage your trainer information and specialization.
+            </p>
+        </div>
+
+        <a asp-controller="Trainer"
+           asp-action="Index"
+           class="trainer-profile-back">
+            <i class="fa-solid fa-arrow-left"></i>
+            Dashboard
+        </a>
+
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="trainer-profile-alert">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    <div class="trainer-profile-card">
+
+        <div class="trainer-profile-card-header">
+
+            <div class="trainer-profile-avatar">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+
+            <div>
+                <span>
+                    TRAINER
+                </span>
+
+                <h2>
+                    @Model.TrainerName
+                </h2>
+
+                <p>
+                    @Model.Email
+                </p>
+            </div>
+
+        </div>
+
+        <form asp-controller="Trainer"
+              asp-action="Profile"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   asp-for="TrainerId" />
+
+            <div class="trainer-profile-field">
+
+                <label>
+                    Trainer Name
+                </label>
+
+                <input type="text"
+                       value="@Model.TrainerName"
+                       readonly />
+
+            </div>
+
+            <div class="trainer-profile-field">
+
+                <label>
+                    Email Address
+                </label>
+
+                <input type="email"
+                       value="@Model.Email"
+                       readonly />
+
+            </div>
+
+            <div class="trainer-profile-field">
+
+                <label asp-for="Category">
+                    Training Specialization
+                </label>
+
+                <select asp-for="Category">
+
+                    <option value="">
+                        Select a category
+                    </option>
+
+                    <option value="General Fitness">
+                        General Fitness
+                    </option>
+
+                    <option value="Strength Training">
+                        Strength Training
+                    </option>
+
+                    <option value="Cardio & Endurance">
+                        Cardio & Endurance
+                    </option>
+
+                    <option value="Weight Management">
+                        Weight Management
+                    </option>
+
+                    <option value="Sports Training">
+                        Sports Training
+                    </option>
+
+                    <option value="Functional Training">
+                        Functional Training
+                    </option>
+
+                </select>
+
+                <span asp-validation-for="Category"
+                      class="trainer-profile-validation">
+                </span>
+
+            </div>
+
+            <button type="submit"
+                    class="trainer-profile-save">
+
+                <i class="fa-solid fa-floppy-disk"></i>
+                Save Profile
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/trainer-profile.css"
+          asp-append-version="true" />
+}

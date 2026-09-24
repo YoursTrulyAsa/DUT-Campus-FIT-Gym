@@ -209,6 +209,54 @@
 
         </a>
 
+        <a asp-controller="Trainer"
+           asp-action="Exercises"
+           class="trainer-tool-card">
+
+            <div class="trainer-tool-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <div class="trainer-tool-content">
+
+                <h3>
+                    Exercise Library
+                </h3>
+
+                <p>
+                    Manage exercises available for workout plans.
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-arrow-right trainer-tool-arrow"></i>
+
+        </a>
+
+        <a asp-controller="Trainer"
+           asp-action="Profile"
+           class="trainer-tool-card">
+
+            <div class="trainer-tool-icon profile-tool-icon">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
+
+            <div class="trainer-tool-content">
+
+                <h3>
+                    My Trainer Profile
+                </h3>
+
+                <p>
+                    Manage your trainer information and specialization.
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-arrow-right trainer-tool-arrow"></i>
+
+        </a>
+
         @if (student != null)
         {
             <a asp-controller="Trainer"

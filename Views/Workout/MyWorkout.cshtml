@@ -2,12 +2,19 @@
 
 @{
     ViewData["Title"] = "My Workout Plan";
-    var completedWorkouts = ViewBag.CompletedWorkouts as HashSet<string> ?? new HashSet<string>();
-    var workouts = Model?.ToList() ?? new List<DUT_Campus_FIT_Gym.Models.WorkoutPlan>();
 
-    var groupedWorkouts = workouts
-        .GroupBy(w => new { w.WorkoutName, w.Level })
-        .ToList();
+    var completedWorkouts =
+        ViewBag.CompletedWorkouts as HashSet<int?> ??
+        new HashSet<int?>();
+
+    var workouts =
+        Model?.ToList() ??
+        new List<DUT_Campus_FIT_Gym.Models.WorkoutPlan>();
+
+    var groupedWorkouts =
+        workouts
+            .GroupBy(w => new { w.WorkoutName, w.Level })
+            .ToList();
 }
 
 <div class="workout-page">
@@ -89,25 +96,33 @@
                     level = "Beginner";
                 }
 
-                if (level.Equals("Advanced", StringComparison.OrdinalIgnoreCase))
+                if (level.Equals(
+                    "Advanced",
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     level = "Pro";
                 }
 
-                var rewardPoints = level.ToLower() switch
-                {
-                    "beginner" => 3,
-                    "intermediate" => 5,
-                    "pro" => 7,
-                    _ => 3
-                };
+                var rewardPoints =
+                    level.ToLower() switch
+                    {
+                        "beginner" => 3,
+                        "intermediate" => 5,
+                        "pro" => 7,
+                        _ => 3
+                    };
+
+                var trainingDays =
+                    workoutGroup
+                        .GroupBy(w => w.WorkoutDay)
+                        .ToList();
+
+                var firstWorkout =
+                    workoutGroup.First();
 
                 var isCompleted =
-                    completedWorkouts.Contains(workoutGroup.Key.WorkoutName);
-
-                var trainingDays = workoutGroup
-                    .GroupBy(w => w.WorkoutDay)
-                    .ToList();
+                    completedWorkouts.Contains(
+                        firstWorkout.WorkoutPlanId);
 
                 <div class="workout-plan-card">
 
@@ -131,10 +146,14 @@
 
                                 <p>
                                     @workoutGroup.Count()
-                                    @(workoutGroup.Count() == 1 ? "exercise" : "exercises")
+                                    @(workoutGroup.Count() == 1
+                                        ? "exercise"
+                                        : "exercises")
                                     across
                                     @trainingDays.Count
-                                    @(trainingDays.Count == 1 ? "training day" : "training days")
+                                    @(trainingDays.Count == 1
+                                        ? "training day"
+                                        : "training days")
                                 </p>
 
                             </div>
@@ -161,7 +180,8 @@
                         </span>
 
                         <span class="workout-level-text">
-                            Complete this workout to earn @rewardPoints reward points.
+                            Complete this workout to earn
+                            @rewardPoints reward points.
                         </span>
 
                     </div>
@@ -192,7 +212,9 @@
 
                                     <span class="workout-exercise-count">
                                         @dayGroup.Count()
-                                        @(dayGroup.Count() == 1 ? "Exercise" : "Exercises")
+                                        @(dayGroup.Count() == 1
+                                            ? "Exercise"
+                                            : "Exercises")
                                     </span>
 
                                 </div>
@@ -210,10 +232,12 @@
                                             <div class="workout-exercise-content">
 
                                                 <h4>
-                                                    @exercise.ExerciseName
+                                                    @(exercise.Exercise?.ExerciseName
+                                                        ?? "Exercise not assigned")
                                                 </h4>
 
-                                                @if (!string.IsNullOrWhiteSpace(exercise.Description))
+                                                @if (!string.IsNullOrWhiteSpace(
+                                                    exercise.Description))
                                                 {
                                                     <p>
                                                         @exercise.Description
@@ -293,7 +317,8 @@
                                 </strong>
 
                                 <span>
-                                    You earned +@rewardPoints reward points today.
+                                    You earned +@rewardPoints
+                                    reward points today.
                                 </span>
                             </div>
 
@@ -326,8 +351,8 @@
                                 @Html.AntiForgeryToken()
 
                                 <input type="hidden"
-                                       name="workoutName"
-                                       value="@workoutGroup.Key.WorkoutName" />
+                                       name="workoutPlanId"
+                                       value="@firstWorkout.WorkoutPlanId" />
 
                                 <button type="submit"
                                         class="workout-complete-btn">

@@ -13,11 +13,9 @@
     <link rel="stylesheet"
           href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
-
     <link rel="stylesheet"
           href="~/css/site.css"
           asp-append-version="true" />
-
 
     <link rel="stylesheet"
           href="~/css/Member-Create.css"
@@ -27,11 +25,9 @@
           href="~/css/Workout.css"
           asp-append-version="true" />
 
-
     <link rel="stylesheet"
           href="~/css/membership.css"
           asp-append-version="true" />
-
 
     <link rel="preconnect"
           href="https://fonts.googleapis.com" />
@@ -43,17 +39,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
           rel="stylesheet" />
 
-
     <link rel="icon"
           type="image/png"
           href="~/images/DUT_Campus_FIT_Gym_Emblem.png" />
 
-
-
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-
-
 
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
@@ -61,7 +52,6 @@
     @await RenderSectionAsync("Styles", required: false)
 
 </head>
-
 
 <body>
 
@@ -72,34 +62,27 @@
         var action =
         ViewContext.RouteData.Values["action"]?.ToString();
 
-
         bool isAccountPage =
         controller == "Account";
 
-
         bool isAuthenticated =
         User.Identity?.IsAuthenticated == true;
-
 
         bool isStudent =
         isAuthenticated &&
         User.IsInRole("Student");
 
-
         bool isStaff =
         isAuthenticated &&
         User.IsInRole("Staff");
-
 
         bool isTrainer =
         isAuthenticated &&
         User.IsInRole("Trainer");
 
-
         bool isAdmin =
         isAuthenticated &&
         User.IsInRole("Admin");
-
 
         bool showStudentSidebar =
         isStudent && !isAccountPage;
@@ -112,13 +95,11 @@
             <aside class="sidebar"
                    id="studentSidebar">
 
-
                 <div class="sidebar-brand">
 
                     <img src="~/images/DUT-logo.jpg"
                          alt="DUT Logo"
                          class="gym-logo" />
-
 
                     <div class="brand-text">
 
@@ -128,7 +109,6 @@
                         </h4>
 
                     </div>
-
 
                     <button type="button"
                             class="sidebar-toggle"
@@ -162,7 +142,6 @@
 
                     </a>
 
-
                     <a asp-controller="Member"
                        asp-action="Profile"
                        class="sidebar-link @(controller == "Member" && action == "Profile" ? "active" : "")">
@@ -191,7 +170,6 @@
 
                     </a>
 
-
                     <a asp-controller="Member"
                        asp-action="Membership"
                        class="sidebar-link @(controller == "Member" && action == "Membership" ? "active" : "")">
@@ -205,7 +183,6 @@
                         </span>
 
                     </a>
-
 
                     <a asp-controller="Member"
                        asp-action="GymCard"
@@ -221,7 +198,6 @@
 
                     </a>
 
-
                     <a asp-controller="Member"
                        asp-action="CheckIn"
                        class="sidebar-link @(controller == "Member" && action == "CheckIn" ? "active" : "")">
@@ -235,7 +211,6 @@
                         </span>
 
                     </a>
-
 
                     <a asp-controller="Member"
                        asp-action="Attendance"
@@ -251,9 +226,9 @@
 
                     </a>
 
-                    <a asp-controller="Member"
-                       asp-action="Equipment"
-                       class="sidebar-link @(controller == "Member" && action == "Equipment" ? "active" : "")">
+                    <a asp-controller="Equipment"
+                       asp-action="Index"
+                       class="sidebar-link @(controller == "Equipment" && action == "Index" ? "active" : "")">
 
                         <span class="sidebar-icon">
                             <i class="bi bi-universal-access"></i>
@@ -265,10 +240,9 @@
 
                     </a>
 
-
-                    <a asp-controller="Member"
-                       asp-action="Reservations"
-                       class="sidebar-link @(controller == "Member" && action == "Reservations" ? "active" : "")">
+                    <a asp-controller="Equipment"
+                       asp-action="MyReservations"
+                       class="sidebar-link @(controller == "Equipment" && action == "MyReservations" ? "active" : "")">
 
                         <span class="sidebar-icon">
                             <i class="bi bi-calendar-fill"></i>
@@ -279,7 +253,6 @@
                         </span>
 
                     </a>
-
 
                     <a asp-controller="Workout"
                        asp-action="MyWorkout"
@@ -351,8 +324,6 @@
 
                     </a>
 
-
-
                     <a asp-controller="Member"
                        asp-action="Payment"
                        class="sidebar-link @(controller == "Banking" ? "active" : "")">
@@ -366,7 +337,6 @@
                         </span>
 
                     </a>
-
 
                     <a asp-controller="Member"
                        asp-action="Announcements"
@@ -385,12 +355,18 @@
                     <a asp-controller="Support"
                        asp-action="Index"
                        class="sidebar-link">
-                        <span>💬</span>
-                        <span>Ask Us</span>
+
+                        <span>
+                            💬
+                        </span>
+
+                        <span>
+                            Ask Us
+                        </span>
+
                     </a>
 
                 </nav>
-
 
                 <div class="sidebar-bottom">
 
@@ -419,7 +395,6 @@
 
             </aside>
 
-
             <main class="main-content">
 
                 @RenderBody()
@@ -428,7 +403,6 @@
 
         </div>
     }
-
 
     @if (!showStudentSidebar)
     {
@@ -464,7 +438,6 @@
 
                 </div>
 
-
                 <form asp-controller="Account"
                       asp-action="Logout"
                       method="post"
@@ -488,7 +461,6 @@
             </div>
         }
 
-
         <main class="non-student-content">
 
             @RenderBody()
@@ -497,7 +469,6 @@
 
     }
 
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -505,10 +476,7 @@
     <script src="~/js/site.js"
             asp-append-version="true"></script>
 
-
     @await RenderSectionAsync("Scripts", required: false)
-
-
 
     <script>
 
@@ -520,17 +488,14 @@
             const toggleButton =
                 document.getElementById("sidebarToggle");
 
-
             if (!sidebar || !toggleButton) {
                 return;
             }
-
 
             const collapsed =
                 localStorage.getItem(
                     "fitGymSidebarCollapsed"
                 ) === "true";
-
 
             if (collapsed) {
 
@@ -540,7 +505,6 @@
 
             }
 
-
             toggleButton.addEventListener(
                 "click",
                 function () {
@@ -549,12 +513,10 @@
                         "sidebar-collapsed"
                     );
 
-
                     const isCollapsed =
                         document.body.classList.contains(
                             "sidebar-collapsed"
                         );
-
 
                     localStorage.setItem(
                         "fitGymSidebarCollapsed",
@@ -568,18 +530,18 @@
 
     </script>
 
-@if (showStudentSidebar)
-{
-    <a asp-controller="Support"
-       asp-action="Index"
-       class="floating-ask-us"
-       aria-label="Ask Us"
-       title="Ask Us">
+    @if (showStudentSidebar)
+    {
+        <a asp-controller="Support"
+           asp-action="Index"
+           class="floating-ask-us"
+           aria-label="Ask Us"
+           title="Ask Us">
 
-        <i class="fa-solid fa-comments"></i>
+            <i class="fa-solid fa-comments"></i>
 
-    </a>
-}
+        </a>
+    }
 
 </body>
 

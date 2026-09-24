@@ -14,5 +14,9 @@ namespace DUT_Campus_FIT_Gym.Models
         [Required]
         [EmailAddress]
         public string Email { get; set; } = "";
+
+        [Required]
+        [StringLength(50)]
+        public string Category { get; set; } = "";
     }
 }

@@ -4,6 +4,7 @@ using DUT_Campus_FIT_Gym.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DUT_Campus_FIT_Gym.Migrations
 {
     [DbContext(typeof(GymDbContext))]
-    partial class GymDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260917154834_LinkWorkoutPlansToExercises")]
+    partial class LinkWorkoutPlansToExercises
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,7 +52,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasKey("AnnouncementID");
 
-                    b.ToTable("Announcements", (string)null);
+                    b.ToTable("Announcements");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Attendance", b =>
@@ -73,7 +76,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("Attendances", (string)null);
+                    b.ToTable("Attendances");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.BankDetails", b =>
@@ -112,7 +115,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasKey("BankingDetailsID");
 
-                    b.ToTable("BankingDetails", (string)null);
+                    b.ToTable("BankingDetails");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.ChallengeParticipation", b =>
@@ -147,7 +150,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("ChallengeParticipations", (string)null);
+                    b.ToTable("ChallengeParticipations");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Equipment", b =>
@@ -182,7 +185,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasKey("EquipmentID");
 
-                    b.ToTable("Equipment", (string)null);
+                    b.ToTable("Equipment");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Exercise", b =>
@@ -223,7 +226,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasKey("ExerciseId");
 
-                    b.ToTable("Exercises", (string)null);
+                    b.ToTable("Exercises");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.FitnessChallenge", b =>
@@ -277,7 +280,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("FitnessChallenges", (string)null);
+                    b.ToTable("FitnessChallenges");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.MealPlan", b =>
@@ -313,7 +316,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("MealPlans", (string)null);
+                    b.ToTable("MealPlans");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.MealPlanItem", b =>
@@ -355,7 +358,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MealPlanId");
 
-                    b.ToTable("MealPlanItems", (string)null);
+                    b.ToTable("MealPlanItems");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Member", b =>
@@ -403,7 +406,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasKey("MemberId");
 
-                    b.ToTable("Members", (string)null);
+                    b.ToTable("Members");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Membership", b =>
@@ -464,7 +467,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("Memberships", (string)null);
+                    b.ToTable("Memberships");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.MembershipApplication", b =>
@@ -523,7 +526,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("MembershipApplications", (string)null);
+                    b.ToTable("MembershipApplications");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Payment", b =>
@@ -561,7 +564,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MembershipId");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Reservation", b =>
@@ -594,7 +597,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasKey("ReservationID");
 
-                    b.ToTable("Reservations", (string)null);
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.RewardPoint", b =>
@@ -623,7 +626,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("RewardPoints", (string)null);
+                    b.ToTable("RewardPoints");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Trainer", b =>
@@ -650,7 +653,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasKey("TrainerId");
 
-                    b.ToTable("Trainers", (string)null);
+                    b.ToTable("Trainers");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.TrainerRequest", b =>
@@ -692,7 +695,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("TrainerId");
 
-                    b.ToTable("TrainerRequests", (string)null);
+                    b.ToTable("TrainerRequests");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutCompletion", b =>
@@ -726,7 +729,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("WorkoutPlanId");
 
-                    b.ToTable("WorkoutCompletions", (string)null);
+                    b.ToTable("WorkoutCompletions");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutPlan", b =>
@@ -777,7 +780,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("WorkoutPlans", (string)null);
+                    b.ToTable("WorkoutPlans");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutProfile", b =>
@@ -809,7 +812,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("WorkoutProfiles", (string)null);
+                    b.ToTable("WorkoutProfiles");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Attendance", b =>

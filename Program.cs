@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient();
-
+builder.Services.AddHttpClient<NgrokService>();
 builder.Services.Configure<PayFastSettings>(
 builder.Configuration.GetSection("PayFast"));
 
@@ -42,6 +42,7 @@ builder.Configuration.GetConnectionString("GymDatabase")
 
 builder.Services.AddScoped<MembershipPricingService>();
 builder.Services.AddScoped<RewardService>();
+builder.Services.AddHostedService<ReservationBackgroundService>();
 
 var app = builder.Build();
 
@@ -62,45 +63,6 @@ app.UseRouting();
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-using (var scope = app.Services.CreateScope())
-{
-    var context =
-    scope.ServiceProvider.GetRequiredService<GymDbContext>();
-
-var passwordHasher =
-    new PasswordHasher<Member>();
-
-    var adminEmail =
-        "admin@dut.ac.za";
-
-    var existingAdmin =
-        context.Members
-            .FirstOrDefault(m => m.Email == adminEmail);
-
-    if (existingAdmin == null)
-    {
-        var admin = new Member
-        {
-            Name = "System",
-            Surname = "Administrator",
-            StudentNumber = "ADMIN001",
-            Email = adminEmail,
-            PhoneNumber = "0000000000",
-            Role = "Admin"
-        };
-
-        admin.PasswordHash =
-            passwordHasher.HashPassword(
-                admin,
-                "Admin@123");
-
-        context.Members.Add(admin);
-
-        context.SaveChanges();
-    }
-
-}
 
 app.MapControllerRoute(
 name: "default",
