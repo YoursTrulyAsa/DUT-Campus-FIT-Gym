@@ -22,34 +22,84 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _rewardService = rewardService;
         }
 
-        public IActionResult MyWorkout()
+        [HttpGet]
+        public async Task<IActionResult> MyWorkout()
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
+
+            var programme = await _context.WorkoutProgrammes
+                .Include(p => p.Member)
+                .Where(p =>
+                    p.MemberId == memberId &&
+                    !p.IsCompleted &&
+                    _context.WorkoutPlans.Any(w =>
+                        w.MemberId == memberId &&
+                        w.WorkoutProgrammeId == p.WorkoutProgrammeId))
+                .OrderByDescending(p => p.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (programme == null)
+            {
+                var completedProgramme =
+                    await _context.WorkoutProgrammes
+                        .Where(p =>
+                            p.MemberId == memberId &&
+                            p.IsCompleted)
+                        .OrderByDescending(p => p.CreatedAt)
+                        .FirstOrDefaultAsync();
+
+                if (completedProgramme != null)
+                {
+                    ViewBag.CompletedProgramme = completedProgramme;
+                }
+
+                return View(new List<WorkoutPlan>());
             }
 
-            int id = int.Parse(memberId);
-
-            var workouts = _context.WorkoutPlans
+            var workouts = await _context.WorkoutPlans
                 .Include(w => w.Exercise)
-                .Where(w => w.MemberId == id)
-                .ToList();
-
-            var today = DateTime.Today;
-            var tomorrow = today.AddDays(1);
-
-            var completedToday = _context.WorkoutCompletions
                 .Where(w =>
-                    w.MemberId == id &&
-                    w.CompletedAt >= today &&
-                    w.CompletedAt < tomorrow)
-                .Select(w => w.WorkoutPlanId)
-                .ToHashSet();
+                    w.MemberId == memberId &&
+                    w.WorkoutProgrammeId == programme.WorkoutProgrammeId)
+                .OrderBy(w => w.WeekNumber)
+                .ThenBy(w => w.WorkoutDay)
+                .ThenBy(w => w.WorkoutPlanId)
+                .ToListAsync();
 
-            ViewBag.CompletedWorkouts = completedToday;
+            var completions = await _context.WorkoutCompletions
+                .Where(c =>
+                    c.MemberId == memberId &&
+                    c.WorkoutProgrammeId ==
+                        programme.WorkoutProgrammeId)
+                .ToListAsync();
+
+            ViewBag.WorkoutProgramme = programme;
+
+            ViewBag.CompletedDays = completions
+                .Select(c =>
+                    $"{c.WeekNumber}|{c.WorkoutDay}")
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var totalWorkoutDays = workouts
+                .GroupBy(w => new
+                {
+                    w.WeekNumber,
+                    w.WorkoutDay
+                })
+                .Count();
+
+            var completedWorkoutDays = completions
+                .Select(c =>
+                    $"{c.WeekNumber}|{c.WorkoutDay}")
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Count();
+
+            ViewBag.TotalWorkoutDays = totalWorkoutDays;
+            ViewBag.CompletedWorkoutDays = completedWorkoutDays;
 
             return View(workouts);
         }
@@ -65,14 +115,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(WorkoutPlan workout)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            workout.MemberId = int.Parse(memberId);
+            workout.MemberId = memberId;
 
             var validLevels = new[]
             {
@@ -99,17 +148,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 }
                 else
                 {
-                    workout.Level = validLevels.First(
-                        level => level.Equals(
-                            workout.Level,
-                            StringComparison.OrdinalIgnoreCase));
+                    workout.Level =
+                        validLevels.First(level =>
+                            level.Equals(
+                                workout.Level,
+                                StringComparison.OrdinalIgnoreCase));
                 }
             }
 
             if (workout.ExerciseId.HasValue)
             {
-                var exerciseExists = _context.Exercises.Any(
-                    e => e.ExerciseId == workout.ExerciseId.Value);
+                var exerciseExists =
+                    _context.Exercises.Any(e =>
+                        e.ExerciseId ==
+                        workout.ExerciseId.Value);
 
                 if (!exerciseExists)
                 {
@@ -124,7 +176,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 _context.WorkoutPlans.Add(workout);
                 _context.SaveChanges();
 
-                return RedirectToAction("MyWorkout");
+                return RedirectToAction(nameof(MyWorkout));
             }
 
             LoadExercises();
@@ -132,54 +184,47 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         [HttpGet]
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            int currentMemberId = int.Parse(memberId);
-
-            var workout = _context.WorkoutPlans
+            var workout = await _context.WorkoutPlans
                 .Include(w => w.Exercise)
-                .FirstOrDefault(w =>
+                .FirstOrDefaultAsync(w =>
                     w.WorkoutPlanId == id &&
-                    w.MemberId == currentMemberId);
+                    w.MemberId == memberId);
 
             if (workout == null)
-            {
                 return NotFound();
-            }
 
             LoadExercises();
+
             return View(workout);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(WorkoutPlan workout)
+        public async Task<IActionResult> Edit(WorkoutPlan workout)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            int currentMemberId = int.Parse(memberId);
-
-            var existingWorkout = _context.WorkoutPlans
-                .FirstOrDefault(w =>
-                    w.WorkoutPlanId == workout.WorkoutPlanId &&
-                    w.MemberId == currentMemberId);
+            var existingWorkout =
+                await _context.WorkoutPlans
+                    .FirstOrDefaultAsync(w =>
+                        w.WorkoutPlanId ==
+                            workout.WorkoutPlanId &&
+                        w.MemberId == memberId);
 
             if (existingWorkout == null)
-            {
                 return NotFound();
-            }
 
             var validLevels = new[]
             {
@@ -208,17 +253,20 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 }
                 else
                 {
-                    workout.Level = validLevels.First(
-                        level => level.Equals(
-                            workout.Level,
-                            StringComparison.OrdinalIgnoreCase));
+                    workout.Level =
+                        validLevels.First(level =>
+                            level.Equals(
+                                workout.Level,
+                                StringComparison.OrdinalIgnoreCase));
                 }
             }
 
             if (workout.ExerciseId.HasValue)
             {
-                var exerciseExists = _context.Exercises.Any(
-                    e => e.ExerciseId == workout.ExerciseId.Value);
+                var exerciseExists =
+                    await _context.Exercises.AnyAsync(e =>
+                        e.ExerciseId ==
+                        workout.ExerciseId.Value);
 
                 if (!exerciseExists)
                 {
@@ -228,163 +276,332 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 }
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                existingWorkout.WorkoutName = workout.WorkoutName;
-                existingWorkout.Level = workout.Level;
-                existingWorkout.ExerciseId = workout.ExerciseId;
-                existingWorkout.WorkoutDay = workout.WorkoutDay;
-                existingWorkout.Sets = workout.Sets;
-                existingWorkout.Repetitions = workout.Repetitions;
-                existingWorkout.RestTime = workout.RestTime;
-                existingWorkout.Description = workout.Description;
-
-                _context.SaveChanges();
-
-                return RedirectToAction("MyWorkout");
+                LoadExercises();
+                return View(workout);
             }
 
-            LoadExercises();
-            return View(workout);
+            existingWorkout.WorkoutName =
+                workout.WorkoutName;
+
+            existingWorkout.Level =
+                workout.Level;
+
+            existingWorkout.ExerciseId =
+                workout.ExerciseId;
+
+            existingWorkout.WorkoutDay =
+                workout.WorkoutDay;
+
+            existingWorkout.WeekNumber =
+                workout.WeekNumber;
+
+            existingWorkout.Sets =
+                workout.Sets;
+
+            existingWorkout.Repetitions =
+                workout.Repetitions;
+
+            existingWorkout.RestTime =
+                workout.RestTime;
+
+            existingWorkout.Description =
+                workout.Description;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(MyWorkout));
         }
 
         [HttpGet]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            int currentMemberId = int.Parse(memberId);
-
-            var workout = _context.WorkoutPlans
+            var workout = await _context.WorkoutPlans
                 .Include(w => w.Exercise)
-                .FirstOrDefault(w =>
+                .FirstOrDefaultAsync(w =>
                     w.WorkoutPlanId == id &&
-                    w.MemberId == currentMemberId);
+                    w.MemberId == memberId);
 
             if (workout == null)
-            {
                 return NotFound();
-            }
 
             return View(workout);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            int currentMemberId = int.Parse(memberId);
-
-            var workout = _context.WorkoutPlans
-                .FirstOrDefault(w =>
+            var workout = await _context.WorkoutPlans
+                .FirstOrDefaultAsync(w =>
                     w.WorkoutPlanId == id &&
-                    w.MemberId == currentMemberId);
+                    w.MemberId == memberId);
 
             if (workout == null)
-            {
                 return NotFound();
-            }
 
             _context.WorkoutPlans.Remove(workout);
-            _context.SaveChanges();
 
-            return RedirectToAction("MyWorkout");
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(MyWorkout));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CompleteWorkout(int workoutPlanId)
+        public async Task<IActionResult> CompleteWorkout(
+    int workoutProgrammeId,
+    int weekNumber,
+    string workoutDay)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            int currentMemberId = int.Parse(memberId);
+            if (string.IsNullOrWhiteSpace(workoutDay))
+                return RedirectToAction(nameof(MyWorkout));
 
-            var workout = _context.WorkoutPlans
-                .Include(w => w.Exercise)
-                .FirstOrDefault(w =>
-                    w.WorkoutPlanId == workoutPlanId &&
-                    w.MemberId == currentMemberId);
+            workoutDay = workoutDay.Trim();
 
-            if (workout == null)
-            {
-                return RedirectToAction("MyWorkout");
-            }
+            var programme =
+                await _context.WorkoutProgrammes
+                    .FirstOrDefaultAsync(p =>
+                        p.WorkoutProgrammeId ==
+                            workoutProgrammeId &&
+                        p.MemberId == memberId);
 
-            var today = DateTime.Today;
-            var tomorrow = today.AddDays(1);
+            if (programme == null)
+                return NotFound();
 
-            var alreadyCompletedToday =
-                _context.WorkoutCompletions.Any(w =>
-                    w.MemberId == currentMemberId &&
-                    w.WorkoutPlanId == workoutPlanId &&
-                    w.CompletedAt >= today &&
-                    w.CompletedAt < tomorrow);
-
-            if (alreadyCompletedToday)
+            if (programme.IsCompleted)
             {
                 TempData["WorkoutCompleted"] =
-                    "You have already completed this workout today.";
+                    "This programme has already been completed.";
 
-                return RedirectToAction("MyWorkout");
+                return RedirectToAction(nameof(MyWorkout));
+            }
+
+            if (weekNumber < 1 || weekNumber > 4)
+                return RedirectToAction(nameof(MyWorkout));
+
+            var dayExists =
+                await _context.WorkoutPlans.AnyAsync(w =>
+                    w.WorkoutProgrammeId ==
+                        programme.WorkoutProgrammeId &&
+                    w.MemberId == memberId &&
+                    w.WeekNumber == weekNumber &&
+                    w.WorkoutDay == workoutDay);
+
+            if (!dayExists)
+                return RedirectToAction(nameof(MyWorkout));
+
+            var alreadyCompleted =
+                await _context.WorkoutCompletions.AnyAsync(c =>
+                    c.WorkoutProgrammeId ==
+                        programme.WorkoutProgrammeId &&
+                    c.MemberId == memberId &&
+                    c.WeekNumber == weekNumber &&
+                    c.WorkoutDay == workoutDay);
+
+            if (alreadyCompleted)
+            {
+                TempData["WorkoutCompleted"] =
+                    "You have already completed this workout day.";
+
+                return RedirectToAction(nameof(MyWorkout));
             }
 
             var rewardPoints =
-                _rewardService.GetLevelReward(workout.Level);
+                GetLevelReward(programme.FitnessLevel);
 
-            var exerciseName =
-                workout.Exercise?.ExerciseName ?? "Workout Exercise";
-
-            _context.WorkoutCompletions.Add(
+            var completion =
                 new WorkoutCompletion
                 {
-                    MemberId = currentMemberId,
-                    WorkoutPlanId = workout.WorkoutPlanId,
-                    WorkoutName = workout.WorkoutName,
-                    CompletedAt = DateTime.Now,
-                    RewardPoints = rewardPoints
-                });
+                    WorkoutProgrammeId =
+                        programme.WorkoutProgrammeId,
+
+                    MemberId =
+                        memberId,
+
+                    WeekNumber =
+                        weekNumber,
+
+                    WorkoutDay =
+                        workoutDay,
+
+                    WorkoutName =
+                        programme.ProgrammeName,
+
+                    FitnessLevel =
+                        programme.FitnessLevel,
+
+                    CompletedAt =
+                        DateTime.Now,
+
+                    RewardPoints =
+                        rewardPoints
+                };
+
+            _context.WorkoutCompletions.Add(completion);
 
             _context.RewardPoints.Add(
                 new RewardPoint
                 {
-                    MemberId = currentMemberId,
+                    MemberId = memberId,
                     Points = rewardPoints,
                     Reason =
-                        $"Completed {workout.Level} workout: {workout.WorkoutName} ({exerciseName})",
+                        $"Completed Week {weekNumber} {workoutDay} workout: {programme.ProgrammeName}",
                     EarnedAt = DateTime.Now
                 });
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            TempData["WorkoutCompleted"] =
-                $"Workout completed! You earned {rewardPoints} reward points.";
+            var totalWorkoutDays =
+                await _context.WorkoutPlans
+                    .Where(w =>
+                        w.WorkoutProgrammeId ==
+                            programme.WorkoutProgrammeId &&
+                        w.MemberId == memberId)
+                    .Select(w => new
+                    {
+                        w.WeekNumber,
+                        w.WorkoutDay
+                    })
+                    .Distinct()
+                    .CountAsync();
 
-            return RedirectToAction("MyWorkout");
+            var completedWorkoutDays =
+                await _context.WorkoutCompletions
+                    .Where(c =>
+                        c.WorkoutProgrammeId ==
+                            programme.WorkoutProgrammeId &&
+                        c.MemberId == memberId)
+                    .Select(c => new
+                    {
+                        c.WeekNumber,
+                        c.WorkoutDay
+                    })
+                    .Distinct()
+                    .CountAsync();
+
+            if (totalWorkoutDays > 0 &&
+                completedWorkoutDays >= totalWorkoutDays)
+            {
+                programme.IsCompleted = true;
+
+                await _context.SaveChangesAsync();
+
+                TempData["WorkoutCompleted"] =
+                    $"Workout completed! You earned {rewardPoints} reward points.";
+
+                TempData["ProgrammeCompleted"] = "true";
+                TempData["CompletedProgrammeId"] =
+                    programme.WorkoutProgrammeId.ToString();
+                TempData["CompletedFitnessLevel"] =
+                    programme.FitnessLevel;
+                TempData["CompletedProgrammeName"] =
+                    programme.ProgrammeName;
+            }
+            else
+            {
+                TempData["WorkoutCompleted"] =
+                    $"Workout completed! You earned {rewardPoints} reward points.";
+            }
+
+            return RedirectToAction(nameof(MyWorkout));
+        }
+
+        private int GetLevelReward(string level)
+        {
+            if (string.Equals(
+                    level,
+                    "Pro",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return 7;
+            }
+
+            if (string.Equals(
+                    level,
+                    "Intermediate",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return 5;
+            }
+
+            return 3;
         }
 
         private void LoadExercises()
         {
-            ViewBag.Exercises = _context.Exercises
-                .OrderBy(e => e.Category)
-                .ThenBy(e => e.ExerciseName)
-                .ToList();
+            ViewBag.Exercises =
+                _context.Exercises
+                    .OrderBy(e => e.Category)
+                    .ThenBy(e => e.ExerciseName)
+                    .ToList();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdvanceLevel()
+        {
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(memberIdClaim, out int memberId))
+                return RedirectToAction("Login", "Account");
+
+            var profile =
+                await _context.WorkoutProfiles
+                    .FirstOrDefaultAsync(p => p.MemberId == memberId);
+
+            if (profile == null)
+                return RedirectToAction(
+                    "Create",
+                    "WorkoutProfile");
+
+            if (string.Equals(
+                    profile.FitnessLevel,
+                    "Beginner",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                profile.FitnessLevel = "Intermediate";
+            }
+            else if (string.Equals(
+                    profile.FitnessLevel,
+                    "Intermediate",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                profile.FitnessLevel = "Pro";
+            }
+            else
+            {
+                TempData["WorkoutCompleted"] =
+                    "You have reached the Pro level. Keep pushing your progress!";
+
+                return RedirectToAction(nameof(MyWorkout));
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(
+                "AIWorkout",
+                "FitnessAI");
         }
     }
 }

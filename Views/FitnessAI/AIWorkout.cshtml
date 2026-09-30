@@ -1,5 +1,8 @@
 ﻿@{
     ViewData["Title"] = "AI Workout Plan";
+
+    string fitnessLevel = ViewBag.FitnessLevel as string ?? "Not set";
+    string fitnessGoal = ViewBag.FitnessGoal as string ?? "Not set";
 }
 
 <div class="ai-workout-page">
@@ -16,8 +19,8 @@
             </h1>
 
             <p>
-                Tell Fitness AI a little about what you want to work on
-                and it will create a sensible workout suggestion for you.
+                Fitness AI uses your fitness profile to create a structured
+                4-week workout programme based on your goals and availability.
             </p>
         </div>
 
@@ -46,11 +49,63 @@
 
                 <div>
                     <h2>
-                        Your preferences
+                        Your programme
                     </h2>
 
                     <p>
-                        Choose the options that best describe what you want.
+                        Your level and goal are taken from your Fitness Profile.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="ai-form-group">
+
+                <label>
+                    Fitness Level
+                </label>
+
+                <div class="ai-profile-value">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>@fitnessLevel</span>
+                </div>
+
+                <span class="ai-input-hint">
+                    Your fitness level is managed from your Fitness Profile.
+                </span>
+
+            </div>
+
+            <div class="ai-form-group">
+
+                <label>
+                    Fitness Goal
+                </label>
+
+                <div class="ai-profile-value">
+                    <i class="fa-solid fa-bullseye"></i>
+                    <span>@fitnessGoal</span>
+                </div>
+
+                <span class="ai-input-hint">
+                    Your fitness goal is managed from your Fitness Profile.
+                </span>
+
+            </div>
+
+            <div class="ai-section-heading">
+
+                <span>
+                    02
+                </span>
+
+                <div>
+                    <h2>
+                        Training preferences
+                    </h2>
+
+                    <p>
+                        Tell Fitness AI how you want your programme structured.
                     </p>
                 </div>
 
@@ -64,70 +119,6 @@
 
                 <div class="ai-form-group">
 
-                    <label for="fitnessLevel">
-                        Fitness Level
-                    </label>
-
-                    <select id="fitnessLevel"
-                            name="fitnessLevel"
-                            required>
-
-                        <option value="">
-                            Select your level
-                        </option>
-
-                        <option value="Beginner">
-                            Beginner
-                        </option>
-
-                        <option value="Intermediate">
-                            Intermediate
-                        </option>
-
-                        <option value="Advanced">
-                            Advanced
-                        </option>
-
-                    </select>
-
-                </div>
-
-                <div class="ai-form-group">
-
-                    <label for="fitnessGoal">
-                        Fitness Goal
-                    </label>
-
-                    <select id="fitnessGoal"
-                            name="fitnessGoal"
-                            required>
-
-                        <option value="">
-                            Select your goal
-                        </option>
-
-                        <option value="General fitness">
-                            General fitness
-                        </option>
-
-                        <option value="Strength">
-                            Strength
-                        </option>
-
-                        <option value="Endurance">
-                            Endurance
-                        </option>
-
-                        <option value="Mobility and flexibility">
-                            Mobility and flexibility
-                        </option>
-
-                    </select>
-
-                </div>
-
-                <div class="ai-form-group">
-
                     <label for="preferredExercises">
                         Preferred Exercises
                     </label>
@@ -136,10 +127,10 @@
                               name="preferredExercises"
                               rows="4"
                               maxlength="500"
-                              placeholder="Optional — e.g. squats, walking, cycling, push-ups"></textarea>
+                              placeholder="Optional — e.g. squats, push-ups, walking"></textarea>
 
                     <span class="ai-input-hint">
-                        Leave this blank if you want Fitness AI to choose suitable exercises.
+                        Leave this blank if you want Fitness AI to choose suitable exercises from the gym exercise library.
                     </span>
 
                 </div>
@@ -176,6 +167,10 @@
 
                     </select>
 
+                    <span class="ai-input-hint">
+                        Your programme will use this number of training days each week.
+                    </span>
+
                 </div>
 
                 <div class="ai-safety-note">
@@ -184,8 +179,8 @@
 
                     <p>
                         Fitness AI provides general fitness suggestions.
-                        Listen to your body, use safe technique and speak
-                        with a qualified trainer if you need individual guidance.
+                        Use appropriate technique, train at a suitable intensity
+                        and speak with a qualified trainer if you need individual guidance.
                     </p>
 
                 </div>
@@ -195,7 +190,7 @@
 
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
 
-                    Generate Workout Plan
+                    Generate 4-Week Programme
 
                 </button>
 
@@ -219,26 +214,26 @@
             </h2>
 
             <p>
-                Fitness AI will use your selected level, goal and preferences
-                to create a structured suggestion that you can review before
-                adding it to your workout plan.
+                Fitness AI will use your Fitness Profile, exercise preferences
+                and available training days to create a structured 4-week
+                programme that you can review before saving.
             </p>
 
             <div class="ai-info-list">
 
                 <div>
                     <i class="fa-solid fa-check"></i>
-                    <span>Level-based suggestions</span>
+                    <span>Profile-based training level</span>
                 </div>
 
                 <div>
                     <i class="fa-solid fa-check"></i>
-                    <span>Reasonable training volume</span>
+                    <span>Goal-based programme</span>
                 </div>
 
                 <div>
                     <i class="fa-solid fa-check"></i>
-                    <span>Exercise preferences</span>
+                    <span>4-week progression</span>
                 </div>
 
                 <div>

@@ -20,7 +20,11 @@
     display: flex;
     flex-direction: column;
     padding: 20px 16px;
-    background: #0f172a;
+    background-color: #071a33;
+    background-image: linear-gradient( rgba(7, 26, 51, 0.68), rgba(7, 26, 51, 0.82) ), url('/images/gym-sidebar.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     color: #ffffff;
     z-index: 1000;
     transition: width 0.25s ease, padding 0.25s ease;
@@ -257,14 +261,14 @@ body.sidebar-collapsed .main-content {
 .dashboard-content {
     width: 100%;
     min-height: 100vh;
-    padding: 38px 40px;
+    padding: 20px 40px 40px;
 }
 
 .dashboard-topbar {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
+    align-items: flex-start;
+    margin-bottom: 0;
 }
 
 .dashboard-label {
@@ -308,6 +312,7 @@ body.sidebar-collapsed .main-content {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
     border-radius: 50%;
     background: #e4f1ff;
     color: #1683ff;
@@ -321,10 +326,19 @@ body.sidebar-collapsed .main-content {
     font-weight: 500;
 }
 
+.user-badge-profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
 .dashboard-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
+    margin-top: 0;
     margin-bottom: 25px;
 }
 
@@ -1058,3 +1072,402 @@ body.sidebar-collapsed .main-content {
         min-width: 0;
     }
 }
+
+.weight-progress-card {
+    grid-column: 1 / -1;
+}
+
+.weight-progress-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.weight-progress-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.weight-progress-stat {
+    padding: 18px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+    .weight-progress-stat span {
+        display: block;
+        margin-bottom: 6px;
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .weight-progress-stat strong {
+        display: block;
+        color: #0f2f57;
+        font-size: 21px;
+        font-weight: 700;
+    }
+
+.weight-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 18px;
+}
+
+.weight-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 13px 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 11px;
+}
+
+.weight-history-date {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.weight-history-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: #e4f1ff;
+    color: #1683ff;
+}
+
+.weight-history-date strong {
+    display: block;
+    color: #0f2f57;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.weight-history-date span {
+    display: block;
+    margin-top: 2px;
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+.weight-history-value {
+    color: #0f2f57;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.weight-progress-empty {
+    padding: 25px 15px;
+    text-align: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+    .weight-progress-empty i {
+        margin-bottom: 10px;
+        color: #1683ff;
+        font-size: 22px;
+    }
+
+    .weight-progress-empty p {
+        margin: 0;
+        color: #0f2f57;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .weight-progress-empty span {
+        display: block;
+        margin-top: 4px;
+        color: #94a3b8;
+        font-size: 10px;
+    }
+
+@media (max-width: 768px) {
+    .weight-progress-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .weight-progress-header {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 576px) {
+    .weight-history-item {
+        align-items: flex-start;
+    }
+
+    .weight-history-value {
+        white-space: nowrap;
+    }
+}
+
+.workout-progress-card {
+    grid-column: 1 / -1;
+}
+
+.workout-progress-overview {
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+}
+
+.workout-progress-main {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.workout-progress-circle {
+    width: 105px;
+    height: 105px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: conic-gradient(#2563eb calc(var(--progress, 0) * 1%), #e2e8f0 0);
+    position: relative;
+}
+
+    .workout-progress-circle::before {
+        content: "";
+        position: absolute;
+        inset: 9px;
+        border-radius: 50%;
+        background: #ffffff;
+    }
+
+.workout-progress-circle-inner {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+    .workout-progress-circle-inner strong {
+        display: block;
+        color: #0f2f57;
+        font-size: 22px;
+        line-height: 1;
+        font-weight: 700;
+    }
+
+    .workout-progress-circle-inner span {
+        display: block;
+        margin-top: 4px;
+        color: #94a3b8;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+.workout-progress-text span {
+    display: block;
+    margin-bottom: 5px;
+    color: #1683ff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+}
+
+.workout-progress-text h3 {
+    margin: 0;
+    color: #0f2f57;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.workout-progress-text p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.workout-progress-bar-container {
+    width: 100%;
+}
+
+.workout-progress-bar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+    .workout-progress-bar-header span {
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .workout-progress-bar-header strong {
+        color: #0f2f57;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+.workout-progress-bar {
+    width: 100%;
+    height: 9px;
+    overflow: hidden;
+    background: #e2e8f0;
+    border-radius: 999px;
+}
+
+.workout-progress-bar-fill {
+    height: 100%;
+    min-width: 0;
+    max-width: 100%;
+    background: #2563eb;
+    border-radius: 999px;
+    transition: width 0.5s ease;
+}
+
+.recent-workouts {
+    margin-top: 22px;
+}
+
+.recent-workouts-heading {
+    margin-bottom: 12px;
+}
+
+    .recent-workouts-heading span {
+        display: block;
+        margin-bottom: 4px;
+        color: #1683ff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+    }
+
+    .recent-workouts-heading strong {
+        color: #0f2f57;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+.recent-workout-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.recent-workout-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 13px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.recent-workout-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: #e4f1ff;
+    color: #1683ff;
+    font-size: 11px;
+}
+
+.recent-workout-info {
+    min-width: 0;
+    flex: 1;
+}
+
+    .recent-workout-info strong {
+        display: block;
+        overflow: hidden;
+        color: #0f2f57;
+        font-size: 11px;
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .recent-workout-info span {
+        display: block;
+        margin-top: 3px;
+        color: #94a3b8;
+        font-size: 10px;
+    }
+
+.recent-workout-date {
+    flex-shrink: 0;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+@media (max-width: 576px) {
+    .workout-progress-main {
+        align-items: flex-start;
+    }
+
+    .workout-progress-circle {
+        width: 85px;
+        height: 85px;
+    }
+
+        .workout-progress-circle::before {
+            inset: 7px;
+        }
+
+    .workout-progress-circle-inner strong {
+        font-size: 18px;
+    }
+
+    .workout-progress-text h3 {
+        font-size: 22px;
+    }
+
+    .recent-workout-item {
+        align-items: flex-start;
+    }
+
+    .recent-workout-date {
+        white-space: nowrap;
+    }
+}
+
+.dashboard-welcome-title {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+    .dashboard-welcome-title h1 {
+        width: max-content;
+        max-width: none;
+        margin: 0 0 5px;
+        white-space: nowrap;
+        will-change: transform;
+    }

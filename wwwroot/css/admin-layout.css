@@ -37,7 +37,14 @@ body.admin-body {
     top: 0;
     left: 0;
     bottom: 0;
-    background: var(--admin-navy);
+    background-image: linear-gradient(
+        rgba(7, 26, 51, 0.72),
+        rgba(7, 26, 51, 0.82)
+    ),
+    url('/images/gym-sidebar.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     color: var(--admin-white);
     display: flex;
     flex-direction: column;
@@ -485,3 +492,74 @@ body.admin-sidebar-collapsed .admin-logout {
     }
 
 }
+.admin-brand {
+    position: relative;
+}
+
+.admin-sidebar-toggle {
+    position: absolute;
+    top: 50%;
+    right: -13px;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: #1597e5;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s ease;
+}
+
+    .admin-sidebar-toggle:hover {
+        transform: translateY(-50%) scale(1.08);
+    }
+
+    .admin-sidebar-toggle i {
+        font-size: 11px;
+        transition: transform 0.25s ease;
+    }
+
+.admin-sidebar {
+    transition: width 0.3s ease;
+}
+
+    .admin-sidebar.collapsed {
+        width: 82px;
+    }
+
+        .admin-sidebar.collapsed .admin-brand-text,
+        .admin-sidebar.collapsed .admin-profile-info,
+        .admin-sidebar.collapsed .admin-nav-label,
+        .admin-sidebar.collapsed .admin-nav-text,
+        .admin-sidebar.collapsed .admin-logout span {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .admin-sidebar.collapsed .admin-brand {
+            justify-content: center;
+        }
+
+        .admin-sidebar.collapsed .admin-profile {
+            justify-content: center;
+        }
+
+        .admin-sidebar.collapsed .admin-nav-item {
+            justify-content: center;
+        }
+
+        .admin-sidebar.collapsed .admin-logout {
+            justify-content: center;
+        }
+
+        .admin-sidebar.collapsed .admin-sidebar-toggle i {
+            transform: rotate(180deg);
+        }

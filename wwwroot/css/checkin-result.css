@@ -342,3 +342,42 @@
         display: none;
     }
 }
+
+.result-motivation {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 15px 17px;
+    border-radius: 12px;
+    background: rgba(21, 151, 229, 0.07);
+}
+
+.result-motivation > i {
+    color: #1597e5;
+    font-size: 20px;
+}
+
+.result-motivation div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.result-motivation strong {
+    color: #071a33;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.result-motivation span {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+    .result-motivation {
+        align-items: flex-start;
+    }
+}

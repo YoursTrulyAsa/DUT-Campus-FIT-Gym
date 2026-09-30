@@ -1,14 +1,15 @@
 ﻿@model List<DUT_Campus_FIT_Gym.ViewModels.AIWorkoutExerciseViewModel>
 
 @{
-    ViewData["Title"] = "AI Workout Plan";
+    ViewData["Title"] = "AI Workout Programme";
 
     string fitnessLevel = ViewBag.FitnessLevel ?? "";
     string fitnessGoal = ViewBag.FitnessGoal ?? "";
     int daysAvailable = ViewBag.DaysAvailable ?? 0;
 
-    var groupedExercises = Model
-        .GroupBy(x => x.WorkoutDay)
+    var groupedWeeks = Model
+        .GroupBy(x => x.WeekNumber)
+        .OrderBy(x => x.Key)
         .ToList();
 }
 
@@ -22,11 +23,12 @@
             </span>
 
             <h1>
-                Your AI Workout Plan
+                Your AI Workout Programme
             </h1>
 
             <p>
-                Your personalized training plan is ready. Review the exercises before saving it to your workout plan.
+                Your 4-week training programme is ready.
+                Review each week and exercise before saving it.
             </p>
         </div>
 
@@ -66,8 +68,19 @@
             </div>
 
             <div>
+                <span>PROGRAMME</span>
+                <strong>4 Weeks</strong>
+            </div>
+        </div>
+
+        <div class="ai-workout-summary-card">
+            <div class="ai-workout-summary-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <div>
                 <span>TRAINING DAYS</span>
-                <strong>@daysAvailable days</strong>
+                <strong>@daysAvailable days / week</strong>
             </div>
         </div>
 
@@ -83,21 +96,29 @@
                name="fitnessLevel"
                value="@fitnessLevel" />
 
+        <input type="hidden"
+               name="fitnessGoal"
+               value="@fitnessGoal" />
+
+        <input type="hidden"
+               name="daysAvailable"
+               value="@daysAvailable" />
+
         <div class="ai-workout-plan-card">
 
             <div class="ai-workout-plan-header">
 
                 <div>
                     <span class="ai-workout-plan-eyebrow">
-                        GENERATED PLAN
+                        GENERATED PROGRAMME
                     </span>
 
                     <h2>
-                        Your Training Schedule
+                        Your 4-Week Training Schedule
                     </h2>
 
                     <p>
-                        Review each training day and exercise before saving.
+                        Review each training week and exercise before saving.
                     </p>
                 </div>
 
@@ -107,118 +128,167 @@
 
             </div>
 
-            <div class="ai-workout-days">
+            <div class="ai-workout-weeks">
 
-                @foreach (var dayGroup in groupedExercises)
+                @foreach (var weekGroup in groupedWeeks)
                 {
-                    <div class="ai-workout-day-section">
+                    var weekExercises = weekGroup.ToList();
 
-                        <div class="ai-workout-day-header">
+                    <div class="ai-workout-week-section">
 
-                            <div class="ai-workout-day-title">
+                        <div class="ai-workout-week-header">
 
-                                <div class="ai-workout-day-icon">
-                                    <i class="fa-solid fa-calendar-day"></i>
+                            <div class="ai-workout-week-title">
+
+                                <div class="ai-workout-week-icon">
+                                    <i class="fa-solid fa-layer-group"></i>
                                 </div>
 
                                 <div>
-                                    <span>TRAINING DAY</span>
+                                    <span>TRAINING PROGRAMME</span>
+
                                     <h3>
-                                        @dayGroup.Key
+                                        Week @weekGroup.Key
                                     </h3>
                                 </div>
 
                             </div>
 
-                            <div class="ai-workout-exercise-count">
-                                @dayGroup.Count()
-                                @(dayGroup.Count() == 1 ? "Exercise" : "Exercises")
+                            <div class="ai-workout-week-count">
+                                @weekExercises.Count
+                                @(weekExercises.Count == 1 ? "Exercise" : "Exercises")
                             </div>
 
                         </div>
 
-                        <div class="ai-workout-exercise-list">
+                        <div class="ai-workout-days">
 
-                            @foreach (var exercise in dayGroup)
+                            @foreach (var dayGroup in weekExercises.GroupBy(x => x.WorkoutDay))
                             {
-                                var originalIndex = Model.IndexOf(exercise);
+                                var dayExercises = dayGroup.ToList();
 
-                                <div class="ai-workout-exercise">
+                                <div class="ai-workout-day-section">
 
-                                    <div class="ai-workout-exercise-number">
-                                        @((dayGroup.ToList().IndexOf(exercise) + 1).ToString("00"))
-                                    </div>
+                                    <div class="ai-workout-day-header">
 
-                                    <div class="ai-workout-exercise-main">
+                                        <div class="ai-workout-day-title">
 
-                                        <div class="ai-workout-exercise-heading">
+                                            <div class="ai-workout-day-icon">
+                                                <i class="fa-solid fa-calendar-day"></i>
+                                            </div>
 
                                             <div>
-                                                <h4>
-                                                    @exercise.ExerciseName
-                                                </h4>
+                                                <span>TRAINING DAY</span>
 
-                                                <p>
-                                                    @exercise.Description
-                                                </p>
-                                            </div>
-
-                                            <div class="ai-workout-exercise-check">
-                                                <i class="fa-solid fa-check"></i>
+                                                <h3>
+                                                    @dayGroup.Key
+                                                </h3>
                                             </div>
 
                                         </div>
 
-                                        <div class="ai-workout-exercise-stats">
-
-                                            <div class="ai-workout-stat">
-                                                <span>SETS</span>
-                                                <strong>
-                                                    @exercise.Sets
-                                                </strong>
-                                            </div>
-
-                                            <div class="ai-workout-stat">
-                                                <span>REPS</span>
-                                                <strong>
-                                                    @exercise.Repetitions
-                                                </strong>
-                                            </div>
-
-                                            <div class="ai-workout-stat">
-                                                <span>REST</span>
-                                                <strong>
-                                                    @exercise.RestTime sec
-                                                </strong>
-                                            </div>
-
+                                        <div class="ai-workout-exercise-count">
+                                            @dayExercises.Count
+                                            @(dayExercises.Count == 1 ? "Exercise" : "Exercises")
                                         </div>
 
                                     </div>
 
-                                    <input type="hidden"
-                                           name="exercises[@originalIndex].WorkoutDay"
-                                           value="@exercise.WorkoutDay" />
+                                    <div class="ai-workout-exercise-list">
 
-                                    <input type="hidden"
-                                           name="exercises[@originalIndex].ExerciseName"
-                                           value="@exercise.ExerciseName" />
+                                        @foreach (var exercise in dayExercises)
+                                        {
+                                            var originalIndex = Model.IndexOf(exercise);
+                                            var exerciseNumber = dayExercises.IndexOf(exercise) + 1;
 
-                                    <input type="hidden"
-                                           name="exercises[@originalIndex].Sets"
-                                           value="@exercise.Sets" />
+                                            <div class="ai-workout-exercise">
 
-                                    <input type="hidden"
-                                           name="exercises[@originalIndex].Repetitions"
-                                           value="@exercise.Repetitions" />
+                                                <div class="ai-workout-exercise-number">
+                                                    @exerciseNumber.ToString("00")
+                                                </div>
 
-                                    <input type="hidden"
-                                           name="exercises[@originalIndex].RestTime"
-                                           value="@exercise.RestTime" />
+                                                <div class="ai-workout-exercise-main">
 
-                                    <input type="hidden"
-                                           name="exercises[@originalIndex].Description"
-                                           value="@exercise.Description" />
+                                                    <div class="ai-workout-exercise-heading">
+
+                                                        <div>
+                                                            <h4>
+                                                                @exercise.ExerciseName
+                                                            </h4>
+
+                                                            <p>
+                                                                @exercise.Description
+                                                            </p>
+                                                        </div>
+
+                                                        <div class="ai-workout-exercise-check">
+                                                            <i class="fa-solid fa-check"></i>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="ai-workout-exercise-stats">
+
+                                                        <div class="ai-workout-stat">
+                                                            <span>SETS</span>
+
+                                                            <strong>
+                                                                @exercise.Sets
+                                                            </strong>
+                                                        </div>
+
+                                                        <div class="ai-workout-stat">
+                                                            <span>REPS</span>
+
+                                                            <strong>
+                                                                @exercise.Repetitions
+                                                            </strong>
+                                                        </div>
+
+                                                        <div class="ai-workout-stat">
+                                                            <span>REST</span>
+
+                                                            <strong>
+                                                                @exercise.RestTime sec
+                                                            </strong>
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <input type="hidden"
+                                                       name="exercises[@originalIndex].WeekNumber"
+                                                       value="@exercise.WeekNumber" />
+
+                                                <input type="hidden"
+                                                       name="exercises[@originalIndex].WorkoutDay"
+                                                       value="@exercise.WorkoutDay" />
+
+                                                <input type="hidden"
+                                                       name="exercises[@originalIndex].ExerciseName"
+                                                       value="@exercise.ExerciseName" />
+
+                                                <input type="hidden"
+                                                       name="exercises[@originalIndex].Sets"
+                                                       value="@exercise.Sets" />
+
+                                                <input type="hidden"
+                                                       name="exercises[@originalIndex].Repetitions"
+                                                       value="@exercise.Repetitions" />
+
+                                                <input type="hidden"
+                                                       name="exercises[@originalIndex].RestTime"
+                                                       value="@exercise.RestTime" />
+
+                                                <input type="hidden"
+                                                       name="exercises[@originalIndex].Description"
+                                                       value="@exercise.Description" />
+
+                                            </div>
+                                        }
+
+                                    </div>
 
                                 </div>
                             }
@@ -259,7 +329,7 @@
 
                 <i class="fa-solid fa-arrow-left"></i>
 
-                Create Another Plan
+                Create Another Programme
 
             </a>
 
@@ -268,7 +338,7 @@
 
                 <i class="fa-solid fa-bookmark"></i>
 
-                Save Workout Plan
+                Save 4-Week Programme
 
             </button>
 

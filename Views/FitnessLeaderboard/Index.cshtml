@@ -1,0 +1,784 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.MonthlyLeaderboardViewModel
+
+@{
+    Layout = User.IsInRole("Trainer")
+        ? "~/Views/Shared/_TrainerLayout.cshtml"
+        : "~/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["Title"] = "Fitness Leaderboard";
+
+    var entries =
+        Model?.Entries ??
+        new List<DUT_Campus_FIT_Gym.ViewModels.MonthlyLeaderboardEntryViewModel>();
+
+    var topThree =
+        entries
+            .Where(x => x.Standing == "Top 3")
+            .OrderBy(x => x.Rank)
+            .ToList();
+
+    var bottomMember =
+        entries
+            .OrderByDescending(x => x.Rank)
+            .FirstOrDefault();
+}
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/fitness-leaderboard.css"
+          asp-append-version="true" />
+
+}
+
+<div class="fitness-leaderboard-page">
+
+    <div class="fitness-leaderboard-header">
+
+        <div>
+
+            <span class="fitness-leaderboard-eyebrow">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Fitness Leaderboard
+            </h1>
+
+            <p>
+                View monthly member standings, identify the Top 3 members,
+                and manage monthly fitness rewards.
+            </p>
+
+        </div>
+
+        <div class="fitness-leaderboard-header-icon">
+
+            <i class="fa-solid fa-ranking-star"></i>
+
+        </div>
+
+    </div>
+
+    @if (TempData["LeaderboardSuccess"] != null)
+    {
+        <div class="leaderboard-alert leaderboard-alert-success">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                @TempData["LeaderboardSuccess"]
+            </span>
+
+        </div>
+    }
+
+    @if (TempData["LeaderboardError"] != null)
+    {
+        <div class="leaderboard-alert leaderboard-alert-error">
+
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+            <span>
+                @TempData["LeaderboardError"]
+            </span>
+
+        </div>
+    }
+
+    <div class="leaderboard-month-card">
+
+        <div class="leaderboard-month-info">
+
+            <span>
+                MONTHLY STANDINGS
+            </span>
+
+            <h2>
+                @Model.MonthName
+            </h2>
+
+            <p>
+                @if (Model.IsFinalized)
+                {
+                    <text>
+                        Final standings have been recorded and cannot be changed.
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        These standings are currently live and will continue changing
+                        until the month is finalized.
+                    </text>
+                }
+            </p>
+
+        </div>
+
+        <form asp-action="Index"
+              method="get"
+              class="leaderboard-month-selector">
+
+            <div>
+
+                <label for="year">
+                    Year
+                </label>
+
+                <select id="year"
+                        name="year">
+
+                    @{
+                        var currentYear = DateTime.Today.Year;
+                    }
+
+                    @for (int year = currentYear - 2;
+                          year <= currentYear + 1;
+                          year++)
+                    {
+                        <option value="@year"
+                                selected="@(year == Model.Year)">
+                            @year
+                        </option>
+                    }
+
+                </select>
+
+            </div>
+
+            <div>
+
+                <label for="month">
+                    Month
+                </label>
+
+                <select id="month"
+                        name="month">
+
+                    @for (int month = 1;
+                          month <= 12;
+                          month++)
+                    {
+                        var monthName =
+                            new DateTime(
+                                Model.Year,
+                                month,
+                                1)
+                            .ToString("MMMM");
+
+                        <option value="@month"
+                                selected="@(month == Model.Month)">
+                            @monthName
+                        </option>
+                    }
+
+                </select>
+
+            </div>
+
+            <button type="submit"
+                    class="leaderboard-view-button">
+
+                <i class="fa-solid fa-filter"></i>
+
+                View
+
+            </button>
+
+        </form>
+
+    </div>
+
+    @if (!Model.IsFinalized)
+    {
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="leaderboard-finalize-panel">
+
+                <div class="leaderboard-finalize-icon">
+
+                    <i class="fa-solid fa-lock-open"></i>
+
+                </div>
+
+                <div class="leaderboard-finalize-content">
+
+                    <span class="leaderboard-panel-label">
+                        MONTH-END ACTION
+                    </span>
+
+                    <h3>
+                        Finalize @Model.MonthName
+                    </h3>
+
+                    <p>
+                        Finalizing this month will permanently record the current
+                        standings, identify the Top 3 members, and prepare their
+                        gift collection status.
+                    </p>
+
+                </div>
+
+                <form asp-action="FinalizeMonth"
+                      method="post"
+                      class="leaderboard-finalize-form"
+                      onsubmit="return confirm('Are you sure you want to finalize this month? The standings cannot be changed after finalization.');">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="year"
+                           value="@Model.Year" />
+
+                    <input type="hidden"
+                           name="month"
+                           value="@Model.Month" />
+
+                    <button type="submit"
+                            class="leaderboard-finalize-button">
+
+                        <i class="fa-solid fa-lock"></i>
+
+                        Finalize Month
+
+                    </button>
+
+                </form>
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="leaderboard-finalized-panel">
+
+            <div class="leaderboard-finalized-icon">
+
+                <i class="fa-solid fa-lock"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    MONTH FINALIZED
+                </span>
+
+                <strong>
+                    @Model.MonthName standings are locked
+                </strong>
+
+                @if (Model.FinalizedAt.HasValue)
+                {
+                    <small>
+                        Finalized on
+                        @Model.FinalizedAt.Value.ToString("dd MMMM yyyy HH:mm")
+                    </small>
+                }
+
+            </div>
+
+        </div>
+    }
+
+    @if (Model.IsFinalized && topThree.Any())
+    {
+        <div class="leaderboard-top-three-section">
+
+            <div class="leaderboard-section-heading">
+
+                <span>
+                    MONTHLY WINNERS
+                </span>
+
+                <h2>
+                    Top 3 members
+                </h2>
+
+                <p>
+                    These members qualified for the monthly fitness gift.
+                </p>
+
+            </div>
+
+            <div class="leaderboard-top-three-grid">
+
+                @foreach (var entry in topThree)
+                {
+                    <div class="leaderboard-winner-card">
+
+                        <div class="leaderboard-winner-rank">
+
+                            <i class="fa-solid fa-trophy"></i>
+
+                            <span>
+                                #@entry.Rank
+                            </span>
+
+                        </div>
+
+                        <div class="leaderboard-winner-details">
+
+                            <h3>
+                                @entry.FullName
+                            </h3>
+
+                            <span>
+                                @entry.Email
+                            </span>
+
+                            <strong>
+                                @entry.Points points
+                            </strong>
+
+                        </div>
+
+                        <div class="leaderboard-winner-gift">
+
+                            @if (entry.GiftStatus == "Collected")
+                            {
+                                <span class="gift-status collected">
+
+                                    <i class="fa-solid fa-circle-check"></i>
+
+                                    Gift Collected
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="gift-status pending">
+
+                                    <i class="fa-solid fa-gift"></i>
+
+                                    Gift Pending
+
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+    }
+
+    @if (Model.IsFinalized && bottomMember != null)
+    {
+        <div class="leaderboard-bottom-panel">
+
+            <div class="leaderboard-bottom-icon">
+
+                <i class="fa-solid fa-arrow-trend-down"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    NEEDS IMPROVEMENT
+                </span>
+
+                <strong>
+                    @bottomMember.FullName
+                </strong>
+
+                <p>
+                    Final monthly score:
+                    <strong>
+                        @bottomMember.Points points
+                    </strong>
+                </p>
+
+                @if (bottomMember.NotificationSent)
+                {
+                    <small>
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        Notification sent
+
+                    </small>
+                }
+                else
+                {
+                    <small>
+                        Notification not sent
+                    </small>
+                }
+
+            </div>
+
+        </div>
+    }
+
+    <div class="leaderboard-table-card">
+
+        <div class="leaderboard-table-header">
+
+            <div>
+
+                <span>
+                    ALL MEMBERS
+                </span>
+
+                <h2>
+                    Monthly Scoreboard
+                </h2>
+
+            </div>
+
+            <div class="leaderboard-member-count">
+
+                <i class="fa-solid fa-users"></i>
+
+                <span>
+                    @entries.Count members
+                </span>
+
+            </div>
+
+        </div>
+
+        @if (!entries.Any())
+        {
+            <div class="leaderboard-empty">
+
+                <div class="leaderboard-empty-icon">
+
+                    <i class="fa-solid fa-ranking-star"></i>
+
+                </div>
+
+                <h3>
+                    No Member standings available
+                </h3>
+
+                <p>
+                    There are currently no members with leaderboard data
+                    for this month.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            <div class="leaderboard-table-wrapper">
+
+                <table class="leaderboard-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Rank</th>
+                            <th>Member</th>
+                            <th>Email</th>
+                            <th>Points</th>
+                            <th>Standing</th>
+                            <th>Gift</th>
+                            <th>Notification</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var entry in entries)
+                        {
+                            var rankClass =
+                                entry.Rank == 1
+                                    ? "rank-first"
+                                    : entry.Rank == 2
+                                        ? "rank-second"
+                                        : entry.Rank == 3
+                                            ? "rank-third"
+                                            : "";
+
+                            <tr class="@rankClass">
+
+                                <td>
+
+                                    <div class="leaderboard-rank">
+
+                                        @if (entry.Rank <= 3)
+                                        {
+                                            <i class="fa-solid fa-trophy"></i>
+                                        }
+
+                                        <strong>
+                                            #@entry.Rank
+                                        </strong>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="leaderboard-member">
+
+                                        <div class="leaderboard-avatar">
+
+                                            @if (!string.IsNullOrWhiteSpace(entry.Name))
+                                            {
+                                                @entry.Name.Substring(0, 1).ToUpper()
+                                            }
+                                            else
+                                            {
+                                                <text>?</text>
+                                            }
+
+                                        </div>
+
+                                        <div>
+
+                                            <strong>
+                                                @entry.FullName
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="leaderboard-email">
+                                        @entry.Email
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="leaderboard-points">
+
+                                        <strong>
+                                            @entry.Points
+                                        </strong>
+
+                                        <span>
+                                            points
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    @if (entry.Standing == "Top 3")
+                                    {
+                                        <span class="leaderboard-standing top">
+
+                                            <i class="fa-solid fa-trophy"></i>
+
+                                            Top 3
+
+                                        </span>
+                                    }
+                                    else if (entry.Standing == "Bottom")
+                                    {
+                                        <span class="leaderboard-standing bottom">
+
+                                            <i class="fa-solid fa-arrow-trend-down"></i>
+
+                                            Needs Improvement
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="leaderboard-standing normal">
+
+                                            <i class="fa-solid fa-minus"></i>
+
+                                            Active
+
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    @if (entry.Standing == "Top 3")
+                                    {
+                                        @if (entry.GiftStatus == "Collected")
+                                        {
+                                            <span class="gift-collected">
+
+                                                <i class="fa-solid fa-circle-check"></i>
+
+                                                Collected
+
+                                            </span>
+                                        }
+                                        else if (Model.IsFinalized && User.IsInRole("Admin"))
+                                        {
+                                            <form asp-action="MarkGiftCollected"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@entry.MonthlyLeaderboardId" />
+
+                                                <button type="submit"
+                                                        class="gift-collected-button">
+
+                                                    <i class="fa-solid fa-check"></i>
+
+                                                    Mark Collected
+
+                                                </button>
+
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="gift-pending">
+
+                                                <i class="fa-solid fa-clock"></i>
+
+                                                Pending
+
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="gift-not-applicable">
+                                            —
+                                        </span>
+                                    }
+
+                                </td>
+
+                                <td>
+
+                                    @if (entry.NotificationSent)
+                                    {
+                                        <span class="notification-sent">
+
+                                            <i class="fa-solid fa-circle-check"></i>
+
+                                            Sent
+
+                                        </span>
+                                    }
+                                    else if (Model.IsFinalized)
+                                    {
+                                        <span class="notification-not-sent">
+
+                                            <i class="fa-solid fa-circle-exclamation"></i>
+
+                                            Not Sent
+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="notification-pending">
+
+                                            <i class="fa-solid fa-clock"></i>
+
+                                            Pending
+
+                                        </span>
+                                    }
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+
+    <div class="leaderboard-info-grid">
+
+        <div class="leaderboard-info-card">
+
+            <div class="leaderboard-info-icon">
+
+                <i class="fa-solid fa-trophy"></i>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    Top 3
+                </h3>
+
+                <p>
+                    The three highest-scoring members qualify for the
+                    monthly fitness gift.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="leaderboard-info-card">
+
+            <div class="leaderboard-info-icon">
+
+                <i class="fa-solid fa-envelope"></i>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    Notifications
+                </h3>
+
+                <p>
+                    Top 3 members receive gift collection notifications.
+                    The lowest-ranked member receives a fitness progress reminder.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="leaderboard-info-card">
+
+            <div class="leaderboard-info-icon">
+
+                <i class="fa-solid fa-lock"></i>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    Locked Results
+                </h3>
+
+                <p>
+                    Once finalized, the monthly standings are stored and
+                    cannot change when new points are earned later.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

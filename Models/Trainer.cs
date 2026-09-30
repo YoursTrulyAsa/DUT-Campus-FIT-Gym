@@ -18,5 +18,7 @@ namespace DUT_Campus_FIT_Gym.Models
         [Required]
         [StringLength(50)]
         public string Category { get; set; } = "";
+
+        public string? ProfilePicture { get; set; }
     }
 }

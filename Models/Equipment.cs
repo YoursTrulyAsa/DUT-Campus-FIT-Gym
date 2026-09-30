@@ -16,6 +16,7 @@ namespace DUT_Campus_FIT_Gym.Models
         public string Category { get; set; } = "";
 
         public bool IsAvailable { get; set; } = true;
+        public bool IsRetired { get; set; } = false;
 
         [Required]
         [StringLength(100)]

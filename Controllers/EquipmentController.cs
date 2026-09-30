@@ -33,6 +33,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var equipment =
                 _context.Equipment
+                    .Where(e => !e.IsRetired)
                     .OrderBy(e => e.EquipmentName)
                     .ToList();
 
@@ -69,6 +70,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             equipment.IsAvailable = true;
+            equipment.IsRetired = false;
 
             if (imageFile != null &&
                 imageFile.Length > 0)
@@ -136,7 +138,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "Equipment added successfully.";
 
             return RedirectToAction(
-                nameof(Index));
+                "Equipment",
+                "Admin");
         }
 
         [HttpPost]
@@ -192,6 +195,15 @@ namespace DUT_Campus_FIT_Gym.Controllers
             if (equipment == null)
             {
                 return NotFound();
+            }
+
+            if (equipment.IsRetired)
+            {
+                TempData["EquipmentError"] =
+                    "This equipment has been retired and is no longer available for reservation.";
+
+                return RedirectToAction(
+                    nameof(Index));
             }
 
             var equipmentCooldown =
@@ -392,7 +404,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         e.EquipmentID ==
                         reservation.EquipmentID);
 
-            if (equipment != null)
+            if (equipment != null &&
+                !equipment.IsRetired)
             {
                 equipment.IsAvailable =
                     true;

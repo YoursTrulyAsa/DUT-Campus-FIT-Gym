@@ -15,7 +15,7 @@ namespace DUT_Campus_FIT_Gym.Models
         public Member? Member { get; set; }
 
         [Required]
-        [Range(17, 69)]
+        [Range(13, 100)]
         public int Age { get; set; }
 
         [Required]
@@ -27,7 +27,11 @@ namespace DUT_Campus_FIT_Gym.Models
         public double Height { get; set; }
 
         [Required]
+        [StringLength(30)]
+        public string FitnessLevel { get; set; } = "Beginner";
+
+        [Required]
         [StringLength(100)]
-        public string Goal { get; set; } = "";
+        public string Goal { get; set; } = "General fitness";
     }
 }

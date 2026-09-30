@@ -9,8 +9,12 @@
         a.CheckInTime.Month == DateTime.Now.Month &&
         a.CheckInTime.Year == DateTime.Now.Year);
 
-    var currentlyCheckedIn = Model.Any(a =>
-        a.CheckOutTime == null);
+    var currentAttendance = Model
+        .Where(a => a.CheckOutTime == null)
+        .OrderByDescending(a => a.CheckInTime)
+        .FirstOrDefault();
+
+    var currentlyCheckedIn = currentAttendance != null;
 
     var totalRewardPoints = Model.Sum(a =>
         a.TotalRewardPoints);
@@ -45,6 +49,48 @@
         </a>
 
     </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="attendance-alert success">
+
+            <div class="attendance-alert-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <div>
+                <strong>
+                    Attendance Updated
+                </strong>
+
+                <p>
+                    @TempData["Success"]
+                </p>
+            </div>
+
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="attendance-alert error">
+
+            <div class="attendance-alert-icon">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+
+            <div>
+                <strong>
+                    Attendance Update Failed
+                </strong>
+
+                <p>
+                    @TempData["Error"]
+                </p>
+            </div>
+
+        </div>
+    }
 
     <div class="attendance-summary">
 
@@ -122,6 +168,122 @@
 
     </div>
 
+    @if (currentlyCheckedIn)
+    {
+        <div class="active-attendance-card">
+
+            <div class="active-attendance-left">
+
+                <div class="active-attendance-icon">
+                    <i class="fa-solid fa-person-circle-check"></i>
+                </div>
+
+                <div class="active-attendance-content">
+
+                    <span class="active-attendance-label">
+                        ACTIVE GYM SESSION
+                    </span>
+
+                    <h2>
+                        You're currently checked in
+                    </h2>
+
+                    <p>
+                        Your attendance has been recorded for today's session.
+                    </p>
+
+                    <div class="active-attendance-time">
+
+                        <div>
+                            <span>
+                                CHECKED IN
+                            </span>
+
+                            <strong>
+                                @currentAttendance.CheckInTime.ToString("dd MMM yyyy")
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                START TIME
+                            </span>
+
+                            <strong>
+                                @currentAttendance.CheckInTime.ToString("HH:mm")
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="active-attendance-action">
+
+                <form asp-controller="Member"
+                      asp-action="CheckOut"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="attendance-checkout-btn">
+
+                        <i class="fa-solid fa-right-from-bracket"></i>
+
+                        Check Out
+
+                    </button>
+
+                </form>
+
+                <span>
+                    Finished your session?
+                </span>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="attendance-ready-card">
+
+            <div class="attendance-ready-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <div class="attendance-ready-content">
+
+                <span>
+                    READY FOR YOUR NEXT SESSION?
+                </span>
+
+                <h2>
+                    Your next gym visit starts with checking in.
+                </h2>
+
+                <p>
+                    Head to the Check-In page when you're ready to start your next session.
+                </p>
+
+            </div>
+
+            <a asp-controller="Member"
+               asp-action="CheckIn"
+               class="attendance-checkin-btn">
+
+                <i class="fa-solid fa-door-open"></i>
+
+                Check In
+
+            </a>
+
+        </div>
+    }
+
     <div class="attendance-card">
 
         <div class="attendance-card-header">
@@ -174,6 +336,7 @@
                                 </td>
 
                                 <td>
+
                                     @if (record.CheckOutTime.HasValue)
                                     {
                                         @record.CheckOutTime.Value.ToString("HH:mm")
@@ -184,9 +347,11 @@
                                             Currently In
                                         </span>
                                     }
+
                                 </td>
 
                                 <td>
+
                                     @if (record.Duration.HasValue)
                                     {
                                         @record.Duration.Value.ToString(@"hh\:mm")
@@ -197,6 +362,7 @@
                                             —
                                         </span>
                                     }
+
                                 </td>
 
                                 <td>
@@ -263,6 +429,16 @@
                 <p>
                     Your gym visits will appear here.
                 </p>
+
+                <a asp-controller="Member"
+                   asp-action="CheckIn"
+                   class="attendance-empty-btn">
+
+                    <i class="fa-solid fa-door-open"></i>
+
+                    Check In
+
+                </a>
 
             </div>
         }

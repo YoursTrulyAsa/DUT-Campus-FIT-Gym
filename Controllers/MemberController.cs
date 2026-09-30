@@ -1,5 +1,6 @@
 ﻿using DUT_Campus_FIT_Gym.Data;
 using DUT_Campus_FIT_Gym.Models;
+using DUT_Campus_FIT_Gym.Services;
 using DUT_Campus_FIT_Gym.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,6 @@ using System.Security.Claims;
 using ZXing;
 using ZXing.Common;
 using ZXing.Rendering;
-using DUT_Campus_FIT_Gym.Services;
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
@@ -18,7 +18,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         private readonly GymDbContext _context;
         private readonly MembershipPricingService _membershipPricingService;
         private readonly RewardService _rewardService;
-        
+
         public MemberController(
             GymDbContext context,
             MembershipPricingService membershipPricingService,
@@ -28,7 +28,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _membershipPricingService = membershipPricingService;
             _rewardService = rewardService;
         }
-
 
         private int? GetMemberId()
         {
@@ -59,8 +58,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             var member = _context.Members
-                .FirstOrDefault(m =>
-                    m.MemberId == memberId.Value);
+                .FirstOrDefault(m => m.MemberId == memberId.Value);
 
             if (member == null)
             {
@@ -68,66 +66,48 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             var latestMembership = _context.Memberships
-                .Where(m =>
-                    m.MemberId == memberId.Value)
-                .OrderByDescending(m =>
-                    m.MembershipId)
+                .Where(m => m.MemberId == memberId.Value)
+                .OrderByDescending(m => m.MembershipId)
                 .FirstOrDefault();
 
             var latestApplication = _context.MembershipApplications
-                .Where(a =>
-                    a.MemberId == memberId.Value)
-                .OrderByDescending(a =>
-                    a.MembershipApplicationId)
+                .Where(a => a.MemberId == memberId.Value)
+                .OrderByDescending(a => a.MembershipApplicationId)
                 .FirstOrDefault();
 
             var attendance = _context.Attendances
-                .Where(a =>
-                    a.MemberId == memberId.Value)
-                .OrderByDescending(a =>
-                    a.CheckInTime)
+                .Where(a => a.MemberId == memberId.Value)
+                .OrderByDescending(a => a.CheckInTime)
                 .ToList();
 
-            var attendanceCount =
-                attendance.Count;
+            var attendanceCount = attendance.Count;
 
             var completedAttendance = attendance
-                .Where(a =>
-                    a.CheckOutTime.HasValue)
+                .Where(a => a.CheckOutTime.HasValue)
                 .ToList();
 
-            var totalGymMinutes =
-                completedAttendance.Sum(a =>
-                    (a.CheckOutTime!.Value - a.CheckInTime)
-                    .TotalMinutes);
+            var totalGymMinutes = completedAttendance.Sum(a =>
+                (a.CheckOutTime!.Value - a.CheckInTime).TotalMinutes);
 
-            var averageVisitMinutes =
-                completedAttendance.Any()
-                    ? completedAttendance.Average(a =>
-                        (a.CheckOutTime!.Value - a.CheckInTime)
-                        .TotalMinutes)
-                    : 0;
+            var averageVisitMinutes = completedAttendance.Any()
+                ? completedAttendance.Average(a =>
+                    (a.CheckOutTime!.Value - a.CheckInTime).TotalMinutes)
+                : 0;
 
             var today = DateTime.Today;
 
             var monday = today.AddDays(
-                -((7 +
-                   (int)today.DayOfWeek -
-                   (int)DayOfWeek.Monday) % 7));
+                -((7 + (int)today.DayOfWeek -
+                (int)DayOfWeek.Monday) % 7));
 
-            var weeklyLabels =
-                new List<string>();
-
-            var weeklyVisitCounts =
-                new List<int>();
+            var weeklyLabels = new List<string>();
+            var weeklyVisitCounts = new List<int>();
 
             for (int i = 0; i < 7; i++)
             {
-                var day =
-                    monday.AddDays(i);
+                var day = monday.AddDays(i);
 
-                weeklyLabels.Add(
-                    day.ToString("ddd"));
+                weeklyLabels.Add(day.ToString("ddd"));
 
                 weeklyVisitCounts.Add(
                     attendance.Count(a =>
@@ -140,109 +120,135 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     a.CheckInTime.Date <= today &&
                     a.CheckOutTime.HasValue)
                 .Sum(a =>
-                    (a.CheckOutTime!.Value - a.CheckInTime)
-                    .TotalMinutes);
+                    (a.CheckOutTime!.Value - a.CheckInTime).TotalMinutes);
 
-            var workoutProfile =
-                _context.WorkoutProfiles
-                    .FirstOrDefault(w =>
-                        w.MemberId == memberId.Value);
+            var workoutProfile = _context.WorkoutProfiles
+                .FirstOrDefault(w =>
+                    w.MemberId == memberId.Value);
+
+            var weightHistory = _context.WeightHistories
+                .Where(w =>
+                    w.MemberId == memberId.Value)
+                .OrderBy(w =>
+                    w.RecordedAt)
+                .ToList();
+
+            var workouts = _context.WorkoutPlans
+                .Where(w =>
+                    w.MemberId == memberId.Value)
+                .OrderBy(w =>
+                    w.WorkoutDay)
+                .ToList();
+
+            var workoutCompletions = _context.WorkoutCompletions
+                .Where(w =>
+                    w.MemberId == memberId.Value)
+                .OrderByDescending(w =>
+                    w.CompletedAt)
+                .ToList();
+
+            var totalWorkoutDays = workouts
+                .Select(w => new
+                {
+                    w.WorkoutProgrammeId,
+                    w.WeekNumber,
+                    w.WorkoutDay
+                })
+                .Distinct()
+                .Count();
+
+            var completedWorkoutDays = workoutCompletions
+                .Select(w => new
+                {
+                    w.WorkoutProgrammeId,
+                    w.WeekNumber,
+                    w.WorkoutDay
+                })
+                .Distinct()
+                .Count();
+
+            var workoutCompletionPercentage =
+                totalWorkoutDays > 0
+                    ? (int)Math.Round(
+                        completedWorkoutDays * 100.0 /
+                        totalWorkoutDays)
+                    : 0;
 
             double caloriesPerMinute = 5.0;
 
             if (workoutProfile != null)
             {
-                var weightFactor =
-                    Math.Clamp(
-                        workoutProfile.Weight / 70.0,
-                        0.75,
-                        1.5);
+                var weightFactor = Math.Clamp(
+                    workoutProfile.Weight / 70.0,
+                    0.75,
+                    1.5);
 
-                caloriesPerMinute *=
-                    weightFactor;
+                caloriesPerMinute *= weightFactor;
             }
 
             var estimatedCalories =
-                totalGymMinutes *
-                caloriesPerMinute;
+                totalGymMinutes * caloriesPerMinute;
 
             var weeklyEstimatedCalories =
-                weeklyGymMinutes *
-                caloriesPerMinute;
+                weeklyGymMinutes * caloriesPerMinute;
 
-            var reservationCount =
-                _context.Reservations
-                    .Count(r =>
-                        r.MemberID == memberId.Value &&
-                        r.Status == "Reserved" &&
-                        r.EndTime > DateTime.Now);
+            var reservationCount = _context.Reservations
+                .Count(r =>
+                    r.MemberID == memberId.Value &&
+                    r.Status == "Reserved" &&
+                    r.EndTime > DateTime.Now);
 
-            var totalReservations =
-                _context.Reservations
-                    .Count(r =>
-                        r.MemberID == memberId.Value);
+            var totalReservations = _context.Reservations
+                .Count(r =>
+                    r.MemberID == memberId.Value);
 
-            var workouts =
-                _context.WorkoutPlans
-                    .Where(w =>
-                        w.MemberId == memberId.Value)
-                    .OrderBy(w =>
-                        w.WorkoutDay)
-                    .ToList();
+            var dashboardData = new MemberDashboardViewModel
+            {
+                Member = member,
 
-            var dashboardData =
-                new MemberDashboardViewModel
-                {
-                    Member =
-                        member,
+                Membership = latestMembership,
 
-                    Membership =
-                        latestMembership,
+                LatestApplication = latestApplication,
 
-                    LatestApplication =
-                        latestApplication,
+                AttendanceCount = attendanceCount,
 
-                    AttendanceCount =
-                        attendanceCount,
+                ReservationCount = reservationCount,
 
-                    ReservationCount =
-                        reservationCount,
+                TotalReservations = totalReservations,
 
-                    TotalReservations =
-                        totalReservations,
+                TotalGymMinutes = totalGymMinutes,
 
-                    TotalGymMinutes =
-                        totalGymMinutes,
+                AverageVisitMinutes = averageVisitMinutes,
 
-                    AverageVisitMinutes =
-                        averageVisitMinutes,
+                WeeklyGymMinutes = weeklyGymMinutes,
 
-                    WeeklyGymMinutes =
-                        weeklyGymMinutes,
+                EstimatedCalories = estimatedCalories,
 
-                    EstimatedCalories =
-                        estimatedCalories,
+                WeeklyEstimatedCalories = weeklyEstimatedCalories,
 
-                    WeeklyEstimatedCalories =
-                        weeklyEstimatedCalories,
+                WeeklyLabels = weeklyLabels,
 
-                    WeeklyLabels =
-                        weeklyLabels,
+                WeeklyVisitCounts = weeklyVisitCounts,
 
-                    WeeklyVisitCounts =
-                        weeklyVisitCounts,
+                Workouts = workouts,
 
-                    Workouts =
-                        workouts,
+                WorkoutProfile = workoutProfile,
 
-                    WorkoutProfile =
-                        workoutProfile
-                };
+                WeightHistory = weightHistory,
+
+                WorkoutCompletions = workoutCompletions,
+
+                CompletedWorkoutDays = completedWorkoutDays,
+
+                TotalWorkoutDays = totalWorkoutDays,
+
+                WorkoutCompletionPercentage =
+                    workoutCompletionPercentage
+            };
 
             return View(dashboardData);
         }
 
-        
         [HttpGet]
         public IActionResult Profile()
         {
@@ -270,7 +276,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
         public IActionResult Profile(
             string name,
             string surname,
-            string phoneNumber)
+            string phoneNumber,
+            IFormFile? profilePicture)
         {
             var memberId = GetMemberId();
 
@@ -309,6 +316,37 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Phone number is required.");
             }
 
+            if (profilePicture != null &&
+                profilePicture.Length > 0)
+            {
+                var extension =
+                    Path.GetExtension(
+                        profilePicture.FileName)
+                        .ToLowerInvariant();
+
+                var allowedExtensions = new[]
+                {
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".webp"
+                };
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError(
+                        "ProfilePicture",
+                        "Only JPG, JPEG, PNG and WEBP images are allowed.");
+                }
+
+                if (profilePicture.Length > 5 * 1024 * 1024)
+                {
+                    ModelState.AddModelError(
+                        "ProfilePicture",
+                        "The profile picture must not exceed 5 MB.");
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(member);
@@ -318,12 +356,142 @@ namespace DUT_Campus_FIT_Gym.Controllers
             member.Surname = surname.Trim();
             member.PhoneNumber = phoneNumber.Trim();
 
+            if (profilePicture != null &&
+                profilePicture.Length > 0)
+            {
+                var uploadsFolder =
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        "uploads",
+                        "profiles");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(
+                        uploadsFolder);
+                }
+
+                var extension =
+                    Path.GetExtension(
+                        profilePicture.FileName)
+                        .ToLowerInvariant();
+
+                var uniqueFileName =
+                    $"{Guid.NewGuid()}{extension}";
+
+                var filePath =
+                    Path.Combine(
+                        uploadsFolder,
+                        uniqueFileName);
+
+                using (var fileStream =
+                    new FileStream(
+                        filePath,
+                        FileMode.Create))
+                {
+                    profilePicture.CopyTo(
+                        fileStream);
+                }
+
+                DeleteProfilePicture(
+                    member.ProfilePicture);
+
+                member.ProfilePicture =
+                    $"/uploads/profiles/{uniqueFileName}";
+            }
+
             _context.SaveChanges();
 
             TempData["ProfileSuccess"] =
                 "Your profile has been updated successfully.";
 
             return RedirectToAction(nameof(Profile));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RemovePhoto()
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var member = _context.Members
+                .FirstOrDefault(m =>
+                    m.MemberId == memberId.Value);
+
+            if (member == null)
+            {
+                return NotFound();
+            }
+
+            if (string.IsNullOrWhiteSpace(member.ProfilePicture))
+            {
+                TempData["ProfileError"] =
+                    "You do not currently have a profile picture.";
+
+                return RedirectToAction(nameof(Profile));
+            }
+
+            DeleteProfilePicture(
+                member.ProfilePicture);
+
+            member.ProfilePicture = null;
+
+            _context.SaveChanges();
+
+            TempData["ProfileSuccess"] =
+                "Your profile picture has been removed.";
+
+            return RedirectToAction(nameof(Profile));
+        }
+
+        private void DeleteProfilePicture(
+            string? profilePicture)
+        {
+            if (string.IsNullOrWhiteSpace(profilePicture))
+            {
+                return;
+            }
+
+            var normalizedPath =
+                profilePicture
+                    .TrimStart('/')
+                    .Replace(
+                        '/',
+                        Path.DirectorySeparatorChar);
+
+            var uploadsRoot =
+                Path.GetFullPath(
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        "uploads",
+                        "profiles"));
+
+            var filePath =
+                Path.GetFullPath(
+                    Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        normalizedPath));
+
+            if (!filePath.StartsWith(
+                    uploadsRoot +
+                    Path.DirectorySeparatorChar,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
         }
 
         [HttpGet]
@@ -348,13 +516,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var attendance = attendanceRecords
                 .Select(a =>
                 {
+                    var visitEndTime =
+                        a.CheckOutTime ?? DateTime.Now;
+
                     var reservations = _context.Reservations
                         .Where(r =>
                             r.MemberID == memberId.Value &&
-                            r.Status != "Cancelled" &&
-                            r.ReservationDate <
-                                (a.CheckOutTime ?? DateTime.Now) &&
-                            r.EndTime > a.CheckInTime)
+                            r.ReservationDate >= a.CheckInTime &&
+                            r.ReservationDate <= visitEndTime)
                         .ToList();
 
                     var equipmentCount =
@@ -365,7 +534,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                     var equipmentRewardPoints = 0;
 
-                    if (a.CheckOutTime.HasValue && equipmentCount > 0)
+                    if (a.CheckOutTime.HasValue &&
+                        equipmentCount > 0)
                     {
                         equipmentRewardPoints =
                             _rewardService.GetEquipmentReward(
@@ -377,14 +547,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
                             .Where(r =>
                                 r.MemberId == memberId.Value &&
                                 r.EarnedAt >= a.CheckInTime &&
-                                r.EarnedAt <=
-                                    (a.CheckOutTime ?? DateTime.Now) &&
-                                r.Reason.Contains("Check-in"))
+                                r.EarnedAt <= visitEndTime &&
+                                r.Reason == "Gym check-in")
                             .Sum(r => (int?)r.Points) ?? 0;
 
                     var duration =
                         a.CheckOutTime.HasValue
-                            ? a.CheckOutTime.Value - a.CheckInTime
+                            ? a.CheckOutTime.Value -
+                              a.CheckInTime
                             : (TimeSpan?)null;
 
                     return new AttendanceViewModel
@@ -418,7 +588,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 .ToList();
 
             return View(attendance);
-        }
+
+}
 
 
         [HttpGet]
@@ -467,6 +638,15 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
+            var member = _context.Members
+                .FirstOrDefault(m =>
+                    m.MemberId == memberId.Value);
+
+            if (member == null)
+            {
+                return NotFound();
+            }
+
             var latestMembership = _context.Memberships
                 .Where(m =>
                     m.MemberId == memberId.Value)
@@ -481,9 +661,31 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     a.MembershipApplicationId)
                 .FirstOrDefault();
 
+            ViewBag.MemberRole = member.Role;
+
+            ViewBag.SemesterPrice =
+                _membershipPricingService.GetBasePrice(
+                    member.Role,
+                    "Semester1");
+
+            ViewBag.AnnualPrice =
+                _membershipPricingService.GetBasePrice(
+                    member.Role,
+                    "Annual");
+
+            var isFirstTimeMember =
+                !_context.Memberships.Any(m =>
+                    m.MemberId == memberId.Value &&
+                    (m.Status == "Active" ||
+                     m.PaymentStatus == "Completed"));
+
+            ViewBag.FirstTimeDiscount =
+                _membershipPricingService.GetDiscountPercentage(
+                    member.Role,
+                    isFirstTimeMember);
+
             if (latestMembership != null &&
-                latestMembership.Status ==
-                "WaitingForPayment")
+                latestMembership.Status == "WaitingForPayment")
             {
                 ViewBag.PendingApplication = null;
 
@@ -491,8 +693,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             if (latestMembership != null &&
-                latestMembership.Status ==
-                "Active")
+                latestMembership.Status == "Active")
             {
                 ViewBag.PendingApplication = null;
 
@@ -500,8 +701,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             if (latestApplication != null &&
-                latestApplication.Status ==
-                "Pending")
+                latestApplication.Status == "Pending")
             {
                 ViewBag.PendingApplication =
                     latestApplication;
@@ -510,8 +710,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             if (latestApplication != null &&
-                latestApplication.Status ==
-                "Approved")
+                latestApplication.Status == "Approved")
             {
                 ViewBag.PendingApplication =
                     latestApplication;
@@ -520,8 +719,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             if (latestApplication != null &&
-                latestApplication.Status ==
-                "Rejected")
+                latestApplication.Status == "Rejected")
             {
                 ViewBag.PendingApplication =
                     latestApplication;
@@ -1182,84 +1380,97 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             var memberId = GetMemberId();
 
-            if (memberId == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            var attendance = _context.Attendances
-                .FirstOrDefault(a =>
-                    a.MemberId == memberId.Value &&
-                    !a.CheckOutTime.HasValue);
-
-            if (attendance == null)
-            {
-                TempData["Error"] = "No active gym attendance found.";
-                return RedirectToAction("Attendance");
-            }
-
-            var checkoutTime = DateTime.Now;
-
-            attendance.CheckOutTime = checkoutTime;
-
-            var equipmentCount = _context.Reservations
-                .Where(r =>
-                    r.MemberID == memberId.Value &&
-                    r.Status != "Cancelled" &&
-                    r.ReservationDate < checkoutTime &&
-                    r.EndTime > attendance.CheckInTime)
-                .Select(r => r.EquipmentID)
-                .Distinct()
-                .Count();
-
-            var equipmentRewardPoints = equipmentCount > 0
-                ? _rewardService.GetEquipmentReward(equipmentCount)
-                : 0;
-
-            if (equipmentRewardPoints > 0)
-            {
-                var rewardReason =
-                    $"Equipment reward for attendance #{attendance.AttendanceId}";
-
-                var rewardAlreadyExists = _context.RewardPoints
-                    .Any(r =>
-                        r.MemberId == memberId.Value &&
-                        r.Reason == rewardReason);
-
-                if (!rewardAlreadyExists)
-                {
-                    _context.RewardPoints.Add(new RewardPoint
+        if (memberId == null)
                     {
-                        MemberId = memberId.Value,
-                        Points = equipmentRewardPoints,
-                        Reason = rewardReason,
-                        EarnedAt = checkoutTime
-                    });
-                }
-            }
+                        return RedirectToAction("Login", "Account");
+                    }
 
-            _context.SaveChanges();
+                    var attendance = _context.Attendances
+                        .FirstOrDefault(a =>
+                            a.MemberId == memberId.Value &&
+                            !a.CheckOutTime.HasValue);
 
-            if (equipmentRewardPoints > 0)
-            {
-                TempData["Success"] =
-                    $"You have successfully checked out. You earned +{equipmentRewardPoints} equipment reward points.";
-            }
-            else
-            {
-                TempData["Success"] =
-                    "You have successfully checked out of the gym.";
-            }
+                    if (attendance == null)
+                    {
+                        TempData["Error"] =
+                            "No active gym attendance found.";
 
-            return RedirectToAction("Attendance");
+                        return RedirectToAction("Attendance");
+                    }
+
+                    var checkoutTime = DateTime.Now;
+
+                    var equipmentCount = _context.Reservations
+                        .Where(r =>
+                            r.MemberID == memberId.Value &&
+                            r.ReservationDate >= attendance.CheckInTime &&
+                            r.ReservationDate <= checkoutTime)
+                        .Select(r => r.EquipmentID)
+                        .Distinct()
+                        .Count();
+
+                    var equipmentRewardPoints =
+                        equipmentCount > 0
+                            ? _rewardService.GetEquipmentReward(
+                                equipmentCount)
+                            : 0;
+
+                    attendance.CheckOutTime =
+                        checkoutTime;
+
+                    if (equipmentRewardPoints > 0)
+                    {
+                        var rewardReason =
+                            $"Equipment reward for attendance #{attendance.AttendanceId}";
+
+                        var rewardAlreadyExists =
+                            _context.RewardPoints
+                                .Any(r =>
+                                    r.MemberId == memberId.Value &&
+                                    r.Reason == rewardReason);
+
+                        if (!rewardAlreadyExists)
+                        {
+                            _context.RewardPoints.Add(
+                                new RewardPoint
+                                {
+                                    MemberId =
+                                        memberId.Value,
+
+                                    Points =
+                                        equipmentRewardPoints,
+
+                                    Reason =
+                                        rewardReason,
+
+                                    EarnedAt =
+                                        checkoutTime
+                                });
+                        }
+                    }
+
+                    _context.SaveChanges();
+
+                    if (equipmentRewardPoints > 0)
+                    {
+                        TempData["Success"] =
+                            $"You have successfully checked out. You earned +{equipmentRewardPoints} equipment reward points.";
+                    }
+                    else
+                    {
+                        TempData["Success"] =
+                            "You have successfully checked out of the gym.";
+                    }
+
+                    return RedirectToAction("Attendance");
         }
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult VerifyQrCheckIn(
-            string qrData)
-            {
+    string qrData)
+        {
             if (string.IsNullOrWhiteSpace(qrData))
             {
                 TempData["CheckInError"] =
@@ -1269,7 +1480,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(CheckIn));
             }
 
-            qrData = qrData.Trim();
+            qrData =
+                qrData.Trim();
 
             if (!string.Equals(
                 qrData,
@@ -1283,7 +1495,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(CheckIn));
             }
 
-            var memberId = GetMemberId();
+            var memberId =
+                GetMemberId();
 
             if (memberId == null)
             {
@@ -1295,9 +1508,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
-            var member = _context.Members
-                .FirstOrDefault(m =>
-                    m.MemberId == memberId.Value);
+            var member =
+                _context.Members
+                    .FirstOrDefault(m =>
+                        m.MemberId ==
+                        memberId.Value);
 
             if (member == null)
             {
@@ -1308,13 +1523,16 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(CheckIn));
             }
 
-            var membership = _context.Memberships
-                .Where(m =>
-                    m.MemberId == memberId.Value &&
-                    m.Status == "Active")
-                .OrderByDescending(m =>
-                    m.MembershipId)
-                .FirstOrDefault();
+            var membership =
+                _context.Memberships
+                    .Where(m =>
+                        m.MemberId ==
+                            memberId.Value &&
+                        m.Status ==
+                            "Active")
+                    .OrderByDescending(m =>
+                        m.MembershipId)
+                    .FirstOrDefault();
 
             if (membership == null)
             {
@@ -1339,8 +1557,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var existingAttendance =
                 _context.Attendances
                     .FirstOrDefault(a =>
-                        a.MemberId == memberId.Value &&
-                        a.CheckOutTime == null);
+                        a.MemberId ==
+                            memberId.Value &&
+                        a.CheckOutTime ==
+                            null);
 
             if (existingAttendance != null)
             {
@@ -1351,6 +1571,12 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(CheckIn));
             }
 
+            var checkInTime =
+                DateTime.Now;
+
+            var checkInReward =
+                _rewardService.GetCheckInReward();
+
             var attendance =
                 new Attendance
                 {
@@ -1358,21 +1584,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         memberId.Value,
 
                     CheckInTime =
-                        DateTime.Now,
+                        checkInTime,
 
                     CheckOutTime =
                         null
                 };
 
-            _context.Attendances.Add(
-                attendance);
-
-            _context.SaveChanges();
-
-            var checkInReward =
-                _rewardService.GetCheckInReward();
-
-            _context.RewardPoints.Add(
+            var reward =
                 new RewardPoint
                 {
                     MemberId =
@@ -1385,13 +1603,27 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         "Gym check-in",
 
                     EarnedAt =
-                        DateTime.Now
-                });
+                        checkInTime
+                };
+
+            _context.Attendances.Add(
+                attendance);
+
+            _context.RewardPoints.Add(
+                reward);
 
             _context.SaveChanges();
 
+            var savedReward = _context.RewardPoints
+                .Any(r =>
+                    r.MemberId == memberId.Value &&
+                    r.Reason == "Gym check-in" &&
+                    r.EarnedAt == checkInTime);
+
             TempData["CheckInSuccess"] =
-                $"Access granted — Welcome {member.Name}! You earned +{checkInReward} reward point.";
+                savedReward
+                    ? $"Access granted — Welcome {member.Name}! You earned +{checkInReward} reward point."
+                    : "Access granted, but the check-in reward could not be saved.";
 
             return RedirectToAction(
                 nameof(CheckIn));
@@ -1402,8 +1634,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             var equipment =
                 _context.Equipment
-                    .OrderBy(e =>
-                        e.EquipmentName)
+                    .Where(e => !e.IsRetired)
+                    .OrderBy(e => e.EquipmentName)
                     .ToList();
 
             return View(equipment);
@@ -1412,7 +1644,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [HttpGet]
         public IActionResult Reservations()
         {
-            var memberId = GetMemberId();
+            var memberId =
+                GetMemberId();
 
             if (memberId == null)
             {
@@ -1421,17 +1654,22 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
-            var now = DateTime.Now;
+            var now =
+                DateTime.Now;
 
             var expiredReservations =
                 _context.Reservations
                     .Where(r =>
-                        r.MemberID == memberId.Value &&
-                        r.Status == "Reserved" &&
-                        r.EndTime <= now)
+                        r.MemberID ==
+                            memberId.Value &&
+                        r.Status ==
+                            "Reserved" &&
+                        r.EndTime <=
+                            now)
                     .ToList();
 
-            foreach (var expired in expiredReservations)
+            foreach (var expired
+                in expiredReservations)
             {
                 expired.Status =
                     "Expired";
@@ -1442,10 +1680,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                             e.EquipmentID ==
                             expired.EquipmentID);
 
-                if (equipment != null)
+                if (equipment != null &&
+                     !equipment.IsRetired)
                 {
-                    equipment.IsAvailable =
-                        true;
+                    equipment.IsAvailable = true;
                 }
             }
 
@@ -1502,7 +1740,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
         public IActionResult Unreserve(
             int reservationId)
         {
-            var memberId = GetMemberId();
+            var memberId =
+                GetMemberId();
 
             if (memberId == null)
             {
@@ -1539,10 +1778,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
             reservation.Status =
                 "Cancelled";
 
-            if (equipment != null)
+            if (equipment != null &&
+                    !equipment.IsRetired)
             {
-                equipment.IsAvailable =
-                    true;
+                equipment.IsAvailable = true;
             }
 
             _context.SaveChanges();
@@ -1555,9 +1794,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         [HttpGet]
-        public IActionResult RequestTrainer(string? category)
+        public IActionResult RequestTrainer(
+            string? category)
         {
-            var memberId = GetMemberId();
+            var memberId =
+                GetMemberId();
 
             if (memberId == null)
             {
@@ -1566,46 +1807,58 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
-            var member = _context.Members
-                .FirstOrDefault(m =>
-                    m.MemberId == memberId.Value);
+            var member =
+                _context.Members
+                    .FirstOrDefault(m =>
+                        m.MemberId ==
+                        memberId.Value);
 
             if (member == null)
             {
                 return NotFound();
             }
 
-            var categories = new[]
-            {
-        "All Categories",
-        "General Fitness",
-        "Strength Training",
-        "Cardio & Endurance",
-        "Weight Management",
-        "Sports Training",
-        "Functional Training"
-    };
+            var categories =
+                new[]
+                {
+                    "All Categories",
+                    "General Fitness",
+                    "Strength Training",
+                    "Cardio & Endurance",
+                    "Weight Management",
+                    "Sports Training",
+                    "Functional Training"
+                };
 
-            var trainersQuery = _context.Trainers
-                .AsQueryable();
+            var trainersQuery =
+                _context.Trainers
+                    .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(category) &&
                 category != "All Categories")
             {
-                trainersQuery = trainersQuery
-                    .Where(t =>
-                        t.Category == category);
+                trainersQuery =
+                    trainersQuery
+                        .Where(t =>
+                            t.Category ==
+                            category);
             }
 
-            var trainers = trainersQuery
-                .OrderBy(t =>
-                    t.TrainerName)
-                .ToList();
+            var trainers =
+                trainersQuery
+                    .OrderBy(t =>
+                        t.TrainerName)
+                    .ToList();
 
-            ViewBag.Trainers = trainers;
-            ViewBag.Categories = categories;
+            ViewBag.Trainers =
+                trainers;
+
+            ViewBag.Categories =
+                categories;
+
             ViewBag.SelectedCategory =
-                category ?? "All Categories";
+                category ??
+                "All Categories";
 
             return View();
         }
@@ -1616,7 +1869,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
             int trainerId,
             string requestMessage)
         {
-            var memberId = GetMemberId();
+            var memberId =
+                GetMemberId();
 
             if (memberId == null)
             {
@@ -1625,18 +1879,22 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
-            var member = _context.Members
-                .FirstOrDefault(m =>
-                    m.MemberId == memberId.Value);
+            var member =
+                _context.Members
+                    .FirstOrDefault(m =>
+                        m.MemberId ==
+                        memberId.Value);
 
             if (member == null)
             {
                 return NotFound();
             }
 
-            var trainer = _context.Trainers
-                .FirstOrDefault(t =>
-                    t.TrainerId == trainerId);
+            var trainer =
+                _context.Trainers
+                    .FirstOrDefault(t =>
+                        t.TrainerId ==
+                        trainerId);
 
             if (trainer == null)
             {
@@ -1724,7 +1982,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [HttpGet]
         public IActionResult MyTrainerRequests()
         {
-            var memberId = GetMemberId();
+            var memberId =
+                GetMemberId();
 
             if (memberId == null)
             {
@@ -1735,7 +1994,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var requests =
                 _context.TrainerRequests
-                    .Include(r => r.Trainer)
+                    .Include(r =>
+                        r.Trainer)
                     .Where(r =>
                         r.StudentId ==
                         memberId.Value)
@@ -1769,14 +2029,16 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
-            var payments = _context.Payments
-                .Include(p => p.Membership)
-                .Where(p =>
-                    p.MemberId ==
-                    memberId)
-                .OrderByDescending(p =>
-                    p.PaymentDate)
-                .ToList();
+            var payments =
+                _context.Payments
+                    .Include(p =>
+                        p.Membership)
+                    .Where(p =>
+                        p.MemberId ==
+                        memberId)
+                    .OrderByDescending(p =>
+                        p.PaymentDate)
+                    .ToList();
 
             return View(
                 "Payment",

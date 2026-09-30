@@ -4,146 +4,309 @@
     ViewData["Title"] = "Add Equipment";
 }
 
-<div class="trainer-page">
+<div class="trainer-equipment-create-page">
 
-    <div class="trainer-page-header">
+    <div class="trainer-equipment-header">
 
-        <span class="trainer-page-label">
-            DUT CAMPUS FIT GYM
-        </span>
+        <div>
 
-        <h1>
-            Add Equipment
-        </h1>
+            <div class="trainer-equipment-breadcrumb">
+                <i class="fa-solid fa-dumbbell"></i>
+                <span>Equipment Management</span>
+                <i class="fa-solid fa-chevron-right"></i>
+                <span>Add Equipment</span>
+            </div>
 
-        <p>
-            Add new equipment to the gym inventory.
-        </p>
+            <div class="trainer-equipment-title-row">
 
-    </div>
+                <div class="trainer-equipment-title-icon">
+                    <i class="fa-solid fa-dumbbell"></i>
+                </div>
 
-    <div class="trainer-form-card">
+                <div>
 
-        <div class="trainer-section-title">
+                    <span class="trainer-equipment-eyebrow">
+                        DUT CAMPUS FIT GYM
+                    </span>
 
-            <h3>
-                Equipment Details
-            </h3>
+                    <h1>
+                        Add Equipment
+                    </h1>
+
+                    <p>
+                        Add new equipment to the gym inventory and make it available for members.
+                    </p>
+
+                </div>
+
+            </div>
 
         </div>
 
-        <form asp-controller="Trainer"
-              asp-action="AddEquipment"
-              method="post"
-              enctype="multipart/form-data">
+    </div>
 
-            @Html.AntiForgeryToken()
+    <div class="trainer-equipment-layout">
 
-            <div asp-validation-summary="ModelOnly"
-                 class="trainer-alert trainer-alert-danger">
+        <div class="trainer-equipment-main-card">
+
+            <div class="trainer-equipment-card-header">
+
+                <div class="trainer-equipment-card-icon">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+
+                <div>
+
+                    <h2>
+                        Equipment Details
+                    </h2>
+
+                    <p>
+                        Enter the basic information for this equipment.
+                    </p>
+
+                </div>
+
             </div>
 
-            <div class="trainer-form-group">
+            <form asp-controller="Trainer"
+                  asp-action="AddEquipment"
+                  method="post"
+                  enctype="multipart/form-data">
 
-                <label asp-for="EquipmentName">
-                    Equipment Name
-                </label>
+                @Html.AntiForgeryToken()
 
-                <input asp-for="EquipmentName"
-                       class="trainer-form-control"
-                       placeholder="e.g. Treadmill" />
+                <div asp-validation-summary="ModelOnly"
+                     class="trainer-equipment-validation">
+                </div>
 
-                <span asp-validation-for="EquipmentName"
-                      class="text-danger">
+                <div class="trainer-equipment-form-grid">
+
+                    <div class="trainer-equipment-form-group">
+
+                        <label asp-for="EquipmentName">
+                            Equipment Name
+                        </label>
+
+                        <div class="trainer-equipment-input">
+
+                            <i class="fa-solid fa-dumbbell"></i>
+
+                            <input asp-for="EquipmentName"
+                                   placeholder="e.g. Treadmill" />
+
+                        </div>
+
+                        <span asp-validation-for="EquipmentName"
+                              class="trainer-field-error">
+                        </span>
+
+                    </div>
+
+                    <div class="trainer-equipment-form-group">
+
+                        <label asp-for="Category">
+                            Category
+                        </label>
+
+                        <div class="trainer-equipment-input">
+
+                            <i class="fa-solid fa-layer-group"></i>
+
+                            <input asp-for="Category"
+                                   placeholder="e.g. Cardio, Strength, Free Weights" />
+
+                        </div>
+
+                        <span asp-validation-for="Category"
+                              class="trainer-field-error">
+                        </span>
+
+                    </div>
+
+                    <div class="trainer-equipment-form-group trainer-equipment-full">
+
+                        <label asp-for="Location">
+                            Location
+                        </label>
+
+                        <div class="trainer-equipment-input">
+
+                            <i class="fa-solid fa-location-dot"></i>
+
+                            <input asp-for="Location"
+                                   placeholder="e.g. Main Gym Floor" />
+
+                        </div>
+
+                        <span asp-validation-for="Location"
+                              class="trainer-field-error">
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="trainer-equipment-info-box">
+
+                    <div class="trainer-equipment-info-icon">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Equipment Information
+                        </strong>
+
+                        <p>
+                            Make sure the equipment name, category and location are correct before adding it to the gym inventory.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="trainer-equipment-availability">
+
+                    <div class="trainer-equipment-availability-icon">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+
+                    <div class="trainer-equipment-availability-content">
+
+                        <strong>
+                            Equipment Availability
+                        </strong>
+
+                        <span>
+                            Set whether members can currently use this equipment.
+                        </span>
+
+                    </div>
+
+                    <label class="trainer-equipment-switch">
+
+                        <input asp-for="IsAvailable"
+                               type="checkbox" />
+
+                        <span class="trainer-equipment-slider"></span>
+
+                    </label>
+
+                </div>
+
+                <div class="trainer-equipment-actions">
+
+                    <a asp-controller="Trainer"
+                       asp-action="Equipment"
+                       class="trainer-equipment-cancel-btn">
+
+                        <i class="fa-solid fa-arrow-left"></i>
+
+                        Cancel
+
+                    </a>
+
+                    <button type="submit"
+                            class="trainer-equipment-submit-btn">
+
+                        <i class="fa-solid fa-plus"></i>
+
+                        Add Equipment
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="trainer-equipment-upload-card">
+
+            <div class="trainer-equipment-card-header">
+
+                <div class="trainer-equipment-card-icon">
+                    <i class="fa-solid fa-image"></i>
+                </div>
+
+                <div>
+
+                    <h2>
+                        Equipment Picture
+                    </h2>
+
+                    <p>
+                        Add a picture to help identify the equipment.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="trainer-equipment-image-preview"
+                 id="imagePreview">
+
+                <div class="trainer-equipment-preview-placeholder"
+                     id="previewPlaceholder">
+
+                    <i class="fa-solid fa-dumbbell"></i>
+
+                    <span>
+                        Equipment Preview
+                    </span>
+
+                    <small>
+                        Your selected image will appear here
+                    </small>
+
+                </div>
+
+                <img id="previewImage"
+                     alt="Equipment preview" />
+
+            </div>
+
+            <label class="trainer-equipment-upload-area"
+                   for="imageFile">
+
+                <div class="trainer-equipment-upload-icon">
+
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                </div>
+
+                <strong>
+                    Choose Equipment Image
+                </strong>
+
+                <span>
+                    JPG, JPEG, PNG or WEBP
                 </span>
 
-            </div>
-
-            <div class="trainer-form-group">
-
-                <label asp-for="Category">
-                    Category
-                </label>
-
-                <input asp-for="Category"
-                       class="trainer-form-control"
-                       placeholder="e.g. Cardio, Strength, Free Weights" />
-
-                <span asp-validation-for="Category"
-                      class="text-danger">
-                </span>
-
-            </div>
-
-            <div class="trainer-form-group">
-
-                <label asp-for="Location">
-                    Location
-                </label>
-
-                <input asp-for="Location"
-                       class="trainer-form-control"
-                       placeholder="e.g. Main Gym Floor" />
-
-                <span asp-validation-for="Location"
-                      class="text-danger">
-                </span>
-
-            </div>
-
-            <div class="trainer-form-group">
-
-                <label>
-                    Equipment Picture
-                </label>
-
-                <input type="file"
-                       name="imageFile"
-                       class="trainer-form-control"
-                       accept=".jpg,.jpeg,.png,.webp" />
-
-                <small class="text-muted">
-                    Upload a JPG, JPEG, PNG or WEBP image.
+                <small>
+                    Click to browse your files
                 </small>
 
-            </div>
+            </label>
 
-            <div class="trainer-form-group">
+            <input type="file"
+                   id="imageFile"
+                   name="imageFile"
+                   accept=".jpg,.jpeg,.png,.webp" />
 
-                <label class="d-flex align-items-center gap-2">
+            <div class="trainer-equipment-upload-note">
 
-                    <input asp-for="IsAvailable"
-                           type="checkbox"
-                           style="width:18px;height:18px;" />
+                <i class="fa-solid fa-shield-halved"></i>
 
-                    Equipment is available
-
-                </label>
-
-            </div>
-
-            <div class="trainer-actions">
-
-                <button type="submit"
-                        class="trainer-btn trainer-btn-success">
-
-                    <i class="fa-solid fa-plus"></i>
-                    Add Equipment
-
-                </button>
-
-                <a asp-controller="Trainer"
-                   asp-action="Equipment"
-                   class="trainer-btn trainer-btn-secondary">
-
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Cancel
-
-                </a>
+                <span>
+                    Use a clear image of the equipment for easier identification.
+                </span>
 
             </div>
 
-        </form>
+        </div>
 
     </div>
 
@@ -151,6 +314,34 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const imageInput = document.getElementById("imageFile");
+        const previewImage = document.getElementById("previewImage");
+        const previewPlaceholder = document.getElementById("previewPlaceholder");
+
+        imageInput.addEventListener("change", function () {
+
+            const file = this.files[0];
+
+            if (!file) {
+                previewImage.style.display = "none";
+                previewPlaceholder.style.display = "flex";
+                previewImage.removeAttribute("src");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                previewImage.src = event.target.result;
+                previewImage.style.display = "block";
+                previewPlaceholder.style.display = "none";
+            };
+
+            reader.readAsDataURL(file);
+        });
+    </script>
 }
 
 @section Styles {

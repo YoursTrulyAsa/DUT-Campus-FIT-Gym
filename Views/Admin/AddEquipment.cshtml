@@ -5,193 +5,359 @@
     ViewData["Title"] = "Add Equipment";
 }
 
-<div class="admin-equipment-page">
+<div class="equipment-create-page">
 
-    <div class="admin-page-header">
+    <div class="equipment-create-header">
 
-        <div>
+        <div class="equipment-header-content">
 
-            <span class="admin-label">
-                EQUIPMENT MANAGEMENT
-            </span>
+            <div class="equipment-breadcrumb">
+                <a asp-controller="Admin"
+                   asp-action="Equipment">
+                    Equipment
+                </a>
 
-            <h1>
-                Add Equipment
-            </h1>
+                <i class="fa-solid fa-chevron-right"></i>
 
-            <p>
-                Add new equipment to the DUT Campus FIT Gym.
-            </p>
+                <span>Add Equipment</span>
+            </div>
+
+            <div class="equipment-title-row">
+
+                <div class="equipment-title-icon">
+                    <i class="fa-solid fa-dumbbell"></i>
+                </div>
+
+                <div>
+                    <span class="equipment-eyebrow">
+                        EQUIPMENT MANAGEMENT
+                    </span>
+
+                    <h1>
+                        Add Equipment
+                    </h1>
+
+                    <p>
+                        Add a new piece of equipment to the DUT Campus FIT Gym inventory.
+                    </p>
+                </div>
+
+            </div>
 
         </div>
 
-        <div class="admin-page-header-icon">
+        <div class="equipment-header-decoration">
             <i class="fa-solid fa-dumbbell"></i>
         </div>
 
     </div>
 
-    <div class="admin-form-card">
 
-        <div class="admin-form-heading">
+    <form asp-controller="Admin"
+          asp-action="AddEquipment"
+          method="post"
+          enctype="multipart/form-data"
+          id="equipmentForm">
 
-            <div class="admin-form-icon">
-                <i class="fa-solid fa-plus"></i>
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="equipment-validation">
+        </div>
+
+
+        <div class="equipment-create-layout">
+
+            <!-- LEFT SIDE -->
+
+            <div class="equipment-main-card">
+
+                <div class="equipment-card-header">
+
+                    <div class="equipment-card-icon">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+
+                    <div>
+                        <h2>Equipment Information</h2>
+
+                        <p>
+                            Provide the basic details for this equipment.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="equipment-form-grid">
+
+                    <div class="equipment-form-group">
+
+                        <label asp-for="EquipmentName">
+                            Equipment Name
+                        </label>
+
+                        <div class="equipment-input">
+
+                            <i class="fa-solid fa-dumbbell"></i>
+
+                            <input asp-for="EquipmentName"
+                                   placeholder="e.g. Treadmill"
+                                   autocomplete="off" />
+
+                        </div>
+
+                        <span asp-validation-for="EquipmentName"
+                              class="equipment-field-error">
+                        </span>
+
+                    </div>
+
+
+                    <div class="equipment-form-group">
+
+                        <label asp-for="Category">
+                            Category
+                        </label>
+
+                        <div class="equipment-input">
+
+                            <i class="fa-solid fa-layer-group"></i>
+
+                            <input asp-for="Category"
+                                   placeholder="e.g. Cardio"
+                                   autocomplete="off" />
+
+                        </div>
+
+                        <span asp-validation-for="Category"
+                              class="equipment-field-error">
+                        </span>
+
+                    </div>
+
+
+                    <div class="equipment-form-group equipment-full">
+
+                        <label asp-for="Location">
+                            Gym Location
+                        </label>
+
+                        <div class="equipment-input">
+
+                            <i class="fa-solid fa-location-dot"></i>
+
+                            <input asp-for="Location"
+                                   placeholder="e.g. Main Gym Floor"
+                                   autocomplete="off" />
+
+                        </div>
+
+                        <span asp-validation-for="Location"
+                              class="equipment-field-error">
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="equipment-info-box">
+
+                    <div class="equipment-info-icon">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </div>
+
+                    <div>
+                        <strong>Equipment availability</strong>
+
+                        <p>
+                            New equipment will be added to the gym inventory
+                            and can be made available for members to reserve.
+                        </p>
+                    </div>
+
+                </div>
+
             </div>
 
-            <div>
 
-                <h2>
-                    Equipment Details
-                </h2>
+            <!-- RIGHT SIDE -->
 
-                <p>
-                    Enter the details of the equipment you want to add.
-                </p>
+            <div class="equipment-upload-card">
+
+                <div class="equipment-card-header">
+
+                    <div class="equipment-card-icon">
+                        <i class="fa-solid fa-image"></i>
+                    </div>
+
+                    <div>
+                        <h2>Equipment Image</h2>
+
+                        <p>
+                            Add a clear picture of the equipment.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="equipment-image-preview"
+                     id="imagePreview">
+
+                    <div class="equipment-preview-placeholder">
+
+                        <i class="fa-solid fa-dumbbell"></i>
+
+                        <span>
+                            Image Preview
+                        </span>
+
+                        <small>
+                            Your selected image will appear here.
+                        </small>
+
+                    </div>
+
+                    <img id="previewImage"
+                         alt="Equipment preview"
+                         style="display:none;" />
+
+                </div>
+
+
+                <label class="equipment-upload-area"
+                       for="imageFile">
+
+                    <div class="equipment-upload-icon">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+
+                    <strong>
+                        Choose an equipment image
+                    </strong>
+
+                    <span>
+                        Click to browse your computer
+                    </span>
+
+                    <small>
+                        JPG, JPEG, PNG or WEBP
+                    </small>
+
+                </label>
+
+                <input type="file"
+                       id="imageFile"
+                       name="imageFile"
+                       accept=".jpg,.jpeg,.png,.webp"
+                       hidden />
+
+                <span asp-validation-for="ImagePath"
+                      class="equipment-field-error">
+                </span>
 
             </div>
 
         </div>
 
-        <form asp-controller="Admin"
-              asp-action="AddEquipment"
-              method="post"
-              enctype="multipart/form-data">
 
-            @Html.AntiForgeryToken()
+        <!-- ACTIONS -->
 
-            <div asp-validation-summary="ModelOnly"
-                 class="admin-validation">
-            </div>
+        <div class="equipment-actions">
 
-            <div class="admin-form-grid">
+            <a asp-controller="Admin"
+               asp-action="Equipment"
+               class="equipment-cancel-btn">
 
-                <div class="admin-form-group">
+                <i class="fa-solid fa-arrow-left"></i>
 
-                    <label asp-for="EquipmentName">
-                        Equipment Name
-                    </label>
+                Back to Equipment
 
-                    <div class="admin-input-wrapper">
+            </a>
 
-                        <i class="fa-solid fa-dumbbell"></i>
+            <button type="submit"
+                    class="equipment-submit-btn">
 
-                        <input asp-for="EquipmentName"
-                               placeholder="e.g. Treadmill" />
+                <i class="fa-solid fa-plus"></i>
 
-                    </div>
+                Add Equipment
 
-                    <span asp-validation-for="EquipmentName"
-                          class="admin-field-error">
-                    </span>
+            </button>
 
-                </div>
+        </div>
 
-                <div class="admin-form-group">
-
-                    <label asp-for="Category">
-                        Category
-                    </label>
-
-                    <div class="admin-input-wrapper">
-
-                        <i class="fa-solid fa-layer-group"></i>
-
-                        <input asp-for="Category"
-                               placeholder="e.g. Cardio" />
-
-                    </div>
-
-                    <span asp-validation-for="Category"
-                          class="admin-field-error">
-                    </span>
-
-                </div>
-
-                <div class="admin-form-group admin-form-full">
-
-                    <label asp-for="Location">
-                        Location
-                    </label>
-
-                    <div class="admin-input-wrapper">
-
-                        <i class="fa-solid fa-location-dot"></i>
-
-                        <input asp-for="Location"
-                               placeholder="e.g. Gym Floor" />
-
-                    </div>
-
-                    <span asp-validation-for="Location"
-                          class="admin-field-error">
-                    </span>
-
-                </div>
-
-                <div class="admin-form-group admin-form-full">
-
-                    <label>
-                        Equipment Picture
-                    </label>
-
-                    <div class="admin-input-wrapper">
-
-                        <i class="fa-solid fa-image"></i>
-
-                        <input type="file"
-                               name="imageFile"
-                               accept=".jpg,.jpeg,.png,.webp" />
-
-                    </div>
-
-                    <small class="text-muted">
-                        Upload a JPG, JPEG, PNG or WEBP image.
-                    </small>
-
-                    <span asp-validation-for="ImagePath"
-                          class="admin-field-error">
-                    </span>
-
-                </div>
-
-            </div>
-
-            <div class="admin-form-actions">
-
-                <a asp-controller="Admin"
-                   asp-action="Equipment"
-                   class="admin-cancel-btn">
-
-                    <i class="fa-solid fa-arrow-left"></i>
-
-                    Cancel
-
-                </a>
-
-                <button type="submit"
-                        class="admin-submit-btn">
-
-                    <i class="fa-solid fa-plus"></i>
-
-                    Add Equipment
-
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
+    </form>
 
 </div>
 
+
 @section Styles {
+
     <link rel="stylesheet"
           href="~/css/admin-equipment.css"
           asp-append-version="true" />
+
 }
 
+
 @section Scripts {
+
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        const imageInput =
+            document.getElementById("imageFile");
+
+        const previewImage =
+            document.getElementById("previewImage");
+
+        const placeholder =
+            document.querySelector(
+                ".equipment-preview-placeholder"
+            );
+
+        imageInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    this.files[0];
+
+                if (!file) {
+
+                    previewImage.style.display =
+                        "none";
+
+                    placeholder.style.display =
+                        "flex";
+
+                    return;
+                }
+
+                const reader =
+                    new FileReader();
+
+                reader.onload =
+                    function (event) {
+
+                        previewImage.src =
+                            event.target.result;
+
+                        previewImage.style.display =
+                            "block";
+
+                        placeholder.style.display =
+                            "none";
+                    };
+
+                reader.readAsDataURL(file);
+
+            }
+        );
+
+    </script>
+
 }

@@ -93,7 +93,7 @@
                 </span>
 
                 <strong>
-                    @(Model?.Count(e => e.IsAvailable) ?? 0)
+                    @(Model?.Count(e => !e.IsRetired && e.IsAvailable) ?? 0)
                 </strong>
             </div>
 
@@ -111,7 +111,25 @@
                 </span>
 
                 <strong>
-                    @(Model?.Count(e => !e.IsAvailable) ?? 0)
+                    @(Model?.Count(e => !e.IsRetired && !e.IsAvailable) ?? 0)
+                </strong>
+            </div>
+
+        </div>
+
+        <div class="equipment-stat-card">
+
+            <div class="equipment-stat-icon">
+                <i class="fa-solid fa-box-archive"></i>
+            </div>
+
+            <div>
+                <span>
+                    RETIRED
+                </span>
+
+                <strong>
+                    @(Model?.Count(e => e.IsRetired) ?? 0)
                 </strong>
             </div>
 
@@ -279,7 +297,17 @@
 
                                 <td>
 
-                                    @if (equipment.IsAvailable)
+                                    @if (equipment.IsRetired)
+                                    {
+                                        <span class="equipment-status retired">
+
+                                            <span class="status-dot"></span>
+
+                                            Retired
+
+                                        </span>
+                                    }
+                                    else if (equipment.IsAvailable)
                                     {
                                         <span class="equipment-status available">
 
@@ -304,27 +332,40 @@
 
                                 <td>
 
-                                    <form asp-controller="Admin"
-                                          asp-action="RemoveEquipment"
-                                          method="post"
-                                          onsubmit="return confirm('Are you sure you want to remove this equipment?');">
+                                    @if (!equipment.IsRetired)
+                                    {
+                                        <form asp-controller="Admin"
+                                              asp-action="RetireEquipment"
+                                              method="post"
+                                              onsubmit="return confirm('Are you sure you want to retire this equipment? It will no longer be available for reservations.');">
 
-                                        @Html.AntiForgeryToken()
+                                            @Html.AntiForgeryToken()
 
-                                        <input type="hidden"
-                                               name="id"
-                                               value="@equipment.EquipmentID" />
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@equipment.EquipmentID" />
 
-                                        <button type="submit"
-                                                class="equipment-delete-btn">
+                                            <button type="submit"
+                                                    class="equipment-retire-btn">
 
-                                            <i class="fa-solid fa-trash"></i>
+                                                <i class="fa-solid fa-box-archive"></i>
 
-                                            Remove
+                                                Retire
 
-                                        </button>
+                                            </button>
 
-                                    </form>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="equipment-retired-label">
+
+                                            <i class="fa-solid fa-box-archive"></i>
+
+                                            Retired
+
+                                        </span>
+                                    }
 
                                 </td>
 

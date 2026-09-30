@@ -1,7 +1,8 @@
-﻿@model DUT_Campus_FIT_Gym.ViewModels.FitnessChallengeViewModel
-
-@{
+﻿@{
     ViewData["Title"] = "Fitness Challenges";
+
+    var fitnessLevel =
+        ViewBag.FitnessLevel as string ?? "";
 }
 
 <div class="fitness-challenge-page">
@@ -18,7 +19,7 @@
             </h1>
 
             <p>
-                Choose your level and category to create a reasonable AI-generated challenge.
+                Create an AI-generated challenge based on your Fitness Profile.
             </p>
         </div>
 
@@ -38,17 +39,19 @@
     <div class="fitness-challenge-form-card">
 
         <div class="fitness-challenge-form-header">
+
             <span>
-                CREATE CHALLENGE
+                YOUR FITNESS LEVEL
             </span>
 
             <h2>
-                Build your challenge
+                @fitnessLevel
             </h2>
 
             <p>
-                The AI will create a challenge based on your selected level and category.
+                Your challenge difficulty is automatically matched to the fitness level saved in your Fitness Profile.
             </p>
+
         </div>
 
         <form asp-action="Generate"
@@ -60,31 +63,17 @@
 
                 <div class="fitness-challenge-field">
 
-                    <label for="level">
+                    <label>
                         Fitness Level
                     </label>
 
-                    <select id="level"
-                            name="level"
-                            required>
+                    <div class="fitness-profile-level-display">
+                        <i class="fa-solid fa-person-running"></i>
 
-                        <option value="">
-                            Select your level
-                        </option>
-
-                        <option value="Beginner">
-                            Beginner
-                        </option>
-
-                        <option value="Intermediate">
-                            Intermediate
-                        </option>
-
-                        <option value="Pro">
-                            Pro
-                        </option>
-
-                        </select>
+                        <span>
+                            @fitnessLevel
+                        </span>
+                    </div>
 
                 </div>
 
@@ -137,16 +126,18 @@
 
         <div class="fitness-challenge-info-card">
 
-            <i class="fa-solid fa-shield-heart"></i>
+            <i class="fa-solid fa-user-check"></i>
 
             <div>
+
                 <h3>
-                    Safe challenges
+                    Based on your Fitness Profile
                 </h3>
 
                 <p>
-                    Challenges are checked against reasonable limits before they are shown.
+                    Your fitness level is automatically used to make the challenge appropriate for you.
                 </p>
+
             </div>
 
         </div>
@@ -156,13 +147,15 @@
             <i class="fa-solid fa-star"></i>
 
             <div>
-                    <h3>
-                        Earn reward points
-                    </h3>
 
-                    <p>
-                        Complete an accepted challenge to earn 2, 4 or 6 reward points based on your fitness level.
-                    </p>
+                <h3>
+                    Earn reward points
+                </h3>
+
+                <p>
+                    Complete an accepted challenge to earn reward points based on your fitness level.
+                </p>
+
             </div>
 
         </div>

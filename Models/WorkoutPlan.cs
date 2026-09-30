@@ -14,6 +14,11 @@ namespace DUT_Campus_FIT_Gym.Models
         [ForeignKey("MemberId")]
         public virtual Member? Member { get; set; }
 
+        public int? WorkoutProgrammeId { get; set; }
+
+        [ForeignKey("WorkoutProgrammeId")]
+        public virtual WorkoutProgramme? WorkoutProgramme { get; set; }
+
         [Required]
         [StringLength(100)]
         public string WorkoutName { get; set; } = "";
@@ -30,6 +35,10 @@ namespace DUT_Campus_FIT_Gym.Models
         [Required]
         [StringLength(20)]
         public string WorkoutDay { get; set; } = "";
+
+        [Required]
+        [Range(1, 4)]
+        public int WeekNumber { get; set; } = 1;
 
         [Required]
         [Range(1, 100)]

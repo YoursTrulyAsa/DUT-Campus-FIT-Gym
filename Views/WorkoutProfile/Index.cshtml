@@ -2,18 +2,8 @@
 
 @{
     ViewData["Title"] = "Fitness Profile";
-
-    double bmi = 0;
-
-    if (Model != null && Model.Height > 0)
-    {
-        var heightInMetres = Model.Height / 100;
-        bmi = Model.Weight / (heightInMetres * heightInMetres);
-    }
-
-    int completion = Model == null
-        ? 0
-        : 100;
+    var weightHistory = ViewBag.WeightHistory as List<DUT_Campus_FIT_Gym.Models.WeightHistory>
+        ?? new List<DUT_Campus_FIT_Gym.Models.WeightHistory>();
 }
 
 <div class="fitness-profile-page">
@@ -58,8 +48,8 @@
                 </h2>
 
                 <p>
-                    Add a few basic details so FIT Gym can provide more
-                    relevant workout suggestions and fitness features.
+                    Add a few basic details so FIT Gym can personalize
+                    your workout programme.
                 </p>
 
                 <a asp-action="Create"
@@ -108,6 +98,42 @@
                     <div class="fitness-profile-stat">
 
                         <div class="fitness-profile-stat-icon">
+                            <i class="fa-solid fa-signal"></i>
+                        </div>
+
+                        <div>
+                            <span>
+                                FITNESS LEVEL
+                            </span>
+
+                            <strong>
+                                @Model.FitnessLevel
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="fitness-profile-stat">
+
+                        <div class="fitness-profile-stat-icon">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+
+                        <div>
+                            <span>
+                                FITNESS GOAL
+                            </span>
+
+                            <strong class="fitness-profile-goal">
+                                @Model.Goal
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="fitness-profile-stat">
+
+                        <div class="fitness-profile-stat-icon">
                             <i class="fa-solid fa-cake-candles"></i>
                         </div>
 
@@ -122,28 +148,6 @@
 
                             <small>
                                 years
-                            </small>
-                        </div>
-
-                    </div>
-
-                    <div class="fitness-profile-stat">
-
-                        <div class="fitness-profile-stat-icon">
-                            <i class="fa-solid fa-weight-scale"></i>
-                        </div>
-
-                        <div>
-                            <span>
-                                WEIGHT
-                            </span>
-
-                            <strong>
-                                @Model.Weight.ToString("0.0")
-                            </strong>
-
-                            <small>
-                                kg
                             </small>
                         </div>
 
@@ -171,22 +175,22 @@
 
                     </div>
 
-                    <div class="fitness-profile-stat">
+                </div>
 
-                        <div class="fitness-profile-stat-icon">
-                            <i class="fa-solid fa-bullseye"></i>
-                        </div>
+                <div class="fitness-profile-weight-row">
 
-                        <div>
-                            <span>
-                                FITNESS GOAL
-                            </span>
+                    <div class="fitness-profile-stat-icon">
+                        <i class="fa-solid fa-weight-scale"></i>
+                    </div>
 
-                            <strong class="fitness-profile-goal">
-                                @Model.Goal
-                            </strong>
-                        </div>
+                    <div>
+                        <span>
+                            CURRENT WEIGHT
+                        </span>
 
+                        <strong>
+                            @Model.Weight.ToString("0.0") kg
+                        </strong>
                     </div>
 
                 </div>
@@ -196,97 +200,41 @@
             <div class="fitness-profile-side-card">
 
                 <div class="fitness-profile-side-icon">
-                    <i class="fa-solid fa-chart-simple"></i>
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </div>
 
                 <span class="fitness-profile-card-label">
-                    PROFILE STATUS
+                    FITNESS AI
                 </span>
 
                 <h2>
-                    Profile Complete
+                    Your Programme
                 </h2>
 
-                <div class="fitness-profile-progress">
+                <p>
+                    Your selected fitness level and goal will be used
+                    to create your personalised multi-week workout programme.
+                </p>
 
-                    <div class="fitness-profile-progress-track">
-                        <div class="fitness-profile-progress-bar"
-                             style="width: @completion%;">
-                        </div>
-                    </div>
+                <div class="fitness-profile-ai-summary">
+
+                    <span>
+                        CURRENT LEVEL
+                    </span>
 
                     <strong>
-                        @completion%
+                        @Model.FitnessLevel
+                    </strong>
+
+                    <span>
+                        CURRENT GOAL
+                    </span>
+
+                    <strong>
+                        @Model.Goal
                     </strong>
 
                 </div>
-
-                <p>
-                    Your profile has the information needed to personalize
-                    your FIT Gym experience.
-                </p>
-
-            </div>
-
-        </div>
-
-        <div class="fitness-profile-secondary-grid">
-
-            <div class="fitness-profile-info-card">
-
-                <div class="fitness-profile-info-header">
-
-                    <div class="fitness-profile-info-icon">
-                        <i class="fa-solid fa-heart-pulse"></i>
-                    </div>
-
-                    <div>
-                        <span class="fitness-profile-card-label">
-                            INFORMATIONAL
-                        </span>
-
-                        <h2>
-                            BMI
-                        </h2>
-                    </div>
-
-                </div>
-
-                <div class="fitness-profile-bmi-value">
-                    @bmi.ToString("0.0")
-                </div>
-
-                <p>
-                    BMI is a general height-to-weight screening measure.
-                    It does not provide a complete picture of fitness or health.
-                </p>
-
-            </div>
-
-            <div class="fitness-profile-info-card">
-
-                <div class="fitness-profile-info-header">
-
-                    <div class="fitness-profile-info-icon">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </div>
-
-                    <div>
-                        <span class="fitness-profile-card-label">
-                            FITNESS AI
-                        </span>
-
-                        <h2>
-                            Personalized Suggestions
-                        </h2>
-                    </div>
-
-                </div>
-
-                <p class="fitness-profile-ai-text">
-                    Your fitness profile can be used to make your workout
-                    suggestions more relevant to your selected goal and preferences.
-                </p>
 
                 <a asp-controller="FitnessAI"
                    asp-action="AIWorkout"
@@ -294,11 +242,109 @@
 
                     <i class="fa-solid fa-dumbbell"></i>
 
-                    Create AI Workout
+                    Create AI Programme
 
                 </a>
 
             </div>
+
+        </div>
+
+        <div class="fitness-profile-history-card">
+
+            <div class="fitness-profile-card-header">
+
+                <div>
+                    <span class="fitness-profile-card-label">
+                        WEIGHT PROGRESS
+                    </span>
+
+                    <h2>
+                        Weight History
+                    </h2>
+                </div>
+
+                <div class="fitness-profile-history-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+
+            </div>
+
+            @if (weightHistory.Any())
+            {
+                <div class="fitness-profile-history-summary">
+
+                    <div>
+                        <span>
+                            STARTING WEIGHT
+                        </span>
+
+                        <strong>
+                            @weightHistory.Last().Weight.ToString("0.0") kg
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            CURRENT WEIGHT
+                        </span>
+
+                        <strong>
+                            @Model.Weight.ToString("0.0") kg
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>
+                            RECORDS
+                        </span>
+
+                        <strong>
+                            @weightHistory.Count
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="fitness-profile-history-list">
+
+                    @foreach (var entry in weightHistory)
+                    {
+                        <div class="fitness-profile-history-item">
+
+                            <div class="fitness-profile-history-item-icon">
+                                <i class="fa-solid fa-weight-scale"></i>
+                            </div>
+
+                            <div class="fitness-profile-history-item-info">
+
+                                <strong>
+                                    @entry.Weight.ToString("0.0") kg
+                                </strong>
+
+                                <span>
+                                    @entry.RecordedAt.ToString("dd MMM yyyy")
+                                </span>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="fitness-profile-history-empty">
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                    <p>
+                        No weight history has been recorded yet.
+                    </p>
+
+                </div>
+            }
 
         </div>
     }

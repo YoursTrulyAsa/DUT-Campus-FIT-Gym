@@ -1,6 +1,16 @@
-﻿@{
+﻿@using System.Security.Claims
+@using DUT_Campus_FIT_Gym.Data
+@inject GymDbContext Context
+
+@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var trainerEmail = User.FindFirstValue(ClaimTypes.Email);
+
+    var trainer = !string.IsNullOrEmpty(trainerEmail)
+        ? Context.Trainers.FirstOrDefault(t => t.Email == trainerEmail)
+        : null;
 }
 
 <aside class="trainer-sidebar">
@@ -12,20 +22,40 @@
                  alt="DUT Campus FIT Gym" />
         </div>
 
-        <div>
+        <div class="trainer-brand-text">
             <span>DUT CAMPUS</span>
             <strong>FIT GYM</strong>
         </div>
+
+        <button type="button"
+                class="trainer-sidebar-toggle"
+                id="trainerSidebarToggle"
+                aria-label="Toggle sidebar">
+
+            <i class="fa-solid fa-chevron-left"></i>
+
+        </button>
 
     </div>
 
     <div class="trainer-profile">
 
         <div class="trainer-profile-icon">
-            <i class="fa-solid fa-user-tie"></i>
+
+            @if (trainer != null &&
+                 !string.IsNullOrEmpty(trainer.ProfilePicture))
+            {
+                <img src="@trainer.ProfilePicture"
+                     alt="@trainer.TrainerName" />
+            }
+            else
+            {
+                <i class="fa-solid fa-user-tie"></i>
+            }
+
         </div>
 
-        <div>
+        <div class="trainer-profile-info">
             <span>TRAINER</span>
             <strong>@User.Identity?.Name</strong>
         </div>
@@ -36,7 +66,8 @@
 
         <a asp-controller="Trainer"
            asp-action="Index"
-           class="@(currentAction == "Index" ? "active" : "")">
+           class="@(currentController == "Trainer" && currentAction == "Index" ? "active" : "")"
+           title="Dashboard">
 
             <i class="fa-solid fa-gauge-high"></i>
             <span>Dashboard</span>
@@ -45,7 +76,8 @@
 
         <a asp-controller="Trainer"
            asp-action="Requests"
-           class="@(currentAction == "Requests" ? "active" : "")">
+           class="@(currentController == "Trainer" && currentAction == "Requests" ? "active" : "")"
+           title="Trainer Requests">
 
             <i class="fa-solid fa-user-clock"></i>
             <span>Trainer Requests</span>
@@ -54,16 +86,28 @@
 
         <a asp-controller="Trainer"
            asp-action="StudentProfiles"
-           class="@(currentAction == "StudentProfiles" || currentAction == "ViewProfile" ? "active" : "")">
+           class="@(currentController == "Trainer" && (currentAction == "StudentProfiles" || currentAction == "ViewProfile") ? "active" : "")"
+           title="Student Profiles">
 
             <i class="fa-solid fa-users"></i>
             <span>Student Profiles</span>
 
         </a>
 
+        <a asp-controller="FitnessLeaderboard"
+           asp-action="Index"
+           class="@(currentController == "FitnessLeaderboard" ? "active" : "")"
+           title="Fitness Leaderboard">
+
+            <i class="fa-solid fa-ranking-star"></i>
+            <span>Fitness Leaderboard</span>
+
+        </a>
+
         <a asp-controller="Trainer"
            asp-action="Workouts"
-           class="@(currentAction == "Workouts" || currentAction == "CreateWorkout" ? "active" : "")">
+           class="@(currentController == "Trainer" && (currentAction == "Workouts" || currentAction == "CreateWorkout") ? "active" : "")"
+           title="Workout Plans">
 
             <i class="fa-solid fa-dumbbell"></i>
             <span>Workout Plans</span>
@@ -72,7 +116,8 @@
 
         <a asp-controller="Trainer"
            asp-action="Equipment"
-           class="@(currentAction == "Equipment" || currentAction == "AddEquipment" ? "active" : "")">
+           class="@(currentController == "Trainer" && (currentAction == "Equipment" || currentAction == "AddEquipment") ? "active" : "")"
+           title="Equipment">
 
             <i class="fa-solid fa-person-running"></i>
             <span>Equipment</span>
@@ -89,7 +134,9 @@
 
             @Html.AntiForgeryToken()
 
-            <button type="submit" class="trainer-logout">
+            <button type="submit"
+                    class="trainer-logout"
+                    title="Logout">
 
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Logout</span>
@@ -101,3 +148,36 @@
     </div>
 
 </aside>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const sidebar =
+            document.querySelector(".trainer-sidebar");
+
+        const toggle =
+            document.getElementById("trainerSidebarToggle");
+
+        if (!sidebar || !toggle)
+            return;
+
+        const collapsed =
+            localStorage.getItem("trainerSidebarCollapsed") === "true";
+
+        if (collapsed) {
+            sidebar.classList.add("collapsed");
+        }
+
+        toggle.addEventListener("click", function () {
+
+            sidebar.classList.toggle("collapsed");
+
+            localStorage.setItem(
+                "trainerSidebarCollapsed",
+                sidebar.classList.contains("collapsed")
+            );
+
+        });
+
+    });
+</script>

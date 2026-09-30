@@ -626,3 +626,22 @@
         flex-direction: column;
     }
 }
+
+.fitness-profile-level-display {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    background: #f1f7ff;
+    border: 1px solid #cfe4ff;
+    border-radius: 10px;
+    color: #0f2f57;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+    .fitness-profile-level-display i {
+        color: #1683ff;
+        font-size: 18px;
+    }

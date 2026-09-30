@@ -2,6 +2,7 @@
 using DUT_Campus_FIT_Gym.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace DUT_Campus_FIT_Gym.Controllers
@@ -17,135 +18,187 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            int id = int.Parse(memberId);
+            var profile = await _context.WorkoutProfiles
+                .FirstOrDefaultAsync(p => p.MemberId == memberId);
 
-            var profile = _context.WorkoutProfiles
-                .FirstOrDefault(p => p.MemberId == id);
+            var weightHistory = await _context.WeightHistories
+                .Where(w => w.MemberId == memberId)
+                .OrderByDescending(w => w.RecordedAt)
+                .ToListAsync();
+
+            ViewBag.WeightHistory = weightHistory;
 
             return View(profile);
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            var existingProfile = _context.WorkoutProfiles
-                .FirstOrDefault(p => p.MemberId == int.Parse(memberId));
+            var existingProfile = await _context.WorkoutProfiles
+                .FirstOrDefaultAsync(p => p.MemberId == memberId);
 
             if (existingProfile != null)
-            {
-                return RedirectToAction("Index");
-            }
+                return RedirectToAction(nameof(Index));
 
-            return View();
+            return View(new WorkoutProfile
+            {
+                FitnessLevel = "Beginner",
+                Goal = "General fitness"
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(WorkoutProfile profile)
+        public async Task<IActionResult> Create(WorkoutProfile profile)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            profile.MemberId = int.Parse(memberId);
-
-            var existingProfile = _context.WorkoutProfiles
-                .FirstOrDefault(p => p.MemberId == profile.MemberId);
+            var existingProfile = await _context.WorkoutProfiles
+                .FirstOrDefaultAsync(p => p.MemberId == memberId);
 
             if (existingProfile != null)
-            {
-                return RedirectToAction("Index");
-            }
+                return RedirectToAction(nameof(Index));
 
-            if (ModelState.IsValid)
-            {
-                _context.WorkoutProfiles.Add(profile);
-                _context.SaveChanges();
+            profile.MemberId = memberId;
 
-                return RedirectToAction("Index");
-            }
+            ValidateProfileSelections(profile);
 
-            return View(profile);
+            if (!ModelState.IsValid)
+                return View(profile);
+
+            _context.WorkoutProfiles.Add(profile);
+
+            _context.WeightHistories.Add(
+                new WeightHistory
+                {
+                    MemberId = memberId,
+                    Weight = profile.Weight,
+                    RecordedAt = DateTime.Now
+                });
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public IActionResult Edit()
+        public async Task<IActionResult> Edit()
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int memberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            int id = int.Parse(memberId);
-
-            var profile = _context.WorkoutProfiles
-                .FirstOrDefault(p => p.MemberId == id);
+            var profile = await _context.WorkoutProfiles
+                .FirstOrDefaultAsync(p => p.MemberId == memberId);
 
             if (profile == null)
-            {
-                return RedirectToAction("Create");
-            }
+                return RedirectToAction(nameof(Create));
 
             return View(profile);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(WorkoutProfile profile)
+        public async Task<IActionResult> Edit(WorkoutProfile profile)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(memberId))
-            {
+            if (!int.TryParse(memberIdClaim, out int currentMemberId))
                 return RedirectToAction("Login", "Account");
-            }
 
-            int currentMemberId = int.Parse(memberId);
-
-            var existingProfile = _context.WorkoutProfiles
-                .FirstOrDefault(p =>
+            var existingProfile = await _context.WorkoutProfiles
+                .FirstOrDefaultAsync(p =>
                     p.WorkoutProfileId == profile.WorkoutProfileId &&
                     p.MemberId == currentMemberId);
 
             if (existingProfile == null)
-            {
                 return NotFound();
-            }
 
-            if (ModelState.IsValid)
+            ValidateProfileSelections(profile);
+
+            if (!ModelState.IsValid)
+                return View(profile);
+
+            var weightChanged =
+                Math.Abs(existingProfile.Weight - profile.Weight) > 0.001;
+
+            existingProfile.Age = profile.Age;
+            existingProfile.Weight = profile.Weight;
+            existingProfile.Height = profile.Height;
+            existingProfile.FitnessLevel = profile.FitnessLevel;
+            existingProfile.Goal = profile.Goal;
+
+            if (weightChanged)
             {
-                existingProfile.Age = profile.Age;
-                existingProfile.Weight = profile.Weight;
-                existingProfile.Height = profile.Height;
-                existingProfile.Goal = profile.Goal;
-
-                _context.SaveChanges();
-
-                return RedirectToAction("Index");
+                _context.WeightHistories.Add(
+                    new WeightHistory
+                    {
+                        MemberId = currentMemberId,
+                        Weight = profile.Weight,
+                        RecordedAt = DateTime.Now
+                    });
             }
 
-            return View(profile);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private void ValidateProfileSelections(WorkoutProfile profile)
+        {
+            var validLevels = new[]
+            {
+                "Beginner",
+                "Intermediate",
+                "Pro"
+            };
+
+            var validGoals = new[]
+            {
+                "General fitness",
+                "Strength",
+                "Endurance",
+                "Mobility and flexibility"
+            };
+
+            if (!validLevels.Contains(
+                    profile.FitnessLevel,
+                    StringComparer.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError(
+                    nameof(profile.FitnessLevel),
+                    "Please select a valid fitness level.");
+            }
+
+            if (!validGoals.Contains(
+                    profile.Goal,
+                    StringComparer.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError(
+                    nameof(profile.Goal),
+                    "Please select a valid fitness goal.");
+            }
         }
     }
 }

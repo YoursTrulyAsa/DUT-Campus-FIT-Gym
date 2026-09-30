@@ -2,6 +2,7 @@
 {
     public class AIWorkoutExerciseViewModel
     {
+        public int WeekNumber { get; set; }
         public string WorkoutDay { get; set; } = "";
         public string ExerciseName { get; set; } = "";
         public int Sets { get; set; }

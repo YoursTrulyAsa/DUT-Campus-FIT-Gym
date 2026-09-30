@@ -12,8 +12,30 @@
     var weeklyGymHours = (int)(Model.WeeklyGymMinutes / 60);
     var weeklyRemainingMinutes = (int)(Model.WeeklyGymMinutes % 60);
 
-    var weeklyLabelsJson = System.Text.Json.JsonSerializer.Serialize(Model.WeeklyLabels);
-    var weeklyVisitsJson = System.Text.Json.JsonSerializer.Serialize(Model.WeeklyVisitCounts);
+    var weeklyLabelsJson =
+        System.Text.Json.JsonSerializer.Serialize(Model.WeeklyLabels);
+
+    var weeklyVisitsJson =
+        System.Text.Json.JsonSerializer.Serialize(Model.WeeklyVisitCounts);
+
+    var weightHistory =
+        Model.WeightHistory
+            .OrderByDescending(w => w.RecordedAt)
+            .ToList();
+
+    var currentWeight =
+        Model.WorkoutProfile?.Weight ?? 0;
+
+    var startingWeight =
+        weightHistory.Any()
+            ? weightHistory.Last().Weight
+            : currentWeight;
+
+    var weightDifference =
+        currentWeight - startingWeight;
+
+    var weightRecords =
+        weightHistory.Count;
 }
 
 <div class="member-dashboard">
@@ -28,9 +50,11 @@
                     MEMBER DASHBOARD
                 </span>
 
-                <h1>
-                    Welcome Back, @Model.Member.Name 👋
-                </h1>
+                <div class="dashboard-welcome-title">
+                    <h1 id="welcomeMessage">
+                        Welcome Back, @Model.Member.Name 👋
+                    </h1>
+                </div>
 
                 <p>
                     Here's what's happening with your gym activity.
@@ -41,11 +65,21 @@
             <div class="user-badge">
 
                 <div class="user-badge-icon">
-                    <i class="fa-solid fa-user"></i>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Member.ProfilePicture))
+                    {
+                        <img src="@Model.Member.ProfilePicture"
+                             alt="Profile picture"
+                             class="user-badge-profile-image" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-user"></i>
+                    }
+
                 </div>
 
                 <div>
-
                     <strong>
                         @Model.Member.Name @Model.Member.Surname
                     </strong>
@@ -53,7 +87,6 @@
                     <span>
                         @Model.Member.Role
                     </span>
-
                 </div>
 
             </div>
@@ -77,7 +110,6 @@
                     </span>
 
                     <h3>
-
                         @if (Model.Membership != null)
                         {
                             if (Model.Membership.Status == "WaitingForPayment")
@@ -112,7 +144,6 @@
                         {
                             <text>None</text>
                         }
-
                     </h3>
 
                 </div>
@@ -249,9 +280,7 @@
                 </div>
 
                 <div class="weekly-chart">
-
                     <canvas id="weeklyGymChart"></canvas>
-
                 </div>
 
                 <div class="analytics-summary">
@@ -289,20 +318,14 @@
                             </span>
 
                             <strong>
-
                                 @if (totalGymHours > 0)
                                 {
-                                    <text>
-                                        @totalGymHours h @remainingMinutes min
-                                    </text>
+                                    <text>@totalGymHours h @remainingMinutes min</text>
                                 }
                                 else
                                 {
-                                    <text>
-                                        @remainingMinutes min
-                                    </text>
+                                    <text>@remainingMinutes min</text>
                                 }
-
                             </strong>
 
                         </div>
@@ -342,20 +365,14 @@
                             </span>
 
                             <strong>
-
                                 @if (weeklyGymHours > 0)
                                 {
-                                    <text>
-                                        @weeklyGymHours h @weeklyRemainingMinutes min
-                                    </text>
+                                    <text>@weeklyGymHours h @weeklyRemainingMinutes min</text>
                                 }
                                 else
                                 {
-                                    <text>
-                                        @weeklyRemainingMinutes min
-                                    </text>
+                                    <text>@weeklyRemainingMinutes min</text>
                                 }
-
                             </strong>
 
                         </div>
@@ -368,58 +385,229 @@
 
             <section class="dashboard-card calories-card">
 
-               <div class="dashboard-card calories-card">
-    <div class="dashboard-card-header">
-        <div>
-            <span class="dashboard-card-label">CALORIE MONITORING</span>
-            <h2>Estimated Calories</h2>
-        </div>
+                <div class="dashboard-card-header">
 
-        <div class="calories-icon">
-            <i class="bi bi-fire"></i>
-        </div>
-    </div>
+                    <div>
 
-    <div class="calories-content">
+                        <span class="dashboard-card-label">
+                            CALORIE MONITORING
+                        </span>
 
-        <div class="calories-main">
-            <strong>
-                @Math.Round(Model.EstimatedCalories).ToString("N0")
-            </strong>
-            <span>estimated kcal</span>
-        </div>
+                        <h2>
+                            Estimated Calories
+                        </h2>
 
-        <div class="calories-details">
+                    </div>
 
-            <div class="calorie-detail">
-                <span>This Week</span>
-                <strong>
-                    @Math.Round(Model.WeeklyEstimatedCalories).ToString("N0") kcal
-                </strong>
-            </div>
+                    <div class="calories-icon">
+                        <i class="bi bi-fire"></i>
+                    </div>
 
-            <div class="calorie-detail">
-                <span>Total Gym Time</span>
-                <strong>
-                    @Math.Round(Model.TotalGymMinutes / 60, 1) hrs
-                </strong>
-            </div>
+                </div>
 
-        </div>
+                <div class="calories-content">
 
-    </div>
+                    <div class="calories-main">
 
-    <div class="calories-note">
-        <i class="bi bi-info-circle"></i>
-        <span>
-            Calories are estimated from recorded gym time and your fitness profile.
-        </span>
-    </div>
-</div>
+                        <strong>
+                            @Math.Round(Model.EstimatedCalories).ToString("N0")
+                        </strong>
+
+                        <span>
+                            estimated kcal
+                        </span>
+
+                    </div>
+
+                    <div class="calories-details">
+
+                        <div class="calorie-detail">
+
+                            <span>
+                                This Week
+                            </span>
+
+                            <strong>
+                                @Math.Round(Model.WeeklyEstimatedCalories).ToString("N0") kcal
+                            </strong>
+
+                        </div>
+
+                        <div class="calorie-detail">
+
+                            <span>
+                                Total Gym Time
+                            </span>
+
+                            <strong>
+                                @Math.Round(Model.TotalGymMinutes / 60, 1) hrs
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="calories-note">
+
+                    <i class="bi bi-info-circle"></i>
+
+                    <span>
+                        Calories are estimated from recorded gym time and your fitness profile.
+                    </span>
+
+                </div>
 
             </section>
 
-            <section class="dashboard-card">
+            <section class="dashboard-card weight-progress-card">
+
+                <div class="weight-progress-header">
+
+                    <div>
+
+                        <span class="card-label">
+                            PROGRESS INSIGHTS
+                        </span>
+
+                        <h2>
+                            Weight Progress
+                        </h2>
+
+                    </div>
+
+                    <div class="card-icon">
+                        <i class="fa-solid fa-weight-scale"></i>
+                    </div>
+
+                </div>
+
+                @if (Model.WorkoutProfile != null && weightHistory.Any())
+                {
+                    <div class="weight-progress-summary">
+
+                        <div class="weight-progress-stat">
+
+                            <span>
+                                Starting Weight
+                            </span>
+
+                            <strong>
+                                @startingWeight.ToString("0.0") kg
+                            </strong>
+
+                        </div>
+
+                        <div class="weight-progress-stat">
+
+                            <span>
+                                Current Weight
+                            </span>
+
+                            <strong>
+                                @currentWeight.ToString("0.0") kg
+                            </strong>
+
+                        </div>
+
+                        <div class="weight-progress-stat">
+
+                            <span>
+                                Records
+                            </span>
+
+                            <strong>
+                                @weightRecords
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="weight-history-list">
+
+                        @foreach (var entry in weightHistory.Take(5))
+                        {
+                            <div class="weight-history-item">
+
+                                <div class="weight-history-date">
+
+                                    <div class="weight-history-icon">
+                                        <i class="fa-solid fa-weight-scale"></i>
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            Weight recorded
+                                        </strong>
+
+                                        <span>
+                                            @entry.RecordedAt.ToString("dd MMM yyyy")
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="weight-history-value">
+                                    @entry.Weight.ToString("0.0") kg
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+
+                    <a asp-controller="WorkoutProfile"
+                       asp-action="Index"
+                       class="dashboard-btn">
+
+                        <span>
+                            View Full Weight History
+                        </span>
+
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                    </a>
+                }
+                else if (Model.WorkoutProfile != null)
+                {
+                    <div class="weight-progress-empty">
+
+                        <i class="fa-solid fa-chart-line"></i>
+
+                        <p>
+                            No weight history available yet.
+                        </p>
+
+                        <span>
+                            Your weight history will appear here when a weight record is created.
+                        </span>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="weight-progress-empty">
+
+                        <i class="fa-solid fa-user-plus"></i>
+
+                        <p>
+                            Create your fitness profile.
+                        </p>
+
+                        <span>
+                            Your fitness profile will provide the information needed for progress insights.
+                        </span>
+
+                    </div>
+                }
+
+            </section>
+
+            <section class="dashboard-card workout-progress-card">
 
                 <div class="card-heading">
 
@@ -430,7 +618,7 @@
                         </span>
 
                         <h2>
-                            My Progress
+                            Workout Progress
                         </h2>
 
                     </div>
@@ -443,6 +631,73 @@
 
                 @if (Model.WorkoutProfile != null)
                 {
+                    <div class="workout-progress-overview">
+
+                        <div class="workout-progress-main">
+
+                            <div class="workout-progress-circle"
+                                 style="--progress: @Model.WorkoutCompletionPercentage;">
+
+                                <div class="workout-progress-circle-inner">
+
+                                    <strong>
+                                        @Model.WorkoutCompletionPercentage%
+                                    </strong>
+
+                                    <span>
+                                        Complete
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="workout-progress-text">
+
+                                <span>
+                                    WORKOUT COMPLETION
+                                </span>
+
+                                <h3>
+                                    @Model.CompletedWorkoutDays
+                                    /
+                                    @Model.TotalWorkoutDays
+                                </h3>
+
+                                <p>
+                                    workout days completed
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="workout-progress-bar-container">
+
+                            <div class="workout-progress-bar-header">
+
+                                <span>
+                                    Overall Progress
+                                </span>
+
+                                <strong>
+                                    @Model.WorkoutCompletionPercentage%
+                                </strong>
+
+                            </div>
+
+                            <div class="workout-progress-bar">
+
+                                <div class="workout-progress-bar-fill"
+                                     style="width: @Model.WorkoutCompletionPercentage%;">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
                     <div class="insight-grid">
 
                         <div class="insight-item">
@@ -476,7 +731,7 @@
                             </span>
 
                             <strong>
-                                @Model.Workouts.Count
+                                @Model.Workouts.Count(w => w.ExerciseId.HasValue)
                             </strong>
 
                         </div>
@@ -484,16 +739,67 @@
                         <div class="insight-item">
 
                             <span>
-                                Gym Visits
+                                Workout Days
                             </span>
 
                             <strong>
-                                @Model.AttendanceCount
+                                @Model.TotalWorkoutDays
                             </strong>
 
                         </div>
 
                     </div>
+
+                    @if (Model.WorkoutCompletions.Any())
+                    {
+                        <div class="recent-workouts">
+
+                            <div class="recent-workouts-heading">
+
+                                <span>
+                                    RECENT ACTIVITY
+                                </span>
+
+                                <strong>
+                                    Completed Workouts
+                                </strong>
+
+                            </div>
+
+                            <div class="recent-workout-list">
+
+                                @foreach (var completion in Model.WorkoutCompletions.Take(3))
+                                {
+                                    <div class="recent-workout-item">
+
+                                        <div class="recent-workout-icon">
+                                            <i class="fa-solid fa-check"></i>
+                                        </div>
+
+                                        <div class="recent-workout-info">
+
+                                            <strong>
+                                                @completion.WorkoutName
+                                            </strong>
+
+                                            <span>
+                                                Week @completion.WeekNumber · @completion.WorkoutDay
+                                            </span>
+
+                                        </div>
+
+                                        <div class="recent-workout-date">
+                                            @completion.CompletedAt.ToString("dd MMM")
+                                        </div>
+
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
                 }
                 else
                 {
@@ -566,7 +872,7 @@
                             <i class="fa-solid fa-qrcode"></i>
                         </div>
 
-                        <div>
+                        <div class="quick-action-text">
 
                             <strong>
                                 Check-In
@@ -590,7 +896,7 @@
                             <i class="fa-solid fa-id-card"></i>
                         </div>
 
-                        <div>
+                        <div class="quick-action-text">
 
                             <strong>
                                 Virtual Gym Card
@@ -614,7 +920,7 @@
                             <i class="fa-solid fa-user-plus"></i>
                         </div>
 
-                        <div>
+                        <div class="quick-action-text">
 
                             <strong>
                                 Request Trainer
@@ -638,7 +944,7 @@
                             <i class="fa-solid fa-user-check"></i>
                         </div>
 
-                        <div>
+                        <div class="quick-action-text">
 
                             <strong>
                                 My Trainer Requests
@@ -669,30 +975,45 @@
     <link rel="stylesheet"
           href="~/css/member-dashboard.css"
           asp-append-version="true" />
+
 }
 
 @section Scripts {
 
     <script>
+
         const weeklyLabels = @Html.Raw(weeklyLabelsJson);
         const weeklyVisits = @Html.Raw(weeklyVisitsJson);
 
         const canvas = document.getElementById("weeklyGymChart");
 
         if (canvas) {
+
             const ctx = canvas.getContext("2d");
             const dpr = window.devicePixelRatio || 1;
 
             function drawWeeklyChart() {
+
                 const rect = canvas.getBoundingClientRect();
+
                 const width = rect.width;
                 const height = rect.height;
+
+                if (width <= 0 || height <= 0) {
+                    return;
+                }
 
                 canvas.width = width * dpr;
                 canvas.height = height * dpr;
 
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                ctx.clearRect(0, 0, width, height);
+
+                ctx.clearRect(
+                    0,
+                    0,
+                    width,
+                    height
+                );
 
                 const paddingLeft = 42;
                 const paddingRight = 18;
@@ -700,170 +1021,261 @@
                 const paddingBottom = 34;
 
                 const chartWidth =
-                    width - paddingLeft - paddingRight;
+                    width -
+                    paddingLeft -
+                    paddingRight;
 
                 const chartHeight =
-                    height - paddingTop - paddingBottom;
+                    height -
+                    paddingTop -
+                    paddingBottom;
 
                 const maxVisits =
-                    Math.max(1, ...weeklyVisits);
+                    Math.max(
+                        1,
+                        ...weeklyVisits
+                    );
 
                 const stepX =
-                    chartWidth / (weeklyVisits.length - 1);
+                    weeklyVisits.length > 1
+                        ? chartWidth /
+                          (weeklyVisits.length - 1)
+                        : chartWidth;
 
-                const points = weeklyVisits.map((value, index) => {
-                    const x =
-                        paddingLeft + index * stepX;
+                const points =
+                    weeklyVisits.map(
+                        (value, index) => {
 
-                    const y =
-                        paddingTop +
-                        chartHeight -
-                        (value / maxVisits) * chartHeight;
+                            const x =
+                                weeklyVisits.length > 1
+                                    ? paddingLeft +
+                                      index * stepX
+                                    : paddingLeft +
+                                      chartWidth / 2;
 
-                    return { x, y, value };
-                });
+                            const y =
+                                paddingTop +
+                                chartHeight -
+                                (value / maxVisits) *
+                                chartHeight;
 
-                ctx.font = "12px Poppins, sans-serif";
+                            return {
+                                x,
+                                y,
+                                value
+                            };
+                        }
+                    );
+
+                ctx.font =
+                    "12px Poppins, sans-serif";
+
                 ctx.textAlign = "right";
                 ctx.textBaseline = "middle";
 
-                for (let i = 0; i <= maxVisits; i++) {
+                for (
+                    let i = 0;
+                    i <= maxVisits;
+                    i++
+                ) {
+
                     const y =
                         paddingTop +
                         chartHeight -
-                        (i / maxVisits) * chartHeight;
+                        (i / maxVisits) *
+                        chartHeight;
 
                     ctx.beginPath();
-                    ctx.moveTo(paddingLeft, y);
-                    ctx.lineTo(width - paddingRight, y);
-                    ctx.strokeStyle = "rgba(148, 163, 184, 0.14)";
+
+                    ctx.moveTo(
+                        paddingLeft,
+                        y
+                    );
+
+                    ctx.lineTo(
+                        width - paddingRight,
+                        y
+                    );
+
+                    ctx.strokeStyle =
+                        "rgba(148, 163, 184, 0.14)";
+
                     ctx.lineWidth = 1;
+
                     ctx.stroke();
 
-                    ctx.fillStyle = "#94a3b8";
-                    ctx.fillText(i, paddingLeft - 10, y);
+                    ctx.fillStyle =
+                        "#94a3b8";
+
+                    ctx.fillText(
+                        i,
+                        paddingLeft - 10,
+                        y
+                    );
                 }
 
-                ctx.beginPath();
+                if (points.length > 1) {
 
-                points.forEach((point, index) => {
-                    if (index === 0) {
-                        ctx.moveTo(point.x, point.y);
-                        return;
-                    }
+                    ctx.beginPath();
 
-                    const previous = points[index - 1];
+                    points.forEach(
+                        (point, index) => {
 
-                    const controlX =
-                        (previous.x + point.x) / 2;
+                            if (index === 0) {
 
-                    ctx.bezierCurveTo(
-                        controlX,
-                        previous.y,
-                        controlX,
-                        point.y,
-                        point.x,
-                        point.y
+                                ctx.moveTo(
+                                    point.x,
+                                    point.y
+                                );
+
+                                return;
+                            }
+
+                            const previous =
+                                points[index - 1];
+
+                            const controlX =
+                                (previous.x +
+                                 point.x) / 2;
+
+                            ctx.bezierCurveTo(
+                                controlX,
+                                previous.y,
+                                controlX,
+                                point.y,
+                                point.x,
+                                point.y
+                            );
+
+                        }
                     );
-                });
 
-                ctx.lineTo(
-                    points[points.length - 1].x,
-                    paddingTop + chartHeight
-                );
-
-                ctx.lineTo(
-                    points[0].x,
-                    paddingTop + chartHeight
-                );
-
-                ctx.closePath();
-
-                const gradient =
-                    ctx.createLinearGradient(
-                        0,
-                        paddingTop,
-                        0,
+                    ctx.lineTo(
+                        points[points.length - 1].x,
                         paddingTop + chartHeight
                     );
 
-                gradient.addColorStop(
-                    0,
-                    "rgba(37, 99, 235, 0.22)"
-                );
-
-                gradient.addColorStop(
-                    1,
-                    "rgba(37, 99, 235, 0.02)"
-                );
-
-                ctx.fillStyle = gradient;
-                ctx.fill();
-
-                ctx.beginPath();
-
-                points.forEach((point, index) => {
-                    if (index === 0) {
-                        ctx.moveTo(point.x, point.y);
-                        return;
-                    }
-
-                    const previous = points[index - 1];
-
-                    const controlX =
-                        (previous.x + point.x) / 2;
-
-                    ctx.bezierCurveTo(
-                        controlX,
-                        previous.y,
-                        controlX,
-                        point.y,
-                        point.x,
-                        point.y
+                    ctx.lineTo(
+                        points[0].x,
+                        paddingTop + chartHeight
                     );
-                });
 
-                ctx.strokeStyle = "#2563eb";
-                ctx.lineWidth = 3;
-                ctx.lineJoin = "round";
-                ctx.lineCap = "round";
-                ctx.stroke();
+                    ctx.closePath();
+
+                    const gradient =
+                        ctx.createLinearGradient(
+                            0,
+                            paddingTop,
+                            0,
+                            paddingTop + chartHeight
+                        );
+
+                    gradient.addColorStop(
+                        0,
+                        "rgba(37, 99, 235, 0.22)"
+                    );
+
+                    gradient.addColorStop(
+                        1,
+                        "rgba(37, 99, 235, 0.02)"
+                    );
+
+                    ctx.fillStyle =
+                        gradient;
+
+                    ctx.fill();
+
+                    ctx.beginPath();
+
+                    points.forEach(
+                        (point, index) => {
+
+                            if (index === 0) {
+
+                                ctx.moveTo(
+                                    point.x,
+                                    point.y
+                                );
+
+                                return;
+                            }
+
+                            const previous =
+                                points[index - 1];
+
+                            const controlX =
+                                (previous.x +
+                                 point.x) / 2;
+
+                            ctx.bezierCurveTo(
+                                controlX,
+                                previous.y,
+                                controlX,
+                                point.y,
+                                point.x,
+                                point.y
+                            );
+
+                        }
+                    );
+
+                    ctx.strokeStyle =
+                        "#2563eb";
+
+                    ctx.lineWidth = 3;
+                    ctx.lineJoin = "round";
+                    ctx.lineCap = "round";
+
+                    ctx.stroke();
+                }
 
                 ctx.textAlign = "center";
                 ctx.textBaseline = "top";
 
-                points.forEach((point, index) => {
-                    ctx.beginPath();
-                    ctx.arc(
-                        point.x,
-                        point.y,
-                        5,
-                        0,
-                        Math.PI * 2
-                    );
+                points.forEach(
+                    (point, index) => {
 
-                    ctx.fillStyle = "#2563eb";
-                    ctx.fill();
+                        ctx.beginPath();
 
-                    ctx.beginPath();
-                    ctx.arc(
-                        point.x,
-                        point.y,
-                        2,
-                        0,
-                        Math.PI * 2
-                    );
+                        ctx.arc(
+                            point.x,
+                            point.y,
+                            5,
+                            0,
+                            Math.PI * 2
+                        );
 
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fill();
+                        ctx.fillStyle =
+                            "#2563eb";
 
-                    ctx.fillStyle = "#94a3b8";
-                    ctx.fillText(
-                        weeklyLabels[index],
-                        point.x,
-                        height - 22
-                    );
-                });
+                        ctx.fill();
+
+                        ctx.beginPath();
+
+                        ctx.arc(
+                            point.x,
+                            point.y,
+                            2,
+                            0,
+                            Math.PI * 2
+                        );
+
+                        ctx.fillStyle =
+                            "#ffffff";
+
+                        ctx.fill();
+
+                        ctx.fillStyle =
+                            "#94a3b8";
+
+                        ctx.fillText(
+                            weeklyLabels[index],
+                            point.x,
+                            height - 22
+                        );
+
+                    }
+                );
             }
 
             drawWeeklyChart();
@@ -873,5 +1285,45 @@
                 drawWeeklyChart
             );
         }
+
+        const welcomeMessage =
+            document.getElementById("welcomeMessage");
+
+        if (welcomeMessage) {
+
+            const container =
+                welcomeMessage.parentElement;
+
+            let position =
+                container.offsetWidth;
+
+            function moveWelcomeMessage() {
+
+                const messageWidth =
+                    welcomeMessage.offsetWidth;
+
+                position -= 1;
+
+                if (position <= -messageWidth) {
+                    position = container.offsetWidth;
+                }
+
+                welcomeMessage.style.transform =
+                    `translateX(${position}px)`;
+
+                requestAnimationFrame(
+                    moveWelcomeMessage
+                );
+            }
+
+            welcomeMessage.style.transform =
+                `translateX(${position}px)`;
+
+            requestAnimationFrame(
+                moveWelcomeMessage
+            );
+        }
+
     </script>
+
 }

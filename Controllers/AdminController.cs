@@ -1,6 +1,7 @@
 ﻿using DUT_Campus_FIT_Gym.Data;
 using DUT_Campus_FIT_Gym.Models;
 using DUT_Campus_FIT_Gym.ViewModels;
+using DUT_Campus_FIT_Gym.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,11 +12,15 @@ namespace DUT_Campus_FIT_Gym.Controllers
     {
         private readonly GymDbContext _context;
         private readonly PasswordHasher<Member> _passwordHasher;
+        private readonly RewardService _rewardService;
 
-        public AdminController(GymDbContext context)
+        public AdminController(
+            GymDbContext context,
+            RewardService rewardService)
         {
             _context = context;
             _passwordHasher = new PasswordHasher<Member>();
+            _rewardService = rewardService;
         }
 
         [HttpGet]
@@ -36,10 +41,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         m.EndDate.Value.Date >= DateTime.Today),
 
                 AvailableEquipment = await _context.Equipment
-                    .CountAsync(e => e.IsAvailable),
+                        .CountAsync(e =>
+                        !e.IsRetired &&
+                        e.IsAvailable),
 
                 UnavailableEquipment = await _context.Equipment
-                    .CountAsync(e => !e.IsAvailable),
+                         .CountAsync(e =>
+                        !e.IsRetired &&
+                        !e.IsAvailable),
 
                 ActiveReservations = await _context.Reservations
                     .CountAsync(r => r.Status == "Active"),
@@ -144,7 +153,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
         public async Task<IActionResult> Equipment()
         {
             var equipment = await _context.Equipment
-                .OrderBy(e => e.EquipmentName)
+                .OrderBy(e => e.IsRetired)
+                .ThenBy(e => e.EquipmentName)
                 .ToListAsync();
 
             return View(equipment);
@@ -227,19 +237,48 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Scanner));
             }
 
+            var checkInTime = DateTime.Now;
+
+            var checkInReward =
+                   _rewardService.GetCheckInReward();
+
             var attendance = new Attendance
             {
-                MemberId = member.MemberId,
-                CheckInTime = DateTime.Now,
-                CheckOutTime = null
+                MemberId =
+                    member.MemberId,
+
+                CheckInTime =
+                    checkInTime,
+
+                CheckOutTime =
+                    null
             };
 
-            _context.Attendances.Add(attendance);
+            var reward = new RewardPoint
+            {
+                MemberId =
+                    member.MemberId,
+
+                Points =
+                     checkInReward,
+
+                Reason =
+                    "Gym check-in",
+
+                EarnedAt =
+                    checkInTime
+            };
+
+            _context.Attendances.Add(
+                attendance);
+
+            _context.RewardPoints.Add(
+                reward);
 
             _context.SaveChanges();
 
             TempData["CheckInSuccess"] =
-                $"ACCESS GRANTED — Welcome {member.Name} {member.Surname}!";
+                $"ACCESS GRANTED — Welcome {member.Name} {member.Surname}! You earned +1 reward point.";
 
             TempData["ScannedMemberName"] =
                 $"{member.Name} {member.Surname}";
@@ -518,6 +557,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             equipment.IsAvailable = true;
+            equipment.IsRetired = false;
 
             if (imageFile != null && imageFile.Length > 0)
             {
@@ -581,7 +621,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveEquipment(int id)
+        public async Task<IActionResult> RetireEquipment(int id)
         {
             var equipment = await _context.Equipment
                 .FirstOrDefaultAsync(e =>
@@ -595,25 +635,36 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(nameof(Equipment));
             }
 
-            var hasReservations =
-                await _context.Reservations
-                    .AnyAsync(r =>
-                        r.EquipmentID == id);
-
-            if (hasReservations)
+            if (equipment.IsRetired)
             {
                 TempData["Error"] =
-                    "This equipment cannot be removed because it has reservation records.";
+                    "This equipment has already been retired.";
 
                 return RedirectToAction(nameof(Equipment));
             }
 
-            _context.Equipment.Remove(equipment);
+            var hasActiveReservation =
+                await _context.Reservations
+                    .AnyAsync(r =>
+                        r.EquipmentID == id &&
+                        r.Status == "Reserved" &&
+                        r.EndTime > DateTime.Now);
+
+            if (hasActiveReservation)
+            {
+                TempData["Error"] =
+                    "This equipment cannot be retired while it has an active reservation.";
+
+                return RedirectToAction(nameof(Equipment));
+            }
+
+            equipment.IsRetired = true;
+            equipment.IsAvailable = false;
 
             await _context.SaveChangesAsync();
 
             TempData["Success"] =
-                "Equipment removed successfully.";
+                $"{equipment.EquipmentName} has been retired successfully.";
 
             return RedirectToAction(nameof(Equipment));
         }

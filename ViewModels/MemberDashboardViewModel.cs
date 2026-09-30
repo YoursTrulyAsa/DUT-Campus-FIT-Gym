@@ -35,5 +35,14 @@ namespace DUT_Campus_FIT_Gym.ViewModels
         public WorkoutProfile? WorkoutProfile { get; set; }
 
         public List<Attendance> RecentAttendance { get; set; } = new();
+
+        public List<WeightHistory> WeightHistory { get; set; } = new();
+        public List<WorkoutCompletion> WorkoutCompletions { get; set; } = new();
+
+        public int CompletedWorkoutDays { get; set; }
+
+        public int TotalWorkoutDays { get; set; }
+
+        public int WorkoutCompletionPercentage { get; set; }
     }
 }

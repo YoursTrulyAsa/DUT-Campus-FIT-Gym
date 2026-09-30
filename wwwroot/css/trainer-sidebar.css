@@ -13,12 +13,16 @@
     left: 0;
     width: 260px;
     height: 100vh;
-    background: #071a33;
+    background-image: linear-gradient( rgba(7, 26, 51, 0.72), rgba(7, 26, 51, 0.82) ), url('/images/gym-sidebar.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     color: #ffffff;
     display: flex;
     flex-direction: column;
     z-index: 1000;
     box-shadow: 4px 0 18px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
 }
 
 .trainer-sidebar-header {
@@ -29,13 +33,12 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-    .trainer-logo img {
-        width: 42px;
-        height: 42px;
-        object-fit: contain;
-        display: block;
-    }
-
+.trainer-logo img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
+}
 
 .trainer-sidebar-header span,
 .trainer-sidebar-header strong {
@@ -72,6 +75,7 @@
     align-items: center;
     justify-content: center;
     color: #7fc7ff;
+    flex-shrink: 0;
 }
 
 .trainer-profile span,
@@ -88,6 +92,9 @@
 .trainer-profile strong {
     font-size: 13px;
     margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .trainer-nav {
@@ -95,6 +102,8 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
     .trainer-nav a {
@@ -110,15 +119,23 @@
         transition: 0.2s ease;
     }
 
+        .trainer-nav a:hover {
+            background: rgba(255, 255, 255, 0.07);
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .trainer-nav a:focus {
+            color: #ffffff;
+            text-decoration: none;
+            outline: none;
+        }
+
         .trainer-nav a i {
             width: 20px;
             text-align: center;
             font-size: 15px;
-        }
-
-        .trainer-nav a:hover {
-            background: rgba(255, 255, 255, 0.07);
-            color: #ffffff;
+            flex-shrink: 0;
         }
 
         .trainer-nav a.active {
@@ -127,6 +144,11 @@
             box-shadow: 0 5px 15px rgba(22, 139, 224, 0.25);
         }
 
+            .trainer-nav a.active:hover {
+                background: #168be0;
+                color: #ffffff;
+            }
+
 .trainer-sidebar-bottom {
     margin-top: auto;
     padding: 16px;
@@ -134,13 +156,21 @@
 }
 
 .trainer-logout {
+    width: 100%;
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 13px 15px;
+    border: none;
+    background: transparent;
     color: #b8c7d9;
     text-decoration: none;
     border-radius: 11px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
     transition: 0.2s ease;
 }
 
@@ -149,10 +179,28 @@
         color: #ff7b87;
     }
 
+    .trainer-logout:focus {
+        outline: none;
+        color: #ffffff;
+    }
+
 .trainer-main {
     margin-left: 260px;
     min-height: 100vh;
     padding: 30px;
+}
+
+.trainer-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.trainer-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.trainer-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
 }
 
 @media (max-width: 900px) {
@@ -164,7 +212,6 @@
     .trainer-main {
         margin-left: 220px;
     }
-
 }
 
 @media (max-width: 700px) {
@@ -200,8 +247,135 @@
             padding: 13px 8px;
         }
 
+            .trainer-nav a i {
+                width: auto;
+            }
+
+    .trainer-sidebar-bottom {
+        padding: 10px 8px;
+    }
+
+    .trainer-logout {
+        justify-content: center;
+        padding: 13px 8px;
+    }
+
     .trainer-main {
         margin-left: 72px;
         padding: 20px;
     }
 }
+.trainer-profile-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+    .trainer-profile-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+.trainer-profile-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+    .trainer-profile-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+.trainer-sidebar-header {
+    position: relative;
+}
+
+.trainer-sidebar-toggle {
+    position: absolute;
+    top: 50%;
+    right: -13px;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: #1597e5;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s ease;
+}
+
+    .trainer-sidebar-toggle:hover {
+        transform: translateY(-50%) scale(1.08);
+    }
+
+    .trainer-sidebar-toggle i {
+        font-size: 11px;
+        transition: transform 0.25s ease;
+    }
+
+.trainer-sidebar {
+    transition: width 0.3s ease;
+}
+
+    .trainer-sidebar .trainer-brand-text,
+    .trainer-sidebar .trainer-profile-info,
+    .trainer-sidebar .trainer-nav span,
+    .trainer-sidebar .trainer-logout span {
+        transition: opacity 0.2s ease;
+    }
+
+    .trainer-sidebar.collapsed {
+        width: 82px;
+    }
+
+        .trainer-sidebar.collapsed .trainer-brand-text,
+        .trainer-sidebar.collapsed .trainer-profile-info,
+        .trainer-sidebar.collapsed .trainer-nav span,
+        .trainer-sidebar.collapsed .trainer-logout span {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .trainer-sidebar.collapsed .trainer-sidebar-header {
+            justify-content: center;
+        }
+
+        .trainer-sidebar.collapsed .trainer-logo {
+            margin: 0;
+        }
+
+        .trainer-sidebar.collapsed .trainer-profile {
+            justify-content: center;
+        }
+
+        .trainer-sidebar.collapsed .trainer-nav a,
+        .trainer-sidebar.collapsed .trainer-logout {
+            justify-content: center;
+        }
+
+        .trainer-sidebar.collapsed .trainer-sidebar-toggle i {
+            transform: rotate(180deg);
+        }

@@ -83,8 +83,16 @@
 
                             <div class="student-profile-top">
 
-                                <div class="student-profile-avatar">
-                                    <i class="fa-solid fa-user"></i>
+                               <div class="student-profile-avatar">
+                                    @if (!string.IsNullOrEmpty(student.ProfilePicture))
+                                    {
+                                        <img src="@student.ProfilePicture"
+                                             alt="@student.Name @student.Surname" />
+                                    }
+                                    else
+                                    {
+                                        <i class="fa-solid fa-user"></i>
+                                    }
                                 </div>
 
                                 <div class="student-profile-name">

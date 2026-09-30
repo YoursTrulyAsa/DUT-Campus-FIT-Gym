@@ -6,6 +6,23 @@
 
     var pendingApplication = ViewBag.PendingApplication;
 
+    var memberRole = ViewBag.MemberRole as string ?? "Student";
+
+    decimal semesterPrice =
+        ViewBag.SemesterPrice != null
+            ? (decimal)ViewBag.SemesterPrice
+            : 0m;
+
+    decimal annualPrice =
+        ViewBag.AnnualPrice != null
+            ? (decimal)ViewBag.AnnualPrice
+            : 0m;
+
+    decimal firstTimeDiscount =
+        ViewBag.FirstTimeDiscount != null
+            ? (decimal)ViewBag.FirstTimeDiscount
+            : 0m;
+
     bool hasMembership = Model != null;
 
     bool isActive =
@@ -299,7 +316,7 @@
                     </span>
 
                     <strong>
-                        R150.00
+                          R @semesterPrice.ToString("0.00")
                     </strong>
 
                     <small>
@@ -316,7 +333,7 @@
                     </span>
 
                     <strong>
-                        R300.00
+                         R @annualPrice.ToString("0.00")
                     </strong>
 
                     <small>
@@ -339,7 +356,7 @@
                     </strong>
 
                     <p>
-                        Get 10% off your first membership.
+                        Get @firstTimeDiscount.ToString("0")% off your first membership.
                     </p>
 
                 </div>

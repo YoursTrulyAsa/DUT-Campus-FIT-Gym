@@ -419,3 +419,39 @@
         width: 100%;
     }
 }
+
+.ai-profile-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.ai-profile-summary-item {
+    padding: 16px 18px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+    .ai-profile-summary-item span {
+        display: block;
+        margin-bottom: 6px;
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+    }
+
+    .ai-profile-summary-item strong {
+        display: block;
+        color: #0f2f57;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+@media (max-width: 576px) {
+    .ai-profile-summary {
+        grid-template-columns: 1fr;
+    }
+}

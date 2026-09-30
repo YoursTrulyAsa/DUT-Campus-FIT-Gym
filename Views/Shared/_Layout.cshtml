@@ -57,38 +57,38 @@
 
     @{
         var controller =
-        ViewContext.RouteData.Values["controller"]?.ToString();
+            ViewContext.RouteData.Values["controller"]?.ToString();
 
         var action =
-        ViewContext.RouteData.Values["action"]?.ToString();
+            ViewContext.RouteData.Values["action"]?.ToString();
 
         bool isAccountPage =
-        controller == "Account";
+            controller == "Account";
 
         bool isAuthenticated =
-        User.Identity?.IsAuthenticated == true;
+            User.Identity?.IsAuthenticated == true;
 
         bool isStudent =
-        isAuthenticated &&
-        User.IsInRole("Student");
+            isAuthenticated &&
+            User.IsInRole("Student");
 
         bool isStaff =
-        isAuthenticated &&
-        User.IsInRole("Staff");
+            isAuthenticated &&
+            User.IsInRole("Staff");
 
         bool isTrainer =
-        isAuthenticated &&
-        User.IsInRole("Trainer");
+            isAuthenticated &&
+            User.IsInRole("Trainer");
 
         bool isAdmin =
-        isAuthenticated &&
-        User.IsInRole("Admin");
+            isAuthenticated &&
+            User.IsInRole("Admin");
 
-        bool showStudentSidebar =
-        isStudent && !isAccountPage;
+        bool showMemberSidebar =
+            (isStudent || isStaff) && !isAccountPage;
     }
 
-    @if (showStudentSidebar)
+    @if (showMemberSidebar)
     {
         <div class="app-layout">
 
@@ -326,7 +326,7 @@
 
                     <a asp-controller="Member"
                        asp-action="Payment"
-                       class="sidebar-link @(controller == "Banking" ? "active" : "")">
+                       class="sidebar-link @(controller == "Member" && action == "Payment" ? "active" : "")">
 
                         <span class="sidebar-icon">
                             <i class="bi bi-credit-card-fill"></i>
@@ -354,10 +354,10 @@
 
                     <a asp-controller="Support"
                        asp-action="Index"
-                       class="sidebar-link">
+                       class="sidebar-link @(controller == "Support" && action == "Index" ? "active" : "")">
 
-                        <span>
-                            💬
+                        <span class="sidebar-icon">
+                            <i class="fa-solid fa-comments"></i>
                         </span>
 
                         <span>
@@ -404,7 +404,7 @@
         </div>
     }
 
-    @if (!showStudentSidebar)
+    @if (!showMemberSidebar)
     {
         @if (isAuthenticated && !isAccountPage)
         {
@@ -466,7 +466,6 @@
             @RenderBody()
 
         </main>
-
     }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -493,44 +492,31 @@
             }
 
             const collapsed =
-                localStorage.getItem(
-                    "fitGymSidebarCollapsed"
-                ) === "true";
+                localStorage.getItem("fitGymSidebarCollapsed") === "true";
 
             if (collapsed) {
-
-                document.body.classList.add(
-                    "sidebar-collapsed"
-                );
-
+                document.body.classList.add("sidebar-collapsed");
             }
 
-            toggleButton.addEventListener(
-                "click",
-                function () {
+            toggleButton.addEventListener("click", function () {
 
-                    document.body.classList.toggle(
-                        "sidebar-collapsed"
-                    );
+                document.body.classList.toggle("sidebar-collapsed");
 
-                    const isCollapsed =
-                        document.body.classList.contains(
-                            "sidebar-collapsed"
-                        );
+                const isCollapsed =
+                    document.body.classList.contains("sidebar-collapsed");
 
-                    localStorage.setItem(
-                        "fitGymSidebarCollapsed",
-                        isCollapsed
-                    );
+                localStorage.setItem(
+                    "fitGymSidebarCollapsed",
+                    isCollapsed
+                );
 
-                }
-            );
+            });
 
         });
 
     </script>
 
-    @if (showStudentSidebar)
+    @if (showMemberSidebar)
     {
         <a asp-controller="Support"
            asp-action="Index"

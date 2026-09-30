@@ -8,10 +8,11 @@ namespace DUT_Campus_FIT_Gym.Models
         [Key]
         public int WorkoutCompletionId { get; set; }
 
-        public int? WorkoutPlanId { get; set; }
+        [Required]
+        public int WorkoutProgrammeId { get; set; }
 
-        [ForeignKey("WorkoutPlanId")]
-        public WorkoutPlan? WorkoutPlan { get; set; }
+        [ForeignKey("WorkoutProgrammeId")]
+        public WorkoutProgramme? WorkoutProgramme { get; set; }
 
         [Required]
         public int MemberId { get; set; }
@@ -20,11 +21,22 @@ namespace DUT_Campus_FIT_Gym.Models
         public Member? Member { get; set; }
 
         [Required]
+        public int WeekNumber { get; set; }
+
+        [Required]
+        [StringLength(20)]
+        public string WorkoutDay { get; set; } = "";
+
+        [Required]
         [StringLength(100)]
         public string WorkoutName { get; set; } = "";
 
+        [Required]
+        [StringLength(30)]
+        public string FitnessLevel { get; set; } = "Beginner";
+
         public DateTime CompletedAt { get; set; } = DateTime.Now;
 
-        public int RewardPoints { get; set; } = 7;
+        public int RewardPoints { get; set; }
     }
 }

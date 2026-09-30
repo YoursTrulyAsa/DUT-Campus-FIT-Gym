@@ -98,7 +98,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Profile(Trainer trainer)
+        public async Task<IActionResult> Profile(
+    Trainer trainer,
+    IFormFile? profilePicture)
         {
             var trainerEmail =
                 User.FindFirstValue(ClaimTypes.Email);
@@ -119,13 +121,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var validCategories = new[]
             {
-                "General Fitness",
-                "Strength Training",
-                "Cardio & Endurance",
-                "Weight Management",
-                "Sports Training",
-                "Functional Training"
-            };
+        "General Fitness",
+        "Strength Training",
+        "Cardio & Endurance",
+        "Weight Management",
+        "Sports Training",
+        "Functional Training"
+    };
 
             if (!validCategories.Contains(trainer.Category))
             {
@@ -133,11 +135,80 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Category",
                     "Please select a valid trainer category.");
 
-                trainer.TrainerId = existingTrainer.TrainerId;
-                trainer.TrainerName = existingTrainer.TrainerName;
-                trainer.Email = existingTrainer.Email;
+                trainer.TrainerId =
+                    existingTrainer.TrainerId;
+
+                trainer.TrainerName =
+                    existingTrainer.TrainerName;
+
+                trainer.Email =
+                    existingTrainer.Email;
+
+                trainer.ProfilePicture =
+                    existingTrainer.ProfilePicture;
 
                 return View(trainer);
+            }
+
+            if (profilePicture != null &&
+                profilePicture.Length > 0)
+            {
+                var allowedExtensions = new[]
+                {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp"
+        };
+
+                var extension =
+                    Path.GetExtension(profilePicture.FileName)
+                        .ToLowerInvariant();
+
+                if (!allowedExtensions.Contains(extension))
+                {
+                    ModelState.AddModelError(
+                        "ProfilePicture",
+                        "Only JPG, JPEG, PNG and WEBP images are allowed.");
+
+                    trainer.TrainerId =
+                        existingTrainer.TrainerId;
+
+                    trainer.TrainerName =
+                        existingTrainer.TrainerName;
+
+                    trainer.Email =
+                        existingTrainer.Email;
+
+                    trainer.ProfilePicture =
+                        existingTrainer.ProfilePicture;
+
+                    return View(trainer);
+                }
+
+                var uploadFolder = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot",
+                    "uploads",
+                    "trainers");
+
+                Directory.CreateDirectory(uploadFolder);
+
+                var fileName =
+                    $"{Guid.NewGuid()}{extension}";
+
+                var filePath =
+                    Path.Combine(uploadFolder, fileName);
+
+                using (var stream = new FileStream(
+                    filePath,
+                    FileMode.Create))
+                {
+                    await profilePicture.CopyToAsync(stream);
+                }
+
+                existingTrainer.ProfilePicture =
+                    $"/uploads/trainers/{fileName}";
             }
 
             existingTrainer.Category =

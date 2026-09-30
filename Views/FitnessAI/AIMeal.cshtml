@@ -1,5 +1,11 @@
 ﻿@{
     ViewData["Title"] = "AI Meal Suggestions";
+
+    var fitnessLevel =
+        ViewBag.FitnessLevel as string ?? "";
+
+    var fitnessGoal =
+        ViewBag.FitnessGoal as string ?? "";
 }
 
 <div class="ai-meal-page">
@@ -7,6 +13,7 @@
     <div class="ai-meal-header">
 
         <div>
+
             <span class="ai-meal-eyebrow">
                 FITNESS AI
             </span>
@@ -16,9 +23,10 @@
             </h1>
 
             <p>
-                Tell Fitness AI about your goal and food preferences
-                and receive balanced meal ideas to support your routine.
+                Your meal suggestions are based on your Fitness Profile,
+                fitness level, fitness goal and food preferences.
             </p>
+
         </div>
 
         <div class="ai-meal-icon">
@@ -45,13 +53,63 @@
                 </span>
 
                 <div>
+
                     <h2>
-                        Your preferences
+                        Your Fitness Profile
                     </h2>
 
                     <p>
-                        Give Fitness AI a few details about your food preferences.
+                        These details are automatically taken from your Fitness Profile.
                     </p>
+
+                </div>
+
+            </div>
+
+            <div class="ai-profile-summary">
+
+                <div class="ai-profile-summary-item">
+
+                    <span>
+                        FITNESS LEVEL
+                    </span>
+
+                    <strong>
+                        @fitnessLevel
+                    </strong>
+
+                </div>
+
+                <div class="ai-profile-summary-item">
+
+                    <span>
+                        FITNESS GOAL
+                    </span>
+
+                    <strong>
+                        @fitnessGoal
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <div class="ai-section-heading">
+
+                <span>
+                    02
+                </span>
+
+                <div>
+
+                    <h2>
+                        Your food preferences
+                    </h2>
+
+                    <p>
+                        Tell Fitness AI about the foods you prefer.
+                    </p>
+
                 </div>
 
             </div>
@@ -61,40 +119,6 @@
                   method="post">
 
                 @Html.AntiForgeryToken()
-
-                <div class="ai-form-group">
-
-                    <label for="fitnessGoal">
-                        Fitness Goal
-                    </label>
-
-                    <select id="fitnessGoal"
-                            name="fitnessGoal"
-                            required>
-
-                        <option value="">
-                            Select your goal
-                        </option>
-
-                        <option value="General fitness">
-                            General fitness
-                        </option>
-
-                        <option value="Strength">
-                            Strength
-                        </option>
-
-                        <option value="Endurance">
-                            Endurance
-                        </option>
-
-                        <option value="Mobility and flexibility">
-                            Mobility and flexibility
-                        </option>
-
-                    </select>
-
-                </div>
 
                 <div class="ai-form-group">
 
@@ -195,11 +219,21 @@
             </h2>
 
             <p>
-                Fitness AI creates practical meal ideas based on your
-                selected goal and preferences.
+                Fitness AI uses your Fitness Profile and food preferences
+                to create practical meal ideas for your routine.
             </p>
 
             <div class="ai-info-list">
+
+                <div>
+                    <i class="fa-solid fa-check"></i>
+                    <span>Fitness-level matched meals</span>
+                </div>
+
+                <div>
+                    <i class="fa-solid fa-check"></i>
+                    <span>Goal-based suggestions</span>
+                </div>
 
                 <div>
                     <i class="fa-solid fa-check"></i>
@@ -208,17 +242,7 @@
 
                 <div>
                     <i class="fa-solid fa-check"></i>
-                    <span>Lunch suggestion</span>
-                </div>
-
-                <div>
-                    <i class="fa-solid fa-check"></i>
-                    <span>Snack suggestion</span>
-                </div>
-
-                <div>
-                    <i class="fa-solid fa-check"></i>
-                    <span>Dinner suggestion</span>
+                    <span>Lunch, snack and dinner</span>
                 </div>
 
             </div>

@@ -34,7 +34,15 @@
     <div class="student-profile-hero">
 
         <div class="profile-large-avatar">
-            <i class="fa-solid fa-user"></i>
+            @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+            {
+                <img src="@Model.ProfilePicture"
+                     alt="@Model.Name @Model.Surname" />
+            }
+            else
+            {
+                <i class="fa-solid fa-user"></i>
+            }
         </div>
 
         <div class="profile-hero-info">

@@ -150,6 +150,40 @@
 
                 <div class="fitness-profile-field">
 
+                    <label asp-for="FitnessLevel">
+                        Fitness Level
+                    </label>
+
+                    <div class="fitness-profile-input-wrapper">
+
+                        <i class="fa-solid fa-signal"></i>
+
+                        <select asp-for="FitnessLevel">
+
+                            <option value="Beginner">
+                                Beginner
+                            </option>
+
+                            <option value="Intermediate">
+                                Intermediate
+                            </option>
+
+                            <option value="Pro">
+                                Pro
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <span asp-validation-for="FitnessLevel"
+                          class="fitness-profile-field-error">
+                    </span>
+
+                </div>
+
+                <div class="fitness-profile-field">
+
                     <label asp-for="Goal">
                         Fitness Goal
                     </label>
@@ -160,24 +194,20 @@
 
                         <select asp-for="Goal">
 
-                            <option value="">
-                                Select your goal
+                            <option value="General fitness">
+                                General fitness
                             </option>
 
                             <option value="Strength">
                                 Strength
                             </option>
 
-                            <option value="General Fitness">
-                                General Fitness
-                            </option>
-
                             <option value="Endurance">
                                 Endurance
                             </option>
 
-                            <option value="Mobility and Flexibility">
-                                Mobility and Flexibility
+                            <option value="Mobility and flexibility">
+                                Mobility and flexibility
                             </option>
 
                         </select>
@@ -197,8 +227,8 @@
                 <i class="fa-solid fa-circle-info"></i>
 
                 <p>
-                    Keeping your profile updated helps FIT Gym provide
-                    more relevant general fitness suggestions.
+                    Your fitness level and goal determine the general
+                    structure of your AI workout programme.
                 </p>
 
             </div>

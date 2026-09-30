@@ -18,7 +18,7 @@
             </h1>
 
             <p>
-                Manage your trainer information and specialization.
+                Manage your trainer information, specialization and profile picture.
             </p>
         </div>
 
@@ -44,7 +44,17 @@
         <div class="trainer-profile-card-header">
 
             <div class="trainer-profile-avatar">
-                <i class="fa-solid fa-user-tie"></i>
+
+                @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                {
+                    <img src="@Model.ProfilePicture"
+                         alt="@Model.TrainerName" />
+                }
+                else
+                {
+                    <i class="fa-solid fa-user-tie"></i>
+                }
+
             </div>
 
             <div>
@@ -65,12 +75,47 @@
 
         <form asp-controller="Trainer"
               asp-action="Profile"
-              method="post">
+              method="post"
+              enctype="multipart/form-data">
 
             @Html.AntiForgeryToken()
 
             <input type="hidden"
                    asp-for="TrainerId" />
+
+            <div class="trainer-profile-field">
+
+                <label>
+                    Profile Picture
+                </label>
+
+                <div class="trainer-picture-upload">
+
+                    <label for="profilePicture"
+                           class="trainer-picture-button">
+
+                        <i class="fa-solid fa-camera"></i>
+                        Change Photo
+
+                    </label>
+
+                    <input type="file"
+                           id="profilePicture"
+                           name="profilePicture"
+                           accept=".jpg,.jpeg,.png,.webp"
+                           hidden />
+
+                    <span id="profilePictureName">
+                        No new photo selected
+                    </span>
+
+                </div>
+
+                <span class="trainer-profile-validation"
+                      asp-validation-for="ProfilePicture">
+                </span>
+
+            </div>
 
             <div class="trainer-profile-field">
 
@@ -158,4 +203,28 @@
     <link rel="stylesheet"
           href="~/css/trainer-profile.css"
           asp-append-version="true" />
+}
+
+@section Scripts {
+    <script>
+        const profilePicture =
+            document.getElementById("profilePicture");
+
+        const profilePictureName =
+            document.getElementById("profilePictureName");
+
+        if (profilePicture) {
+            profilePicture.addEventListener("change", function () {
+
+                if (this.files.length > 0) {
+                    profilePictureName.textContent =
+                        this.files[0].name;
+                } else {
+                    profilePictureName.textContent =
+                        "No image selected";
+                }
+
+            });
+        }
+    </script>
 }

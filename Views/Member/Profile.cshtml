@@ -85,13 +85,25 @@
 
             <div class="profile-photo-actions">
 
-                <form asp-controller="Profile"
-                      asp-action="UploadPhoto"
+                <form asp-controller="Member"
+                      asp-action="Profile"
                       method="post"
                       enctype="multipart/form-data"
                       id="photoUploadForm">
 
                     @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="name"
+                           value="@Model.Name" />
+
+                    <input type="hidden"
+                           name="surname"
+                           value="@Model.Surname" />
+
+                    <input type="hidden"
+                           name="phoneNumber"
+                           value="@Model.PhoneNumber" />
 
                     <label for="profilePicture"
                            class="profile-photo-btn">
@@ -136,7 +148,7 @@
 
                 @if (!string.IsNullOrWhiteSpace(Model.ProfilePicture))
                 {
-                    <form asp-controller="Profile"
+                    <form asp-controller="Member"
                           asp-action="RemovePhoto"
                           method="post">
 

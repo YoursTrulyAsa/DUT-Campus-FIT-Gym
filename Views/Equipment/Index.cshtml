@@ -6,39 +6,68 @@
     var activeReservations =
         ViewBag.ActiveReservations
         as List<DUT_Campus_FIT_Gym.Models.Reservation>;
+
+    var equipmentList = Model?.ToList() ?? new List<DUT_Campus_FIT_Gym.Models.Equipment>();
+
+    var availableCount = equipmentList.Count(e =>
+        activeReservations?.FirstOrDefault(r =>
+            r.EquipmentID == e.EquipmentID &&
+            r.Status == "Reserved" &&
+            r.EndTime > DateTime.Now) == null);
+
+    var reservedCount = equipmentList.Count - availableCount;
+
+    var categoryCount = equipmentList
+        .Where(e => !string.IsNullOrWhiteSpace(e.Category))
+        .Select(e => e.Category)
+        .Distinct()
+        .Count();
 }
 
-<div class="container mt-5">
+<div class="equipment-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="equipment-hero">
 
-        <div>
-            <h1 class="mb-1">Gym Equipment</h1>
+        <div class="equipment-hero-content">
 
-            <p class="text-muted mb-0">
-                View equipment availability and reserve equipment for your workout.
+            <span class="equipment-eyebrow">
+                <i class="fa-solid fa-dumbbell"></i>
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>Gym Equipment</h1>
+
+            <p>
+                Explore available equipment, find what you need for your workout,
+                and reserve it before you start training.
             </p>
+
         </div>
 
-        <a asp-controller="Equipment"
-           asp-action="MyReservations"
-           class="btn btn-outline-primary">
-
-            My Reservations
-
-        </a>
+        <div class="equipment-hero-icon">
+            <i class="fa-solid fa-dumbbell"></i>
+        </div>
 
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show">
+        <div class="equipment-alert success-alert">
 
-            @TempData["Success"]
+            <div class="alert-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <div>
+                <strong>Reservation Updated</strong>
+                <span>@TempData["Success"]</span>
+            </div>
 
             <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
+                    class="alert-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
             </button>
 
         </div>
@@ -46,203 +75,475 @@
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show">
+        <div class="equipment-alert error-alert">
 
-            @TempData["Error"]
+            <div class="alert-icon">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+
+            <div>
+                <strong>Something went wrong</strong>
+                <span>@TempData["Error"]</span>
+            </div>
 
             <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
+                    class="alert-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
             </button>
 
         </div>
     }
 
-    <div class="card shadow-sm border-0">
+    <div class="equipment-stats">
 
-        <div class="card-body p-0">
+        <div class="equipment-stat-card">
 
-            <div class="table-responsive">
+            <div class="stat-icon available">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
 
-                <table class="table table-hover align-middle mb-0">
+            <div>
+                <span>Available</span>
+                <strong>@availableCount</strong>
+            </div>
 
-                    <thead class="table-dark">
+        </div>
 
-                        <tr>
+        <div class="equipment-stat-card">
 
-                            <th class="px-4">
-                                Picture
-                            </th>
+            <div class="stat-icon reserved">
+                <i class="fa-solid fa-lock"></i>
+            </div>
 
-                            <th>
-                                Equipment
-                            </th>
+            <div>
+                <span>Currently Reserved</span>
+                <strong>@reservedCount</strong>
+            </div>
 
-                            <th>
-                                Category
-                            </th>
+        </div>
 
-                            <th>
-                                Location
-                            </th>
+        <div class="equipment-stat-card">
 
-                            <th>
-                                Status
-                            </th>
+            <div class="stat-icon categories">
+                <i class="fa-solid fa-layer-group"></i>
+            </div>
 
-                            <th class="text-center">
-                                Action
-                            </th>
+            <div>
+                <span>Categories</span>
+                <strong>@categoryCount</strong>
+            </div>
 
-                        </tr>
+        </div>
 
-                    </thead>
+        <a asp-controller="Equipment"
+           asp-action="MyReservations"
+           class="equipment-stat-action">
 
-                    <tbody>
+            <div class="stat-action-icon">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
 
-                        @if (Model != null && Model.Any())
+            <div>
+                <span>Manage</span>
+                <strong>My Reservations</strong>
+            </div>
+
+            <i class="fa-solid fa-arrow-right action-arrow"></i>
+
+        </a>
+
+    </div>
+
+    @if (activeReservations != null && activeReservations.Any(r =>
+        r.Status == "Reserved" &&
+        r.EndTime > DateTime.Now))
+    {
+        <div class="active-reservation-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="section-label">
+                        YOUR RESERVATION
+                    </span>
+
+                    <h2>Active Equipment Reservation</h2>
+                </div>
+
+                <span class="live-badge">
+                    <span></span>
+                    ACTIVE
+                </span>
+
+            </div>
+
+            <div class="active-reservation-card">
+
+                @foreach (var reservation in activeReservations.Where(r =>
+                    r.Status == "Reserved" &&
+                    r.EndTime > DateTime.Now))
+                {
+                    var reservedEquipment = equipmentList
+                        .FirstOrDefault(e => e.EquipmentID == reservation.EquipmentID);
+
+                    <div class="active-reservation-image">
+
+                        @if (reservedEquipment != null &&
+                             !string.IsNullOrWhiteSpace(reservedEquipment.ImagePath))
                         {
-                            @foreach (var item in Model)
-                            {
-                                var activeReservation =
-                                    activeReservations?
-                                    .FirstOrDefault(r =>
-                                        r.EquipmentID == item.EquipmentID &&
-                                        r.Status == "Reserved" &&
-                                        r.EndTime > DateTime.Now);
-
-                                <tr>
-
-                                    <td class="px-4">
-
-                                        @if (!string.IsNullOrWhiteSpace(item.ImagePath))
-                                        {
-                                            <img src="@item.ImagePath"
-                                                 alt="@item.EquipmentName"
-                                                 style="width:70px;height:70px;object-fit:cover;border-radius:12px;" />
-                                        }
-                                        else
-                                        {
-                                            <div style="width:70px;height:70px;border-radius:12px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:28px;">
-                                                🏋️
-                                            </div>
-                                        }
-
-                                    </td>
-
-                                    <td>
-
-                                        <strong>
-                                            @item.EquipmentName
-                                        </strong>
-
-                                    </td>
-
-                                    <td>
-                                        @item.Category
-                                    </td>
-
-                                    <td>
-                                        @item.Location
-                                    </td>
-
-                                    <td>
-
-                                        @if (activeReservation == null)
-                                        {
-                                            <span class="badge bg-success">
-                                                Available
-                                            </span>
-
-                                            <div class="small text-success mt-1">
-                                                Ready to use
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-danger">
-                                                Reserved
-                                            </span>
-
-                                            <div class="small text-danger mt-1">
-
-                                                Available again at
-
-                                                <strong>
-                                                    @activeReservation.EndTime.ToString("HH:mm")
-                                                </strong>
-
-                                            </div>
-                                        }
-
-                                    </td>
-
-                                    <td class="text-center">
-
-                                        @if (activeReservation == null)
-                                        {
-                                            <form asp-controller="Equipment"
-                                                  asp-action="Reserve"
-                                                  method="post"
-                                                  class="d-inline">
-
-                                                @Html.AntiForgeryToken()
-
-                                                <input type="hidden"
-                                                       name="id"
-                                                       value="@item.EquipmentID" />
-
-                                                <button type="submit"
-                                                        class="btn btn-primary btn-sm">
-
-                                                    Reserve
-
-                                                </button>
-
-                                            </form>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-danger fw-semibold">
-
-                                                Currently Reserved
-
-                                            </span>
-                                        }
-
-                                    </td>
-
-                                </tr>
-                            }
+                            <img src="@reservedEquipment.ImagePath"
+                                 alt="@reservedEquipment.EquipmentName" />
                         }
                         else
                         {
-                            <tr>
-
-                                <td colspan="6"
-                                    class="text-center py-5">
-
-                                    <div class="mb-3"
-                                         style="font-size:40px;">
-                                        🏋️
-                                    </div>
-
-                                    <h5 class="text-muted">
-                                        No Equipment Available
-                                    </h5>
-
-                                    <p class="text-muted mb-0">
-                                        There is currently no gym equipment registered.
-                                    </p>
-
-                                </td>
-
-                            </tr>
+                            <div class="reservation-placeholder">
+                                <i class="fa-solid fa-dumbbell"></i>
+                            </div>
                         }
 
-                    </tbody>
+                    </div>
 
-                </table>
+                    <div class="active-reservation-info">
+
+                        <span class="reservation-category">
+                            @(reservedEquipment?.Category ?? "Equipment")
+                        </span>
+
+                        <h3>
+                            @(reservedEquipment?.EquipmentName ?? "Reserved Equipment")
+                        </h3>
+
+                        <div class="reservation-time">
+
+                            <div>
+                                <i class="fa-regular fa-clock"></i>
+
+                                <span>
+                                    Reserved until
+                                    <strong>
+                                        @reservation.EndTime.ToString("HH:mm")
+                                    </strong>
+                                </span>
+                            </div>
+
+                            <span class="reservation-duration">
+                                10 MIN RESERVATION
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="active-reservation-action">
+
+                        <a asp-controller="Equipment"
+                           asp-action="MyReservations"
+                           class="view-reservation-btn">
+
+                            <i class="fa-solid fa-eye"></i>
+                            View Reservation
+
+                        </a>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+    }
+
+    <div class="equipment-list-section">
+
+        <div class="section-heading equipment-list-heading">
+
+            <div>
+                <span class="section-label">
+                    EQUIPMENT COLLECTION
+                </span>
+
+                <h2>Find Your Equipment</h2>
+
+                <p>
+                    Choose an available piece of equipment and reserve it for your workout.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="equipment-controls">
+
+            <div class="equipment-search">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input type="text"
+                       id="equipmentSearch"
+                       placeholder="Search equipment..." />
+
+            </div>
+
+            <div class="equipment-filter">
+
+                <i class="fa-solid fa-filter"></i>
+
+                <select id="categoryFilter">
+
+                    <option value="">All Categories</option>
+
+                    @foreach (var category in equipmentList
+                        .Where(e => !string.IsNullOrWhiteSpace(e.Category))
+                        .Select(e => e.Category)
+                        .Distinct()
+                        .OrderBy(c => c))
+                    {
+                        <option value="@category">@category</option>
+                    }
+
+                </select>
+
+            </div>
+
+        </div>
+
+        @if (equipmentList.Any())
+        {
+            <div class="equipment-grid" id="equipmentGrid">
+
+                @foreach (var item in equipmentList)
+                {
+                    var activeReservation = activeReservations?
+                        .FirstOrDefault(r =>
+                            r.EquipmentID == item.EquipmentID &&
+                            r.Status == "Reserved" &&
+                            r.EndTime > DateTime.Now);
+
+                    <article class="equipment-card"
+                             data-name="@item.EquipmentName"
+                             data-category="@item.Category">
+
+                        <div class="equipment-image-wrapper">
+
+                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath"
+                                     alt="@item.EquipmentName"
+                                     class="equipment-image" />
+                            }
+                            else
+                            {
+                                <div class="equipment-image-placeholder">
+                                    <i class="fa-solid fa-dumbbell"></i>
+                                </div>
+                            }
+
+                            @if (activeReservation == null)
+                            {
+                                <span class="equipment-status available-status">
+                                    <span></span>
+                                    Available
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="equipment-status reserved-status">
+                                    <span></span>
+                                    Reserved
+                                </span>
+                            }
+
+                        </div>
+
+                        <div class="equipment-card-body">
+
+                            <span class="equipment-category">
+                                @(string.IsNullOrWhiteSpace(item.Category)
+                                    ? "Gym Equipment"
+                                    : item.Category)
+                            </span>
+
+                            <h3>
+                                @item.EquipmentName
+                            </h3>
+
+                            <div class="equipment-location">
+
+                                <i class="fa-solid fa-location-dot"></i>
+
+                                <span>
+                                    @(string.IsNullOrWhiteSpace(item.Location)
+                                        ? "Gym Floor"
+                                        : item.Location)
+                                </span>
+
+                            </div>
+
+                            <div class="equipment-card-footer">
+
+                                @if (activeReservation == null)
+                                {
+                                    <div class="ready-text">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        Ready to reserve
+                                    </div>
+
+                                    <form asp-controller="Equipment"
+                                          asp-action="Reserve"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@item.EquipmentID" />
+
+                                        <button type="submit"
+                                                class="reserve-button">
+
+                                            Reserve
+
+                                            <i class="fa-solid fa-arrow-right"></i>
+
+                                        </button>
+
+                                    </form>
+                                }
+                                else
+                                {
+                                    <div class="reserved-info">
+
+                                        <i class="fa-regular fa-clock"></i>
+
+                                        <span>
+                                            Until
+                                            <strong>
+                                                @activeReservation.EndTime.ToString("HH:mm")
+                                            </strong>
+                                        </span>
+
+                                    </div>
+
+                                    <span class="unavailable-button">
+                                        Unavailable
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </article>
+                }
+
+            </div>
+
+            <div id="noEquipmentResults"
+                 class="no-equipment-results"
+                 style="display:none;">
+
+                <div>
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+
+                <h3>No equipment found</h3>
+
+                <p>
+                    Try changing your search or category filter.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            <div class="equipment-empty-state">
+
+                <div class="empty-icon">
+                    <i class="fa-solid fa-dumbbell"></i>
+                </div>
+
+                <h3>No Equipment Available</h3>
+
+                <p>
+                    There is currently no gym equipment registered.
+                    Please check again later.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+    <div class="reservation-rules">
+
+        <div class="rules-header">
+
+            <div class="rules-icon">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+
+            <div>
+                <span class="section-label">
+                    RESERVATION GUIDELINES
+                </span>
+
+                <h2>Equipment Reservation Rules</h2>
+            </div>
+
+        </div>
+
+        <div class="rules-grid">
+
+            <div class="rule-item">
+
+                <span class="rule-number">01</span>
+
+                <div>
+                    <strong>One Reservation</strong>
+                    <p>
+                        Each member can reserve only one piece of equipment at a time.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="rule-item">
+
+                <span class="rule-number">02</span>
+
+                <div>
+                    <strong>10 Minute Limit</strong>
+                    <p>
+                        Every equipment reservation remains active for 10 minutes.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="rule-item">
+
+                <span class="rule-number">03</span>
+
+                <div>
+                    <strong>Cancel Anytime</strong>
+                    <p>
+                        You can cancel your reservation before the 10 minutes expire.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="rule-item">
+
+                <span class="rule-number">04</span>
+
+                <div>
+                    <strong>Automatic Release</strong>
+                    <p>
+                        Equipment automatically becomes available after the reservation expires.
+                    </p>
+                </div>
 
             </div>
 
@@ -250,44 +551,67 @@
 
     </div>
 
-    <div class="alert alert-info mt-4">
-
-        <h5 class="mb-2">
-            Equipment Reservation Rules
-        </h5>
-
-        <ul class="mb-0">
-
-            <li>
-                Each student can reserve only
-                <strong>one piece of equipment</strong>
-                at a time.
-            </li>
-
-            <li>
-                Each reservation lasts for
-                <strong>10 minutes</strong>.
-            </li>
-
-            <li>
-                You can cancel your reservation before
-                the 10 minutes expire.
-            </li>
-
-            <li>
-                Equipment automatically becomes
-                <strong>Available</strong>
-                when the reservation expires.
-            </li>
-
-            <li>
-                Equipment marked
-                <strong>Reserved</strong>
-                cannot be reserved by another student.
-            </li>
-
-        </ul>
-
-    </div>
-
 </div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/equipment-member.css"
+          asp-append-version="true" />
+}
+
+@section Scripts {
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const searchInput = document.getElementById("equipmentSearch");
+            const categoryFilter = document.getElementById("categoryFilter");
+            const equipmentCards = document.querySelectorAll(".equipment-card");
+            const noResults = document.getElementById("noEquipmentResults");
+
+            function filterEquipment() {
+
+                const searchValue = searchInput.value.toLowerCase().trim();
+                const categoryValue = categoryFilter.value.toLowerCase().trim();
+
+                let visibleCount = 0;
+
+                equipmentCards.forEach(card => {
+
+                    const name = (card.dataset.name || "").toLowerCase();
+                    const category = (card.dataset.category || "").toLowerCase();
+
+                    const matchesSearch =
+                        name.includes(searchValue) ||
+                        category.includes(searchValue);
+
+                    const matchesCategory =
+                        !categoryValue ||
+                        category === categoryValue;
+
+                    if (matchesSearch && matchesCategory) {
+                        card.style.display = "";
+                        visibleCount++;
+                    } else {
+                        card.style.display = "none";
+                    }
+
+                });
+
+                if (noResults) {
+                    noResults.style.display =
+                        visibleCount === 0 ? "block" : "none";
+                }
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener("input", filterEquipment);
+            }
+
+            if (categoryFilter) {
+                categoryFilter.addEventListener("change", filterEquipment);
+            }
+
+        });
+    </script>
+}

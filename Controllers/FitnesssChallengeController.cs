@@ -32,17 +32,78 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(memberIdClaim, out int memberId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var profile =
+                await _context.WorkoutProfiles
+                    .FirstOrDefaultAsync(p => p.MemberId == memberId);
+
+            if (profile == null)
+            {
+                return RedirectToAction(
+                    "Create",
+                    "WorkoutProfile");
+            }
+
+            var validLevels = new[]
+            {
+                "Beginner",
+                "Intermediate",
+                "Pro"
+            };
+
+            var fitnessLevel =
+                validLevels.FirstOrDefault(
+                    level =>
+                        level.Equals(
+                            profile.FitnessLevel?.Trim(),
+                            StringComparison.OrdinalIgnoreCase));
+
+            if (fitnessLevel == null)
+            {
+                ViewBag.Error =
+                    "Your Fitness Profile does not contain a valid fitness level. Please update your Fitness Profile.";
+
+                return View();
+            }
+
+            ViewBag.FitnessLevel = fitnessLevel;
+
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Generate(
-            string level,
             string category)
         {
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(memberIdClaim, out int memberId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var profile =
+                await _context.WorkoutProfiles
+                    .FirstOrDefaultAsync(p => p.MemberId == memberId);
+
+            if (profile == null)
+            {
+                return RedirectToAction(
+                    "Create",
+                    "WorkoutProfile");
+            }
+
             var validLevels = new[]
             {
                 "Beginner",
@@ -57,24 +118,33 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "Yoga"
             };
 
-            if (!validLevels.Contains(
-                    level,
-                    StringComparer.OrdinalIgnoreCase) ||
-                !validCategories.Contains(
-                    category,
-                    StringComparer.OrdinalIgnoreCase))
+            var fitnessLevel =
+                validLevels.FirstOrDefault(
+                    level =>
+                        level.Equals(
+                            profile.FitnessLevel?.Trim(),
+                            StringComparison.OrdinalIgnoreCase));
+
+            if (fitnessLevel == null)
             {
                 ViewBag.Error =
-                    "Please select a valid challenge level and category.";
+                    "Your Fitness Profile contains an invalid fitness level. Please update your Fitness Profile.";
 
                 return View("Index");
             }
 
-            level =
-                validLevels.First(
-                    x => x.Equals(
-                        level,
-                        StringComparison.OrdinalIgnoreCase));
+            if (!validCategories.Contains(
+                    category,
+                    StringComparer.OrdinalIgnoreCase))
+            {
+                ViewBag.Error =
+                    "Please select a valid challenge category.";
+
+                ViewBag.FitnessLevel =
+                    fitnessLevel;
+
+                return View("Index");
+            }
 
             category =
                 validCategories.First(
@@ -83,7 +153,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         StringComparison.OrdinalIgnoreCase));
 
             int rewardPoints =
-                _rewardService.GetChallengeReward(level);
+                _rewardService.GetChallengeReward(
+                    fitnessLevel);
 
             string? apiKey =
                 _configuration["GeminiApiKey"];
@@ -93,26 +164,31 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 ViewBag.Error =
                     "The Fitness AI service is not configured. GeminiApiKey was not found.";
 
+                ViewBag.FitnessLevel =
+                    fitnessLevel;
+
                 return View("Index");
             }
 
             string prompt =
-                "You are the Fitness Challenge AI assistant for DUT Campus FIT Gym.\n\n" +
-                "Create one safe, reasonable fitness challenge for a student.\n\n" +
-                $"Fitness level: {level}\n" +
+                "Create exactly one safe fitness challenge for a DUT Campus FIT Gym student.\n" +
+                $"Fitness level: {fitnessLevel}\n" +
                 $"Category: {category}\n\n" +
-                "Rules:\n" +
-                "- The challenge must be realistic and appropriate for the selected level.\n" +
-                "- Do not recommend extreme exercise amounts.\n" +
-                "- Do not create dangerous or unsafe challenges.\n" +
-                "- Beginner challenges must be clearly beginner-appropriate.\n" +
-                "- Do not use extreme repetition counts or excessive duration.\n" +
-                "- Keep the challenge simple enough to understand and complete.\n" +
-                $"- The reward must always be exactly {rewardPoints} points.\n" +
-                "- Do not include medical diagnoses.\n" +
-                "- Do not prescribe exercise as treatment for injuries or medical conditions.\n" +
-                "- Do not include calorie targets.\n" +
-                "- Return only one challenge.";
+                "Requirements:\n" +
+                "- The challenge MUST be appropriate for the member's fitness level.\n" +
+                "- Beginner challenges must use manageable beginner-level activity.\n" +
+                "- Intermediate challenges may use moderate progression.\n" +
+                "- Pro challenges may use more demanding but still reasonable activity.\n" +
+                "- Simple and realistic.\n" +
+                "- No extreme exercise amounts.\n" +
+                "- No dangerous activities.\n" +
+                "- No medical treatment or diagnoses.\n" +
+                "- No calorie targets.\n" +
+                "- Reward points must be exactly the supplied value.\n" +
+                "- Keep the title short.\n" +
+                "- Keep the description to one or two sentences.\n" +
+                "- Keep the target short and measurable.\n" +
+                "- Return only the requested JSON object.";
 
             var responseSchema = new
             {
@@ -175,7 +251,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 generationConfig = new
                 {
                     responseMimeType = "application/json",
-                    responseSchema = responseSchema
+                    responseSchema = responseSchema,
+                    maxOutputTokens = 300
                 }
             };
 
@@ -184,6 +261,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var client =
                 _httpClientFactory.CreateClient();
+
+            client.Timeout =
+                TimeSpan.FromSeconds(20);
 
             string url =
                 "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent";
@@ -195,7 +275,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             request.Headers.Add(
                 "x-goog-api-key",
-                apiKey);
+                apiKey.Trim());
 
             request.Content =
                 new StringContent(
@@ -216,6 +296,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     ViewBag.Error =
                         $"Gemini error {(int)response.StatusCode}: {responseContent}";
 
+                    ViewBag.FitnessLevel =
+                        fitnessLevel;
+
                     return View("Index");
                 }
 
@@ -229,6 +312,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 {
                     ViewBag.Error =
                         "Gemini did not return a challenge.";
+
+                    ViewBag.FitnessLevel =
+                        fitnessLevel;
 
                     return View("Index");
                 }
@@ -245,6 +331,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 {
                     ViewBag.Error =
                         "Gemini returned a response without usable challenge content.";
+
+                    ViewBag.FitnessLevel =
+                        fitnessLevel;
 
                     return View("Index");
                 }
@@ -269,6 +358,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     ViewBag.Error =
                         "Gemini returned an empty challenge.";
 
+                    ViewBag.FitnessLevel =
+                        fitnessLevel;
+
                     return View("Index");
                 }
 
@@ -290,28 +382,28 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     ViewBag.Error =
                         "Gemini returned an invalid challenge.";
 
+                    ViewBag.FitnessLevel =
+                        fitnessLevel;
+
                     return View("Index");
                 }
 
                 challenge.Level =
-                    challenge.Level.Trim();
+                    challenge.Level?.Trim() ?? "";
 
                 challenge.Category =
-                    challenge.Category.Trim();
+                    challenge.Category?.Trim() ?? "";
 
                 challenge.Title =
-                    challenge.Title.Trim();
+                    challenge.Title?.Trim() ?? "";
 
                 challenge.Description =
-                    challenge.Description.Trim();
+                    challenge.Description?.Trim() ?? "";
 
                 challenge.Target =
-                    challenge.Target.Trim();
+                    challenge.Target?.Trim() ?? "";
 
-                if (!validLevels.Contains(
-                        challenge.Level,
-                        StringComparer.OrdinalIgnoreCase) ||
-                    !validCategories.Contains(
+                if (!validCategories.Contains(
                         challenge.Category,
                         StringComparer.OrdinalIgnoreCase) ||
                     string.IsNullOrWhiteSpace(
@@ -325,11 +417,14 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     ViewBag.Error =
                         "Gemini generated a challenge outside the allowed limits. Please try again.";
 
+                    ViewBag.FitnessLevel =
+                        fitnessLevel;
+
                     return View("Index");
                 }
 
                 challenge.Level =
-                    level;
+                    fitnessLevel;
 
                 challenge.Category =
                     category;
@@ -341,10 +436,23 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Result",
                     challenge);
             }
+            catch (TaskCanceledException)
+            {
+                ViewBag.Error =
+                    "The Fitness AI request took too long. Please try again.";
+
+                ViewBag.FitnessLevel =
+                    fitnessLevel;
+
+                return View("Index");
+            }
             catch (JsonException ex)
             {
                 ViewBag.Error =
                     $"JSON processing error: {ex.Message}";
+
+                ViewBag.FitnessLevel =
+                    fitnessLevel;
 
                 return View("Index");
             }
@@ -353,12 +461,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 ViewBag.Error =
                     $"HTTP request error: {ex.Message}";
 
-                return View("Index");
-            }
-            catch (TaskCanceledException ex)
-            {
-                ViewBag.Error =
-                    $"The Gemini request timed out: {ex.Message}";
+                ViewBag.FitnessLevel =
+                    fitnessLevel;
 
                 return View("Index");
             }
@@ -367,13 +471,16 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 ViewBag.Error =
                     $"Unexpected error: {ex.Message}";
 
+                ViewBag.FitnessLevel =
+                    fitnessLevel;
+
                 return View("Index");
             }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Accept(
+        public async Task<IActionResult> Accept(
             FitnessChallengeViewModel challenge)
         {
             var memberId =
@@ -385,6 +492,21 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction(
                     "Login",
                     "Account");
+            }
+
+            int currentMemberId =
+                int.Parse(memberId);
+
+            var profile =
+                await _context.WorkoutProfiles
+                    .FirstOrDefaultAsync(
+                        p => p.MemberId == currentMemberId);
+
+            if (profile == null)
+            {
+                return RedirectToAction(
+                    "Create",
+                    "WorkoutProfile");
             }
 
             var validLevels = new[]
@@ -401,10 +523,19 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 "Yoga"
             };
 
-            if (!validLevels.Contains(
-                    challenge.Level,
-                    StringComparer.OrdinalIgnoreCase) ||
-                !validCategories.Contains(
+            var actualLevel =
+                validLevels.FirstOrDefault(
+                    level =>
+                        level.Equals(
+                            profile.FitnessLevel?.Trim(),
+                            StringComparison.OrdinalIgnoreCase));
+
+            if (actualLevel == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (!validCategories.Contains(
                     challenge.Category,
                     StringComparer.OrdinalIgnoreCase) ||
                 string.IsNullOrWhiteSpace(
@@ -417,12 +548,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return RedirectToAction("Index");
             }
 
-            string level =
-                validLevels.First(
-                    x => x.Equals(
-                        challenge.Level.Trim(),
-                        StringComparison.OrdinalIgnoreCase));
-
             string category =
                 validCategories.First(
                     x => x.Equals(
@@ -430,10 +555,8 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         StringComparison.OrdinalIgnoreCase));
 
             int rewardPoints =
-                _rewardService.GetChallengeReward(level);
-
-            int currentMemberId =
-                int.Parse(memberId);
+                _rewardService.GetChallengeReward(
+                    actualLevel);
 
             var fitnessChallenge =
                 new FitnessChallenge
@@ -442,7 +565,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         currentMemberId,
 
                     Level =
-                        level,
+                        actualLevel,
 
                     Category =
                         category,
@@ -488,7 +611,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             _context.ChallengeParticipations.Add(
                 participation);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(
                 "MyChallenges");
