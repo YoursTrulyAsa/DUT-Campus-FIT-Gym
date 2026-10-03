@@ -23,6 +23,10 @@ namespace DUT_Campus_FIT_Gym.Models
         [StringLength(100)]
         public string WorkoutName { get; set; } = "";
 
+        [Required]
+        [StringLength(100)]
+        public string ExerciseName { get; set; } = "";
+
         public int? ExerciseId { get; set; }
 
         [ForeignKey("ExerciseId")]

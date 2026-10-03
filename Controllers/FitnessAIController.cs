@@ -55,18 +55,18 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var validLevels = new[]
             {
-        "Beginner",
-        "Intermediate",
-        "Pro"
-    };
+                "Beginner",
+                "Intermediate",
+                "Pro"
+            };
 
             var validGoals = new[]
             {
-        "General fitness",
-        "Strength",
-        "Endurance",
-        "Mobility and flexibility"
-    };
+                "General fitness",
+                "Strength",
+                "Endurance",
+                "Mobility and flexibility"
+            };
 
             var fitnessLevel =
                 validLevels.FirstOrDefault(
@@ -95,62 +95,65 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         [HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> GenerateWorkout(
-    string preferredExercises,
-    int daysAvailable)
-{
-    var memberIdClaim =
-        User.FindFirstValue(ClaimTypes.NameIdentifier);
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateWorkout(
+            string preferredExercises,
+            int daysAvailable)
+        {
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    if (!int.TryParse(memberIdClaim, out int memberId))
-        return RedirectToAction("Login", "Account");
+            if (!int.TryParse(memberIdClaim, out int memberId))
+                return RedirectToAction("Login", "Account");
 
-    if (daysAvailable < 2 || daysAvailable > 5)
-    {
-        ViewBag.Error =
-            "Please select between 2 and 5 workout days per week.";
+            if (daysAvailable < 2 || daysAvailable > 5)
+            {
+                ViewBag.Error =
+                    "Please select between 2 and 5 workout days per week.";
 
-        return View("AIWorkout");
-    }
+                return View("AIWorkout");
+            }
 
-    var profile = await _context.WorkoutProfiles
-        .FirstOrDefaultAsync(p => p.MemberId == memberId);
+            var profile =
+                await _context.WorkoutProfiles
+                    .FirstOrDefaultAsync(p => p.MemberId == memberId);
 
-    if (profile == null)
-    {
-        ViewBag.Error =
-            "Please complete your Fitness Profile before creating an AI programme.";
+            if (profile == null)
+            {
+                ViewBag.Error =
+                    "Please complete your Fitness Profile before creating an AI programme.";
 
-        return RedirectToAction("Create", "WorkoutProfile");
-    }
+                return RedirectToAction(
+                    "Create",
+                    "WorkoutProfile");
+            }
 
-    var validLevels = new[]
-    {
-        "Beginner",
-        "Intermediate",
-        "Pro"
-    };
+            var validLevels = new[]
+            {
+                "Beginner",
+                "Intermediate",
+                "Pro"
+            };
 
-    var validGoals = new[]
-    {
-        "General fitness",
-        "Strength",
-        "Endurance",
-        "Mobility and flexibility"
-    };
+            var validGoals = new[]
+            {
+                "General fitness",
+                "Strength",
+                "Endurance",
+                "Mobility and flexibility"
+            };
 
-    var fitnessLevel =
-        validLevels.FirstOrDefault(
-            l => l.Equals(
-                profile.FitnessLevel?.Trim(),
-                StringComparison.OrdinalIgnoreCase));
+            var fitnessLevel =
+                validLevels.FirstOrDefault(
+                    l => l.Equals(
+                        profile.FitnessLevel?.Trim(),
+                        StringComparison.OrdinalIgnoreCase));
 
-    var fitnessGoal =
-        validGoals.FirstOrDefault(
-            g => g.Equals(
-                profile.Goal?.Trim(),
-                StringComparison.OrdinalIgnoreCase));
+            var fitnessGoal =
+                validGoals.FirstOrDefault(
+                    g => g.Equals(
+                        profile.Goal?.Trim(),
+                        StringComparison.OrdinalIgnoreCase));
 
             if (fitnessLevel == null || fitnessGoal == null)
             {
@@ -160,63 +163,64 @@ public async Task<IActionResult> GenerateWorkout(
                 return View("AIWorkout");
             }
 
-            var exerciseLibrary = await _context.Exercises
-        .OrderBy(e => e.ExerciseId)
-        .ToListAsync();
+            var exerciseLibrary =
+                await _context.Exercises
+                    .OrderBy(e => e.ExerciseId)
+                    .ToListAsync();
 
-    if (exerciseLibrary.Count == 0)
-    {
-        ViewBag.Error =
-            "The gym exercise library is currently empty.";
+            if (exerciseLibrary.Count == 0)
+            {
+                ViewBag.Error =
+                    "The gym exercise library is currently empty.";
 
-        return View("AIWorkout");
-    }
+                return View("AIWorkout");
+            }
 
-    string exerciseLibraryText =
-        string.Join(
-            "\n",
-            exerciseLibrary.Select(
-                e =>
-                    $"- {e.ExerciseName} | Difficulty: {e.Difficulty} | Category: {e.Category} | Muscle group: {e.MuscleGroup}"));
+            string exerciseLibraryText =
+                string.Join(
+                    "\n",
+                    exerciseLibrary.Select(
+                        e =>
+                            $"- {e.ExerciseName} | Difficulty: {e.Difficulty} | Category: {e.Category} | Muscle group: {e.MuscleGroup}"));
 
-    string exercisePreference =
-        string.IsNullOrWhiteSpace(preferredExercises)
-            ? "No specific exercise preference."
-            : preferredExercises.Trim();
+            string exercisePreference =
+                string.IsNullOrWhiteSpace(preferredExercises)
+                    ? "No specific exercise preference."
+                    : preferredExercises.Trim();
 
-    string prompt =
-        "You are the Fitness AI assistant for DUT Campus FIT Gym.\n\n" +
-        "Create a safe, progressive four-week workout programme for a gym member.\n\n" +
-        $"Fitness level: {fitnessLevel}\n" +
-        $"Fitness goal: {fitnessGoal}\n" +
-        $"Workout days per week: {daysAvailable}\n" +
-        $"Preferred exercises: {exercisePreference}\n\n" +
-        "The programme must contain exactly 4 weeks.\n" +
-        $"Each week must contain exactly {daysAvailable} distinct workout days.\n" +
-        "Each workout day should contain between 2 and 4 exercises.\n\n" +
-        "IMPORTANT EXERCISE RULE:\n" +
-        "You MUST use exercise names exactly as they appear in the supplied gym exercise library.\n" +
-        "Do not invent, rename, abbreviate, pluralise, or substitute exercise names.\n\n" +
-        "AVAILABLE GYM EXERCISES:\n" +
-        exerciseLibraryText +
-        "\n\n" +
-        "PROGRESSION RULES:\n" +
-        "- Week 1 should establish a manageable starting workload.\n" +
-        "- Week 2 may make a small progression where appropriate.\n" +
-        "- Week 3 may provide another reasonable progression.\n" +
-        "- Week 4 should remain challenging but manageable.\n" +
-        "- Do not use extreme exercise volume.\n" +
-        "- Do not create dangerous challenges.\n" +
-        "- Respect the member's fitness level.\n" +
-        "- Respect the member's fitness goal.\n" +
-        "- Include recovery days by leaving days outside the selected workout days.\n" +
-        "- Do not include warm-ups or cool-downs as exercises.\n" +
-        "- Sets must be between 1 and 5.\n" +
-        "- Repetitions must be between 1 and 20.\n" +
-        "- RestTime must be between 30 and 180 seconds.\n" +
-        "- Keep descriptions short and practical.\n" +
-        "- Do not provide medical treatment or injury rehabilitation.\n\n" +
-        "Return only the programme exercises.";
+            string prompt =
+                "You are the Fitness AI assistant for DUT Campus FIT Gym.\n\n" +
+                "Create a safe, progressive four-week workout programme for a gym member.\n\n" +
+                $"Fitness level: {fitnessLevel}\n" +
+                $"Fitness goal: {fitnessGoal}\n" +
+                $"Workout days per week: {daysAvailable}\n" +
+                $"Preferred exercises: {exercisePreference}\n\n" +
+                "The programme must contain exactly 4 weeks.\n" +
+                $"Each week must contain exactly {daysAvailable} distinct workout days.\n" +
+                "Each workout day should contain between 2 and 4 exercises.\n\n" +
+                "IMPORTANT EXERCISE RULE:\n" +
+                "You MUST use exercise names exactly as they appear in the supplied gym exercise library.\n" +
+                "Do not invent, rename, abbreviate, pluralise, or substitute exercise names.\n\n" +
+                "AVAILABLE GYM EXERCISES:\n" +
+                exerciseLibraryText +
+                "\n\n" +
+                "PROGRESSION RULES:\n" +
+                "- Week 1 should establish a manageable starting workload.\n" +
+                "- Week 2 may make a small progression where appropriate.\n" +
+                "- Week 3 may provide another reasonable progression.\n" +
+                "- Week 4 should remain challenging but manageable.\n" +
+                "- Do not use extreme exercise volume.\n" +
+                "- Do not create dangerous challenges.\n" +
+                "- Respect the member's fitness level.\n" +
+                "- Respect the member's fitness goal.\n" +
+                "- Include recovery days by leaving days outside the selected workout days.\n" +
+                "- Do not include warm-ups or cool-downs as exercises.\n" +
+                "- Sets must be between 1 and 5.\n" +
+                "- Repetitions must be between 1 and 20.\n" +
+                "- RestTime must be between 30 and 180 seconds.\n" +
+                "- Keep descriptions short and practical.\n" +
+                "- Do not provide medical treatment or injury rehabilitation.\n\n" +
+                "Return only the programme exercises.";
 
             var responseSchema = new
             {
@@ -256,400 +260,417 @@ public async Task<IActionResult> GenerateWorkout(
                         }
                     },
                     required = new[]
-                {
-            "weekNumber",
-            "workoutDay",
-            "exerciseName",
-            "sets",
-            "repetitions",
-            "restTime",
-            "description"
-        }
+                    {
+                        "weekNumber",
+                        "workoutDay",
+                        "exerciseName",
+                        "sets",
+                        "repetitions",
+                        "restTime",
+                        "description"
+                    }
                 }
             };
 
             var requestBody = new
-    {
-        contents = new[]
-        {
-            new
             {
-                parts = new[]
+                contents = new[]
                 {
                     new
                     {
-                        text = prompt
+                        parts = new[]
+                        {
+                            new
+                            {
+                                text = prompt
+                            }
+                        }
+                    }
+                },
+                generationConfig = new
+                {
+                    responseMimeType = "application/json",
+                    responseSchema = responseSchema
+                }
+            };
+
+            string json =
+                JsonSerializer.Serialize(requestBody);
+
+            var client =
+                _httpClientFactory.CreateClient();
+
+            string url =
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent";
+
+            using var request =
+                new HttpRequestMessage(
+                    HttpMethod.Post,
+                    url);
+
+            request.Headers.Add(
+                "x-goog-api-key",
+                _configuration["GeminiApiKey"]?.Trim() ?? "");
+
+            request.Content =
+                new StringContent(
+                    json,
+                    Encoding.UTF8,
+                    "application/json");
+
+            try
+            {
+                var response =
+                    await client.SendAsync(request);
+
+                string responseContent =
+                    await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    ViewBag.Error =
+                        $"Gemini error {(int)response.StatusCode}: {responseContent}";
+
+                    return View("AIWorkout");
+                }
+
+                using JsonDocument document =
+                    JsonDocument.Parse(responseContent);
+
+                if (!document.RootElement.TryGetProperty(
+                        "candidates",
+                        out JsonElement candidates) ||
+                    candidates.GetArrayLength() == 0)
+                {
+                    ViewBag.Error =
+                        "Gemini did not return any programme data.";
+
+                    return View("AIWorkout");
+                }
+
+                var candidate =
+                    candidates[0];
+
+                if (!candidate.TryGetProperty(
+                        "content",
+                        out JsonElement content) ||
+                    !content.TryGetProperty(
+                        "parts",
+                        out JsonElement parts))
+                {
+                    ViewBag.Error =
+                        "Gemini returned a response without usable programme content.";
+
+                    return View("AIWorkout");
+                }
+
+                string aiText = "";
+
+                foreach (var part in parts.EnumerateArray())
+                {
+                    if (part.TryGetProperty(
+                            "text",
+                            out JsonElement text))
+                    {
+                        aiText =
+                            text.GetString() ?? "";
+
+                        break;
                     }
                 }
-            }
-        },
-        generationConfig = new
-        {
-            responseMimeType = "application/json",
-            responseSchema = responseSchema
-        }
-    };
 
-    string json =
-        JsonSerializer.Serialize(requestBody);
-
-    var client =
-        _httpClientFactory.CreateClient();
-
-    string url =
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent";
-
-    using var request =
-        new HttpRequestMessage(
-            HttpMethod.Post,
-            url);
-
-    request.Headers.Add(
-        "x-goog-api-key",
-        _configuration["GeminiApiKey"]?.Trim() ?? "");
-
-    request.Content =
-        new StringContent(
-            json,
-            Encoding.UTF8,
-            "application/json");
-
-    try
-    {
-        var response =
-            await client.SendAsync(request);
-
-        string responseContent =
-            await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode)
-        {
-            ViewBag.Error =
-                $"Gemini error {(int)response.StatusCode}: {responseContent}";
-
-            return View("AIWorkout");
-        }
-
-        using JsonDocument document =
-            JsonDocument.Parse(responseContent);
-
-        if (!document.RootElement.TryGetProperty(
-                "candidates",
-                out JsonElement candidates) ||
-            candidates.GetArrayLength() == 0)
-        {
-            ViewBag.Error =
-                "Gemini did not return any programme data.";
-
-            return View("AIWorkout");
-        }
-
-        var candidate =
-            candidates[0];
-
-        if (!candidate.TryGetProperty(
-                "content",
-                out JsonElement content) ||
-            !content.TryGetProperty(
-                "parts",
-                out JsonElement parts))
-        {
-            ViewBag.Error =
-                "Gemini returned a response without usable programme content.";
-
-            return View("AIWorkout");
-        }
-
-        string aiText = "";
-
-        foreach (var part in parts.EnumerateArray())
-        {
-            if (part.TryGetProperty(
-                    "text",
-                    out JsonElement text))
-            {
-                aiText =
-                    text.GetString() ?? "";
-
-                break;
-            }
-        }
-
-        if (string.IsNullOrWhiteSpace(aiText))
-        {
-            ViewBag.Error =
-                "Gemini returned an empty programme.";
-
-            return View("AIWorkout");
-        }
-
-        aiText = aiText
-            .Replace("```json", "")
-            .Replace("```", "")
-            .Trim();
-
-        var exercises =
-            JsonSerializer.Deserialize<
-                List<AIWorkoutExerciseViewModel>>(
-                aiText,
-                new JsonSerializerOptions
+                if (string.IsNullOrWhiteSpace(aiText))
                 {
-                    PropertyNameCaseInsensitive = true
-                });
+                    ViewBag.Error =
+                        "Gemini returned an empty programme.";
 
-        if (exercises == null ||
-            exercises.Count == 0)
-        {
-            ViewBag.Error =
-                "Gemini returned an empty or invalid programme.";
+                    return View("AIWorkout");
+                }
 
-            return View("AIWorkout");
-        }
+                aiText = aiText
+                    .Replace("```json", "")
+                    .Replace("```", "")
+                    .Trim();
 
-        if (exercises.Any(e =>
-                e.WorkoutDay == null ||
-                e.ExerciseName == null ||
-                e.Sets < 1 ||
-                e.Sets > 5 ||
-                e.Repetitions < 1 ||
-                e.Repetitions > 20 ||
-                e.RestTime < 30 ||
-                e.RestTime > 180))
-        {
-            ViewBag.Error =
-                "Gemini generated exercises outside the allowed limits.";
+                var exercises =
+                    JsonSerializer.Deserialize<
+                        List<AIWorkoutExerciseViewModel>>(
+                        aiText,
+                        new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
 
-            return View("AIWorkout");
-        }
+                if (exercises == null ||
+                    exercises.Count == 0)
+                {
+                    ViewBag.Error =
+                        "Gemini returned an empty or invalid programme.";
 
-        var validExerciseNames =
-            exerciseLibrary
-                .Select(e => e.ExerciseName)
-                .ToHashSet(
-                    StringComparer.OrdinalIgnoreCase);
+                    return View("AIWorkout");
+                }
 
-        var invalidExercises =
-            exercises
-                .Where(e =>
-                    !validExerciseNames.Contains(
-                        e.ExerciseName.Trim()))
-                .Select(e => e.ExerciseName.Trim())
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
+                if (exercises.Any(e =>
+                        e.WeekNumber < 1 ||
+                        e.WeekNumber > 4 ||
+                        string.IsNullOrWhiteSpace(e.WorkoutDay) ||
+                        string.IsNullOrWhiteSpace(e.ExerciseName) ||
+                        e.Sets < 1 ||
+                        e.Sets > 5 ||
+                        e.Repetitions < 1 ||
+                        e.Repetitions > 20 ||
+                        e.RestTime < 30 ||
+                        e.RestTime > 180))
+                {
+                    ViewBag.Error =
+                        "Gemini generated exercises outside the allowed limits.";
 
-        if (invalidExercises.Any())
-        {
-            ViewBag.Error =
-                "Gemini generated exercises that are not available in the gym exercise library. Please try again.";
+                    return View("AIWorkout");
+                }
 
-            return View("AIWorkout");
-        }
+                var validExerciseNames =
+                    exerciseLibrary
+                        .Select(e => e.ExerciseName)
+                        .ToHashSet(
+                            StringComparer.OrdinalIgnoreCase);
 
-        for (int week = 1; week <= 4; week++)
-        {
-            var weekExercises =
-                exercises
-                    .Where(e => e.WeekNumber == week)
-                    .ToList();
+                var invalidExercises =
+                    exercises
+                        .Where(e =>
+                            !validExerciseNames.Contains(
+                                e.ExerciseName.Trim()))
+                        .Select(e =>
+                            e.ExerciseName.Trim())
+                        .Distinct(
+                            StringComparer.OrdinalIgnoreCase)
+                        .ToList();
 
-            var weekDays =
-                weekExercises
-                    .Select(e => e.WorkoutDay.Trim())
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .Count();
+                if (invalidExercises.Any())
+                {
+                    ViewBag.Error =
+                        "Gemini generated exercises that are not available in the gym exercise library. Please try again.";
 
-            if (weekDays != daysAvailable)
+                    return View("AIWorkout");
+                }
+
+                for (int week = 1; week <= 4; week++)
+                {
+                    var weekExercises =
+                        exercises
+                            .Where(e => e.WeekNumber == week)
+                            .ToList();
+
+                    var weekDays =
+                        weekExercises
+                            .Select(e => e.WorkoutDay.Trim())
+                            .Distinct(
+                                StringComparer.OrdinalIgnoreCase)
+                            .Count();
+
+                    if (weekDays != daysAvailable)
+                    {
+                        ViewBag.Error =
+                            $"Week {week} contains {weekDays} workout days instead of {daysAvailable}. Please try again.";
+
+                        return View("AIWorkout");
+                    }
+                }
+
+                ViewBag.FitnessLevel = fitnessLevel;
+                ViewBag.FitnessGoal = fitnessGoal;
+                ViewBag.DaysAvailable = daysAvailable;
+
+                return View(
+                    "AIWorkoutResult",
+                    exercises);
+            }
+            catch (JsonException ex)
             {
                 ViewBag.Error =
-                    $"Week {week} contains {weekDays} workout days instead of {daysAvailable}. Please try again.";
+                    $"JSON processing error: {ex.Message}";
+
+                return View("AIWorkout");
+            }
+            catch (HttpRequestException ex)
+            {
+                ViewBag.Error =
+                    $"HTTP request error: {ex.Message}";
+
+                return View("AIWorkout");
+            }
+            catch (TaskCanceledException ex)
+            {
+                ViewBag.Error =
+                    $"The Gemini request timed out: {ex.Message}";
+
+                return View("AIWorkout");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error =
+                    $"Unexpected error: {ex.Message}";
 
                 return View("AIWorkout");
             }
         }
 
-        ViewBag.FitnessLevel =
-            fitnessLevel;
-
-        ViewBag.FitnessGoal =
-            fitnessGoal;
-
-        ViewBag.DaysAvailable =
-            daysAvailable;
-
-        return View(
-            "AIWorkoutResult",
-            exercises);
-    }
-    catch (JsonException ex)
-    {
-        ViewBag.Error =
-            $"JSON processing error: {ex.Message}";
-
-        return View("AIWorkout");
-    }
-    catch (HttpRequestException ex)
-    {
-        ViewBag.Error =
-            $"HTTP request error: {ex.Message}";
-
-        return View("AIWorkout");
-    }
-    catch (TaskCanceledException ex)
-    {
-        ViewBag.Error =
-            $"The Gemini request timed out: {ex.Message}";
-
-        return View("AIWorkout");
-    }
-    catch (Exception ex)
-    {
-        ViewBag.Error =
-            $"Unexpected error: {ex.Message}";
-
-        return View("AIWorkout");
-    }
-}
-
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> SaveWorkout(
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveWorkout(
     List<AIWorkoutExerciseViewModel> exercises,
     string fitnessLevel,
     string fitnessGoal,
     int daysAvailable)
-{
-    var memberIdClaim =
-        User.FindFirstValue(ClaimTypes.NameIdentifier);
+        {
+            var memberIdClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    if (!int.TryParse(memberIdClaim, out int currentMemberId))
-        return RedirectToAction("Login", "Account");
+            if (!int.TryParse(memberIdClaim, out int currentMemberId))
+                return RedirectToAction("Login", "Account");
 
-    if (exercises == null || exercises.Count == 0)
-        return RedirectToAction("AIWorkout");
+            if (exercises == null || exercises.Count == 0)
+                return RedirectToAction("AIWorkout");
 
-    var profile =
-        await _context.WorkoutProfiles
-            .FirstOrDefaultAsync(
-                p => p.MemberId == currentMemberId);
+            var profile =
+                await _context.WorkoutProfiles
+                    .FirstOrDefaultAsync(
+                        p => p.MemberId == currentMemberId);
 
-    if (profile == null)
-        return RedirectToAction(
-            "Create",
-            "WorkoutProfile");
+            if (profile == null)
+            {
+                return RedirectToAction(
+                    "Create",
+                    "WorkoutProfile");
+            }
 
-    var validLevels = new[]
-    {
+            var validLevels = new[]
+            {
         "Beginner",
         "Intermediate",
         "Pro"
     };
 
-    var validGoals = new[]
-    {
+            var validGoals = new[]
+            {
         "General fitness",
         "Strength",
         "Endurance",
         "Mobility and flexibility"
     };
 
-    var actualLevel =
-        validLevels.FirstOrDefault(
-            l => l.Equals(
-                profile.FitnessLevel?.Trim(),
-                StringComparison.OrdinalIgnoreCase))
-        ?? "Beginner";
+            var actualLevel =
+                validLevels.FirstOrDefault(
+                    l => l.Equals(
+                        profile.FitnessLevel?.Trim(),
+                        StringComparison.OrdinalIgnoreCase))
+                ?? "Beginner";
 
-    var actualGoal =
-        validGoals.FirstOrDefault(
-            g => g.Equals(
-                profile.Goal?.Trim(),
-                StringComparison.OrdinalIgnoreCase))
-        ?? "General fitness";
+            var actualGoal =
+                validGoals.FirstOrDefault(
+                    g => g.Equals(
+                        profile.Goal?.Trim(),
+                        StringComparison.OrdinalIgnoreCase))
+                ?? "General fitness";
 
-    if (daysAvailable < 2 || daysAvailable > 5)
-        return RedirectToAction("AIWorkout");
+            if (daysAvailable < 2 || daysAvailable > 5)
+                return RedirectToAction("AIWorkout");
 
-    if (exercises.Any(e =>
-            e.WeekNumber < 1 ||
-            e.WeekNumber > 4))
-        return RedirectToAction("AIWorkout");
-
-    var exerciseLibrary =
-        await _context.Exercises.ToListAsync();
-
-    var programme =
-        new WorkoutProgramme
-        {
-            MemberId = currentMemberId,
-            ProgrammeName =
-                $"{actualLevel} {actualGoal} Programme",
-            FitnessLevel = actualLevel,
-            Goal = actualGoal,
-            StartDate = DateTime.Today,
-            EndDate = DateTime.Today.AddDays(27),
-            IsCompleted = false,
-            CreatedAt = DateTime.Now
-        };
-
-    _context.WorkoutProgrammes.Add(programme);
-
-    await _context.SaveChangesAsync();
-
-    foreach (var exercise in exercises)
-    {
-        var libraryExercise =
-            exerciseLibrary.FirstOrDefault(
-                e => e.ExerciseName.Equals(
-                    exercise.ExerciseName.Trim(),
-                    StringComparison.OrdinalIgnoreCase));
-
-        if (libraryExercise == null)
-            continue;
-
-        _context.WorkoutPlans.Add(
-            new WorkoutPlan
+            if (exercises.Any(e =>
+                    e.WeekNumber < 1 ||
+                    e.WeekNumber > 4 ||
+                    string.IsNullOrWhiteSpace(e.WorkoutDay) ||
+                    string.IsNullOrWhiteSpace(e.ExerciseName) ||
+                    e.Sets < 1 ||
+                    e.Sets > 5 ||
+                    e.Repetitions < 1 ||
+                    e.Repetitions > 20 ||
+                    e.RestTime < 30 ||
+                    e.RestTime > 180))
             {
-                MemberId = currentMemberId,
-                WorkoutProgrammeId =
-                    programme.WorkoutProgrammeId,
-                WorkoutName =
-                    programme.ProgrammeName,
-                Level = actualLevel,
-                WorkoutDay =
-                    exercise.WorkoutDay.Trim(),
-                WeekNumber =
-                    exercise.WeekNumber,
-                ExerciseId =
-                    libraryExercise.ExerciseId,
-                Sets =
-                    Math.Clamp(
-                        exercise.Sets,
-                        1,
-                        5),
-                Repetitions =
-                    Math.Clamp(
-                        exercise.Repetitions,
-                        1,
-                        20),
-                RestTime =
-                    Math.Clamp(
-                        exercise.RestTime,
-                        30,
-                        180),
-                Description =
-                    string.IsNullOrWhiteSpace(
-                        exercise.Description)
-                        ? libraryExercise.Description
-                        : exercise.Description.Trim()
-            });
-    }
+                return RedirectToAction("AIWorkout");
+            }
 
-    await _context.SaveChangesAsync();
+            var exerciseLibrary =
+                await _context.Exercises.ToListAsync();
 
-    return RedirectToAction(
-        "MyWorkout",
-        "Workout");
-}
+            if (exerciseLibrary.Count == 0)
+                return RedirectToAction("AIWorkout");
+
+            var programme =
+                new WorkoutProgramme
+                {
+                    MemberId = currentMemberId,
+                    ProgrammeName =
+                        $"{actualLevel} {actualGoal} Programme",
+                    FitnessLevel = actualLevel,
+                    Goal = actualGoal,
+                    StartDate = DateTime.Today,
+                    EndDate = DateTime.Today.AddDays(27),
+                    IsCompleted = false,
+                    CreatedAt = DateTime.Now
+                };
+
+            _context.WorkoutProgrammes.Add(programme);
+
+            await _context.SaveChangesAsync();
+
+            foreach (var exercise in exercises)
+            {
+                var libraryExercise =
+                    exerciseLibrary.FirstOrDefault(
+                        e => e.ExerciseName.Equals(
+                            exercise.ExerciseName.Trim(),
+                            StringComparison.OrdinalIgnoreCase));
+
+                if (libraryExercise == null)
+                    continue;
+
+                _context.WorkoutPlans.Add(
+    new WorkoutPlan
+    {
+        MemberId = currentMemberId,
+        WorkoutProgrammeId =
+            programme.WorkoutProgrammeId,
+        WorkoutName =
+            programme.ProgrammeName,
+        ExerciseName =
+            libraryExercise.ExerciseName,
+        Level = actualLevel,
+        WorkoutDay =
+            exercise.WorkoutDay.Trim(),
+        WeekNumber =
+            exercise.WeekNumber,
+        ExerciseId =
+            libraryExercise.ExerciseId,
+        Sets =
+            Math.Clamp(
+                exercise.Sets,
+                1,
+                5),
+        Repetitions =
+            Math.Clamp(
+                exercise.Repetitions,
+                1,
+                20),
+        RestTime =
+            Math.Clamp(
+                exercise.RestTime,
+                30,
+                180),
+        Description =
+            string.IsNullOrWhiteSpace(
+                exercise.Description)
+                ? libraryExercise.Description
+                : exercise.Description.Trim()
+    });
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(
+                "MyWorkout",
+                "Workout");
+        }
 
         [HttpGet]
         public async Task<IActionResult> AIMeal()
@@ -678,18 +699,18 @@ public async Task<IActionResult> SaveWorkout(
 
             var validLevels = new[]
             {
-        "Beginner",
-        "Intermediate",
-        "Pro"
-    };
+                "Beginner",
+                "Intermediate",
+                "Pro"
+            };
 
             var validGoals = new[]
             {
-        "General fitness",
-        "Strength",
-        "Endurance",
-        "Mobility and flexibility"
-    };
+                "General fitness",
+                "Strength",
+                "Endurance",
+                "Mobility and flexibility"
+            };
 
             var fitnessLevel =
                 validLevels.FirstOrDefault(
@@ -714,11 +735,8 @@ public async Task<IActionResult> SaveWorkout(
                 return View();
             }
 
-            ViewBag.FitnessLevel =
-                fitnessLevel;
-
-            ViewBag.FitnessGoal =
-                fitnessGoal;
+            ViewBag.FitnessLevel = fitnessLevel;
+            ViewBag.FitnessGoal = fitnessGoal;
 
             return View();
         }
@@ -753,18 +771,18 @@ public async Task<IActionResult> SaveWorkout(
 
             var validLevels = new[]
             {
-        "Beginner",
-        "Intermediate",
-        "Pro"
-    };
+                "Beginner",
+                "Intermediate",
+                "Pro"
+            };
 
             var validGoals = new[]
             {
-        "General fitness",
-        "Strength",
-        "Endurance",
-        "Mobility and flexibility"
-    };
+                "General fitness",
+                "Strength",
+                "Endurance",
+                "Mobility and flexibility"
+            };
 
             var fitnessLevel =
                 validLevels.FirstOrDefault(
@@ -797,17 +815,13 @@ public async Task<IActionResult> SaveWorkout(
                 ViewBag.Error =
                     "The Fitness AI service is not configured. GeminiApiKey was not found.";
 
-                ViewBag.FitnessLevel =
-                    fitnessLevel;
-
-                ViewBag.FitnessGoal =
-                    fitnessGoal;
+                ViewBag.FitnessLevel = fitnessLevel;
+                ViewBag.FitnessGoal = fitnessGoal;
 
                 return View("AIMeal");
             }
 
-            apiKey =
-                apiKey.Trim();
+            apiKey = apiKey.Trim();
 
             string preferences =
                 string.IsNullOrWhiteSpace(foodPreferences)
@@ -893,12 +907,12 @@ public async Task<IActionResult> SaveWorkout(
                     },
                     required = new[]
                     {
-                "mealType",
-                "mealName",
-                "description",
-                "ingredients",
-                "preparation"
-            }
+                        "mealType",
+                        "mealName",
+                        "description",
+                        "ingredients",
+                        "preparation"
+                    }
                 }
             };
 
@@ -906,17 +920,17 @@ public async Task<IActionResult> SaveWorkout(
             {
                 contents = new[]
                 {
-            new
-            {
-                parts = new[]
-                {
                     new
                     {
-                        text = prompt
+                        parts = new[]
+                        {
+                            new
+                            {
+                                text = prompt
+                            }
+                        }
                     }
-                }
-            }
-        },
+                },
                 generationConfig = new
                 {
                     responseMimeType = "application/json",
@@ -961,11 +975,8 @@ public async Task<IActionResult> SaveWorkout(
                     ViewBag.Error =
                         $"Gemini error {(int)response.StatusCode}: {responseContent}";
 
-                    ViewBag.FitnessLevel =
-                        fitnessLevel;
-
-                    ViewBag.FitnessGoal =
-                        fitnessGoal;
+                    ViewBag.FitnessLevel = fitnessLevel;
+                    ViewBag.FitnessGoal = fitnessGoal;
 
                     return View("AIMeal");
                 }
@@ -1048,11 +1059,11 @@ public async Task<IActionResult> SaveWorkout(
 
                 var validMealTypes = new[]
                 {
-            "Breakfast",
-            "Lunch",
-            "Snack",
-            "Dinner"
-        };
+                    "Breakfast",
+                    "Lunch",
+                    "Snack",
+                    "Dinner"
+                };
 
                 meals =
                     meals
@@ -1092,17 +1103,10 @@ public async Task<IActionResult> SaveWorkout(
                     return View("AIMeal");
                 }
 
-                ViewBag.FitnessLevel =
-                    fitnessLevel;
-
-                ViewBag.FitnessGoal =
-                    fitnessGoal;
-
-                ViewBag.FoodPreferences =
-                    preferences;
-
-                ViewBag.DietaryPreference =
-                    diet;
+                ViewBag.FitnessLevel = fitnessLevel;
+                ViewBag.FitnessGoal = fitnessGoal;
+                ViewBag.FoodPreferences = preferences;
+                ViewBag.DietaryPreference = diet;
 
                 return View(
                     "AIMealResult",
@@ -1180,11 +1184,11 @@ public async Task<IActionResult> SaveWorkout(
 
             var validGoals = new[]
             {
-        "General fitness",
-        "Strength",
-        "Endurance",
-        "Mobility and flexibility"
-    };
+                "General fitness",
+                "Strength",
+                "Endurance",
+                "Mobility and flexibility"
+            };
 
             var fitnessGoal =
                 validGoals.FirstOrDefault(
@@ -1201,11 +1205,11 @@ public async Task<IActionResult> SaveWorkout(
 
             var validMealTypes = new[]
             {
-        "Breakfast",
-        "Lunch",
-        "Snack",
-        "Dinner"
-    };
+                "Breakfast",
+                "Lunch",
+                "Snack",
+                "Dinner"
+            };
 
             var validMeals =
                 meals
