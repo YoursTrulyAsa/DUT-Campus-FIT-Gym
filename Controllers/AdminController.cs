@@ -826,5 +826,148 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return RedirectToAction(
                 nameof(Announcements));
         }
+
+        // ============================================================
+        // PB18 - FINANCIAL MANAGEMENT
+        // ============================================================
+
+        [HttpGet]
+        public async Task<IActionResult> FinancialManagement()
+        {
+            var today = DateTime.Today;
+
+            // Get all active memberships
+            var activeMemberships = await _context.Memberships
+                .Where(m =>
+                    m.Status == "Active" &&
+                    m.EndDate.HasValue &&
+                    m.EndDate.Value.Date >= today)
+                .Include(m => m.Member)
+                .OrderByDescending(m => m.MembershipId)
+                .ToListAsync();
+
+            // Get memberships recorded as paid
+            var paidMemberships = await _context.Memberships
+                .Where(m => m.PaymentStatus == "Paid")
+                .Include(m => m.Member)
+                .OrderByDescending(m => m.PaymentDate)
+                .ToListAsync();
+
+            var model = new FinancialManagementViewModel
+            {
+                // Financial totals based on active memberships
+                PaidRevenue = activeMemberships.Sum(m => m.Price),
+
+                TotalPayments = activeMemberships.Count,
+
+                StudentPaidRevenue = activeMemberships
+                    .Where(m =>
+                        m.Member != null &&
+                        m.Member.Role == "Student")
+                    .Sum(m => m.Price),
+
+                StaffPaidRevenue = activeMemberships
+                    .Where(m =>
+                        m.Member != null &&
+                        m.Member.Role == "Staff")
+                    .Sum(m => m.Price),
+
+                // Active membership totals
+                ActiveMemberships = activeMemberships.Count,
+
+                ActiveMembershipValue = activeMemberships
+                    .Sum(m => m.Price),
+
+                ActiveStudentMemberships = activeMemberships
+                    .Count(m =>
+                        m.Member != null &&
+                        m.Member.Role == "Student"),
+
+                ActiveStaffMemberships = activeMemberships
+                    .Count(m =>
+                        m.Member != null &&
+                        m.Member.Role == "Staff"),
+
+                // Keep the completed payment list
+                Payments = paidMemberships
+            };
+
+            return View(model);
+        }
+
+
+        // ============================================================
+        // PB19 - ATTENDANCE REPORT
+        // ============================================================
+
+        [HttpGet]
+        public async Task<IActionResult> AttendanceReport()
+        {
+            var today = DateTime.Today;
+
+            var firstDayOfMonth =
+                new DateTime(today.Year, today.Month, 1);
+
+            var attendances = await _context.Attendances
+                .Include(a => a.Member)
+                .OrderByDescending(a => a.CheckInTime)
+                .ToListAsync();
+
+            var model = new AttendanceReportViewModel
+            {
+                TotalVisits = attendances.Count,
+
+                CurrentMonthVisits = attendances
+                    .Count(a => a.CheckInTime >= firstDayOfMonth),
+
+                TodayVisits = attendances
+                    .Count(a => a.CheckInTime.Date == today),
+
+                Attendances = attendances
+            };
+
+            return View(model);
+        }
+
+
+        // ============================================================
+        // PB19 - MEMBERSHIP REPORT
+        // ============================================================
+
+        [HttpGet]
+        public async Task<IActionResult> MembershipReport()
+        {
+            var memberships = await _context.Memberships
+                .Include(m => m.Member)
+                .OrderByDescending(m => m.MembershipId)
+                .ToListAsync();
+
+            var today = DateTime.Today;
+
+            var model = new MembershipReportViewModel
+            {
+                TotalMemberships = memberships.Count,
+
+                ActiveMemberships = memberships
+                    .Count(m =>
+                        m.Status == "Active" &&
+                        m.EndDate.HasValue &&
+                        m.EndDate.Value.Date >= today),
+
+                ExpiredMemberships = memberships
+                    .Count(m =>
+                        m.EndDate.HasValue &&
+                        m.EndDate.Value.Date < today),
+
+                WaitingForPayment = memberships
+                    .Count(m =>
+                        m.Status == "WaitingForPayment"),
+
+                Memberships = memberships
+            };
+
+            return View(model);
+        }
     }
+
 }

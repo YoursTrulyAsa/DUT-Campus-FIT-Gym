@@ -1,5 +1,3 @@
-﻿UPDATE dbo.Equipment
-SET EquipmentName = 'Treadmill'
-WHERE EquipmentID = 1;
-
-SELECT * FROM dbo.Equipment;
+﻿SELECT TABLE_NAME
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_NAME = 'MonthlyLeaderboards';

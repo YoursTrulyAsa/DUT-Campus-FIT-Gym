@@ -8,8 +8,8 @@ namespace DUT_Campus_FIT_Gym.Models
         [Key]
         public int WorkoutCompletionId { get; set; }
 
-        [Required]
-        public int WorkoutProgrammeId { get; set; }
+        // Can be NULL for older workout completion records
+        public int? WorkoutProgrammeId { get; set; }
 
         [ForeignKey("WorkoutProgrammeId")]
         public WorkoutProgramme? WorkoutProgramme { get; set; }

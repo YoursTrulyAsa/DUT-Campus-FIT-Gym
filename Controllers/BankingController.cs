@@ -191,43 +191,43 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     $"{baseUrl}{notifyPath}";
 
                 var paymentData =
-                    new Dictionary<string, string>
-                    {
-                        ["merchant_id"] =
-                            _payFast.MerchantId,
+    new Dictionary<string, string>
+    {
+        ["merchant_id"] =
+            _payFast.MerchantId.Trim(),
 
-                        ["merchant_key"] =
-                            _payFast.MerchantKey,
+        ["merchant_key"] =
+            _payFast.MerchantKey.Trim(),
 
-                        ["return_url"] =
-                            returnUrl,
+        ["return_url"] =
+            returnUrl,
 
-                        ["cancel_url"] =
-                            cancelUrl,
+        ["cancel_url"] =
+            cancelUrl,
 
-                        ["notify_url"] =
-                            notifyUrl,
+        ["notify_url"] =
+            notifyUrl,
 
-                        ["name_first"] =
-                            membership.Member.Name,
+        ["name_first"] =
+            membership.Member.Name.Trim(),
 
-                        ["name_last"] =
-                            membership.Member.Surname,
+        ["name_last"] =
+            membership.Member.Surname.Trim(),
 
-                        ["email_address"] =
-                            membership.Member.Email,
+        ["email_address"] =
+            membership.Member.Email.Trim(),
 
-                        ["m_payment_id"] =
-                            paymentId,
+        ["m_payment_id"] =
+            paymentId,
 
-                        ["amount"] =
-                            membership.Price.ToString(
-                                "0.00",
-                                CultureInfo.InvariantCulture),
+        ["amount"] =
+            membership.Price.ToString(
+                "0.00",
+                CultureInfo.InvariantCulture),
 
-                        ["item_name"] =
-                            "DUT Campus FIT Gym Membership"
-                    };
+        ["item_name"] =
+            "DUT Campus FIT Gym Membership"
+    };
 
                 var signature =
                     GenerateSignature(paymentData);
@@ -259,54 +259,68 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         private string GenerateSignature(
-            Dictionary<string, string> data)
+    Dictionary<string, string> data)
         {
-            var parameterString =
-                new StringBuilder();
-
-            foreach (var item in data)
+            var orderedKeys = new[]
             {
-                if (string.IsNullOrWhiteSpace(item.Value))
+        // Merchant details
+        "merchant_id",
+        "merchant_key",
+
+        // URLs
+        "return_url",
+        "cancel_url",
+        "notify_url",
+
+        // Customer details
+        "name_first",
+        "name_last",
+        "email_address",
+
+        // Transaction details
+        "m_payment_id",
+        "amount",
+        "item_name"
+    };
+
+            var parts = new List<string>();
+
+            foreach (var key in orderedKeys)
+            {
+                if (!data.TryGetValue(key, out var value))
                 {
                     continue;
                 }
 
-                var value =
-                    Uri.EscapeDataString(
-                        item.Value.Trim())
-                    .Replace("%20", "+");
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    continue;
+                }
 
-                parameterString.Append(
-                    item.Key);
+                var encodedValue =
+                    Uri.EscapeDataString(value.Trim())
+                        .Replace("%20", "+");
 
-                parameterString.Append("=");
-
-                parameterString.Append(value);
-
-                parameterString.Append("&");
+                parts.Add($"{key}={encodedValue}");
             }
 
             var signatureString =
-                parameterString
-                    .ToString()
-                    .TrimEnd('&');
+                string.Join("&", parts);
 
-            if (!string.IsNullOrWhiteSpace(
-                _payFast.Passphrase))
+            if (!string.IsNullOrWhiteSpace(_payFast.Passphrase))
             {
                 signatureString +=
                     "&passphrase=" +
                     Uri.EscapeDataString(
                         _payFast.Passphrase.Trim())
-                    .Replace("%20", "+");
+                        .Replace("%20", "+");
             }
 
             using var md5 = MD5.Create();
 
             var hash =
                 md5.ComputeHash(
-                    Encoding.UTF8.GetBytes(
-                        signatureString));
+                    Encoding.UTF8.GetBytes(signatureString));
 
             return Convert.ToHexString(hash)
                 .ToLowerInvariant();

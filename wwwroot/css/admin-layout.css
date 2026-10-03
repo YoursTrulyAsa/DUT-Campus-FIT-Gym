@@ -563,3 +563,124 @@ body.admin-sidebar-collapsed .admin-logout {
         .admin-sidebar.collapsed .admin-sidebar-toggle i {
             transform: rotate(180deg);
         }
+
+/* ============================================================
+   COLLAPSIBLE ADMIN SIDEBAR
+   ============================================================ */
+
+.admin-sidebar {
+    transition: width 0.3s ease;
+}
+
+.admin-main {
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+/* Sidebar toggle button */
+
+.admin-sidebar-toggle {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: inherit;
+    transition: transform 0.3s ease;
+}
+
+/* Minimized sidebar */
+
+.admin-sidebar.collapsed {
+    width: 80px;
+}
+
+    /* Hide text when sidebar is minimized */
+
+    .admin-sidebar.collapsed .admin-brand-text,
+    .admin-sidebar.collapsed .admin-profile-info,
+    .admin-sidebar.collapsed .admin-nav-text,
+    .admin-sidebar.collapsed .admin-nav-label,
+    .admin-sidebar.collapsed .admin-logout span:not(.admin-nav-icon) {
+        display: none;
+    }
+
+    /* Center icons */
+
+    .admin-sidebar.collapsed .admin-brand {
+        justify-content: center;
+    }
+
+    .admin-sidebar.collapsed .admin-profile {
+        justify-content: center;
+    }
+
+    .admin-sidebar.collapsed .admin-nav-item {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .admin-sidebar.collapsed .admin-nav-icon {
+        margin-right: 0;
+    }
+
+    .admin-sidebar.collapsed .admin-logout {
+        justify-content: center;
+    }
+
+    .admin-sidebar.collapsed .admin-sidebar-toggle {
+        transform: rotate(180deg);
+    }
+
+    /* Keep the toggle visible */
+
+    .admin-sidebar.collapsed .admin-sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+/* Main content expands when sidebar collapses */
+
+.admin-shell.sidebar-collapsed .admin-main {
+    margin-left: 0;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 991px) {
+
+    .admin-sidebar.collapsed {
+        width: 260px;
+    }
+
+        .admin-sidebar.collapsed .admin-brand-text,
+        .admin-sidebar.collapsed .admin-profile-info,
+        .admin-sidebar.collapsed .admin-nav-text,
+        .admin-sidebar.collapsed .admin-nav-label,
+        .admin-sidebar.collapsed .admin-logout span:not(.admin-nav-icon) {
+            display: block;
+        }
+
+        .admin-sidebar.collapsed .admin-nav-item {
+            justify-content: flex-start;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .admin-sidebar.collapsed .admin-nav-icon {
+            margin-right: 12px;
+        }
+
+        .admin-sidebar.collapsed .admin-brand {
+            justify-content: flex-start;
+        }
+
+        .admin-sidebar.collapsed .admin-profile {
+            justify-content: flex-start;
+        }
+
+        .admin-sidebar.collapsed .admin-logout {
+            justify-content: flex-start;
+        }
+}
