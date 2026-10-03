@@ -4,6 +4,7 @@ using DUT_Campus_FIT_Gym.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DUT_Campus_FIT_Gym.Migrations
 {
     [DbContext(typeof(GymDbContext))]
-    partial class GymDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261001183201_AddTrainerCategoryAndProfilePicture")]
+    partial class AddTrainerCategoryAndProfilePicture
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -809,7 +812,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("WorkoutProgrammeId")
+                    b.Property<int>("WorkoutProgrammeId")
                         .HasColumnType("int");
 
                     b.HasKey("WorkoutCompletionId");
@@ -817,8 +820,7 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasIndex("MemberId");
 
                     b.HasIndex("WorkoutProgrammeId", "WeekNumber", "WorkoutDay")
-                        .IsUnique()
-                        .HasFilter("[WorkoutProgrammeId] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("WorkoutCompletions");
                 });
@@ -1130,7 +1132,8 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasOne("DUT_Campus_FIT_Gym.Models.WorkoutProgramme", "WorkoutProgramme")
                         .WithMany()
                         .HasForeignKey("WorkoutProgrammeId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Member");
 

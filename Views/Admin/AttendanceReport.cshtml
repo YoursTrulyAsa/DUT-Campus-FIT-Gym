@@ -1,0 +1,166 @@
+﻿@model DUT_Campus_FIT_Gym.ViewModels.AttendanceReportViewModel
+
+@{
+    ViewData["Title"] = "Attendance Report";
+}
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1>Attendance Report</h1>
+
+            <p class="text-muted">
+                View gym attendance and member check-ins.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- Statistics -->
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Total Visits
+                    </h6>
+
+                    <h2>
+                        @Model.TotalVisits
+                    </h2>
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        This Month
+                    </h6>
+
+                    <h2>
+                        @Model.CurrentMonthVisits
+                    </h2>
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h6 class="text-muted">
+                        Today's Visits
+                    </h6>
+
+                    <h2>
+                        @Model.TodayVisits
+                    </h2>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Attendance Table -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            <h5 class="mb-0">
+                Attendance Records
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (!Model.Attendances.Any())
+            {
+                <div class="alert alert-info">
+                    No attendance records have been recorded yet.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-hover">
+
+                        <thead>
+
+                            <tr>
+                                <th>Member</th>
+                                <th>Student/Staff No.</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var attendance in Model.Attendances)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @attendance.Member?.Name
+                                        @attendance.Member?.Surname
+                                    </td>
+
+                                    <td>
+                                        @attendance.Member?.StudentNumber
+                                    </td>
+
+                                    <td>
+                                        @attendance.CheckInTime.ToString(
+                                            "dd MMM yyyy, HH:mm")
+                                    </td>
+
+                                    <td>
+                                        @(attendance.CheckOutTime.HasValue
+                                            ? attendance.CheckOutTime.Value.ToString(
+                                                "dd MMM yyyy, HH:mm")
+                                            : "Still checked in")
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>

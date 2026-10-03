@@ -7,6 +7,7 @@
 
 <div class="admin-dashboard">
 
+    
     <div class="admin-dashboard-header">
 
         <div>
@@ -48,6 +49,7 @@
 
     </div>
 
+
     @if (TempData["Success"] != null)
     {
         <div class="admin-alert admin-alert-success">
@@ -75,6 +77,10 @@
         </div>
     }
 
+
+    <!-- =====================================================
+     DASHBOARD STATISTICS
+     ===================================================== -->
 
     <div class="admin-stats">
 
@@ -134,6 +140,7 @@
             <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
 
         </a>
+
 
         <a asp-controller="Admin"
            asp-action="Members"
@@ -253,6 +260,131 @@
     </div>
 
 
+    <!-- =====================================================
+     PB18 + PB19
+     FINANCIAL MANAGEMENT AND REPORTING
+     ===================================================== -->
+
+    <section class="admin-card mt-4">
+
+        <div class="admin-card-heading">
+
+            <div>
+
+                <span class="admin-card-label">
+                    MANAGEMENT & REPORTING
+                </span>
+
+                <h2>
+                    Financial Management & Reports
+                </h2>
+
+                <p>
+                    Monitor gym finances and generate membership
+                    and attendance reports.
+                </p>
+
+            </div>
+
+            <div class="admin-card-icon">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+
+        </div>
+
+
+        <div class="admin-quick-actions">
+
+
+            <!-- FINANCIAL MANAGEMENT -->
+
+            <a asp-controller="Admin"
+               asp-action="FinancialManagement"
+               class="admin-quick-action">
+
+                <div class="admin-quick-icon">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+
+                <div>
+
+                    <strong>
+                        Financial Management
+                    </strong>
+
+                    <span>
+                        Monitor payments and gym revenue
+                    </span>
+
+                </div>
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+
+            <!-- ATTENDANCE REPORT -->
+
+            <a asp-controller="Admin"
+               asp-action="AttendanceReport"
+               class="admin-quick-action">
+
+                <div class="admin-quick-icon">
+                    <i class="fa-solid fa-chart-column"></i>
+                </div>
+
+                <div>
+
+                    <strong>
+                        Attendance Report
+                    </strong>
+
+                    <span>
+                        View member attendance and gym visits
+                    </span>
+
+                </div>
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+
+            <!-- MEMBERSHIP REPORT -->
+
+            <a asp-controller="Admin"
+               asp-action="MembershipReport"
+               class="admin-quick-action">
+
+                <div class="admin-quick-icon">
+                    <i class="fa-solid fa-file-lines"></i>
+                </div>
+
+                <div>
+
+                    <strong>
+                        Membership Report
+                    </strong>
+
+                    <span>
+                        View active, expired and pending memberships
+                    </span>
+
+                </div>
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+     EXISTING DASHBOARD CONTENT
+     ===================================================== -->
+
     <div class="admin-dashboard-grid">
 
         <section class="admin-card quick-actions-card">
@@ -283,6 +415,7 @@
 
 
             <div class="admin-quick-actions">
+
 
                 <a asp-controller="Admin"
                    asp-action="MembershipApplications"
@@ -438,6 +571,10 @@
         </section>
 
 
+        <!-- =====================================================
+         RECENT APPLICATIONS
+         ===================================================== -->
+
         <section class="admin-card recent-applications-card">
 
             <div class="admin-card-heading">
@@ -466,23 +603,23 @@
 
 
             @if (Model.RecentApplications != null &&
-                        Model.RecentApplications.Count > 0)
+                 Model.RecentApplications.Count > 0)
             {
                 <div class="application-list">
 
                     @foreach (var application in Model.RecentApplications)
                     {
                         string applicationStatus =
-                        application.Status ?? "Unknown";
+                            application.Status ?? "Unknown";
 
                         string statusClass =
-                        applicationStatus == "Pending"
-                        ? "pending"
-                        : applicationStatus == "Approved"
-                        ? "approved"
-                        : applicationStatus == "Rejected"
-                        ? "rejected"
-                        : "waiting";
+                            applicationStatus == "Pending"
+                            ? "pending"
+                            : applicationStatus == "Approved"
+                            ? "approved"
+                            : applicationStatus == "Rejected"
+                            ? "rejected"
+                            : "waiting";
 
 
                         <div class="application-item">
@@ -499,11 +636,11 @@
                                 <strong>
 
                                     @(application.Member != null
-                                                                ? application.Member.Name + " " +
-                                                                application.Member.Surname
-                                                                : "Unknown Member")
+                                        ? application.Member.Name + " " +
+                                          application.Member.Surname
+                                        : "Unknown Member")
 
-                        </strong>
+                                </strong>
 
                                 <span>
 
@@ -526,7 +663,7 @@
                             </span>
 
                         </div>
-                                }
+                    }
 
                 </div>
 
@@ -567,14 +704,16 @@
         </section>
 
     </div>
+    
 
 </div>
 
-
 @section Styles {
 
+    
     <link rel="stylesheet"
           href="~/css/admin-dashboard.css"
           asp-append-version="true" />
+    
 
 }

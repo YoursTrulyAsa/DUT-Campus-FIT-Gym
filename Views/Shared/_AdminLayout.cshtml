@@ -210,6 +210,55 @@
                 </span>
 
 
+                <!-- Financial Management -->
+                <a asp-controller="Admin"
+                   asp-action="FinancialManagement"
+                   class="admin-nav-item @(currentController == "Admin" && currentAction == "FinancialManagement" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Financial Management
+                    </span>
+
+                </a>
+
+
+                <!-- Attendance Report -->
+                <a asp-controller="Admin"
+                   asp-action="AttendanceReport"
+                   class="admin-nav-item @(currentController == "Admin" && currentAction == "AttendanceReport" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-chart-column"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Attendance Report
+                    </span>
+
+                </a>
+
+
+                <!-- Membership Report -->
+                <a asp-controller="Admin"
+                   asp-action="MembershipReport"
+                   class="admin-nav-item @(currentController == "Admin" && currentAction == "MembershipReport" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-file-lines"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Membership Report
+                    </span>
+
+                </a>
+
+
+                <!-- Announcements -->
                 <a asp-controller="Admin"
                    asp-action="Announcements"
                    class="admin-nav-item @(currentController == "Admin" && currentAction == "Announcements" ? "active" : "")">
@@ -223,10 +272,12 @@
                     </span>
 
                 </a>
-                
+
+
+                <!-- Add Trainer -->
                 <a asp-controller="Admin"
                    asp-action="AddTrainer"
-                   class="admin-nav-item @(currentAction == "AddTrainer" ? "active" : "")">
+                   class="admin-nav-item @(currentController == "Admin" && currentAction == "AddTrainer" ? "active" : "")">
 
                     <span class="admin-nav-icon">
                         <i class="fa-solid fa-user-plus"></i>
@@ -324,49 +375,61 @@
 
     <script>
 
-        document.addEventListener("DOMContentLoaded", function () {
+            document.addEventListener("DOMContentLoaded", function () {
 
-            const menuButton =
-                document.getElementById("adminMobileMenu");
+                const menuButton =
+                    document.getElementById("adminMobileMenu");
 
-            const sidebar =
-                document.querySelector(".admin-sidebar");
+                const sidebar =
+                    document.querySelector(".admin-sidebar");
 
-            const overlay =
-                document.getElementById("adminOverlay");
+                const overlay =
+                    document.getElementById("adminOverlay");
 
+                const sidebarToggle =
+                    document.getElementById("adminSidebarToggle");
 
-            if (menuButton) {
-
-                menuButton.addEventListener("click", function () {
-
-                    sidebar.classList.toggle("open");
-
-                    overlay.classList.toggle("show");
-
-                });
-
-            }
+                const adminShell =
+                    document.querySelector(".admin-shell");
 
 
-            if (overlay) {
+                /* ============================================================
+                   DESKTOP SIDEBAR COLLAPSE
+                   ============================================================ */
 
-                overlay.addEventListener("click", function () {
+                if (sidebarToggle) {
 
-                    sidebar.classList.remove("open");
+                    sidebarToggle.addEventListener("click", function () {
 
-                    overlay.classList.remove("show");
+                        sidebar.classList.toggle("collapsed");
 
-                });
+                        adminShell.classList.toggle("sidebar-collapsed");
 
-            }
+                    });
+
+                }
 
 
-            document
-                .querySelectorAll(".admin-nav-item")
-                .forEach(function (item) {
+                /* ============================================================
+                   MOBILE SIDEBAR
+                   ============================================================ */
 
-                    item.addEventListener("click", function () {
+                if (menuButton) {
+
+                    menuButton.addEventListener("click", function () {
+
+                        sidebar.classList.toggle("open");
+
+                        overlay.classList.toggle("show");
+
+                    });
+
+                }
+
+
+                if (overlay) {
+
+                    overlay.addEventListener("click", function () {
 
                         sidebar.classList.remove("open");
 
@@ -374,9 +437,28 @@
 
                     });
 
-                });
+                }
 
-        });
+
+                /* ============================================================
+                   CLOSE MOBILE SIDEBAR AFTER CLICKING A LINK
+                   ============================================================ */
+
+                document
+                    .querySelectorAll(".admin-nav-item")
+                    .forEach(function (item) {
+
+                        item.addEventListener("click", function () {
+
+                            sidebar.classList.remove("open");
+
+                            overlay.classList.remove("show");
+
+                        });
+
+                    });
+
+            });
 
     </script>
 
