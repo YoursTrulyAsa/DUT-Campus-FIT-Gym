@@ -4,10 +4,6 @@ namespace DUT_Campus_FIT_Gym.ViewModels
 {
     public class AdminDashboardViewModel
     {
-        // ==========================================
-        // DASHBOARD STATISTICS
-        // ==========================================
-
         public int TotalMembers { get; set; }
 
         public int PendingApplications { get; set; }
@@ -20,12 +16,59 @@ namespace DUT_Campus_FIT_Gym.ViewModels
 
         public int ActiveReservations { get; set; }
 
-
-        // ==========================================
-        // RECENT APPLICATIONS
-        // ==========================================
-
         public List<MembershipApplication> RecentApplications { get; set; }
             = new List<MembershipApplication>();
+
+        public int StudentMembers { get; set; }
+
+        public int StaffMembers { get; set; }
+
+        public int ExpiredMemberships { get; set; }
+
+        public int WaitingForPayment { get; set; }
+
+        public int ApprovedApplications { get; set; }
+
+        public int RejectedApplications { get; set; }
+
+        public int NewApplicationsThisMonth { get; set; }
+
+        public int TotalCheckIns { get; set; }
+
+        public int TodayCheckIns { get; set; }
+
+        public int CurrentMonthCheckIns { get; set; }
+
+        public decimal TotalPaidRevenue { get; set; }
+
+        public decimal CurrentMonthRevenue { get; set; }
+
+        public decimal StudentRevenue { get; set; }
+
+        public decimal StaffRevenue { get; set; }
+
+        public int TotalWorkoutProgrammes { get; set; }
+
+        public int ActiveWorkoutProgrammes { get; set; }
+
+        public int CompletedWorkoutProgrammes { get; set; }
+
+        public int FavouriteWorkoutProgrammes { get; set; }
+
+        public int SharedWorkoutResults { get; set; }
+
+        public int SavedWorkoutResults { get; set; }
+
+        public Dictionary<string, int> MembershipTypeCounts { get; set; }
+            = new Dictionary<string, int>();
+
+        public Dictionary<string, int> ApplicationStatusCounts { get; set; }
+            = new Dictionary<string, int>();
+
+        public Dictionary<string, int> DailyCheckIns { get; set; }
+            = new Dictionary<string, int>();
+
+        public Dictionary<string, int> MembershipStatusCounts { get; set; }
+            = new Dictionary<string, int>();
     }
 }

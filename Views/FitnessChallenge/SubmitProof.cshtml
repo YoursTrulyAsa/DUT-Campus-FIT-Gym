@@ -1,0 +1,290 @@
+﻿@using DUT_Campus_FIT_Gym.Models
+
+@{
+    ViewData["Title"] = "Submit Challenge Proof";
+
+    var challenge =
+        ViewBag.Challenge as FitnessChallenge;
+
+    var existingProof =
+        ViewBag.ExistingProof as ChallengeProof;
+}
+
+<div class="proof-page">
+
+    @if (challenge != null)
+    {
+        <div class="proof-header">
+            <div>
+                <span class="proof-eyebrow">CHALLENGE PROOF</span>
+
+                <h1>Submit Your Proof</h1>
+
+                <p>
+                    Record yourself completing the challenge and submit your video
+                    for trainer review.
+                </p>
+            </div>
+
+            <a asp-action="MyChallenges"
+               class="proof-back-btn">
+                <i class="fa-solid fa-arrow-left"></i>
+                My Challenges
+            </a>
+        </div>
+
+        <div class="proof-grid">
+
+            <div class="proof-challenge-card">
+
+                <div class="proof-card-icon">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+
+                <span class="proof-category">
+                    @challenge.Category
+                </span>
+
+                <h2>
+                    @challenge.Title
+                </h2>
+
+                <p>
+                    @challenge.Description
+                </p>
+
+                <div class="proof-target">
+
+                    <div class="proof-target-icon">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+
+                    <div>
+                        <span>TARGET</span>
+                        <strong>@challenge.Target</strong>
+                    </div>
+
+                </div>
+
+                <div class="proof-reward">
+
+                    <i class="fa-solid fa-star"></i>
+
+                    <div>
+                        <span>REWARD</span>
+                        <strong>+@challenge.RewardPoints points</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="proof-upload-card">
+
+                <div class="proof-upload-heading">
+                    <div class="proof-upload-icon">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+
+                    <div>
+                        <h2>Upload Your Video</h2>
+
+                        <p>
+                            Your video will be reviewed by a gym trainer.
+                        </p>
+                    </div>
+                </div>
+
+                @if (TempData["ChallengeError"] != null)
+                {
+                    <div class="proof-alert proof-alert-error">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+
+                        <span>
+                            @TempData["ChallengeError"]
+                        </span>
+                    </div>
+                }
+
+                @if (existingProof != null &&
+                     existingProof.Status == "Rejected")
+                {
+                    <div class="proof-alert proof-alert-warning">
+                        <i class="fa-solid fa-rotate-right"></i>
+
+                        <div>
+                            <strong>Previous submission rejected</strong>
+
+                            @if (!string.IsNullOrWhiteSpace(existingProof.TrainerComment))
+                            {
+                                <span>
+                                    @existingProof.TrainerComment
+                                </span>
+                            }
+
+                            <span>
+                                You can submit a new video below.
+                            </span>
+                        </div>
+                    </div>
+                }
+
+                <div class="proof-rules">
+
+                    <div class="proof-rule">
+                        <i class="fa-solid fa-clock"></i>
+
+                        <div>
+                            <strong>5-minute video</strong>
+                            <span>
+                                Accepted duration: 4:50 to 5:10.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="proof-rule">
+                        <i class="fa-solid fa-file-video"></i>
+
+                        <div>
+                            <strong>Supported formats</strong>
+                            <span>
+                                MP4, MOV, WEBM, AVI or MKV.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="proof-rule">
+                        <i class="fa-solid fa-hard-drive"></i>
+
+                        <div>
+                            <strong>Maximum file size</strong>
+                            <span>
+                                500 MB.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="proof-rule">
+                        <i class="fa-solid fa-user-check"></i>
+
+                        <div>
+                            <strong>Trainer review</strong>
+                            <span>
+                                Points are awarded only after your proof is approved.
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <form asp-action="SubmitProof"
+                      method="post"
+                      enctype="multipart/form-data"
+                      class="proof-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="id"
+                           value="@challenge.FitnessChallengeId" />
+
+                    <label for="video"
+                           class="proof-file-label">
+
+                        <div class="proof-file-icon">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+
+                        <strong>
+                            Choose your challenge video
+                        </strong>
+
+                        <span>
+                            Click here to select a video from your device.
+                        </span>
+
+                        <input type="file"
+                               id="video"
+                               name="video"
+                               accept="video/mp4,video/quicktime,video/webm,video/x-msvideo,video/x-matroska"
+                               required />
+
+                    </label>
+
+                    <div id="video-name"
+                         class="proof-selected-file">
+                    </div>
+
+                    <button type="submit"
+                            class="proof-submit-btn">
+
+                        <i class="fa-solid fa-paper-plane"></i>
+
+                        Submit For Review
+
+                    </button>
+
+                </form>
+
+                <div class="proof-note">
+
+                    <i class="fa-solid fa-circle-info"></i>
+
+                    <span>
+                        Make sure your video clearly shows you completing the
+                        challenge before submitting it.
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="proof-empty">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <h2>Challenge Not Found</h2>
+
+            <p>
+                We could not find the challenge you are trying to submit proof for.
+            </p>
+
+            <a asp-action="MyChallenges"
+               class="proof-submit-btn">
+                Back to My Challenges
+            </a>
+        </div>
+    }
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/fitness-challenge.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/challenge-proof.css"
+          asp-append-version="true" />
+}
+
+@section Scripts {
+    <script>
+        const videoInput = document.getElementById("video");
+        const videoName = document.getElementById("video-name");
+
+        if (videoInput && videoName) {
+            videoInput.addEventListener("change", function () {
+                if (this.files && this.files.length > 0) {
+                    videoName.textContent =
+                        "Selected: " + this.files[0].name;
+                } else {
+                    videoName.textContent = "";
+                }
+            });
+        }
+    </script>
+}

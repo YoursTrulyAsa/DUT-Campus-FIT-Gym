@@ -1,0 +1,192 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.WorkoutProgramme>
+
+@{
+    ViewData["Title"] = "Favourite Programmes";
+
+    var programmes =
+        Model?.ToList()
+        ?? new List<DUT_Campus_FIT_Gym.Models.WorkoutProgramme>();
+}
+
+<div class="workout-page">
+
+    <div class="workout-header">
+
+        <div>
+            <span class="page-label">MY FITNESS</span>
+
+            <h1>Favourite Programmes</h1>
+
+            <p>
+                Your saved workout programmes that you can retake anytime.
+            </p>
+        </div>
+
+        <a asp-controller="Workout"
+           asp-action="MyWorkout"
+           class="workout-create-btn">
+
+            <i class="fa-solid fa-dumbbell"></i>
+
+            My Workout
+
+        </a>
+
+    </div>
+
+    @if (TempData["WorkoutFavouriteMessage"] != null)
+    {
+        <div class="workout-success-message">
+
+            <i class="fa-solid fa-heart"></i>
+
+            <span>
+                @TempData["WorkoutFavouriteMessage"]
+            </span>
+
+        </div>
+    }
+
+    @if (!programmes.Any())
+    {
+        <div class="workout-empty">
+
+            <div class="empty-icon">
+                <i class="fa-regular fa-heart"></i>
+            </div>
+
+            <h2>No Favourite Programmes</h2>
+
+            <p>
+                Complete a workout programme and save it to your
+                favourites so you can retake it whenever you want.
+            </p>
+
+            <a asp-controller="Workout"
+               asp-action="MyWorkout"
+               class="workout-create-btn">
+
+                <i class="fa-solid fa-dumbbell"></i>
+
+                View My Workout
+
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <div class="favourite-programmes-grid">
+
+            @foreach (var programme in programmes)
+            {
+                <div class="favourite-programme-card">
+
+                    <div class="favourite-programme-top">
+
+                        <div class="favourite-programme-icon">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+
+                        <span class="favourite-completed-badge">
+                            COMPLETED
+                        </span>
+
+                    </div>
+
+                    <span class="workout-plan-label">
+                        @programme.FitnessLevel PROGRAMME
+                    </span>
+
+                    <h2>
+                        @programme.ProgrammeName
+                    </h2>
+
+                    <p>
+                        @programme.Goal
+                    </p>
+
+                    <div class="favourite-programme-details">
+
+                        <div>
+                            <span>LEVEL</span>
+                            <strong>
+                                @programme.FitnessLevel
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>STARTED</span>
+                            <strong>
+                                @programme.StartDate.ToString("dd MMM yyyy")
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>COMPLETED</span>
+                            <strong>
+                                @programme.EndDate.ToString("dd MMM yyyy")
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="favourite-programme-footer">
+
+                        <form asp-controller="Workout"
+                              asp-action="RetakeWorkout"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="workoutProgrammeId"
+                                   value="@programme.WorkoutProgrammeId" />
+
+                            <button type="submit"
+                                    class="favourite-retake-btn">
+
+                                <i class="fa-solid fa-rotate-right"></i>
+
+                                Retake Workout
+
+                            </button>
+
+                        </form>
+
+                        <form asp-controller="Workout"
+                              asp-action="ToggleFavourite"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="workoutProgrammeId"
+                                   value="@programme.WorkoutProgrammeId" />
+
+                            <button type="submit"
+                                    class="programme-favourite-btn">
+
+                                <i class="fa-solid fa-heart"></i>
+
+                                Remove Favourite
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/workout.css"
+          asp-append-version="true" />
+}

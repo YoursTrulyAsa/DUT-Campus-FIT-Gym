@@ -150,6 +150,54 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.ToTable("ChallengeParticipations");
                 });
 
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.ChallengeProof", b =>
+                {
+                    b.Property<int>("ChallengeProofId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChallengeProofId"));
+
+                    b.Property<int>("FitnessChallengeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ReviewedByTrainerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TrainerComment")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("VideoPath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("ChallengeProofId");
+
+                    b.HasIndex("FitnessChallengeId");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("ReviewedByTrainerId");
+
+                    b.ToTable("ChallengeProofs");
+                });
+
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Equipment", b =>
                 {
                     b.Property<int>("EquipmentID")
@@ -186,6 +234,40 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasKey("EquipmentID");
 
                     b.ToTable("Equipment");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.EquipmentPenalty", b =>
+                {
+                    b.Property<int>("EquipmentPenaltyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EquipmentPenaltyId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PenaltyDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ReservationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("EquipmentPenaltyId");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("ReservationId");
+
+                    b.ToTable("EquipmentPenalties");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Exercise", b =>
@@ -409,6 +491,38 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.ToTable("Members");
                 });
 
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.MemberReview", b =>
+                {
+                    b.Property<int>("MemberReviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MemberReviewId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReviewText")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("MemberReviewId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("MemberReviews");
+                });
+
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Membership", b =>
                 {
                     b.Property<int>("MembershipId")
@@ -589,10 +703,13 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("EquipmentPenaltyId")
+                        .HasColumnType("int");
+
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
 
-                    b.Property<int>("MembershipId")
+                    b.Property<int?>("MembershipId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PaymentDate")
@@ -604,16 +721,67 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Property<string>("PaymentStatus")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("PrivateTrainerSubscriptionId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ReceiptNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PaymentId");
 
+                    b.HasIndex("EquipmentPenaltyId");
+
                     b.HasIndex("MemberId");
 
                     b.HasIndex("MembershipId");
 
+                    b.HasIndex("PrivateTrainerSubscriptionId");
+
                     b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.PrivateTrainerSubscription", b =>
+                {
+                    b.Property<int>("PrivateTrainerSubscriptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PrivateTrainerSubscriptionId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PaymentReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("TrainerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PrivateTrainerSubscriptionId");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("TrainerId");
+
+                    b.ToTable("PrivateTrainerSubscriptions");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Reservation", b =>
@@ -634,6 +802,9 @@ namespace DUT_Campus_FIT_Gym.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("NotificationDismissed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("PenaltyApplied")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("ReservationDate")
@@ -678,6 +849,33 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.ToTable("RewardPoints");
                 });
 
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.SavedWorkoutResult", b =>
+                {
+                    b.Property<int>("SavedWorkoutResultId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SavedWorkoutResultId"));
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SavedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("WorkoutResultId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SavedWorkoutResultId");
+
+                    b.HasIndex("WorkoutResultId");
+
+                    b.HasIndex("MemberId", "WorkoutResultId")
+                        .IsUnique();
+
+                    b.ToTable("SavedWorkoutResults");
+                });
+
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Trainer", b =>
                 {
                     b.Property<int>("TrainerId")
@@ -708,6 +906,51 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.ToTable("Trainers");
                 });
 
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.TrainerBooking", b =>
+                {
+                    b.Property<int>("TrainerBookingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TrainerBookingId"));
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TrainerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TrainerRequestId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TrainerBookingId");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("TrainerId");
+
+                    b.HasIndex("TrainerRequestId");
+
+                    b.ToTable("TrainerBookings");
+                });
+
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.TrainerRequest", b =>
                 {
                     b.Property<int>("TrainerRequestId")
@@ -718,6 +961,10 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
                     b.Property<DateTime?>("CompletionDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("RequestDate")
                         .HasColumnType("datetime2");
@@ -838,6 +1085,11 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Property<int?>("ExerciseId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ExerciseName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Level")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -946,6 +1198,9 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsFavourite")
+                        .HasColumnType("bit");
+
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
 
@@ -962,6 +1217,47 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("WorkoutProgrammes");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutResult", b =>
+                {
+                    b.Property<int>("WorkoutResultId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("WorkoutResultId"));
+
+                    b.Property<string>("AfterPhoto")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("BeforePhoto")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SharedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("WorkoutProgrammeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("WorkoutResultId");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("WorkoutProgrammeId");
+
+                    b.ToTable("WorkoutResults");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Attendance", b =>
@@ -992,6 +1288,51 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.Navigation("FitnessChallenge");
 
                     b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.ChallengeProof", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.FitnessChallenge", "FitnessChallenge")
+                        .WithMany()
+                        .HasForeignKey("FitnessChallengeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Trainer", "ReviewedByTrainer")
+                        .WithMany()
+                        .HasForeignKey("ReviewedByTrainerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("FitnessChallenge");
+
+                    b.Navigation("Member");
+
+                    b.Navigation("ReviewedByTrainer");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.EquipmentPenalty", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Reservation", "Reservation")
+                        .WithMany()
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("Reservation");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.FitnessChallenge", b =>
@@ -1025,6 +1366,17 @@ namespace DUT_Campus_FIT_Gym.Migrations
                         .IsRequired();
 
                     b.Navigation("MealPlan");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.MemberReview", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Membership", b =>
@@ -1061,6 +1413,11 @@ namespace DUT_Campus_FIT_Gym.Migrations
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.Payment", b =>
                 {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.EquipmentPenalty", "EquipmentPenalty")
+                        .WithMany()
+                        .HasForeignKey("EquipmentPenaltyId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
                         .WithMany("Payments")
                         .HasForeignKey("MemberId")
@@ -1070,12 +1427,39 @@ namespace DUT_Campus_FIT_Gym.Migrations
                     b.HasOne("DUT_Campus_FIT_Gym.Models.Membership", "Membership")
                         .WithMany()
                         .HasForeignKey("MembershipId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.PrivateTrainerSubscription", "PrivateTrainerSubscription")
+                        .WithMany()
+                        .HasForeignKey("PrivateTrainerSubscriptionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("EquipmentPenalty");
+
+                    b.Navigation("Member");
+
+                    b.Navigation("Membership");
+
+                    b.Navigation("PrivateTrainerSubscription");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.PrivateTrainerSubscription", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Trainer", "Trainer")
+                        .WithMany()
+                        .HasForeignKey("TrainerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Member");
 
-                    b.Navigation("Membership");
+                    b.Navigation("Trainer");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.RewardPoint", b =>
@@ -1087,6 +1471,52 @@ namespace DUT_Campus_FIT_Gym.Migrations
                         .IsRequired();
 
                     b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.SavedWorkoutResult", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.WorkoutResult", "WorkoutResult")
+                        .WithMany()
+                        .HasForeignKey("WorkoutResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("WorkoutResult");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.TrainerBooking", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Trainer", "Trainer")
+                        .WithMany()
+                        .HasForeignKey("TrainerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.TrainerRequest", "TrainerRequest")
+                        .WithMany()
+                        .HasForeignKey("TrainerRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Trainer");
+
+                    b.Navigation("TrainerRequest");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.TrainerRequest", b =>
@@ -1182,6 +1612,25 @@ namespace DUT_Campus_FIT_Gym.Migrations
                         .IsRequired();
 
                     b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.WorkoutResult", b =>
+                {
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DUT_Campus_FIT_Gym.Models.WorkoutProgramme", "WorkoutProgramme")
+                        .WithMany()
+                        .HasForeignKey("WorkoutProgrammeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("WorkoutProgramme");
                 });
 
             modelBuilder.Entity("DUT_Campus_FIT_Gym.Models.FitnessChallenge", b =>

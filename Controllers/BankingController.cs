@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using System.Net;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -13,32 +15,63 @@ namespace DUT_Campus_FIT_Gym.Controllers
     public class BankingController : Controller
     {
         private readonly GymDbContext _context;
-        private readonly PayFastSettings _payFast;
+        private readonly PayFastSettings _payFastSettings;
         private readonly MembershipPricingService _pricingService;
         private readonly ILogger<BankingController> _logger;
         private readonly NgrokService _ngrokService;
 
         public BankingController(
             GymDbContext context,
-            IOptions<PayFastSettings> payFast,
+            IOptions<PayFastSettings> payFastSettings,
             MembershipPricingService pricingService,
             ILogger<BankingController> logger,
             NgrokService ngrokService)
         {
             _context = context;
-            _payFast = payFast.Value;
+            _payFastSettings = payFastSettings.Value;
             _pricingService = pricingService;
             _logger = logger;
             _ngrokService = ngrokService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Index(int membershipId)
+        private int? GetMemberId()
         {
+            var claim =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrWhiteSpace(claim))
+            {
+                return null;
+            }
+
+            if (!int.TryParse(
+                claim,
+                out var memberId))
+            {
+                return null;
+            }
+
+            return memberId;
+        }
+
+        [HttpGet]
+        public IActionResult Index(int membershipId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
             var membership =
-                await _context.Memberships
-                    .FirstOrDefaultAsync(m =>
-                        m.MembershipId == membershipId);
+                _context.Memberships
+                    .FirstOrDefault(m =>
+                        m.MembershipId == membershipId &&
+                        m.MemberId == memberId.Value);
 
             if (membership == null)
             {
@@ -47,27 +80,46 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             if (membership.Status != "WaitingForPayment")
             {
+                TempData["PaymentError"] =
+                    "This membership is not currently available for payment.";
+
                 return RedirectToAction(
                     "Membership",
                     "Member");
             }
 
-            ViewBag.MembershipId = membershipId;
-            ViewBag.Amount = membership.Price;
+            ViewBag.MembershipId =
+                membership.MembershipId;
+
+            ViewBag.Amount =
+                membership.Price;
+
+            ViewBag.MembershipType =
+                membership.MembershipType;
 
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(
+        public IActionResult Index(
             BankDetails objBank,
             int membershipId)
         {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
             var membership =
-                await _context.Memberships
-                    .FirstOrDefaultAsync(m =>
-                        m.MembershipId == membershipId);
+                _context.Memberships
+                    .FirstOrDefault(m =>
+                        m.MembershipId == membershipId &&
+                        m.MemberId == memberId.Value);
 
             if (membership == null)
             {
@@ -76,310 +128,1049 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             if (membership.Status != "WaitingForPayment")
             {
+                TempData["PaymentError"] =
+                    "This membership is not available for payment.";
+
                 return RedirectToAction(
                     "Membership",
                     "Member");
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction(
-                    nameof(PayFast),
-                    new { membershipId });
+                ViewBag.MembershipId =
+                    membership.MembershipId;
+
+                ViewBag.Amount =
+                    membership.Price;
+
+                ViewBag.MembershipType =
+                    membership.MembershipType;
+
+                return View(objBank);
             }
 
-            ViewBag.MembershipId = membershipId;
-            ViewBag.Amount = membership.Price;
-
-            return View(objBank);
+            return RedirectToAction(
+                nameof(PayFast),
+                new
+                {
+                    membershipId
+                });
         }
 
         [HttpGet]
-        public async Task<IActionResult> PayFast(int membershipId)
+        public async Task<IActionResult> PayFast(
+            int membershipId)
         {
-            try
+            var memberId = GetMemberId();
+
+            if (memberId == null)
             {
-                var membership =
-                    await _context.Memberships
-                        .Include(m => m.Member)
-                        .FirstOrDefaultAsync(m =>
-                            m.MembershipId == membershipId);
-
-                if (membership == null)
-                {
-                    return NotFound();
-                }
-
-                if (membership.Status != "WaitingForPayment")
-                {
-                    return RedirectToAction(
-                        "Membership",
-                        "Member");
-                }
-
-                if (!membership.MemberId.HasValue ||
-                    membership.Member == null)
-                {
-                    TempData["Error"] =
-                        "This membership is not linked to a member.";
-
-                    return RedirectToAction(
-                        "Membership",
-                        "Member");
-                }
-
-                var paymentId =
-                    Guid.NewGuid().ToString("N");
-
-                membership.PaymentReference = paymentId;
-                membership.PaymentStatus = "Pending";
-
-                var payment = new Payment
-                {
-                    MemberId = membership.MemberId.Value,
-                    MembershipId = membership.MembershipId,
-                    Amount = membership.Price,
-                    PaymentMethod = "PayFast",
-                    PaymentStatus = "Pending",
-                    ReceiptNumber = paymentId
-                };
-
-                _context.Payments.Add(payment);
-
-                await _context.SaveChangesAsync();
-
-                var ngrokUrl =
-                    await _ngrokService.GetPublicUrlAsync();
-
-                var baseUrl =
-                    string.IsNullOrWhiteSpace(ngrokUrl)
-                        ? $"{Request.Scheme}://{Request.Host}"
-                        : ngrokUrl;
-
-                var returnPath =
-                    Url.Action(
-                        nameof(PaymentSuccess),
-                        "Banking",
-                        new { membershipId });
-
-                var cancelPath =
-                    Url.Action(
-                        nameof(PaymentCancelled),
-                        "Banking",
-                        new { membershipId });
-
-                var notifyPath =
-                    Url.Action(
-                        nameof(PaymentNotify),
-                        "Banking");
-
-                if (string.IsNullOrWhiteSpace(returnPath) ||
-                    string.IsNullOrWhiteSpace(cancelPath) ||
-                    string.IsNullOrWhiteSpace(notifyPath))
-                {
-                    throw new InvalidOperationException(
-                        "Could not generate PayFast callback URLs.");
-                }
-
-                var returnUrl =
-                    $"{baseUrl}{returnPath}";
-
-                var cancelUrl =
-                    $"{baseUrl}{cancelPath}";
-
-                var notifyUrl =
-                    $"{baseUrl}{notifyPath}";
-
-                var paymentData =
-    new Dictionary<string, string>
-    {
-        ["merchant_id"] =
-            _payFast.MerchantId.Trim(),
-
-        ["merchant_key"] =
-            _payFast.MerchantKey.Trim(),
-
-        ["return_url"] =
-            returnUrl,
-
-        ["cancel_url"] =
-            cancelUrl,
-
-        ["notify_url"] =
-            notifyUrl,
-
-        ["name_first"] =
-            membership.Member.Name.Trim(),
-
-        ["name_last"] =
-            membership.Member.Surname.Trim(),
-
-        ["email_address"] =
-            membership.Member.Email.Trim(),
-
-        ["m_payment_id"] =
-            paymentId,
-
-        ["amount"] =
-            membership.Price.ToString(
-                "0.00",
-                CultureInfo.InvariantCulture),
-
-        ["item_name"] =
-            "DUT Campus FIT Gym Membership"
-    };
-
-                var signature =
-                    GenerateSignature(paymentData);
-
-                paymentData["signature"] = signature;
-
-                ViewBag.PaymentUrl =
-                    "https://sandbox.payfast.co.za/eng/process";
-
-                ViewBag.PaymentData =
-                    paymentData;
-
-                return View();
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error initiating PayFast payment for Membership {MembershipId}",
-                    membershipId);
 
-                TempData["Error"] =
-                    "An error occurred while processing your payment.";
+            var membership =
+                await _context.Memberships
+                    .Include(m => m.Member)
+                    .FirstOrDefaultAsync(m =>
+                        m.MembershipId == membershipId &&
+                        m.MemberId == memberId.Value);
+
+            if (membership == null)
+            {
+                return NotFound();
+            }
+
+            if (membership.Status != "WaitingForPayment")
+            {
+                TempData["PaymentError"] =
+                    "This membership is not currently available for payment.";
 
                 return RedirectToAction(
                     "Membership",
                     "Member");
             }
+
+            var existingPendingPayment =
+                await _context.Payments
+                    .FirstOrDefaultAsync(p =>
+                        p.MembershipId == membership.MembershipId &&
+                        p.PaymentStatus == "Pending");
+
+            string paymentId;
+
+            if (existingPendingPayment != null &&
+                !string.IsNullOrWhiteSpace(
+                    existingPendingPayment.ReceiptNumber))
+            {
+                paymentId =
+                    existingPendingPayment.ReceiptNumber;
+
+                existingPendingPayment.Amount =
+                    membership.Price;
+
+                existingPendingPayment.PaymentMethod =
+                    "PayFast";
+
+                existingPendingPayment.PaymentDate =
+                    DateTime.Now;
+            }
+            else
+            {
+                paymentId =
+                    Guid.NewGuid().ToString("N");
+
+                var payment =
+                    new Payment
+                    {
+                        MemberId =
+                            membership.MemberId.Value,
+
+                        MembershipId =
+                            membership.MembershipId,
+
+                        EquipmentPenaltyId =
+                            null,
+
+                        PrivateTrainerSubscriptionId =
+                            null,
+
+                        TrainerBookingId =
+                            null,
+
+                        Amount =
+                            membership.Price,
+
+                        PaymentMethod =
+                            "PayFast",
+
+                        PaymentStatus =
+                            "Pending",
+
+                        PaymentDate =
+                            DateTime.Now,
+
+                        ReceiptNumber =
+                            paymentId
+                    };
+
+                _context.Payments.Add(payment);
+            }
+
+            membership.PaymentReference =
+                paymentId;
+
+            membership.PaymentStatus =
+                "Pending";
+
+            await _context.SaveChangesAsync();
+
+            var publicUrl =
+                await _ngrokService.GetPublicUrlAsync();
+
+            if (string.IsNullOrWhiteSpace(publicUrl))
+            {
+                var pendingPayment =
+                    await _context.Payments
+                        .FirstOrDefaultAsync(p =>
+                            p.ReceiptNumber == paymentId);
+
+                if (pendingPayment != null)
+                {
+                    pendingPayment.PaymentStatus =
+                        "Failed";
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["PaymentError"] =
+                    "Unable to connect to the payment service.";
+
+                return RedirectToAction(
+                    "Membership",
+                    "Member");
+            }
+
+            publicUrl =
+                publicUrl.TrimEnd('/');
+
+            var returnUrl =
+                $"{publicUrl}/Banking/PaymentSuccess?membershipId={membershipId}";
+
+            var cancelUrl =
+                $"{publicUrl}/Banking/PaymentCancelled?membershipId={membershipId}";
+
+            var notifyUrl =
+                $"{publicUrl}/Banking/PaymentNotify";
+
+            var paymentData =
+                CreatePaymentData(
+                    paymentId,
+                    membership.Price,
+                    membership.Member?.Name,
+                    membership.Member?.Surname,
+                    membership.Member?.Email,
+                    returnUrl,
+                    cancelUrl,
+                    notifyUrl,
+                    $"DUT Campus FIT Gym {membership.MembershipType} Membership");
+
+            return Redirect(
+                BuildPayFastUrl(paymentData));
         }
 
-        private string GenerateSignature(
-    Dictionary<string, string> data)
+        [HttpGet]
+        public async Task<IActionResult> PayPenalty(
+            int penaltyId)
         {
-            var orderedKeys = new[]
+            var memberId = GetMemberId();
+
+            if (memberId == null)
             {
-        // Merchant details
-        "merchant_id",
-        "merchant_key",
-
-        // URLs
-        "return_url",
-        "cancel_url",
-        "notify_url",
-
-        // Customer details
-        "name_first",
-        "name_last",
-        "email_address",
-
-        // Transaction details
-        "m_payment_id",
-        "amount",
-        "item_name"
-    };
-
-            var parts = new List<string>();
-
-            foreach (var key in orderedKeys)
-            {
-                if (!data.TryGetValue(key, out var value))
-                {
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    continue;
-                }
-
-                var encodedValue =
-                    Uri.EscapeDataString(value.Trim())
-                        .Replace("%20", "+");
-
-                parts.Add($"{key}={encodedValue}");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
 
-            var signatureString =
-                string.Join("&", parts);
+            var penalty =
+                await _context.EquipmentPenalties
+                    .Include(p => p.Member)
+                    .FirstOrDefaultAsync(p =>
+                        p.EquipmentPenaltyId == penaltyId &&
+                        p.MemberId == memberId.Value);
 
-            if (!string.IsNullOrWhiteSpace(_payFast.Passphrase))
+            if (penalty == null)
             {
-                signatureString +=
-                    "&passphrase=" +
-                    Uri.EscapeDataString(
-                        _payFast.Passphrase.Trim())
-                        .Replace("%20", "+");
+                return NotFound();
             }
 
-            using var md5 = MD5.Create();
+            if (penalty.Status != "Outstanding")
+            {
+                TempData["PaymentError"] =
+                    "This equipment penalty has already been paid.";
 
-            var hash =
-                md5.ComputeHash(
-                    Encoding.UTF8.GetBytes(signatureString));
+                return RedirectToAction(
+                    "Payment",
+                    "Member");
+            }
 
-            return Convert.ToHexString(hash)
-                .ToLowerInvariant();
+            var existingPayment =
+                await _context.Payments
+                    .FirstOrDefaultAsync(p =>
+                        p.EquipmentPenaltyId == penaltyId &&
+                        p.PaymentStatus == "Pending");
+
+            string paymentId;
+
+            if (existingPayment != null &&
+                !string.IsNullOrWhiteSpace(
+                    existingPayment.ReceiptNumber))
+            {
+                paymentId =
+                    existingPayment.ReceiptNumber;
+
+                existingPayment.Amount =
+                    penalty.Amount;
+
+                existingPayment.PaymentDate =
+                    DateTime.Now;
+            }
+            else
+            {
+                paymentId =
+                    Guid.NewGuid().ToString("N");
+
+                var payment =
+                    new Payment
+                    {
+                        MemberId =
+                            penalty.MemberId,
+
+                        MembershipId =
+                            null,
+
+                        EquipmentPenaltyId =
+                            penalty.EquipmentPenaltyId,
+
+                        PrivateTrainerSubscriptionId =
+                            null,
+
+                        TrainerBookingId =
+                            null,
+
+                        Amount =
+                            penalty.Amount,
+
+                        PaymentMethod =
+                            "PayFast",
+
+                        PaymentStatus =
+                            "Pending",
+
+                        PaymentDate =
+                            DateTime.Now,
+
+                        ReceiptNumber =
+                            paymentId
+                    };
+
+                _context.Payments.Add(payment);
+            }
+
+            await _context.SaveChangesAsync();
+
+            var publicUrl =
+                await _ngrokService.GetPublicUrlAsync();
+
+            if (string.IsNullOrWhiteSpace(publicUrl))
+            {
+                var pendingPayment =
+                    await _context.Payments
+                        .FirstOrDefaultAsync(p =>
+                            p.ReceiptNumber == paymentId);
+
+                if (pendingPayment != null)
+                {
+                    pendingPayment.PaymentStatus =
+                        "Failed";
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["PaymentError"] =
+                    "Unable to connect to the payment service.";
+
+                return RedirectToAction(
+                    "Payment",
+                    "Member");
+            }
+
+            publicUrl =
+                publicUrl.TrimEnd('/');
+
+            var returnUrl =
+                $"{publicUrl}/Banking/PaymentSuccessPenalty?penaltyId={penaltyId}";
+
+            var cancelUrl =
+                $"{publicUrl}/Banking/PaymentCancelledPenalty?penaltyId={penaltyId}";
+
+            var notifyUrl =
+                $"{publicUrl}/Banking/PaymentNotify";
+
+            var paymentData =
+                CreatePaymentData(
+                    paymentId,
+                    penalty.Amount,
+                    penalty.Member?.Name,
+                    penalty.Member?.Surname,
+                    penalty.Member?.Email,
+                    returnUrl,
+                    cancelUrl,
+                    notifyUrl,
+                    "DUT Campus FIT Gym Equipment Penalty");
+
+            return Redirect(
+                BuildPayFastUrl(paymentData));
+        }
+
+        [HttpGet]
+        public IActionResult PrivateTrainerPaymentCancelled(
+            int subscriptionId)
+        {
+            TempData["PrivateTrainerError"] =
+                "Private trainer payment was cancelled.";
+
+            return RedirectToAction(
+                "PrivateTrainer",
+                "Member");
         }
 
         [HttpGet]
         public async Task<IActionResult> PaymentSuccess(
             int membershipId)
         {
-            try
+            var memberId = GetMemberId();
+
+            if (memberId == null)
             {
-                var membership =
-                    await _context.Memberships
-                        .FirstOrDefaultAsync(m =>
-                            m.MembershipId == membershipId);
-
-                if (membership == null)
-                {
-                    return NotFound();
-                }
-
-                if (membership.Status == "Active")
-                {
-                    return RedirectToAction(
-                        nameof(PaymentComplete),
-                        new { membershipId });
-                }
-
-                ViewBag.MembershipId =
-                    membershipId;
-
-                ViewBag.Message =
-                    "Your payment was submitted successfully. We are confirming your payment with PayFast.";
-
-                return View("Processing");
+                return RedirectToAction(
+                    "Login",
+                    "Account");
             }
-            catch (Exception ex)
+
+            var membership =
+                await _context.Memberships
+                    .FirstOrDefaultAsync(m =>
+                        m.MembershipId == membershipId &&
+                        m.MemberId == memberId.Value);
+
+            if (membership == null)
             {
-                _logger.LogError(
-                    ex,
-                    "Error in PaymentSuccess for Membership {MembershipId}",
-                    membershipId);
+                return NotFound();
+            }
+
+            for (var attempt = 0; attempt < 10; attempt++)
+            {
+                await _context.Entry(membership)
+                    .ReloadAsync();
+
+                if (membership.Status == "Active" &&
+                    membership.PaymentStatus == "Completed")
+                {
+                    return View("PaymentComplete");
+                }
+
+                await Task.Delay(1000);
+            }
+
+            TempData["PaymentSuccess"] =
+                "Payment received. We are confirming your payment.";
+
+            return RedirectToAction(
+                "Payment",
+                "Member");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PaymentSuccessPenalty(
+            int penaltyId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var penalty =
+                await _context.EquipmentPenalties
+                    .FirstOrDefaultAsync(p =>
+                        p.EquipmentPenaltyId == penaltyId &&
+                        p.MemberId == memberId.Value);
+
+            if (penalty == null)
+            {
+                return NotFound();
+            }
+
+            if (penalty.Status == "Paid")
+            {
+                TempData["PaymentSuccess"] =
+                    "Equipment penalty payment successful.";
 
                 return RedirectToAction(
-                    "Membership",
+                    "Payment",
                     "Member");
             }
+
+            TempData["PaymentSuccess"] =
+                "Penalty payment received. We are confirming your payment.";
+
+            return RedirectToAction(
+                "Payment",
+                "Member");
         }
 
         [HttpGet]
         public IActionResult PaymentCancelled(
             int membershipId)
         {
-            TempData["Error"] =
-                "Your payment was cancelled. Your membership is still waiting for payment.";
+            TempData["PaymentError"] =
+                "Payment was cancelled.";
 
             return RedirectToAction(
                 "Membership",
                 "Member");
+        }
+
+        [HttpGet]
+        public IActionResult PaymentCancelledPenalty(
+            int penaltyId)
+        {
+            TempData["PaymentError"] =
+                "Equipment penalty payment was cancelled.";
+
+            return RedirectToAction(
+                "Payment",
+                "Member");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PayPrivateTrainer(
+            int subscriptionId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var subscription =
+                await _context.PrivateTrainerSubscriptions
+                    .Include(s => s.Member)
+                    .Include(s => s.Trainer)
+                    .FirstOrDefaultAsync(s =>
+                        s.PrivateTrainerSubscriptionId == subscriptionId &&
+                        s.MemberId == memberId.Value);
+
+            if (subscription == null)
+            {
+                return NotFound();
+            }
+
+            if (subscription.Status != "PendingPayment")
+            {
+                TempData["PrivateTrainerError"] =
+                    "This private trainer subscription is not available for payment.";
+
+                return RedirectToAction(
+                    "PrivateTrainer",
+                    "Member");
+            }
+
+            var trainerMemberCount =
+                await _context.PrivateTrainerSubscriptions
+                    .CountAsync(s =>
+                        s.TrainerId == subscription.TrainerId &&
+                        s.Status == "Active" &&
+                        s.EndDate >= DateTime.Now);
+
+            if (trainerMemberCount >= 2)
+            {
+                subscription.Status =
+                    "Cancelled";
+
+                await _context.SaveChangesAsync();
+
+                TempData["PrivateTrainerError"] =
+                    "This trainer is no longer available. Please select another trainer.";
+
+                return RedirectToAction(
+                    "PrivateTrainer",
+                    "Member");
+            }
+
+            const decimal privateTrainerFee =
+                145m;
+
+            var existingPayment =
+                await _context.Payments
+                    .FirstOrDefaultAsync(p =>
+                        p.PrivateTrainerSubscriptionId ==
+                        subscription.PrivateTrainerSubscriptionId &&
+                        p.PaymentStatus == "Pending");
+
+            string paymentId;
+
+            if (existingPayment != null &&
+                !string.IsNullOrWhiteSpace(
+                    existingPayment.ReceiptNumber))
+            {
+                paymentId =
+                    existingPayment.ReceiptNumber;
+
+                existingPayment.Amount =
+                    privateTrainerFee;
+
+                existingPayment.PaymentDate =
+                    DateTime.Now;
+            }
+            else
+            {
+                paymentId =
+                    Guid.NewGuid().ToString("N");
+
+                var payment =
+                    new Payment
+                    {
+                        MemberId =
+                            subscription.MemberId,
+
+                        MembershipId =
+                            null,
+
+                        EquipmentPenaltyId =
+                            null,
+
+                        PrivateTrainerSubscriptionId =
+                            subscription.PrivateTrainerSubscriptionId,
+
+                        TrainerBookingId =
+                            null,
+
+                        Amount =
+                            privateTrainerFee,
+
+                        PaymentMethod =
+                            "PayFast",
+
+                        PaymentStatus =
+                            "Pending",
+
+                        PaymentDate =
+                            DateTime.Now,
+
+                        ReceiptNumber =
+                            paymentId
+                    };
+
+                _context.Payments.Add(payment);
+            }
+
+            subscription.Amount =
+                privateTrainerFee;
+
+            subscription.PaymentReference =
+                paymentId;
+
+            await _context.SaveChangesAsync();
+
+            var publicUrl =
+                await _ngrokService.GetPublicUrlAsync();
+
+            if (string.IsNullOrWhiteSpace(publicUrl))
+            {
+                var pendingPayment =
+                    await _context.Payments
+                        .FirstOrDefaultAsync(p =>
+                            p.ReceiptNumber == paymentId);
+
+                if (pendingPayment != null)
+                {
+                    pendingPayment.PaymentStatus =
+                        "Failed";
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["PrivateTrainerError"] =
+                    "Unable to connect to the payment service.";
+
+                return RedirectToAction(
+                    "PrivateTrainer",
+                    "Member");
+            }
+
+            publicUrl =
+                publicUrl.TrimEnd('/');
+
+            var returnUrl =
+                $"{publicUrl}/Banking/PrivateTrainerPaymentSuccess?subscriptionId={subscriptionId}";
+
+            var cancelUrl =
+                $"{publicUrl}/Banking/PrivateTrainerPaymentCancelled?subscriptionId={subscriptionId}";
+
+            var notifyUrl =
+                $"{publicUrl}/Banking/PaymentNotify";
+
+            var paymentData =
+                CreatePaymentData(
+                    paymentId,
+                    privateTrainerFee,
+                    subscription.Member?.Name,
+                    subscription.Member?.Surname,
+                    subscription.Member?.Email,
+                    returnUrl,
+                    cancelUrl,
+                    notifyUrl,
+                    "DUT Campus FIT Gym Private Trainer - Monthly");
+
+            return Redirect(
+                BuildPayFastUrl(paymentData));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PrivateTrainerPaymentSuccess(
+            int subscriptionId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var subscription =
+                await _context.PrivateTrainerSubscriptions
+                    .FirstOrDefaultAsync(s =>
+                        s.PrivateTrainerSubscriptionId == subscriptionId &&
+                        s.MemberId == memberId.Value);
+
+            if (subscription == null)
+            {
+                return NotFound();
+            }
+
+            if (subscription.Status == "Active")
+            {
+                TempData["PrivateTrainerSuccess"] =
+                    "Your private trainer payment was successful. Your trainer is now active.";
+
+                return RedirectToAction(
+                    "PrivateTrainer",
+                    "Member");
+            }
+
+            TempData["PrivateTrainerSuccess"] =
+                "Payment received. We are confirming your payment.";
+
+            return RedirectToAction(
+                "PrivateTrainer",
+                "Member");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PayTrainerBooking(
+            int bookingId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var booking =
+                await _context.TrainerBookings
+                    .Include(b => b.Trainer)
+                    .Include(b => b.Student)
+                    .Include(b => b.TrainerRequest)
+                    .FirstOrDefaultAsync(b =>
+                        b.TrainerBookingId == bookingId &&
+                        b.StudentId == memberId.Value);
+
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            if (booking.Status != "PendingPayment")
+            {
+                TempData["TrainerRequestError"] =
+                    "This trainer session is not available for payment.";
+
+                return RedirectToAction(
+                    "MyTrainerRequests",
+                    "Member");
+            }
+
+            const decimal trainerSessionFee =
+                50m;
+
+            var existingPayment =
+                await _context.Payments
+                    .FirstOrDefaultAsync(p =>
+                        p.TrainerBookingId == bookingId &&
+                        p.PaymentStatus == "Pending");
+
+            string paymentId;
+
+            if (existingPayment != null &&
+                !string.IsNullOrWhiteSpace(
+                    existingPayment.ReceiptNumber))
+            {
+                paymentId =
+                    existingPayment.ReceiptNumber;
+
+                existingPayment.Amount =
+                    trainerSessionFee;
+
+                existingPayment.PaymentMethod =
+                    "PayFast";
+
+                existingPayment.PaymentDate =
+                    DateTime.Now;
+            }
+            else
+            {
+                paymentId =
+                    Guid.NewGuid().ToString("N");
+
+                var payment =
+                    new Payment
+                    {
+                        MemberId =
+                            booking.StudentId,
+
+                        MembershipId =
+                            null,
+
+                        EquipmentPenaltyId =
+                            null,
+
+                        PrivateTrainerSubscriptionId =
+                            null,
+
+                        TrainerBookingId =
+                            booking.TrainerBookingId,
+
+                        Amount =
+                            trainerSessionFee,
+
+                        PaymentMethod =
+                            "PayFast",
+
+                        PaymentStatus =
+                            "Pending",
+
+                        PaymentDate =
+                            DateTime.Now,
+
+                        ReceiptNumber =
+                            paymentId
+                    };
+
+                _context.Payments.Add(payment);
+            }
+
+            await _context.SaveChangesAsync();
+
+            var publicUrl =
+                await _ngrokService.GetPublicUrlAsync();
+
+            if (string.IsNullOrWhiteSpace(publicUrl))
+            {
+                var pendingPayment =
+                    await _context.Payments
+                        .FirstOrDefaultAsync(p =>
+                            p.ReceiptNumber == paymentId);
+
+                if (pendingPayment != null)
+                {
+                    pendingPayment.PaymentStatus =
+                        "Failed";
+                }
+
+                booking.Status =
+                    "PaymentFailed";
+
+                await _context.SaveChangesAsync();
+
+                TempData["TrainerRequestError"] =
+                    "Unable to connect to the payment service.";
+
+                return RedirectToAction(
+                    "MyTrainerRequests",
+                    "Member");
+            }
+
+            publicUrl =
+                publicUrl.TrimEnd('/');
+
+            var returnUrl =
+                $"{publicUrl}/Banking/PaymentSuccessTrainerBooking?bookingId={bookingId}";
+
+            var cancelUrl =
+                $"{publicUrl}/Banking/PaymentCancelledTrainerBooking?bookingId={bookingId}";
+
+            var notifyUrl =
+                $"{publicUrl}/Banking/PaymentNotify";
+
+            var paymentData =
+                CreatePaymentData(
+                    paymentId,
+                    trainerSessionFee,
+                    booking.Student?.Name,
+                    booking.Student?.Surname,
+                    booking.Student?.Email,
+                    returnUrl,
+                    cancelUrl,
+                    notifyUrl,
+                    "DUT Campus FIT Gym Trainer Session");
+
+            return Redirect(
+                BuildPayFastUrl(paymentData));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PaymentSuccessTrainerBooking(
+            int bookingId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var booking =
+                await _context.TrainerBookings
+                    .Include(b => b.Trainer)
+                    .FirstOrDefaultAsync(b =>
+                        b.TrainerBookingId == bookingId &&
+                        b.StudentId == memberId.Value);
+
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            for (var attempt = 0; attempt < 10; attempt++)
+            {
+                await _context.Entry(booking)
+                    .ReloadAsync();
+
+                if (booking.Status == "Booked")
+                {
+                    ViewBag.BookingId =
+                        booking.TrainerBookingId;
+
+                    ViewBag.Amount =
+                        50m;
+
+                    ViewBag.TrainerName =
+                        booking.Trainer?.TrainerName ?? "Trainer";
+
+                    ViewBag.SessionDate =
+                        booking.StartTime.ToString(
+                            "dd MMMM yyyy");
+
+                    ViewBag.StartTime =
+                        booking.StartTime.ToString(
+                            "HH:mm");
+
+                    ViewBag.EndTime =
+                        booking.EndTime.ToString(
+                            "HH:mm");
+
+                    return View("PaymentSuccessTrainerBooking");
+                }
+
+                if (booking.Status == "PaymentFailed" ||
+                    booking.Status == "PaymentCancelled")
+                {
+                    TempData["TrainerRequestError"] =
+                        "Your trainer session payment could not be confirmed.";
+
+                    return RedirectToAction(
+                        "MyTrainerRequests",
+                        "Member");
+                }
+
+                await Task.Delay(1000);
+            }
+
+            ViewBag.BookingId =
+                booking.TrainerBookingId;
+
+            return View("PaymentProcessingTrainerBooking");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PaymentCancelledTrainerBooking(
+            int bookingId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var booking =
+                await _context.TrainerBookings
+                    .FirstOrDefaultAsync(b =>
+                        b.TrainerBookingId == bookingId &&
+                        b.StudentId == memberId.Value);
+
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            if (booking.Status == "PendingPayment")
+            {
+                booking.Status =
+                    "PaymentCancelled";
+
+                var payment =
+                    await _context.Payments
+                        .FirstOrDefaultAsync(p =>
+                            p.TrainerBookingId == bookingId &&
+                            p.PaymentStatus == "Pending");
+
+                if (payment != null)
+                {
+                    payment.PaymentStatus =
+                        "Failed";
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["TrainerRequestError"] =
+                "Trainer session payment was cancelled.";
+
+            return RedirectToAction(
+                "MyTrainerRequests",
+                "Member");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CheckTrainerBookingPaymentStatus(
+            int bookingId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    status = "Unauthorised"
+                });
+            }
+
+            var booking =
+                await _context.TrainerBookings
+                    .FirstOrDefaultAsync(b =>
+                        b.TrainerBookingId == bookingId &&
+                        b.StudentId == memberId.Value);
+
+            if (booking == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    status = "NotFound"
+                });
+            }
+
+            var payment =
+                await _context.Payments
+                    .FirstOrDefaultAsync(p =>
+                        p.TrainerBookingId == bookingId);
+
+            var status =
+                booking.Status switch
+                {
+                    "Booked" => "Completed",
+                    "PaymentFailed" => "Failed",
+                    "PaymentCancelled" => "Cancelled",
+                    _ => payment?.PaymentStatus ?? "Pending"
+                };
+
+            return Json(new
+            {
+                success = true,
+                status,
+                bookingStatus = booking.Status
+            });
         }
 
         [HttpPost]
@@ -388,147 +1179,81 @@ namespace DUT_Campus_FIT_Gym.Controllers
         {
             try
             {
-                Request.EnableBuffering();
-
-                using var reader =
-                    new StreamReader(
-                        Request.Body,
-                        Encoding.UTF8,
-                        leaveOpen: true);
-
-                var rawBody =
-                    await reader.ReadToEndAsync();
-
-                Request.Body.Position = 0;
+                _logger.LogInformation(
+                    "PAYFAST ITN RECEIVED. Method: {Method}, Path: {Path}",
+                    Request.Method,
+                    Request.Path);
 
                 var form =
                     await Request.ReadFormAsync();
 
-                var receivedSignature =
-                    form["signature"]
-                        .ToString()
-                        .Trim()
-                        .ToLowerInvariant();
-
-                var signatureParts =
-                    new List<string>();
-
-                foreach (var key in form.Keys)
-                {
-                    if (key.Equals(
-                        "signature",
-                        StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    var value =
-                        form[key]
-                            .ToString()
-                            .Trim();
-
-                    var encodedValue =
-                        Uri.EscapeDataString(value)
-                            .Replace("%20", "+");
-
-                    signatureParts.Add(
-                        $"{key}={encodedValue}");
-                }
-
-                var signatureString =
+                _logger.LogInformation(
+                    "PAYFAST ITN FORM: {FormData}",
                     string.Join(
-                        "&",
-                        signatureParts);
+                        " | ",
+                        form.Keys.Select(key =>
+                            $"{key}={form[key]}")));
 
-                if (!string.IsNullOrWhiteSpace(
-                    _payFast.Passphrase))
-                {
-                    signatureString +=
-                        "&passphrase=" +
-                        Uri.EscapeDataString(
-                            _payFast.Passphrase.Trim())
-                        .Replace("%20", "+");
-                }
-
-                using var md5 = MD5.Create();
-
-                var calculatedSignature =
-                    Convert.ToHexString(
-                        md5.ComputeHash(
-                            Encoding.UTF8.GetBytes(
-                                signatureString)))
-                    .ToLowerInvariant();
-
-                if (!string.Equals(
-                    receivedSignature,
-                    calculatedSignature,
-                    StringComparison.OrdinalIgnoreCase))
+                if (!form.ContainsKey("signature"))
                 {
                     _logger.LogWarning(
-                        "Invalid PayFast ITN signature.");
+                        "PayFast notification did not contain a signature.");
 
-                    return BadRequest(
-                        "Invalid signature");
+                    return BadRequest();
                 }
 
                 var merchantId =
-                    form["merchant_id"]
-                        .ToString();
+                    form["merchant_id"].ToString().Trim();
 
-                if (!string.Equals(
-                    merchantId,
-                    _payFast.MerchantId,
-                    StringComparison.Ordinal))
+                if (string.IsNullOrWhiteSpace(merchantId) ||
+                    merchantId !=
+                    _payFastSettings.MerchantId.Trim())
                 {
                     _logger.LogWarning(
-                        "Invalid PayFast merchant ID.");
+                        "PayFast merchant ID validation failed.");
 
-                    return BadRequest(
-                        "Invalid merchant");
+                    return BadRequest();
+                }
+
+                if (!form.ContainsKey("payment_status") ||
+                    !form.ContainsKey("m_payment_id") ||
+                    !form.ContainsKey("amount_gross"))
+                {
+                    return BadRequest();
                 }
 
                 var paymentStatus =
                     form["payment_status"]
-                        .ToString();
+                        .ToString()
+                        .Trim()
+                        .ToUpperInvariant();
 
                 var mPaymentId =
                     form["m_payment_id"]
-                        .ToString();
+                        .ToString()
+                        .Trim();
 
                 var amountGross =
                     form["amount_gross"]
-                        .ToString();
-
-                if (string.IsNullOrWhiteSpace(
-                    mPaymentId))
-                {
-                    return BadRequest(
-                        "Missing payment ID");
-                }
+                        .ToString()
+                        .Trim();
 
                 var payment =
                     await _context.Payments
+                        .Include(p => p.Membership)
+                        .Include(p => p.EquipmentPenalty)
+                        .Include(p => p.PrivateTrainerSubscription)
+                        .Include(p => p.TrainerBooking)
+                            .ThenInclude(b => b!.Trainer)
+                        .Include(p => p.TrainerBooking)
+                            .ThenInclude(b => b!.Student)
                         .FirstOrDefaultAsync(p =>
                             p.ReceiptNumber == mPaymentId);
 
                 if (payment == null)
                 {
                     _logger.LogWarning(
-                        "Payment not found for {PaymentId}",
-                        mPaymentId);
-
-                    return Ok();
-                }
-
-                var membership =
-                    await _context.Memberships
-                        .FirstOrDefaultAsync(m =>
-                            m.PaymentReference == mPaymentId);
-
-                if (membership == null)
-                {
-                    _logger.LogWarning(
-                        "Membership not found for {PaymentId}",
+                        "PayFast payment {PaymentId} was not found.",
                         mPaymentId);
 
                     return Ok();
@@ -536,73 +1261,65 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
                 if (!decimal.TryParse(
                     amountGross,
-                    NumberStyles.Number,
+                    NumberStyles.Any,
                     CultureInfo.InvariantCulture,
                     out var paidAmount))
                 {
                     _logger.LogWarning(
-                        "Invalid PayFast amount for {PaymentId}",
-                        mPaymentId);
+                        "Invalid PayFast amount received for {PaymentId}: {Amount}.",
+                        mPaymentId,
+                        amountGross);
 
-                    return BadRequest(
-                        "Invalid amount");
+                    return BadRequest();
                 }
 
-                if (Math.Abs(
-                    paidAmount - payment.Amount) > 0.01m)
+                paidAmount =
+                    decimal.Round(
+                        paidAmount,
+                        2);
+
+                var expectedAmount =
+                    decimal.Round(
+                        payment.Amount,
+                        2);
+
+                if (paidAmount != expectedAmount)
                 {
                     _logger.LogWarning(
-                        "PayFast amount mismatch for {PaymentId}. Expected {Expected}, Received {Received}",
+                        "PayFast payment amount mismatch for {PaymentId}. Expected {ExpectedAmount}, received {ReceivedAmount}.",
                         mPaymentId,
-                        payment.Amount,
+                        expectedAmount,
                         paidAmount);
 
-                    return BadRequest(
-                        "Amount mismatch");
+                    return BadRequest();
                 }
 
-                if (paymentStatus.Equals(
-                    "COMPLETE",
-                    StringComparison.OrdinalIgnoreCase))
+                if (payment.EquipmentPenaltyId.HasValue)
                 {
-                    if (membership.Status == "Active" &&
-                        payment.PaymentStatus == "Completed")
-                    {
-                        return Ok();
-                    }
-
-                    var dates =
-                        _pricingService.GetMembershipDates(
-                            membership.MembershipType,
-                            DateTime.Today.Year);
-
-                    membership.Status = "Active";
-                    membership.PaymentStatus = "Completed";
-                    membership.PaymentDate = DateTime.Now;
-                    membership.StartDate = dates.StartDate;
-                    membership.EndDate = dates.EndDate;
-
-                    payment.PaymentStatus = "Completed";
-                    payment.PaymentDate = DateTime.Now;
-
-                    await _context.SaveChangesAsync();
-
-                    _logger.LogInformation(
-                        "Membership {MembershipId} activated after successful PayFast payment.",
-                        membership.MembershipId);
+                    return await ProcessPenaltyPayment(
+                        payment,
+                        paymentStatus);
                 }
-                else if (
-                    paymentStatus.Equals(
-                        "CANCELLED",
-                        StringComparison.OrdinalIgnoreCase) ||
-                    paymentStatus.Equals(
-                        "FAILED",
-                        StringComparison.OrdinalIgnoreCase))
-                {
-                    membership.PaymentStatus = "Failed";
-                    payment.PaymentStatus = "Failed";
 
-                    await _context.SaveChangesAsync();
+                if (payment.PrivateTrainerSubscriptionId.HasValue)
+                {
+                    return await ProcessPrivateTrainerPayment(
+                        payment,
+                        paymentStatus);
+                }
+
+                if (payment.TrainerBookingId.HasValue)
+                {
+                    return await ProcessTrainerBookingPayment(
+                        payment,
+                        paymentStatus);
+                }
+
+                if (payment.MembershipId.HasValue)
+                {
+                    return await ProcessMembershipPayment(
+                        payment,
+                        paymentStatus);
                 }
 
                 return Ok();
@@ -611,98 +1328,599 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 _logger.LogError(
                     ex,
-                    "Error processing PayFast ITN.");
+                    "Error processing PayFast notification.");
+
+                return BadRequest();
+            }
+        }
+
+        private async Task<IActionResult> ProcessPenaltyPayment(
+            Payment payment,
+            string paymentStatus)
+        {
+            var penalty =
+                payment.EquipmentPenalty;
+
+            if (penalty == null)
+            {
+                return Ok();
+            }
+
+            if (paymentStatus == "COMPLETE")
+            {
+                penalty.Status =
+                    "Paid";
+
+                payment.PaymentStatus =
+                    "Completed";
+
+                payment.PaymentDate =
+                    DateTime.Now;
+
+                await _context.SaveChangesAsync();
 
                 return Ok();
             }
+
+            if (paymentStatus == "CANCELLED" ||
+                paymentStatus == "FAILED")
+            {
+                payment.PaymentStatus =
+                    "Failed";
+
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+
+            return Ok();
+        }
+
+        private async Task<IActionResult> ProcessPrivateTrainerPayment(
+            Payment payment,
+            string paymentStatus)
+        {
+            var subscription =
+                payment.PrivateTrainerSubscription;
+
+            if (subscription == null)
+            {
+                return Ok();
+            }
+
+            if (paymentStatus == "COMPLETE")
+            {
+                if (payment.PaymentStatus == "Completed" &&
+                    subscription.Status == "Active")
+                {
+                    return Ok();
+                }
+
+                var trainerMemberCount =
+                    await _context.PrivateTrainerSubscriptions
+                        .CountAsync(s =>
+                            s.TrainerId ==
+                            subscription.TrainerId &&
+                            s.Status == "Active" &&
+                            s.EndDate >= DateTime.Now &&
+                            s.PrivateTrainerSubscriptionId !=
+                            subscription.PrivateTrainerSubscriptionId);
+
+                if (trainerMemberCount >= 2 &&
+                    subscription.Status != "Active")
+                {
+                    subscription.Status =
+                        "TrainerFullPaid";
+
+                    payment.PaymentStatus =
+                        "Completed";
+
+                    payment.PaymentDate =
+                        DateTime.Now;
+
+                    await _context.SaveChangesAsync();
+
+                    return Ok();
+                }
+
+                var startDate =
+                    DateTime.Now;
+
+                subscription.Status =
+                    "Active";
+
+                subscription.StartDate =
+                    startDate;
+
+                subscription.EndDate =
+                    startDate
+                        .AddMonths(1)
+                        .AddDays(-1);
+
+                subscription.Amount =
+                    145m;
+
+                subscription.PaymentReference =
+                    payment.ReceiptNumber;
+
+                payment.PaymentStatus =
+                    "Completed";
+
+                payment.PaymentDate =
+                    startDate;
+
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+
+            if (paymentStatus == "CANCELLED" ||
+                paymentStatus == "FAILED")
+            {
+                subscription.Status =
+                    "PaymentFailed";
+
+                payment.PaymentStatus =
+                    "Failed";
+
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+
+            return Ok();
+        }
+
+        private async Task<IActionResult> ProcessTrainerBookingPayment(
+            Payment payment,
+            string paymentStatus)
+        {
+            var booking =
+                payment.TrainerBooking;
+
+            if (booking == null)
+            {
+                return Ok();
+            }
+
+            if (paymentStatus == "COMPLETE")
+            {
+                if (payment.PaymentStatus == "Completed" &&
+                    booking.Status == "Booked")
+                {
+                    return Ok();
+                }
+
+                if (booking.Status != "PendingPayment")
+                {
+                    return Ok();
+                }
+
+                var trainerConflict =
+                    await _context.TrainerBookings
+                        .AnyAsync(b =>
+                            b.TrainerId == booking.TrainerId &&
+                            b.TrainerBookingId != booking.TrainerBookingId &&
+                            (
+                                b.Status == "Booked" ||
+                                b.Status == "PendingPayment"
+                            ) &&
+                            booking.StartTime < b.EndTime &&
+                            booking.EndTime > b.StartTime);
+
+                if (trainerConflict)
+                {
+                    booking.Status =
+                        "PaymentFailed";
+
+                    payment.PaymentStatus =
+                        "Failed";
+
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogWarning(
+                        "Trainer booking {BookingId} could not be confirmed because of a trainer conflict.",
+                        booking.TrainerBookingId);
+
+                    return Ok();
+                }
+
+                var studentConflict =
+                    await _context.TrainerBookings
+                        .AnyAsync(b =>
+                            b.StudentId == booking.StudentId &&
+                            b.TrainerBookingId != booking.TrainerBookingId &&
+                            (
+                                b.Status == "Booked" ||
+                                b.Status == "PendingPayment"
+                            ) &&
+                            booking.StartTime < b.EndTime &&
+                            booking.EndTime > b.StartTime);
+
+                if (studentConflict)
+                {
+                    booking.Status =
+                        "PaymentFailed";
+
+                    payment.PaymentStatus =
+                        "Failed";
+
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogWarning(
+                        "Trainer booking {BookingId} could not be confirmed because of a student conflict.",
+                        booking.TrainerBookingId);
+
+                    return Ok();
+                }
+
+                var dayStart =
+                    booking.StartTime.Date;
+
+                var dayEnd =
+                    dayStart.AddDays(1);
+
+                var dailySessionCount =
+                    await _context.TrainerBookings
+                        .CountAsync(b =>
+                            b.TrainerId == booking.TrainerId &&
+                            b.TrainerBookingId != booking.TrainerBookingId &&
+                            (
+                                b.Status == "Booked" ||
+                                b.Status == "PendingPayment"
+                            ) &&
+                            b.StartTime >= dayStart &&
+                            b.StartTime < dayEnd);
+
+                if (dailySessionCount >= 3)
+                {
+                    booking.Status =
+                        "PaymentFailed";
+
+                    payment.PaymentStatus =
+                        "Failed";
+
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogWarning(
+                        "Trainer booking {BookingId} could not be confirmed because the trainer already has 3 sessions that day.",
+                        booking.TrainerBookingId);
+
+                    return Ok();
+                }
+
+                booking.Status =
+                    "Booked";
+
+                payment.PaymentStatus =
+                    "Completed";
+
+                payment.PaymentDate =
+                    DateTime.Now;
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation(
+                    "Trainer booking {BookingId} payment confirmed successfully.",
+                    booking.TrainerBookingId);
+
+                return Ok();
+            }
+
+            if (paymentStatus == "CANCELLED" ||
+                paymentStatus == "FAILED")
+            {
+                booking.Status =
+                    "PaymentFailed";
+
+                payment.PaymentStatus =
+                    "Failed";
+
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+
+            return Ok();
+        }
+
+        private async Task<IActionResult> ProcessMembershipPayment(
+            Payment payment,
+            string paymentStatus)
+        {
+            var membership =
+                payment.Membership;
+
+            if (membership == null)
+            {
+                return Ok();
+            }
+
+            if (paymentStatus == "COMPLETE")
+            {
+                if (payment.PaymentStatus == "Completed" &&
+                    membership.Status == "Active")
+                {
+                    return Ok();
+                }
+
+                var startDate =
+                    DateTime.Now;
+
+                membership.Status =
+                    "Active";
+
+                membership.PaymentStatus =
+                    "Completed";
+
+                membership.PaymentDate =
+                    startDate;
+
+                membership.StartDate =
+                    startDate;
+
+                if (membership.MembershipType ==
+                    "Semester")
+                {
+                    membership.EndDate =
+                        startDate.AddMonths(6);
+                }
+                else
+                {
+                    membership.EndDate =
+                        startDate.AddYears(1);
+                }
+
+                payment.PaymentStatus =
+                    "Completed";
+
+                payment.PaymentDate =
+                    startDate;
+
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+
+            if (paymentStatus == "CANCELLED" ||
+                paymentStatus == "FAILED")
+            {
+                membership.PaymentStatus =
+                    "Failed";
+
+                payment.PaymentStatus =
+                    "Failed";
+
+                await _context.SaveChangesAsync();
+
+                return Ok();
+            }
+
+            return Ok();
         }
 
         [HttpGet]
         public async Task<IActionResult> CheckPaymentStatus(
             int membershipId)
         {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return Json(new
+                {
+                    success = false
+                });
+            }
+
             var membership =
                 await _context.Memberships
                     .FirstOrDefaultAsync(m =>
-                        m.MembershipId == membershipId);
+                        m.MembershipId == membershipId &&
+                        m.MemberId == memberId.Value);
 
             if (membership == null)
             {
-                return NotFound();
-            }
-
-            return Json(
-                new
+                return Json(new
                 {
-                    status = membership.PaymentStatus,
-                    membershipStatus = membership.Status
+                    success = false
                 });
+            }
+
+            return Json(new
+            {
+                success = true,
+                status = membership.PaymentStatus,
+                membershipStatus = membership.Status
+            });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> PaymentComplete(
-            int membershipId)
+        private List<KeyValuePair<string, string>> CreatePaymentData(
+            string paymentId,
+            decimal amount,
+            string? firstName,
+            string? lastName,
+            string? email,
+            string returnUrl,
+            string cancelUrl,
+            string notifyUrl,
+            string itemName)
         {
-            try
+            return new List<KeyValuePair<string, string>>
             {
-                var membership =
-                    await _context.Memberships
-                        .FirstOrDefaultAsync(m =>
-                            m.MembershipId == membershipId);
+                new(
+                    "merchant_id",
+                    _payFastSettings.MerchantId),
 
-                if (membership == null)
-                {
-                    return NotFound();
-                }
+                new(
+                    "merchant_key",
+                    _payFastSettings.MerchantKey),
 
-                if (membership.Status != "Active")
-                {
-                    return RedirectToAction(
-                        nameof(PaymentSuccess),
-                        new { membershipId });
-                }
+                new(
+                    "return_url",
+                    returnUrl),
 
-                ViewBag.MembershipType =
-                    membership.MembershipType;
+                new(
+                    "cancel_url",
+                    cancelUrl),
 
-                ViewBag.ExpiryDate =
-                    membership.EndDate?
-                        .ToString(
-                            "MMMM dd, yyyy");
+                new(
+                    "notify_url",
+                    notifyUrl),
 
-                ViewBag.Amount =
-                    membership.Price;
+                new(
+                    "name_first",
+                    firstName ?? ""),
 
-                return View("Tick");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Error in PaymentComplete for Membership {MembershipId}",
-                    membershipId);
+                new(
+                    "name_last",
+                    lastName ?? ""),
 
-                return RedirectToAction(
-                    "Membership",
-                    "Member");
-            }
+                new(
+                    "email_address",
+                    email ?? ""),
+
+                new(
+                    "m_payment_id",
+                    paymentId),
+
+                new(
+                    "amount",
+                    amount.ToString(
+                        "0.00",
+                        CultureInfo.InvariantCulture)),
+
+                new(
+                    "item_name",
+                    itemName)
+            };
         }
 
-        [HttpGet]
-        public IActionResult Processing(
-            int membershipId)
+        private List<KeyValuePair<string, string>> BuildNotificationData(
+            IFormCollection form)
         {
-            ViewBag.MembershipId =
-                membershipId;
+            var data =
+                new List<KeyValuePair<string, string>>();
 
-            ViewBag.RefreshInterval =
-                5;
+            foreach (var key in form.Keys)
+            {
+                if (key.Equals(
+                    "signature",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
 
-            ViewBag.MaxAttempts =
-                24;
+                var value =
+                    form[key].ToString();
 
-            return View(
-                "~/Views/Banking/Processing.cshtml");
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    continue;
+                }
+
+                data.Add(
+                    new KeyValuePair<string, string>(
+                        key.Trim(),
+                        value.Trim()));
+            }
+
+            return data;
+        }
+
+        private string GenerateSignature(
+            IEnumerable<KeyValuePair<string, string>> data)
+        {
+            var parameters =
+                new List<string>();
+
+            foreach (var item in data)
+            {
+                if (string.IsNullOrWhiteSpace(item.Value))
+                {
+                    continue;
+                }
+
+                var key =
+                    item.Key.Trim();
+
+                var value =
+                    item.Value.Trim();
+
+                parameters.Add(
+                    $"{key}={WebUtility.UrlEncode(value)}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(
+                _payFastSettings.Passphrase))
+            {
+                parameters.Add(
+                    $"passphrase={WebUtility.UrlEncode(
+                        _payFastSettings.Passphrase.Trim())}");
+            }
+
+            var parameterString =
+                string.Join(
+                    "&",
+                    parameters);
+
+            using var md5 =
+                MD5.Create();
+
+            var hash =
+                md5.ComputeHash(
+                    Encoding.UTF8.GetBytes(
+                        parameterString));
+
+            return Convert.ToHexString(hash)
+                .ToLowerInvariant();
+        }
+
+        private string BuildPayFastUrl(
+            IEnumerable<KeyValuePair<string, string>> data)
+        {
+            var paymentData =
+                data
+                    .Where(x =>
+                        !string.IsNullOrWhiteSpace(x.Value))
+                    .Select(x =>
+                        new KeyValuePair<string, string>(
+                            x.Key.Trim(),
+                            x.Value.Trim()))
+                    .ToList();
+
+            var signature =
+                GenerateSignature(paymentData);
+
+            var query =
+                new StringBuilder();
+
+            foreach (var item in paymentData)
+            {
+                if (query.Length > 0)
+                {
+                    query.Append('&');
+                }
+
+                query.Append(
+                    WebUtility.UrlEncode(
+                        item.Key));
+
+                query.Append('=');
+
+                query.Append(
+                    WebUtility.UrlEncode(
+                        item.Value));
+            }
+
+            query.Append("&signature=");
+
+            query.Append(
+                WebUtility.UrlEncode(
+                    signature));
+
+            return
+                $"https://sandbox.payfast.co.za/eng/process?{query}";
         }
     }
 }

@@ -1,0 +1,192 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.TrainerBooking>
+
+@{
+    ViewData["Title"] = "Upcoming Sessions";
+}
+
+<div class="trainer-page">
+
+    <div class="trainer-page-header">
+
+        <div>
+
+            <span class="trainer-page-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Upcoming Sessions
+            </h1>
+
+            <p>
+                View your scheduled training sessions with members.
+            </p>
+
+        </div>
+
+        <a asp-controller="Trainer"
+           asp-action="Index"
+           class="trainer-back-btn">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Dashboard
+
+        </a>
+
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="trainer-empty-state">
+
+            <div class="empty-icon">
+                <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+
+            <h3>
+                No Upcoming Sessions
+            </h3>
+
+            <p>
+                You currently have no scheduled training sessions.
+            </p>
+
+        </div>
+    }
+    else
+    {
+        <div class="requests-card">
+
+            <div class="requests-card-header">
+
+                <div>
+
+                    <span class="trainer-section-label">
+                        TRAINING SCHEDULE
+                    </span>
+
+                    <h2>
+                        Scheduled Sessions
+                    </h2>
+
+                </div>
+
+                <span class="request-count">
+                    @Model.Count() Session(s)
+                </span>
+
+            </div>
+
+            <div class="requests-card-body">
+
+                <div class="trainer-request-list">
+
+                    @foreach (var booking in Model)
+                    {
+                        <div class="trainer-request-item">
+
+                            <div class="request-student">
+
+                                <div class="request-avatar">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+
+                                <div>
+
+                                    <h3>
+                                        @booking.Student?.Name
+                                        @booking.Student?.Surname
+                                    </h3>
+
+                                    <span>
+                                        @booking.Student?.Email
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="request-info">
+
+                                <span class="detail-label">
+                                    DATE
+                                </span>
+
+                                <p>
+                                    <i class="fa-solid fa-calendar"></i>
+                                    @booking.StartTime.ToString("dd MMM yyyy")
+                                </p>
+
+                            </div>
+
+                            <div class="request-date">
+
+                                <span class="detail-label">
+                                    TIME
+                                </span>
+
+                                <strong>
+                                    @booking.StartTime.ToString("HH:mm")
+                                </strong>
+
+                                <small>
+                                    to @booking.EndTime.ToString("HH:mm")
+                                </small>
+
+                            </div>
+
+                            <div class="request-status">
+
+                                <span class="detail-label">
+                                    DURATION
+                                </span>
+
+                                <span class="request-badge accepted">
+                                    <i class="fa-solid fa-clock"></i>
+                                    1 Hour
+                                </span>
+
+                            </div>
+
+                            <div class="request-actions">
+
+                                <span class="detail-label">
+                                    STATUS
+                                </span>
+
+                                <span class="request-action-status">
+                                    Upcoming
+                                </span>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+    <a asp-controller="Trainer"
+       asp-action="Requests"
+       class="trainer-back-button">
+
+        <i class="fa-solid fa-arrow-left"></i>
+
+        Back to Requests
+
+    </a>
+
+</div>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/trainer.css"
+          asp-append-version="true" />
+
+}

@@ -1,0 +1,435 @@
+﻿.private-trainer-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.private-trainer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.private-trainer-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #1597e5;
+}
+
+.private-trainer-header h1 {
+    margin: 6px 0;
+    font-size: 32px;
+    font-weight: 800;
+    color: #071a33;
+}
+
+.private-trainer-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 15px;
+}
+
+.private-trainer-header-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #071a33;
+    color: #ffffff;
+    font-size: 26px;
+    flex-shrink: 0;
+}
+
+.private-trainer-alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 18px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.private-trainer-alert-danger {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.private-trainer-info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 22px;
+    margin-bottom: 35px;
+    border-radius: 16px;
+    background: #eff8ff;
+    border: 1px solid #d7edfc;
+}
+
+.private-trainer-info-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1597e5;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.private-trainer-info-card strong {
+    display: block;
+    color: #071a33;
+    margin-bottom: 5px;
+}
+
+.private-trainer-info-card p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.private-trainer-section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+    .private-trainer-section-header > div:first-child span {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        color: #1597e5;
+    }
+
+    .private-trainer-section-header h2 {
+        margin: 5px 0 0;
+        color: #071a33;
+        font-size: 23px;
+        font-weight: 800;
+    }
+
+.private-trainer-price {
+    text-align: right;
+}
+
+    .private-trainer-price strong {
+        display: block;
+        color: #071a33;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    .private-trainer-price span {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+.private-trainer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.private-trainer-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .private-trainer-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+    }
+
+.private-trainer-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 22px 0;
+}
+
+.private-trainer-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eaf6fd;
+    color: #1597e5;
+    font-size: 27px;
+}
+
+    .private-trainer-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.private-trainer-card-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+    .private-trainer-card-status.available {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .private-trainer-card-status.full {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+.private-trainer-card-content {
+    padding: 18px 22px 22px;
+}
+
+    .private-trainer-card-content h3 {
+        margin: 0 0 5px;
+        color: #071a33;
+        font-size: 19px;
+        font-weight: 800;
+    }
+
+.private-trainer-category {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 22px;
+}
+
+.private-trainer-capacity {
+    margin-bottom: 20px;
+}
+
+    .private-trainer-capacity > div:first-child {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .private-trainer-capacity span {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.7px;
+        color: #94a3b8;
+    }
+
+    .private-trainer-capacity strong {
+        font-size: 13px;
+        color: #071a33;
+    }
+
+.private-trainer-capacity-bar {
+    height: 7px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #e2e8f0;
+}
+
+    .private-trainer-capacity-bar div {
+        height: 100%;
+        border-radius: 999px;
+        background: #1597e5;
+    }
+
+.private-trainer-button {
+    width: 100%;
+    border: 0;
+    border-radius: 11px;
+    padding: 12px 16px;
+    background: #071a33;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+    .private-trainer-button:hover {
+        background: #0b2d52;
+        transform: translateY(-1px);
+    }
+
+.private-trainer-button-disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+    .private-trainer-button-disabled:hover {
+        background: #e2e8f0;
+        transform: none;
+    }
+
+.private-trainer-active-card {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 28px;
+    margin-bottom: 30px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #dbeafe;
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+}
+
+.private-trainer-active-icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.private-trainer-status {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #059669;
+}
+
+.private-trainer-active-content h2 {
+    margin: 4px 0;
+    color: #071a33;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.private-trainer-active-content p {
+    margin: 0 0 20px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.private-trainer-dates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+    .private-trainer-dates div {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .private-trainer-dates span {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.7px;
+        color: #94a3b8;
+    }
+
+    .private-trainer-dates strong {
+        color: #071a33;
+        font-size: 13px;
+    }
+
+.private-trainer-empty {
+    padding: 60px 20px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+}
+
+    .private-trainer-empty i {
+        font-size: 40px;
+        color: #94a3b8;
+    }
+
+    .private-trainer-empty h3 {
+        margin: 15px 0 5px;
+        color: #071a33;
+        font-size: 20px;
+    }
+
+    .private-trainer-empty p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+.private-trainer-back {
+    margin-top: 25px;
+}
+
+    .private-trainer-back a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+        .private-trainer-back a:hover {
+            color: #071a33;
+        }
+
+@media (max-width: 900px) {
+    .private-trainer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .private-trainer-page {
+        padding: 20px;
+    }
+
+    .private-trainer-header {
+        align-items: flex-start;
+    }
+
+        .private-trainer-header h1 {
+            font-size: 26px;
+        }
+
+    .private-trainer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .private-trainer-section-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .private-trainer-price {
+        text-align: left;
+    }
+
+    .private-trainer-active-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

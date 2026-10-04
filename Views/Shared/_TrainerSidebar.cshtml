@@ -1,5 +1,6 @@
 ﻿@using System.Security.Claims
 @using DUT_Campus_FIT_Gym.Data
+@using Microsoft.EntityFrameworkCore
 @inject GymDbContext Context
 
 @{
@@ -11,6 +12,9 @@
     var trainer = !string.IsNullOrEmpty(trainerEmail)
         ? Context.Trainers.FirstOrDefault(t => t.Email == trainerEmail)
         : null;
+
+    var pendingChallengeProofs =
+        Context.ChallengeProofs.Count(p => p.Status == "PendingReview");
 }
 
 <aside class="trainer-sidebar">
@@ -85,6 +89,16 @@
         </a>
 
         <a asp-controller="Trainer"
+           asp-action="PrivateTrainer"
+           class="@(currentController == "Trainer" && currentAction == "PrivateTrainer" ? "active" : "")"
+           title="Private Trainer">
+
+            <i class="fa-solid fa-user-shield"></i>
+            <span>Private Trainer</span>
+
+        </a>
+
+        <a asp-controller="Trainer"
            asp-action="StudentProfiles"
            class="@(currentController == "Trainer" && (currentAction == "StudentProfiles" || currentAction == "ViewProfile") ? "active" : "")"
            title="Student Profiles">
@@ -111,6 +125,23 @@
 
             <i class="fa-solid fa-dumbbell"></i>
             <span>Workout Plans</span>
+
+        </a>
+
+        <a asp-controller="Trainer"
+           asp-action="ChallengeProofs"
+           class="@(currentController == "Trainer" && (currentAction == "ChallengeProofs" || currentAction == "ReviewChallengeProof") ? "active" : "")"
+           title="Challenge Proofs">
+
+            <i class="fa-solid fa-video"></i>
+            <span>Challenge Proofs</span>
+
+            @if (pendingChallengeProofs > 0)
+            {
+                <span class="trainer-nav-badge">
+                    @pendingChallengeProofs
+                </span>
+            }
 
         </a>
 

@@ -1,5 +1,4 @@
 ﻿using DUT_Campus_FIT_Gym.Data;
-using DUT_Campus_FIT_Gym.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DUT_Campus_FIT_Gym.Services
@@ -103,51 +102,6 @@ namespace DUT_Campus_FIT_Gym.Services
                         equipment.IsAvailable =
                             false;
                     }
-                }
-
-                if (reservation.Status ==
-                        "Expired" &&
-                    !reservation.NotificationDismissed &&
-                    reservation.EndTime
-                        .AddMinutes(1) <= now)
-                {
-                    var penaltyReason =
-                        $"Reservation notification penalty #{reservation.ReservationID}";
-
-                    var penaltyAlreadyApplied =
-                        await context.RewardPoints
-                            .AnyAsync(
-                                r =>
-                                    r.MemberId ==
-                                        reservation.MemberID &&
-                                    r.Reason ==
-                                        penaltyReason,
-                                stoppingToken);
-
-                    if (!penaltyAlreadyApplied)
-                    {
-                        var rewardPoint =
-                            new RewardPoint
-                            {
-                                MemberId =
-                                    reservation.MemberID,
-
-                                Points =
-                                    -15,
-
-                                Reason =
-                                    penaltyReason,
-
-                                EarnedAt =
-                                    now
-                            };
-
-                        context.RewardPoints.Add(
-                            rewardPoint);
-                    }
-
-                    reservation.NotificationDismissed =
-                        true;
                 }
 
                 if (reservation.Status ==

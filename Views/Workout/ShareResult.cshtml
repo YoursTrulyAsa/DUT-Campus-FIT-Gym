@@ -1,0 +1,136 @@
+﻿@{
+    ViewData["Title"] = "Share Workout Result";
+
+    var programme =
+        ViewBag.WorkoutProgramme
+        as DUT_Campus_FIT_Gym.Models.WorkoutProgramme;
+}
+
+<div class="workout-result-page">
+
+    <div class="workout-result-header">
+
+        <span class="page-label">WORKOUT PROGRESS</span>
+
+        <h1>Share Your Result</h1>
+
+        <p>
+            Share your completed programme and tell the community
+            about your workout experience.
+        </p>
+
+    </div>
+
+    @if (programme != null)
+    {
+        <div class="workout-result-programme">
+
+            <span>COMPLETED PROGRAMME</span>
+
+            <h2>
+                @programme.ProgrammeName
+            </h2>
+
+            <p>
+                @programme.FitnessLevel · @programme.Goal
+            </p>
+
+        </div>
+
+        <form asp-controller="Workout"
+              asp-action="ShareResult"
+              method="post"
+              enctype="multipart/form-data"
+              class="workout-result-form">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="workoutProgrammeId"
+                   value="@programme.WorkoutProgrammeId" />
+
+            <div class="workout-result-photo-grid">
+
+                <div class="workout-result-upload">
+
+                    <div class="workout-result-upload-icon">
+                        <i class="fa-solid fa-image"></i>
+                    </div>
+
+                    <h3>Before Photo</h3>
+
+                    <p>
+                        Upload a photo from before your programme.
+                    </p>
+
+                    <input type="file"
+                           name="beforePhoto"
+                           accept=".jpg,.jpeg,.png,.webp"
+                           required />
+
+                </div>
+
+                <div class="workout-result-upload">
+
+                    <div class="workout-result-upload-icon">
+                        <i class="fa-solid fa-images"></i>
+                    </div>
+
+                    <h3>After Photo</h3>
+
+                    <p>
+                        Upload a photo from after completing your programme.
+                    </p>
+
+                    <input type="file"
+                           name="afterPhoto"
+                           accept=".jpg,.jpeg,.png,.webp"
+                           required />
+
+                </div>
+
+            </div>
+
+            <div class="workout-result-description">
+
+                <label for="description">
+                    Your Experience
+                </label>
+
+                <textarea id="description"
+                          name="description"
+                          maxlength="1000"
+                          rows="6"
+                          placeholder="Tell the community about your workout experience..."
+                          required></textarea>
+
+            </div>
+
+            <div class="workout-result-actions">
+
+                <a asp-action="MyWorkout"
+                   class="workout-result-cancel">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="workout-result-submit">
+
+                    <i class="fa-solid fa-share-nodes"></i>
+
+                    Share Result
+
+                </button>
+
+            </div>
+
+        </form>
+    }
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/workout-results.css"
+          asp-append-version="true" />
+}

@@ -1,372 +1,664 @@
 ﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.TrainerRequest>
 
 @{
-ViewData["Title"] = "Trainer Requests";
+    ViewData["Title"] = "Trainer Requests";
+    var activeRequest = ViewBag.ActiveRequest as DUT_Campus_FIT_Gym.Models.TrainerRequest;
+    var currentBooking = ViewBag.CurrentBooking as DUT_Campus_FIT_Gym.Models.TrainerBooking;
+    var monthlyAssignments =
+    ViewBag.MonthlyAssignments ?? 0;
 }
 
 <div class="trainer-page">
 
-<div class="trainer-page-header">
-    <div>
-        <span class="trainer-page-label">DUT CAMPUS FIT GYM</span>
-        <h1>Trainer Requests</h1>
-        <p>Manage student requests and your current training sessions.</p>
-    </div>
-
-    <a asp-controller="Trainer"
-       asp-action="Index"
-       class="trainer-back-btn">
-        <i class="fa-solid fa-arrow-left"></i>
-        Dashboard
-    </a>
-</div>
-
-@if (TempData["Success"] != null)
-{
-    <div class="trainer-alert trainer-alert-success">
-        <i class="fa-solid fa-circle-check"></i>
-        <span>@TempData["Success"]</span>
-    </div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="trainer-alert trainer-alert-error">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        <span>@TempData["Error"]</span>
-    </div>
-}
-
-@if (ViewBag.ActiveRequest != null)
-{
-    <div class="active-workout-card">
-
-        <div class="active-workout-header">
-            <div class="active-workout-title">
-                <div class="active-icon">
-                    <i class="fa-solid fa-person-running"></i>
-                </div>
-
-                <div>
-                    <span>ACTIVE SESSION</span>
-                    <h2>Current Active Workout</h2>
-                </div>
-            </div>
-
-            <span class="active-status">
-                <i class="fa-solid fa-circle"></i>
-                In Progress
-            </span>
-        </div>
-
-        <div class="active-workout-body">
-
-            <div class="active-student">
-
-                <div class="student-avatar">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-
-                <div>
-                    <span class="detail-label">STUDENT</span>
-
-                    <h3>
-                        @ViewBag.ActiveRequest.Student.Name
-                        @ViewBag.ActiveRequest.Student.Surname
-                    </h3>
-
-                    <p>
-                        @ViewBag.ActiveRequest.Student.Email
-                    </p>
-                </div>
-
-            </div>
-
-            <div class="request-message">
-
-                <span class="detail-label">
-                    REQUEST
-                </span>
-
-                <p>
-                    @ViewBag.ActiveRequest.RequestMessage
-                </p>
-
-            </div>
-
-            <div class="active-workout-actions">
-
-                <form asp-controller="Trainer"
-                      asp-action="CompleteRequest"
-                      method="post">
-
-                    @Html.AntiForgeryToken()
-
-                    <input type="hidden"
-                           name="id"
-                           value="@ViewBag.ActiveRequest.TrainerRequestId" />
-
-                    <button type="submit"
-                            class="complete-workout-btn">
-
-                        <i class="fa-solid fa-check"></i>
-                        Complete Workout
-
-                    </button>
-
-                </form>
-
-                <small>
-                    Complete this workout before accepting another student request.
-                </small>
-
-            </div>
-
-        </div>
-
-    </div>
-}
-
-<div class="requests-card">
-
-    <div class="requests-card-header">
+    <div class="trainer-page-header">
 
         <div>
-            <span class="trainer-section-label">
-                REQUEST MANAGEMENT
+            <span class="trainer-page-label">
+                DUT CAMPUS FIT GYM
             </span>
 
-            <h2>Student Requests</h2>
+            <h1>
+                Trainer Requests
+            </h1>
+
+            <p>
+                Manage student requests and your assigned training sessions.
+            </p>
         </div>
 
-        @if (Model != null)
-        {
-            <span class="request-count">
-                @Model.Count() Request(s)
-            </span>
-        }
+        <a asp-controller="Trainer"
+           asp-action="Index"
+           class="trainer-back-btn">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+            Dashboard
+
+        </a>
 
     </div>
 
-    <div class="requests-card-body">
+    @if (TempData["Success"] != null)
+    {
+        <div class="trainer-alert trainer-alert-success">
 
-        @if (Model != null && Model.Any())
-        {
-            <div class="trainer-request-list">
+            <i class="fa-solid fa-circle-check"></i>
 
-                @foreach (var request in Model)
+            <span>
+                @TempData["Success"]
+            </span>
+
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="trainer-alert trainer-alert-error">
+
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+            <span>
+                @TempData["Error"]
+            </span>
+
+        </div>
+    }
+
+    @if (activeRequest != null)
+    {
+        <div class="active-workout-card">
+
+            <div class="active-workout-header">
+
+                <div class="active-workout-title">
+
+                    <div class="active-icon">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+
+                    <div>
+
+                        <span>
+                            ASSIGNED TRAINER REQUEST
+                        </span>
+
+                        <h2>
+                            Assigned Student
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                @if (currentBooking == null)
                 {
-                    <div class="trainer-request-item">
+                    <span class="active-status">
+                        <i class="fa-solid fa-circle"></i>
+                        Awaiting Booking
+                    </span>
+                }
+                else if (DateTime.Now < currentBooking.StartTime)
+                {
+                    <span class="active-status">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        Upcoming Session
+                    </span>
+                }
+                else if (DateTime.Now >= currentBooking.StartTime &&
+                         DateTime.Now < currentBooking.EndTime)
+                {
+                    <span class="active-status">
+                        <i class="fa-solid fa-circle"></i>
+                        Session In Progress
+                    </span>
+                }
+                else
+                {
+                    <span class="active-status">
+                        <i class="fa-solid fa-clock"></i>
+                        Session Ended
+                    </span>
+                }
 
-                        <div class="request-student">
+            </div>
 
-                            <div class="request-avatar">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
+            <div class="active-workout-body">
 
-                            <div>
-                                <h3>
-                                    @request.Student.Name
-                                    @request.Student.Surname
-                                </h3>
+                <div class="active-student">
 
-                                <span>
-                                    @request.Student.Email
-                                </span>
-                            </div>
+                    <div class="student-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
 
-                        </div>
+                    <div>
 
-                        <div class="request-info">
+                        <span class="detail-label">
+                            STUDENT
+                        </span>
 
-                            <span class="detail-label">
-                                REQUEST
-                            </span>
+                        <h3>
+                            @activeRequest.Student?.Name
+                            @activeRequest.Student?.Surname
+                        </h3>
 
-                            <p>
-                                @request.RequestMessage
-                            </p>
+                        <p>
+                            @activeRequest.Student?.Email
+                        </p>
 
-                        </div>
+                    </div>
 
-                        <div class="request-date">
+                </div>
 
-                            <span class="detail-label">
-                                DATE
-                            </span>
+                <div class="request-message">
 
-                            <strong>
-                                @request.RequestDate.ToString("dd MMM yyyy")
-                            </strong>
+                    <span class="detail-label">
+                        REQUEST
+                    </span>
 
-                            <small>
-                                @request.RequestDate.ToString("HH:mm")
-                            </small>
+                    <p>
+                        @activeRequest.RequestMessage
+                    </p>
 
-                        </div>
+                </div>
 
-                        <div class="request-status">
+                @if (currentBooking == null)
+                {
+                    <div class="request-message">
 
-                            <span class="detail-label">
-                                STATUS
-                            </span>
+                        <span class="detail-label">
+                            SESSION
+                        </span>
 
-                            @if (request.Status == "Pending")
-                            {
-                                <span class="request-badge pending">
-                                    <i class="fa-solid fa-clock"></i>
-                                    Pending
-                                </span>
-                            }
-                            else if (request.Status == "Accepted")
-                            {
-                                <span class="request-badge accepted">
-                                    <i class="fa-solid fa-person-running"></i>
-                                    In Progress
-                                </span>
-                            }
-                            else if (request.Status == "Completed")
-                            {
-                                <span class="request-badge completed">
-                                    <i class="fa-solid fa-circle-check"></i>
-                                    Completed
-                                </span>
-                            }
-                            else if (request.Status == "Rejected")
-                            {
-                                <span class="request-badge rejected">
-                                    <i class="fa-solid fa-circle-xmark"></i>
-                                    Rejected
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="request-badge">
-                                    @request.Status
-                                </span>
-                            }
+                        <p>
+                            The student has not booked a training session yet.
+                        </p>
 
-                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="request-message">
 
-                        <div class="request-actions">
+                        <span class="detail-label">
+                            BOOKED SESSION
+                        </span>
 
-                            <span class="detail-label">
-                                ACTION
-                            </span>
+                        <p>
+                            <i class="fa-solid fa-calendar"></i>
+                            @currentBooking.StartTime.ToString("dd MMM yyyy")
+                        </p>
 
-                            @if (request.Status == "Pending")
-                            {
-                                @if (ViewBag.ActiveRequest == null)
-                                {
-                                    <div class="request-action-buttons">
-
-                                        <form asp-controller="Trainer"
-                                              asp-action="AcceptRequest"
-                                              method="post">
-
-                                            @Html.AntiForgeryToken()
-
-                                            <input type="hidden"
-                                                   name="id"
-                                                   value="@request.TrainerRequestId" />
-
-                                            <button type="submit"
-                                                    class="request-accept-btn">
-
-                                                <i class="fa-solid fa-check"></i>
-                                                Accept
-
-                                            </button>
-
-                                        </form>
-
-                                        <form asp-controller="Trainer"
-                                              asp-action="RejectRequest"
-                                              method="post">
-
-                                            @Html.AntiForgeryToken()
-
-                                            <input type="hidden"
-                                                   name="id"
-                                                   value="@request.TrainerRequestId" />
-
-                                            <button type="submit"
-                                                    class="request-reject-btn">
-
-                                                <i class="fa-solid fa-xmark"></i>
-                                                Reject
-
-                                            </button>
-
-                                        </form>
-
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="request-disabled">
-                                        <i class="fa-solid fa-lock"></i>
-                                        Finish current workout first
-                                    </span>
-                                }
-                            }
-                            else if (request.Status == "Accepted")
-                            {
-                                <span class="request-action-status">
-                                    Current Workout
-                                </span>
-                            }
-                            else if (request.Status == "Completed")
-                            {
-                                <span class="request-action-status">
-                                    Completed
-                                </span>
-                            }
-                            else if (request.Status == "Rejected")
-                            {
-                                <span class="request-action-status">
-                                    Rejected
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="request-disabled">
-                                    No action
-                                </span>
-                            }
-
-                        </div>
+                        <p>
+                            <i class="fa-solid fa-clock"></i>
+                            @currentBooking.StartTime.ToString("HH:mm")
+                            -
+                            @currentBooking.EndTime.ToString("HH:mm")
+                        </p>
 
                     </div>
                 }
 
-            </div>
-        }
-        else
-        {
-            <div class="trainer-empty-state">
+                <div class="active-workout-actions">
 
-                <div class="empty-icon">
-                    <i class="fa-solid fa-inbox"></i>
+                    @if (currentBooking == null)
+                    {
+                        <small>
+                            Waiting for the student to book a training session.
+                        </small>
+                    }
+                    else if (DateTime.Now < currentBooking.StartTime)
+                    {
+                        <small>
+                            The training session will become active when the scheduled start time is reached.
+                        </small>
+                    }
+                    else if (DateTime.Now >= currentBooking.StartTime &&
+                             DateTime.Now < currentBooking.EndTime)
+                    {
+                        <form asp-controller="Trainer"
+                              asp-action="CompleteRequest"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@activeRequest.TrainerRequestId" />
+
+                            <button type="submit"
+                                    class="complete-workout-btn">
+
+                                <i class="fa-solid fa-check"></i>
+
+                                Complete Session
+
+                            </button>
+
+                        </form>
+
+                        <small>
+                            Complete the session after the training has been completed.
+                        </small>
+                    }
+                    else
+                    {
+                        <small>
+                            The scheduled session time has ended.
+                        </small>
+                    }
+
                 </div>
 
-                <h3>No Trainer Requests</h3>
+            </div>
 
-                <p>
-                    There are currently no student requests waiting for you.
-                </p>
+        </div>
+    }
+
+    <div class="requests-card">
+
+        <div class="requests-card-header">
+
+            <div>
+
+                <span class="trainer-section-label">
+                    REQUEST MANAGEMENT
+                </span>
+
+                <h2>
+                    Student Requests
+                </h2>
+
+            </div>
+
+            @if (Model != null)
+            {
+                <span class="request-count">
+                    @Model.Count() Request(s)
+                </span>
+            }
+
+        </div>
+
+        <div class="requests-card-body">
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="trainer-request-list">
+
+                    @foreach (var request in Model)
+                    {
+                        <div class="trainer-request-item">
+
+                            <div class="request-student">
+
+                                <div class="request-avatar">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+
+                                <div>
+
+                                    <h3>
+                                        @request.Student?.Name
+                                        @request.Student?.Surname
+                                    </h3>
+
+                                    <span>
+                                        @request.Student?.Email
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="request-info">
+
+                                <span class="detail-label">
+                                    REQUEST
+                                </span>
+
+                                <p>
+                                    @request.RequestMessage
+                                </p>
+
+                            </div>
+
+                            <div class="request-workout">
+
+    <span class="detail-label">
+        FITNESS PROFILE
+    </span>
+
+    @if (request.Student?.WorkoutProfiles != null &&
+         request.Student.WorkoutProfiles.Any())
+    {
+        var profile =
+            request.Student.WorkoutProfiles
+                .OrderByDescending(p => p.WorkoutProfileId)
+                .FirstOrDefault();
+
+        if (profile != null)
+        {
+            <p>
+                <strong>
+                    Level:
+                </strong>
+                @profile.FitnessLevel
+            </p>
+
+            <p>
+                <strong>
+                    Goal:
+                </strong>
+                @profile.Goal
+            </p>
+        }
+    }
+    else
+    {
+        <p>
+            No fitness profile available.
+        </p>
+    }
+
+</div>
+
+<div class="request-workout">
+
+    <span class="detail-label">
+        CURRENT WORKOUT PLAN
+    </span>
+
+    @if (request.Student?.WorkoutPlans != null &&
+         request.Student.WorkoutPlans.Any())
+    {
+        var workoutPlans =
+            request.Student.WorkoutPlans
+                .OrderBy(w => w.WeekNumber)
+                .ThenBy(w => w.WorkoutDay)
+                .ThenBy(w => w.WorkoutName)
+                .ToList();
+
+        foreach (var plan in workoutPlans)
+        {
+            <div class="workout-plan-preview">
+
+                <strong>
+                    @plan.WorkoutName
+                </strong>
+
+                <span>
+                    @plan.ExerciseName
+                </span>
+
+                <small>
+                    Week @plan.WeekNumber
+                    · @plan.WorkoutDay
+                    · @plan.Sets sets
+                    · @plan.Repetitions reps
+                    · @plan.RestTime sec rest
+                </small>
 
             </div>
         }
+    }
+    else
+    {
+        <p>
+            No workout plan available.
+        </p>
+    }
+
+</div>
+
+                            <div class="request-date">
+
+                                <span class="detail-label">
+                                    DATE
+                                </span>
+
+                                <strong>
+                                    @request.RequestDate.ToString("dd MMM yyyy")
+                                </strong>
+
+                                <small>
+                                    @request.RequestDate.ToString("HH:mm")
+                                </small>
+
+                            </div>
+
+                            <div class="request-status">
+
+                                <span class="detail-label">
+                                    STATUS
+                                </span>
+
+                                @if (request.Status == "Pending")
+                                {
+                                    <span class="request-badge pending">
+
+                                        <i class="fa-solid fa-clock"></i>
+
+                                        Pending
+
+                                    </span>
+                                }
+                                else if (request.Status == "Accepted")
+                                {
+                                    <span class="request-badge accepted">
+
+                                        <i class="fa-solid fa-user-check"></i>
+
+                                        Assigned
+
+                                    </span>
+                                }
+                                else if (request.Status == "Completed")
+                                {
+                                    <span class="request-badge completed">
+
+                                        <i class="fa-solid fa-circle-check"></i>
+
+                                        Completed
+
+                                    </span>
+                                }
+                                else if (request.Status == "Rejected")
+                                {
+                                    <span class="request-badge rejected">
+
+                                        <i class="fa-solid fa-circle-xmark"></i>
+
+                                        Rejected
+
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="request-badge">
+                                        @request.Status
+                                    </span>
+                                }
+
+                            </div>
+
+                            <div class="request-actions">
+
+                                <span class="detail-label">
+                                    ACTION
+                                </span>
+
+                                @if (request.Status == "Pending")
+                                {
+                                    @if (monthlyAssignments < 2)
+                                    {
+                                        <div class="request-action-buttons">
+
+                                            <form asp-controller="Trainer"
+                                                  asp-action="AcceptRequest"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@request.TrainerRequestId" />
+
+                                                <button type="submit"
+                                                        class="request-accept-btn">
+
+                                                    <i class="fa-solid fa-check"></i>
+
+                                                    Accept
+
+                                                </button>
+
+                                            </form>
+
+                                            <form asp-controller="Trainer"
+                                                  asp-action="RejectRequest"
+                                                  method="post"
+                                                  onsubmit="return submitRejection(this);">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@request.TrainerRequestId" />
+
+                                                <input type="hidden"
+                                                       name="rejectionReason"
+                                                       class="rejection-reason-input" />
+
+                                                <button type="submit"
+                                                        class="request-reject-btn">
+
+                                                    <i class="fa-solid fa-xmark"></i>
+
+                                                    Reject
+
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="request-disabled">
+
+                                            <i class="fa-solid fa-lock"></i>
+
+                                            Monthly trainer capacity reached
+
+                                        </span>
+                                    }
+                                }
+                                else if (request.Status == "Accepted")
+                                {
+                                    <span class="request-action-status">
+
+                                        <i class="fa-solid fa-user-check"></i>
+
+                                        Assigned
+
+                                    </span>
+                                }
+                                else if (request.Status == "Completed")
+                                {
+                                    <span class="request-action-status">
+                                        Completed
+                                    </span>
+                                }
+                                else if (request.Status == "Rejected")
+                                {
+                                    <span class="request-action-status">
+                                        Rejected
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="request-disabled">
+                                        No action
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="trainer-empty-state">
+
+                    <div class="empty-icon">
+
+                        <i class="fa-solid fa-inbox"></i>
+
+                    </div>
+
+                    <h3>
+                        No Trainer Requests
+                    </h3>
+
+                    <p>
+                        There are currently no student requests waiting for you.
+                    </p>
+
+                </div>
+            }
+
+        </div>
 
     </div>
 
 </div>
 
+@section Styles {
 
-</div>
+    <link rel="stylesheet"
+          href="~/css/trainer.css"
+          asp-append-version="true" />
 
-@section Styles { <link rel="stylesheet"
-       href="~/css/trainer.css"
-       asp-append-version="true" />
+}
+
+@section Scripts {
+
+    <script>
+
+        function submitRejection(form) {
+
+            const reason =
+                prompt("Please enter a reason for rejecting this trainer request:");
+
+            if (reason === null) {
+                return false;
+            }
+
+            if (reason.trim() === "") {
+
+                alert("A rejection reason is required.");
+
+                return false;
+            }
+
+            if (reason.trim().length > 500) {
+
+                alert("The rejection reason cannot exceed 500 characters.");
+
+                return false;
+            }
+
+            form.querySelector(
+                ".rejection-reason-input"
+            ).value =
+                reason.trim();
+
+            return true;
+        }
+
+    </script>
+
 }

@@ -2,10 +2,13 @@
 using DUT_Campus_FIT_Gym.Models;
 using DUT_Campus_FIT_Gym.Services;
 using DUT_Campus_FIT_Gym.ViewModels;
+using MailKit.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 using System.Security.Claims;
+using MailKit.Net.Smtp;
 using ZXing;
 using ZXing.Common;
 using ZXing.Rendering;
@@ -18,17 +21,19 @@ namespace DUT_Campus_FIT_Gym.Controllers
         private readonly GymDbContext _context;
         private readonly MembershipPricingService _membershipPricingService;
         private readonly RewardService _rewardService;
+        private readonly IConfiguration _config;
 
         public MemberController(
             GymDbContext context,
             MembershipPricingService membershipPricingService,
-            RewardService rewardService)
+            RewardService rewardService,
+            IConfiguration config)
         {
             _context = context;
             _membershipPricingService = membershipPricingService;
             _rewardService = rewardService;
+            _config = config;
         }
-
         private int? GetMemberId()
         {
             var memberIdClaim =
@@ -606,6 +611,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             var payments = _context.Payments
                 .Include(p => p.Membership)
+                .Include(p => p.EquipmentPenalty)
                 .Where(p =>
                     p.MemberId == memberId.Value)
                 .OrderByDescending(p =>
@@ -1865,12 +1871,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult RequestTrainer(
-            int trainerId,
-            string requestMessage)
+        public async Task<IActionResult> RequestTrainer(
+    int trainerId,
+    string requestMessage)
         {
-            var memberId =
-                GetMemberId();
+            var memberId = GetMemberId();
 
             if (memberId == null)
             {
@@ -1879,22 +1884,18 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     "Account");
             }
 
-            var member =
-                _context.Members
-                    .FirstOrDefault(m =>
-                        m.MemberId ==
-                        memberId.Value);
+            var member = await _context.Members
+                .FirstOrDefaultAsync(m =>
+                    m.MemberId == memberId.Value);
 
             if (member == null)
             {
                 return NotFound();
             }
 
-            var trainer =
-                _context.Trainers
-                    .FirstOrDefault(t =>
-                        t.TrainerId ==
-                        trainerId);
+            var trainer = await _context.Trainers
+                .FirstOrDefaultAsync(t =>
+                    t.TrainerId == trainerId);
 
             if (trainer == null)
             {
@@ -1905,8 +1906,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(RequestTrainer));
             }
 
-            if (string.IsNullOrWhiteSpace(
-                requestMessage))
+            if (string.IsNullOrWhiteSpace(requestMessage))
             {
                 TempData["TrainerRequestError"] =
                     "Please explain what you need help with.";
@@ -1915,8 +1915,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(RequestTrainer));
             }
 
-            requestMessage =
-                requestMessage.Trim();
+            requestMessage = requestMessage.Trim();
 
             if (requestMessage.Length > 500)
             {
@@ -1927,17 +1926,37 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(RequestTrainer));
             }
 
-            var activeRequest =
-                _context.TrainerRequests
-                    .Any(r =>
-                        r.StudentId ==
-                            memberId.Value &&
-                        (
-                            r.Status ==
-                                "Pending" ||
-                            r.Status ==
-                                "Accepted"
-                        ));
+            var activeRequest = await _context.TrainerRequests
+                .AnyAsync(r =>
+                    r.StudentId == memberId.Value &&
+                    (
+                        r.Status == "Pending" ||
+                        r.Status == "Accepted"
+                    ));
+            var currentMonth =
+    DateTime.Now.Month;
+
+            var currentYear =
+                DateTime.Now.Year;
+
+            var trainerMonthlyAssignments =
+                await _context.TrainerRequests
+                    .CountAsync(r =>
+                        r.TrainerId == trainerId &&
+                        (r.Status == "Accepted" ||
+                         r.Status == "Completed") &&
+                        r.ResponseDate.HasValue &&
+                        r.ResponseDate.Value.Month == currentMonth &&
+                        r.ResponseDate.Value.Year == currentYear);
+
+            if (trainerMonthlyAssignments >= 2)
+            {
+                TempData["TrainerRequestError"] =
+                    "This trainer has reached the maximum of 2 student assignments for this month. Please choose another trainer.";
+
+                return RedirectToAction(
+                    nameof(RequestTrainer));
+            }
 
             if (activeRequest)
             {
@@ -1948,35 +1967,444 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     nameof(MyTrainerRequests));
             }
 
-            var trainerRequest =
-                new TrainerRequest
-                {
-                    StudentId =
-                        memberId.Value,
+            var trainerRequest = new TrainerRequest
+            {
+                StudentId = memberId.Value,
+                TrainerId = trainerId,
+                RequestMessage = requestMessage,
+                Status = "Pending",
+                RequestDate = DateTime.Now
+            };
 
-                    TrainerId =
-                        trainerId,
+            _context.TrainerRequests.Add(trainerRequest);
 
-                    RequestMessage =
-                        requestMessage,
+            await _context.SaveChangesAsync();
 
-                    Status =
-                        "Pending",
-
-                    RequestDate =
-                        DateTime.Now
-                };
-
-            _context.TrainerRequests.Add(
-                trainerRequest);
-
-            _context.SaveChanges();
+            try
+            {
+                await SendTrainerRequestEmail(
+                    member,
+                    trainer,
+                    trainerRequest);
+            }
+            catch
+            {
+            }
 
             TempData["TrainerRequestSuccess"] =
                 $"Your request has been sent to {trainer.TrainerName}.";
 
             return RedirectToAction(
                 nameof(MyTrainerRequests));
+        }
+
+        private async Task SendTrainerRequestEmail(
+    Member member,
+    Trainer trainer,
+    TrainerRequest trainerRequest)
+        {
+            var smtpSettings =
+                _config.GetSection("SmtpSettings");
+
+            string server =
+                smtpSettings["Server"] ?? "";
+
+            string portValue =
+                smtpSettings["Port"] ?? "587";
+
+            string senderEmail =
+                smtpSettings["SenderEmail"] ?? "";
+
+            string password =
+                smtpSettings["Password"] ?? "";
+
+            if (string.IsNullOrWhiteSpace(server) ||
+                string.IsNullOrWhiteSpace(senderEmail) ||
+                string.IsNullOrWhiteSpace(password) ||
+                string.IsNullOrWhiteSpace(trainer.Email))
+            {
+                return;
+            }
+
+            if (!int.TryParse(
+                portValue,
+                out int port))
+            {
+                port = 587;
+            }
+
+            var message = new MimeMessage();
+
+            message.From.Add(
+                new MailboxAddress(
+                    "DUT Campus FIT Gym",
+                    senderEmail));
+
+            message.To.Add(
+                new MailboxAddress(
+                    trainer.TrainerName,
+                    trainer.Email));
+
+            message.Subject =
+                "New Trainer Request - DUT Campus FIT Gym";
+
+            var builder = new BodyBuilder();
+
+            builder.TextBody =
+                $"Hello {trainer.TrainerName},\n\n" +
+                "You have received a new trainer request through DUT Campus FIT Gym.\n\n" +
+                $"Member: {member.Name} {member.Surname}\n" +
+                $"Student Number: {member.StudentNumber}\n" +
+                $"Email: {member.Email}\n\n" +
+                "Request Message:\n" +
+                $"{trainerRequest.RequestMessage}\n\n" +
+                "Please log into DUT Campus FIT Gym to review and respond to this request.\n\n" +
+                "Regards,\n" +
+                "DUT Campus FIT Gym";
+
+            message.Body =
+                builder.ToMessageBody();
+
+            using var client =
+                new SmtpClient();
+
+            client.ServerCertificateValidationCallback =
+                (s, c, h, e) => true;
+
+            await client.ConnectAsync(
+                server,
+                port,
+                SecureSocketOptions.StartTls);
+
+            await client.AuthenticateAsync(
+                senderEmail,
+                password);
+
+            await client.SendAsync(message);
+
+            await client.DisconnectAsync(true);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PrivateTrainer()
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+                return RedirectToAction("Login", "Account");
+
+            var activeSubscription = await _context.PrivateTrainerSubscriptions
+                .Include(s => s.Trainer)
+                .FirstOrDefaultAsync(s =>
+                    s.MemberId == memberId.Value &&
+                    s.Status == "Active" &&
+                    s.EndDate >= DateTime.Now);
+
+            var trainers = await _context.Trainers
+                .OrderBy(t => t.TrainerName)
+                .ToListAsync();
+
+            var trainerAvailability = new List<object>();
+
+            foreach (var trainer in trainers)
+            {
+                var privateMemberCount = await _context.PrivateTrainerSubscriptions
+                    .CountAsync(s =>
+                        s.TrainerId == trainer.TrainerId &&
+                        s.Status == "Active" &&
+                        s.EndDate >= DateTime.Now);
+
+                trainerAvailability.Add(new
+                {
+                    Trainer = trainer,
+                    PrivateMemberCount = privateMemberCount,
+                    IsFull = privateMemberCount >= 2
+                });
+            }
+
+            ViewBag.TrainerAvailability = trainerAvailability;
+            ViewBag.ActiveSubscription = activeSubscription;
+            ViewBag.PrivateTrainerFee = 145m;
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SelectPrivateTrainer(int trainerId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+                return RedirectToAction("Login", "Account");
+
+            var trainer = await _context.Trainers
+                .FirstOrDefaultAsync(t => t.TrainerId == trainerId);
+
+            if (trainer == null)
+            {
+                TempData["PrivateTrainerError"] = "The selected trainer could not be found.";
+                return RedirectToAction(nameof(PrivateTrainer));
+            }
+
+            var existingSubscription = await _context.PrivateTrainerSubscriptions
+                .AnyAsync(s =>
+                    s.MemberId == memberId.Value &&
+                    s.Status == "Active" &&
+                    s.EndDate >= DateTime.Now);
+
+            if (existingSubscription)
+            {
+                TempData["PrivateTrainerError"] = "You already have an active private trainer.";
+                return RedirectToAction(nameof(PrivateTrainer));
+            }
+
+            var trainerMemberCount = await _context.PrivateTrainerSubscriptions
+                .CountAsync(s =>
+                    s.TrainerId == trainerId &&
+                    s.Status == "Active" &&
+                    s.EndDate >= DateTime.Now);
+
+            if (trainerMemberCount >= 2)
+            {
+                TempData["PrivateTrainerError"] = "This trainer already has the maximum of 2 private members.";
+                return RedirectToAction(nameof(PrivateTrainer));
+            }
+
+            var pendingSubscription = await _context.PrivateTrainerSubscriptions
+                .FirstOrDefaultAsync(s =>
+                    s.MemberId == memberId.Value &&
+                    s.Status == "PendingPayment");
+
+            if (pendingSubscription != null)
+            {
+                pendingSubscription.TrainerId = trainerId;
+                pendingSubscription.Amount = 145m;
+                pendingSubscription.StartDate = DateTime.Now;
+                pendingSubscription.EndDate = DateTime.Now.AddMonths(1).AddDays(-1);
+            }
+            else
+            {
+                pendingSubscription = new PrivateTrainerSubscription
+                {
+                    MemberId = memberId.Value,
+                    TrainerId = trainerId,
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddMonths(1).AddDays(-1),
+                    Amount = 145m,
+                    Status = "PendingPayment",
+                    CreatedDate = DateTime.Now
+                };
+
+                _context.PrivateTrainerSubscriptions.Add(pendingSubscription);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(PrivateTrainerPayment), new
+            {
+                id = pendingSubscription.PrivateTrainerSubscriptionId
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PrivateTrainerPayment(int id)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+                return RedirectToAction("Login", "Account");
+
+            var subscription = await _context.PrivateTrainerSubscriptions
+                .Include(s => s.Trainer)
+                .FirstOrDefaultAsync(s =>
+                    s.PrivateTrainerSubscriptionId == id &&
+                    s.MemberId == memberId.Value &&
+                    s.Status == "PendingPayment");
+
+            if (subscription == null)
+            {
+                TempData["PrivateTrainerError"] = "The private trainer subscription could not be found.";
+                return RedirectToAction(nameof(PrivateTrainer));
+            }
+
+            ViewBag.PrivateTrainerFee = 145m;
+
+            return View(subscription);
+        }
+        private async Task SendTrainerBookingEmail(
+    Member member,
+    Trainer trainer,
+    TrainerBooking booking)
+        {
+            var smtpSettings =
+                _config.GetSection("SmtpSettings");
+
+            string server =
+                smtpSettings["Server"] ?? "";
+
+            string portValue =
+                smtpSettings["Port"] ?? "587";
+
+            string senderEmail =
+                smtpSettings["SenderEmail"] ?? "";
+
+            string password =
+                smtpSettings["Password"] ?? "";
+
+            if (string.IsNullOrWhiteSpace(server) ||
+                string.IsNullOrWhiteSpace(senderEmail) ||
+                string.IsNullOrWhiteSpace(password) ||
+                string.IsNullOrWhiteSpace(trainer.Email))
+            {
+                return;
+            }
+
+            if (!int.TryParse(
+                portValue,
+                out int port))
+            {
+                port = 587;
+            }
+
+            var message =
+                new MimeMessage();
+
+            message.From.Add(
+                new MailboxAddress(
+                    "DUT Campus FIT Gym",
+                    senderEmail));
+
+            message.To.Add(
+                new MailboxAddress(
+                    trainer.TrainerName,
+                    trainer.Email));
+
+            message.Subject =
+                "Trainer Session Booked - DUT Campus FIT Gym";
+
+            var builder =
+                new BodyBuilder();
+
+            builder.TextBody =
+                $"Hello {trainer.TrainerName},\n\n" +
+                "A student has booked a training session with you through DUT Campus FIT Gym.\n\n" +
+                $"Student: {member.Name} {member.Surname}\n" +
+                $"Student Number: {member.StudentNumber}\n" +
+                $"Email: {member.Email}\n\n" +
+                $"Session Date: {booking.StartTime:dd MMM yyyy}\n" +
+                $"Start Time: {booking.StartTime:HH:mm}\n" +
+                $"End Time: {booking.EndTime:HH:mm}\n\n" +
+                "Please log into DUT Campus FIT Gym to view your upcoming training sessions.\n\n" +
+                "Regards,\n" +
+                "DUT Campus FIT Gym";
+
+            message.Body =
+                builder.ToMessageBody();
+
+            using var client =
+                new SmtpClient();
+
+            client.ServerCertificateValidationCallback =
+                (s, c, h, e) => true;
+
+            await client.ConnectAsync(
+                server,
+                port,
+                SecureSocketOptions.StartTls);
+
+            await client.AuthenticateAsync(
+                senderEmail,
+                password);
+
+            await client.SendAsync(message);
+
+            await client.DisconnectAsync(true);
+        }
+
+        private async Task SendTrainerAcceptedEmail(
+    Member member,
+    Trainer trainer)
+        {
+            var smtpSettings =
+                _config.GetSection("SmtpSettings");
+
+            string server =
+                smtpSettings["Server"] ?? "";
+
+            string portValue =
+                smtpSettings["Port"] ?? "587";
+
+            string senderEmail =
+                smtpSettings["SenderEmail"] ?? "";
+
+            string password =
+                smtpSettings["Password"] ?? "";
+
+            if (string.IsNullOrWhiteSpace(server) ||
+                string.IsNullOrWhiteSpace(senderEmail) ||
+                string.IsNullOrWhiteSpace(password) ||
+                string.IsNullOrWhiteSpace(member.Email))
+            {
+                return;
+            }
+
+            if (!int.TryParse(
+                portValue,
+                out int port))
+            {
+                port = 587;
+            }
+
+            var message = new MimeMessage();
+
+            message.From.Add(
+                new MailboxAddress(
+                    "DUT Campus FIT Gym",
+                    senderEmail));
+
+            message.To.Add(
+                new MailboxAddress(
+                    $"{member.Name} {member.Surname}",
+                    member.Email));
+
+            message.Subject =
+                "Trainer Request Accepted - DUT Campus FIT Gym";
+
+            var builder = new BodyBuilder();
+
+            builder.TextBody =
+                $"Hello {member.Name},\n\n" +
+                $"Your trainer request has been accepted by {trainer.TrainerName}.\n\n" +
+                "You can now log into DUT Campus FIT Gym and book a training session with your trainer.\n\n" +
+                "You may book a session for a future date and time that suits you and your trainer.\n\n" +
+                $"Trainer: {trainer.TrainerName}\n" +
+                $"Category: {trainer.Category}\n\n" +
+                "Please log into DUT Campus FIT Gym to schedule your session.\n\n" +
+                "Regards,\n" +
+                "DUT Campus FIT Gym";
+
+            message.Body =
+                builder.ToMessageBody();
+
+            using var client =
+                new SmtpClient();
+
+            client.ServerCertificateValidationCallback =
+                (s, c, h, e) => true;
+
+            await client.ConnectAsync(
+                server,
+                port,
+                SecureSocketOptions.StartTls);
+
+            await client.AuthenticateAsync(
+                senderEmail,
+                password);
+
+            await client.SendAsync(message);
+
+            await client.DisconnectAsync(true);
         }
 
         [HttpGet]
@@ -2007,6 +2435,224 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> BookTrainerSession(int requestId)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var request = await _context.TrainerRequests
+                .Include(r => r.Trainer)
+                .FirstOrDefaultAsync(r =>
+                    r.TrainerRequestId == requestId &&
+                    r.StudentId == memberId.Value &&
+                    r.Status == "Accepted");
+
+            if (request == null)
+            {
+                TempData["TrainerRequestError"] =
+                    "This trainer request is not available for booking.";
+
+                return RedirectToAction(
+                    nameof(MyTrainerRequests));
+            }
+
+            var existingBooking = await _context.TrainerBookings
+                .AnyAsync(b =>
+                    b.TrainerRequestId == requestId &&
+                    (
+                        b.Status == "Booked" ||
+                        b.Status == "PendingPayment"
+                    ));
+
+            if (existingBooking)
+            {
+                TempData["TrainerRequestError"] =
+                    "You already have a booked or pending-payment session for this trainer request.";
+
+                return RedirectToAction(
+                    nameof(MyTrainerRequests));
+            }
+
+            ViewBag.TrainerRequest = request;
+            ViewBag.TrainerSessionFee = 50m;
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BookTrainerSession(
+            int requestId,
+            DateTime sessionDate,
+            TimeSpan startTime)
+        {
+            var memberId = GetMemberId();
+
+            if (memberId == null)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            var request = await _context.TrainerRequests
+                .Include(r => r.Trainer)
+                .Include(r => r.Student)
+                .FirstOrDefaultAsync(r =>
+                    r.TrainerRequestId == requestId &&
+                    r.StudentId == memberId.Value &&
+                    r.Status == "Accepted");
+
+            if (request == null)
+            {
+                TempData["TrainerRequestError"] =
+                    "This trainer request is not available for booking.";
+
+                return RedirectToAction(
+                    nameof(MyTrainerRequests));
+            }
+
+            var startDateTime =
+                sessionDate.Date.Add(startTime);
+
+            var endDateTime =
+                startDateTime.AddHours(1);
+
+            if (startDateTime <= DateTime.Now)
+            {
+                TempData["TrainerRequestError"] =
+                    "Please select a future date and time.";
+
+                return RedirectToAction(
+                    nameof(BookTrainerSession),
+                    new { requestId });
+            }
+
+            var existingBooking = await _context.TrainerBookings
+                .AnyAsync(b =>
+                    b.TrainerRequestId == requestId &&
+                    (
+                        b.Status == "Booked" ||
+                        b.Status == "PendingPayment"
+                    ));
+
+            if (existingBooking)
+            {
+                TempData["TrainerRequestError"] =
+                    "You already have a booked or pending-payment session for this trainer request.";
+
+                return RedirectToAction(
+                    nameof(MyTrainerRequests));
+            }
+
+            var trainerConflict = await _context.TrainerBookings
+                .AnyAsync(b =>
+                    b.TrainerId == request.TrainerId &&
+                    (
+                        b.Status == "Booked" ||
+                        b.Status == "PendingPayment"
+                    ) &&
+                    startDateTime < b.EndTime &&
+                    endDateTime > b.StartTime);
+
+            if (trainerConflict)
+            {
+                TempData["TrainerRequestError"] =
+                    "The trainer is already booked or has a pending payment during that time. Please choose another time.";
+
+                return RedirectToAction(
+                    nameof(BookTrainerSession),
+                    new { requestId });
+            }
+
+            var studentConflict = await _context.TrainerBookings
+                .AnyAsync(b =>
+                    b.StudentId == memberId.Value &&
+                    (
+                        b.Status == "Booked" ||
+                        b.Status == "PendingPayment"
+                    ) &&
+                    startDateTime < b.EndTime &&
+                    endDateTime > b.StartTime);
+
+            if (studentConflict)
+            {
+                TempData["TrainerRequestError"] =
+                    "You already have another trainer session during that time.";
+
+                return RedirectToAction(
+                    nameof(BookTrainerSession),
+                    new { requestId });
+            }
+
+            var dayStart =
+                startDateTime.Date;
+
+            var dayEnd =
+                dayStart.AddDays(1);
+
+            var dailySessionCount =
+                await _context.TrainerBookings
+                    .CountAsync(b =>
+                        b.TrainerId == request.TrainerId &&
+                        (
+                            b.Status == "Booked" ||
+                            b.Status == "PendingPayment"
+                        ) &&
+                        b.StartTime >= dayStart &&
+                        b.StartTime < dayEnd);
+
+            if (dailySessionCount >= 3)
+            {
+                TempData["TrainerRequestError"] =
+                    "This trainer has already reached the maximum of 3 training sessions for this day. Please choose another date.";
+
+                return RedirectToAction(
+                    nameof(BookTrainerSession),
+                    new { requestId });
+            }
+
+            var booking = new TrainerBooking
+            {
+                TrainerRequestId =
+                    request.TrainerRequestId,
+
+                StudentId =
+                    request.StudentId,
+
+                TrainerId =
+                    request.TrainerId,
+
+                StartTime =
+                    startDateTime,
+
+                EndTime =
+                    endDateTime,
+
+                Status =
+                    "PendingPayment",
+
+                CreatedDate =
+                    DateTime.Now
+            };
+
+            _context.TrainerBookings.Add(booking);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(
+                "PayTrainerBooking",
+                "Banking",
+                new { bookingId = booking.TrainerBookingId });
+        }
+
+        [HttpGet]
         public IActionResult Payment()
         {
             var memberIdClaim =
@@ -2033,12 +2679,26 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 _context.Payments
                     .Include(p =>
                         p.Membership)
+                    .Include(p =>
+                        p.EquipmentPenalty)
                     .Where(p =>
                         p.MemberId ==
                         memberId)
                     .OrderByDescending(p =>
                         p.PaymentDate)
                     .ToList();
+
+            var outstandingPenalty =
+                _context.EquipmentPenalties
+                    .Where(p =>
+                        p.MemberId == memberId &&
+                        p.Status == "Outstanding")
+                    .OrderBy(p =>
+                        p.PenaltyDate)
+                    .FirstOrDefault();
+
+            ViewBag.OutstandingPenalty =
+                outstandingPenalty;
 
             return View(
                 "Payment",

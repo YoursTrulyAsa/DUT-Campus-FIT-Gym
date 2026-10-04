@@ -2,10 +2,29 @@
     ViewData["Title"] = "Trainer Dashboard";
 
     var pendingRequests = ViewBag.PendingRequests ?? 0;
-    var activeRequest = ViewBag.ActiveRequest;
+    var activeRequest = ViewBag.ActiveRequest as DUT_Campus_FIT_Gym.Models.TrainerRequest;
+    var currentBooking = ViewBag.CurrentBooking as DUT_Campus_FIT_Gym.Models.TrainerBooking;
     var student = activeRequest?.Student;
     var profile = ViewBag.StudentProfile;
 
+    var sessionStatus = "Awaiting Booking";
+
+    if (currentBooking != null)
+    {
+        if (DateTime.Now < currentBooking.StartTime)
+        {
+            sessionStatus = "Upcoming Session";
+        }
+        else if (DateTime.Now >= currentBooking.StartTime &&
+                 DateTime.Now < currentBooking.EndTime)
+        {
+            sessionStatus = "Session In Progress";
+        }
+        else
+        {
+            sessionStatus = "Session Ended";
+        }
+}
 }
 
 <div class="trainer-dashboard">
@@ -210,6 +229,30 @@
         </a>
 
         <a asp-controller="Trainer"
+           asp-action="UpcomingSessions"
+           class="trainer-tool-card">
+
+            <div class="trainer-tool-icon">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+
+            <div class="trainer-tool-content">
+
+                <h3>
+                    Upcoming Sessions
+                </h3>
+
+                <p>
+                    View your scheduled training sessions with members.
+                </p>
+
+            </div>
+
+            <i class="fa-solid fa-arrow-right trainer-tool-arrow"></i>
+
+        </a>
+
+        <a asp-controller="Trainer"
            asp-action="Exercises"
            class="trainer-tool-card">
 
@@ -275,7 +318,7 @@
                     </h3>
 
                     <p>
-                        View the profile and training information of your active student.
+                        View the profile and training information of your assigned student.
                     </p>
 
                 </div>
@@ -291,7 +334,7 @@
 
         <div>
             <span>STUDENT MANAGEMENT</span>
-            <h2>Current Active Student</h2>
+            <h2>Assigned Student</h2>
         </div>
 
     </div>
@@ -303,18 +346,41 @@
             <div class="active-student-header">
 
                 <div>
+
                     <span class="active-student-label">
-                        ACTIVE TRAINING REQUEST
+                        ASSIGNED TRAINER REQUEST
                     </span>
 
                     <h2>
                         Student Overview
                     </h2>
+
                 </div>
 
                 <div class="active-status">
-                    <span class="active-dot"></span>
-                    Active
+
+                    @if (currentBooking == null)
+                    {
+                        <span class="active-dot"></span>
+                        <span>Awaiting Booking</span>
+                    }
+                    else if (DateTime.Now < currentBooking.StartTime)
+                    {
+                        <span class="active-dot"></span>
+                        <span>Upcoming Session</span>
+                    }
+                    else if (DateTime.Now >= currentBooking.StartTime &&
+                             DateTime.Now < currentBooking.EndTime)
+                    {
+                        <span class="active-dot"></span>
+                        <span>Session In Progress</span>
+                    }
+                    else
+                    {
+                        <span class="active-dot"></span>
+                        <span>Session Ended</span>
+                    }
+
                 </div>
 
             </div>
@@ -330,6 +396,7 @@
                         </div>
 
                         <div>
+
                             <span class="student-small-label">
                                 STUDENT
                             </span>
@@ -341,6 +408,7 @@
                             <p>
                                 @student.Email
                             </p>
+
                         </div>
 
                     </div>
@@ -366,7 +434,7 @@
                             </span>
 
                             <strong>
-                                Active Training
+                                Trainer Assigned
                             </strong>
 
                         </div>
@@ -398,6 +466,134 @@
                         </p>
 
                     </div>
+
+                </div>
+
+            </div>
+
+            <div class="active-student-divider"></div>
+
+            <div class="profile-section">
+
+                <div class="profile-section-heading">
+
+                    <span>
+                        TRAINING SESSION
+                    </span>
+
+                    <h3>
+                        Session Details
+                    </h3>
+
+                </div>
+
+                @if (currentBooking != null)
+                {
+                    <div class="fitness-grid">
+
+                        <div class="fitness-item">
+
+                            <span>
+                                DATE
+                            </span>
+
+                            <strong>
+                                @currentBooking.StartTime.ToString("dd MMM yyyy")
+                            </strong>
+
+                        </div>
+
+                        <div class="fitness-item">
+
+                            <span>
+                                START TIME
+                            </span>
+
+                            <strong>
+                                @currentBooking.StartTime.ToString("HH:mm")
+                            </strong>
+
+                        </div>
+
+                        <div class="fitness-item">
+
+                            <span>
+                                END TIME
+                            </span>
+
+                            <strong>
+                                @currentBooking.EndTime.ToString("HH:mm")
+                            </strong>
+
+                        </div>
+
+                        <div class="fitness-item">
+
+                            <span>
+                                STATUS
+                            </span>
+
+                            <strong>
+                                @sessionStatus
+                            </strong>
+
+                        </div>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="trainer-empty-profile">
+
+                        <i class="fa-solid fa-calendar-clock"></i>
+
+                        <div>
+
+                            <strong>
+                                No training session booked
+                            </strong>
+
+                            <p>
+                                The student has been assigned to you but has not booked a training session yet.
+                            </p>
+
+                        </div>
+
+                    </div>
+                }
+
+                <div class="active-student-actions">
+
+                    <a asp-controller="Trainer"
+                       asp-action="ViewProfile"
+                       asp-route-id="@student.MemberId"
+                       class="trainer-primary-button">
+
+                        <i class="fa-solid fa-user"></i>
+
+                        View Full Profile
+
+                    </a>
+
+                    <a asp-controller="Trainer"
+                       asp-action="Requests"
+                       class="trainer-secondary-button">
+
+                        <i class="fa-solid fa-list"></i>
+
+                        Manage Request
+
+                    </a>
+
+                    <a asp-controller="Trainer"
+                       asp-action="UpcomingSessions"
+                       class="trainer-secondary-button">
+
+                        <i class="fa-solid fa-calendar-check"></i>
+
+                        View Sessions
+
+                    </a>
 
                 </div>
 
@@ -493,6 +689,7 @@
                            class="trainer-primary-button">
 
                             <i class="fa-solid fa-user"></i>
+
                             View Full Profile
 
                         </a>
@@ -502,11 +699,13 @@
                            class="trainer-secondary-button">
 
                             <i class="fa-solid fa-list"></i>
+
                             Manage Request
 
                         </a>
 
                     </div>
+
                 }
                 else
                 {
@@ -515,6 +714,7 @@
                         <i class="fa-solid fa-circle-info"></i>
 
                         <div>
+
                             <strong>
                                 No workout profile available
                             </strong>
@@ -522,6 +722,7 @@
                             <p>
                                 This student has not created a workout profile yet.
                             </p>
+
                         </div>
 
                     </div>
@@ -533,6 +734,7 @@
                            class="trainer-secondary-button">
 
                             <i class="fa-solid fa-list"></i>
+
                             Manage Request
 
                         </a>
@@ -553,17 +755,19 @@
             </div>
 
             <div>
+
                 <span>
-                    NO ACTIVE STUDENT
+                    NO ASSIGNED STUDENT
                 </span>
 
                 <h3>
-                    No active training request
+                    No assigned student
                 </h3>
 
                 <p>
                     Student training requests will appear here when assigned.
                 </p>
+
             </div>
 
             <a asp-controller="Trainer"
@@ -571,6 +775,7 @@
                class="trainer-primary-button">
 
                 <i class="fa-solid fa-list"></i>
+
                 View Requests
 
             </a>
@@ -581,7 +786,9 @@
 </div>
 
 @section Styles {
+
     <link rel="stylesheet"
           href="~/css/trainer-dashboard.css"
           asp-append-version="true" />
+
 }

@@ -2,6 +2,7 @@
 using DUT_Campus_FIT_Gym.Models;
 using DUT_Campus_FIT_Gym.Services;
 using DUT_Campus_FIT_Gym.ViewModels;
+using FFMpegCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,17 +19,29 @@ namespace DUT_Campus_FIT_Gym.Controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly GymDbContext _context;
         private readonly RewardService _rewardService;
+        private readonly IWebHostEnvironment _environment;
+
+        private const long MaxVideoSize =
+            500L * 1024L * 1024L;
+
+        private static readonly TimeSpan MinimumVideoDuration =
+            TimeSpan.FromSeconds(290);
+
+        private static readonly TimeSpan MaximumVideoDuration =
+            TimeSpan.FromSeconds(310);
 
         public FitnessChallengeController(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             GymDbContext context,
-            RewardService rewardService)
+            RewardService rewardService,
+            IWebHostEnvironment environment)
         {
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
             _context = context;
             _rewardService = rewardService;
+            _environment = environment;
         }
 
         [HttpGet]
@@ -618,7 +631,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
         }
 
         [HttpGet]
-        public IActionResult MyChallenges()
+        public async Task<IActionResult> MyChallenges()
         {
             var memberId =
                 User.FindFirstValue(
@@ -635,21 +648,42 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 int.Parse(memberId);
 
             var challenges =
-                _context.FitnessChallenges
+                await _context.FitnessChallenges
                     .Include(c => c.Participation)
+                    .Include(c => c.Member)
                     .Where(c =>
                         c.MemberId == currentMemberId)
                     .OrderByDescending(c =>
                         c.CreatedAt)
+                    .ToListAsync();
+
+            var challengeIds =
+                challenges
+                    .Select(c => c.FitnessChallengeId)
                     .ToList();
+
+            var proofs =
+                await _context.ChallengeProofs
+                    .Where(p =>
+                        p.MemberId == currentMemberId &&
+                        challengeIds.Contains(
+                            p.FitnessChallengeId))
+                    .OrderByDescending(p =>
+                        p.SubmittedAt)
+                    .ToListAsync();
+
+            ViewBag.Proofs =
+                proofs
+                    .GroupBy(p => p.FitnessChallengeId)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.First());
 
             return View(challenges);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Complete(
-            int id)
+        [HttpGet]
+        public async Task<IActionResult> SubmitProof(int id)
         {
             var memberId =
                 User.FindFirstValue(
@@ -666,9 +700,10 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 int.Parse(memberId);
 
             var challenge =
-                _context.FitnessChallenges
+                await _context.FitnessChallenges
                     .Include(c => c.Participation)
-                    .FirstOrDefault(c =>
+                    .Include(c => c.Member)
+                    .FirstOrDefaultAsync(c =>
                         c.FitnessChallengeId == id &&
                         c.MemberId == currentMemberId);
 
@@ -680,51 +715,276 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             if (challenge.Participation.Status == "Completed")
             {
-                return RedirectToAction("MyChallenges");
+                TempData["ChallengeError"] =
+                    "This challenge has already been completed.";
+
+                return RedirectToAction(
+                    "MyChallenges");
             }
 
-            var rewardPoints =
-                _rewardService.GetChallengeReward(
-                    challenge.Level);
+            var existingProof =
+                await _context.ChallengeProofs
+                    .Where(p =>
+                        p.FitnessChallengeId == id &&
+                        p.MemberId == currentMemberId)
+                    .OrderByDescending(p =>
+                        p.SubmittedAt)
+                    .FirstOrDefaultAsync();
 
-            challenge.Status =
-                "Completed";
-
-            challenge.Participation.Status =
-                "Completed";
-
-            challenge.Participation.CompletedAt =
-                DateTime.Now;
-
-            var alreadyRewarded =
-                _context.RewardPoints.Any(r =>
-                    r.MemberId == currentMemberId &&
-                    r.Reason ==
-                        $"Completed fitness challenge: {challenge.FitnessChallengeId}");
-
-            if (!alreadyRewarded)
+            if (existingProof != null &&
+                existingProof.Status == "PendingReview")
             {
-                _context.RewardPoints.Add(
-                    new RewardPoint
+                TempData["ChallengeError"] =
+                    "Your proof is already waiting for trainer review.";
+
+                return RedirectToAction(
+                    "MyChallenges");
+            }
+
+            ViewBag.Challenge =
+                challenge;
+
+            ViewBag.ExistingProof =
+                existingProof;
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(MaxVideoSize)]
+        [RequestFormLimits(MultipartBodyLengthLimit = MaxVideoSize)]
+        public async Task<IActionResult> SubmitProof(
+            int id,
+            IFormFile video)
+        {
+            var memberId =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(memberId))
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Account");
+            }
+
+            int currentMemberId =
+                int.Parse(memberId);
+
+            var challenge =
+                await _context.FitnessChallenges
+                    .Include(c => c.Participation)
+                    .FirstOrDefaultAsync(c =>
+                        c.FitnessChallengeId == id &&
+                        c.MemberId == currentMemberId);
+
+            if (challenge == null ||
+                challenge.Participation == null)
+            {
+                TempData["ChallengeError"] =
+                    "Challenge not found.";
+
+                return RedirectToAction(
+                    "MyChallenges");
+            }
+
+            if (challenge.Participation.Status == "Completed")
+            {
+                TempData["ChallengeError"] =
+                    "This challenge has already been completed.";
+
+                return RedirectToAction(
+                    "MyChallenges");
+            }
+
+            var existingPendingProof =
+                await _context.ChallengeProofs
+                    .AnyAsync(p =>
+                        p.FitnessChallengeId == id &&
+                        p.MemberId == currentMemberId &&
+                        p.Status == "PendingReview");
+
+            if (existingPendingProof)
+            {
+                TempData["ChallengeError"] =
+                    "You already have a proof submission waiting for trainer review.";
+
+                return RedirectToAction(
+                    "MyChallenges");
+            }
+
+            if (video == null ||
+                video.Length == 0)
+            {
+                TempData["ChallengeError"] =
+                    "Please select a video to upload.";
+
+                return RedirectToAction(
+                    "SubmitProof",
+                    new { id });
+            }
+
+            if (video.Length > MaxVideoSize)
+            {
+                TempData["ChallengeError"] =
+                    "The video file is too large. The maximum allowed file size is 500 MB.";
+
+                return RedirectToAction(
+                    "SubmitProof",
+                    new { id });
+            }
+
+            var allowedExtensions =
+                new[]
+                {
+                    ".mp4",
+                    ".mov",
+                    ".webm",
+                    ".avi",
+                    ".mkv"
+                };
+
+            var extension =
+                Path.GetExtension(
+                    video.FileName)
+                    .ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(
+                    extension))
+            {
+                TempData["ChallengeError"] =
+                    "Invalid video format. Please upload MP4, MOV, WEBM, AVI, or MKV.";
+
+                return RedirectToAction(
+                    "SubmitProof",
+                    new { id });
+            }
+
+            var allowedContentTypes =
+                new[]
+                {
+                    "video/mp4",
+                    "video/quicktime",
+                    "video/webm",
+                    "video/x-msvideo",
+                    "video/x-matroska"
+                };
+
+            if (!string.IsNullOrWhiteSpace(video.ContentType) &&
+                !allowedContentTypes.Contains(
+                    video.ContentType.ToLowerInvariant()))
+            {
+                TempData["ChallengeError"] =
+                    "The uploaded file does not appear to be a valid video.";
+
+                return RedirectToAction(
+                    "SubmitProof",
+                    new { id });
+            }
+
+            var uploadDirectory =
+                Path.Combine(
+                    _environment.WebRootPath,
+                    "uploads",
+                    "challenge-proofs");
+
+            Directory.CreateDirectory(
+                uploadDirectory);
+
+            var fileName =
+                $"{Guid.NewGuid():N}{extension}";
+
+            var filePath =
+                Path.Combine(
+                    uploadDirectory,
+                    fileName);
+
+            try
+            {
+                await using (
+                    var stream =
+                        new FileStream(
+                            filePath,
+                            FileMode.CreateNew))
+                {
+                    await video.CopyToAsync(stream);
+                }
+
+                var mediaInfo =
+                    await FFProbe.AnalyseAsync(
+                        filePath);
+
+                var duration =
+                    mediaInfo.Duration;
+
+                if (duration < MinimumVideoDuration ||
+                    duration > MaximumVideoDuration)
+                {
+                    System.IO.File.Delete(
+                        filePath);
+
+                    TempData["ChallengeError"] =
+                        $"Your video must be approximately 5 minutes long. The accepted duration is 4:50 to 5:10. Your video was {duration:mm\\:ss}.";
+
+                    return RedirectToAction(
+                        "SubmitProof",
+                        new { id });
+                }
+
+                var videoPath =
+                    $"/uploads/challenge-proofs/{fileName}";
+
+                var proof =
+                    new ChallengeProof
                     {
+                        FitnessChallengeId =
+                            challenge.FitnessChallengeId,
+
                         MemberId =
                             currentMemberId,
 
-                        Points =
-                            rewardPoints,
+                        VideoPath =
+                            videoPath,
 
-                        Reason =
-                            $"Completed fitness challenge: {challenge.FitnessChallengeId}",
+                        Status =
+                            "PendingReview",
 
-                        EarnedAt =
+                        SubmittedAt =
                             DateTime.Now
-                    });
+                    };
+
+                challenge.Status =
+                    "PendingReview";
+
+                challenge.Participation.Status =
+                    "PendingReview";
+
+                _context.ChallengeProofs.Add(
+                    proof);
+
+                await _context.SaveChangesAsync();
+
+                TempData["ChallengeSuccess"] =
+                    "Your 5-minute proof has been submitted successfully. A trainer will review your video.";
+
+                return RedirectToAction(
+                    "MyChallenges");
             }
+            catch
+            {
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
 
-            _context.SaveChanges();
+                TempData["ChallengeError"] =
+                    "The uploaded video could not be processed. Please make sure it is a valid video file and try again.";
 
-            return RedirectToAction(
-                "MyChallenges");
+                return RedirectToAction(
+                    "SubmitProof",
+                    new { id });
+            }
         }
     }
 }

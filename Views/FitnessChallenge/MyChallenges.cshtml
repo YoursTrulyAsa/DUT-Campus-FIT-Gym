@@ -6,6 +6,10 @@
     var challenges =
         Model?.ToList() ??
         new List<DUT_Campus_FIT_Gym.Models.FitnessChallenge>();
+
+    var proofs =
+        ViewBag.Proofs as Dictionary<int, DUT_Campus_FIT_Gym.Models.ChallengeProof>
+        ?? new Dictionary<int, DUT_Campus_FIT_Gym.Models.ChallengeProof>();
 }
 
 <div class="challenge-list-page">
@@ -22,7 +26,7 @@
             </h1>
 
             <p>
-                Complete your accepted challenges and earn reward points.
+                Complete your accepted challenges, submit proof and earn reward points.
             </p>
         </div>
 
@@ -36,6 +40,32 @@
         </a>
 
     </div>
+
+    @if (TempData["ChallengeSuccess"] != null)
+    {
+        <div class="challenge-alert challenge-alert-success">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                @TempData["ChallengeSuccess"]
+            </span>
+
+        </div>
+    }
+
+    @if (TempData["ChallengeError"] != null)
+    {
+        <div class="challenge-alert challenge-alert-error">
+
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+            <span>
+                @TempData["ChallengeError"]
+            </span>
+
+        </div>
+    }
 
     @if (!challenges.Any())
     {
@@ -84,20 +114,29 @@
                     level.ToLower();
 
                 var rewardPoints =
-                    level.ToLower() switch
-                    {
-                        "beginner" => 2,
-                        "intermediate" => 4,
-                        "pro" => 6,
-                        _ => 2
-                    };
+                    challenge.RewardPoints;
+
+                proofs.TryGetValue(
+                    challenge.FitnessChallengeId,
+                    out var proof);
+
+                var proofStatus =
+                    proof?.Status?.Trim() ?? "";
 
                 var isCompleted =
-                    challenge.Participation?.Status
-                        ?.Equals(
-                            "Completed",
-                            StringComparison.OrdinalIgnoreCase)
-                    == true;
+                    challenge.Participation?.Status?.Equals(
+                        "Completed",
+                        StringComparison.OrdinalIgnoreCase) == true;
+
+                var isPending =
+                    proofStatus.Equals(
+                        "PendingReview",
+                        StringComparison.OrdinalIgnoreCase);
+
+                var isRejected =
+                    proofStatus.Equals(
+                        "Rejected",
+                        StringComparison.OrdinalIgnoreCase);
 
                 <div class="challenge-card">
 
@@ -191,8 +230,71 @@
                                 </strong>
 
                                 <span>
-                                    You earned +@rewardPoints reward points.
+                                    Your proof was approved and you earned +@rewardPoints reward points.
                                 </span>
+
+                            </div>
+
+                        </div>
+                    }
+                    else if (isPending)
+                    {
+                        <div class="challenge-pending">
+
+                            <div class="challenge-pending-icon">
+                                <i class="fa-solid fa-hourglass-half"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Proof pending review
+                                </strong>
+
+                                <span>
+                                    Your 5-minute video has been submitted and is waiting for a trainer to review it.
+                                </span>
+
+                            </div>
+
+                        </div>
+                    }
+                    else if (isRejected)
+                    {
+                        <div class="challenge-rejected">
+
+                            <div class="challenge-rejected-icon">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </div>
+
+                            <div class="challenge-rejected-content">
+
+                                <strong>
+                                    Proof rejected
+                                </strong>
+
+                                <span>
+                                    Your trainer did not approve the previous submission.
+                                </span>
+
+                                @if (proof != null &&
+                                     !string.IsNullOrWhiteSpace(proof.TrainerComment))
+                                {
+                                    <span style="margin-top: 8px;">
+                                        <strong>Trainer feedback:</strong>
+                                        @proof.TrainerComment
+                                    </span>
+                                }
+
+                                <a asp-action="SubmitProof"
+                                   asp-route-id="@challenge.FitnessChallengeId"
+                                   class="challenge-resubmit-btn">
+
+                                    <i class="fa-solid fa-video"></i>
+
+                                    Submit New Proof
+
+                                </a>
 
                             </div>
 
@@ -204,7 +306,7 @@
 
                             <div class="challenge-footer-info">
 
-                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-video"></i>
 
                                 <div>
 
@@ -213,43 +315,32 @@
                                     </strong>
 
                                     <span>
-                                        Earn +@rewardPoints reward points.
+                                        Record a 5-minute proof video and submit it for trainer review.
                                     </span>
 
                                 </div>
 
                             </div>
 
-                            <form asp-action="Complete"
-                                  method="post">
+                            <a asp-action="SubmitProof"
+                               asp-route-id="@challenge.FitnessChallengeId"
+                               class="challenge-complete-btn">
 
-                                @Html.AntiForgeryToken()
+                                <i class="fa-solid fa-video"></i>
 
-                                <input type="hidden"
-                                       name="id"
-                                       value="@challenge.FitnessChallengeId" />
+                                Submit Proof
 
-                                <button type="submit"
-                                        class="challenge-complete-btn">
+                                <span>
+                                    +@rewardPoints
+                                </span>
 
-                                    <i class="fa-solid fa-check"></i>
-
-                                    Complete Challenge
-
-                                    <span>
-                                        +@rewardPoints
-                                    </span>
-
-                                </button>
-
-                            </form>
+                            </a>
 
                         </div>
                     }
 
                 </div>
             }
-
         </div>
     }
 
@@ -259,4 +350,120 @@
     <link rel="stylesheet"
           href="~/css/fitness-challenge.css"
           asp-append-version="true" />
+
+    <style>
+        .challenge-alert {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            margin-bottom: 22px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .challenge-alert-success {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
+        .challenge-alert-error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .challenge-pending {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px;
+            margin-top: 22px;
+            border-radius: 14px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        .challenge-pending-icon {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #ffedd5;
+            color: #ea580c;
+        }
+
+        .challenge-pending strong,
+        .challenge-rejected strong {
+            display: block;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .challenge-pending span,
+        .challenge-rejected span {
+            display: block;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .challenge-rejected {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 18px;
+            margin-top: 22px;
+            border-radius: 14px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        .challenge-rejected-icon {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .challenge-rejected-content {
+            flex: 1;
+        }
+
+        .challenge-resubmit-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 9px 14px;
+            border-radius: 9px;
+            background: #0b2d52;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .challenge-resubmit-btn:hover {
+            background: #071a33;
+            color: #ffffff;
+        }
+
+        @@media (max-width: 650px) {
+            .challenge-pending,
+            .challenge-rejected {
+                align-items: flex-start;
+            }
+        }
+    </style>
 }

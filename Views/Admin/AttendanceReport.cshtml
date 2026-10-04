@@ -2,164 +2,190 @@
 
 @{
     ViewData["Title"] = "Attendance Report";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container mt-5">
+<link rel="stylesheet"
+      href="~/css/admin-management.css"
+      asp-append-version="true" />
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="admin-management-page">
+
+    <div class="admin-management-header">
 
         <div>
+            <span class="admin-management-eyebrow">
+                <i class="fa-solid fa-chart-column"></i>
+                ATTENDANCE REPORT
+            </span>
+
             <h1>Attendance Report</h1>
 
-            <p class="text-muted">
-                View gym attendance and member check-ins.
+            <p>
+                Monitor gym visits, check-ins and member attendance activity.
             </p>
         </div>
 
-        <a asp-action="Index"
-           class="btn btn-secondary">
-            ← Back to Dashboard
-        </a>
+        <div class="admin-management-header-icon">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
 
     </div>
 
+    <div class="admin-management-stats">
 
-    <!-- Statistics -->
+        <div class="admin-management-stat">
 
-    <div class="row g-4 mb-4">
+            <div class="admin-management-stat-icon attendance-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
 
-        <div class="col-md-4">
-
-            <div class="card shadow-sm">
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Total Visits
-                    </h6>
-
-                    <h2>
-                        @Model.TotalVisits
-                    </h2>
-
-                </div>
+            <div>
+                <span>Total Visits</span>
+                <strong>@Model.TotalVisits</strong>
+                <small>Recorded gym visits</small>
             </div>
 
         </div>
 
+        <div class="admin-management-stat">
 
-        <div class="col-md-4">
+            <div class="admin-management-stat-icon month-icon">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        This Month
-                    </h6>
-
-                    <h2>
-                        @Model.CurrentMonthVisits
-                    </h2>
-
-                </div>
+            <div>
+                <span>This Month</span>
+                <strong>@Model.CurrentMonthVisits</strong>
+                <small>Visits this month</small>
             </div>
 
         </div>
 
+        <div class="admin-management-stat">
 
-        <div class="col-md-4">
+            <div class="admin-management-stat-icon today-icon">
+                <i class="fa-solid fa-door-open"></i>
+            </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Today's Visits
-                    </h6>
-
-                    <h2>
-                        @Model.TodayVisits
-                    </h2>
-
-                </div>
+            <div>
+                <span>Today's Visits</span>
+                <strong>@Model.TodayVisits</strong>
+                <small>Visits recorded today</small>
             </div>
 
         </div>
 
     </div>
 
+    <div class="admin-management-card admin-table-card">
 
-    <!-- Attendance Table -->
+        <div class="admin-management-card-header">
 
-    <div class="card shadow-sm">
+            <div>
+                <span class="admin-section-label">
+                    ATTENDANCE HISTORY
+                </span>
 
-        <div class="card-header">
-            <h5 class="mb-0">
-                Attendance Records
-            </h5>
+                <h2>Attendance Records</h2>
+
+                <p>
+                    Detailed check-in and check-out activity for gym members.
+                </p>
+            </div>
+
+            <span class="admin-record-count">
+                @Model.TotalVisits
+            </span>
+
         </div>
 
-        <div class="card-body">
+        @if (!Model.Attendances.Any())
+        {
+            <div class="admin-empty-state">
 
-            @if (!Model.Attendances.Any())
-            {
-                <div class="alert alert-info">
-                    No attendance records have been recorded yet.
+                <div class="admin-empty-icon">
+                    <i class="fa-solid fa-calendar-xmark"></i>
                 </div>
-            }
-            else
-            {
-                <div class="table-responsive">
 
-                    <table class="table table-hover">
+                <h3>No Attendance Records</h3>
 
-                        <thead>
+                <p>
+                    Member attendance records will appear here after check-ins are recorded.
+                </p>
 
+            </div>
+        }
+        else
+        {
+            <div class="admin-table-wrapper">
+
+                <table class="admin-management-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Member</th>
+                            <th>Student/Staff No.</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var attendance in Model.Attendances)
+                        {
                             <tr>
-                                <th>Member</th>
-                                <th>Student/Staff No.</th>
-                                <th>Check In</th>
-                                <th>Check Out</th>
+
+                                <td>
+                                    <div class="admin-member-name">
+                                        <strong>
+                                            @attendance.Member?.Name
+                                            @attendance.Member?.Surname
+                                        </strong>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @attendance.Member?.StudentNumber
+                                </td>
+
+                                <td>
+                                    <span class="admin-date-badge check-in">
+                                        <i class="fa-solid fa-right-to-bracket"></i>
+                                        @attendance.CheckInTime.ToString("dd MMM yyyy, HH:mm")
+                                    </span>
+                                </td>
+
+                                <td>
+
+                                    @if (attendance.CheckOutTime.HasValue)
+                                    {
+                                        <span class="admin-date-badge check-out">
+                                            <i class="fa-solid fa-right-from-bracket"></i>
+                                            @attendance.CheckOutTime.Value.ToString("dd MMM yyyy, HH:mm")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-status-badge active">
+                                            Still checked in
+                                        </span>
+                                    }
+
+                                </td>
+
                             </tr>
+                        }
 
-                        </thead>
+                    </tbody>
 
-                        <tbody>
+                </table>
 
-                            @foreach (var attendance in Model.Attendances)
-                            {
-                                <tr>
-
-                                    <td>
-                                        @attendance.Member?.Name
-                                        @attendance.Member?.Surname
-                                    </td>
-
-                                    <td>
-                                        @attendance.Member?.StudentNumber
-                                    </td>
-
-                                    <td>
-                                        @attendance.CheckInTime.ToString(
-                                            "dd MMM yyyy, HH:mm")
-                                    </td>
-
-                                    <td>
-                                        @(attendance.CheckOutTime.HasValue
-                                            ? attendance.CheckOutTime.Value.ToString(
-                                                "dd MMM yyyy, HH:mm")
-                                            : "Still checked in")
-                                    </td>
-
-                                </tr>
-                            }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-            }
-
-        </div>
+            </div>
+        }
 
     </div>
 

@@ -2,172 +2,130 @@
 
 @{
     ViewData["Title"] = "Financial Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container mt-5">
+<link rel="stylesheet"
+      href="~/css/admin-management.css"
+      asp-append-version="true" />
 
-    <!-- Page Header -->
+<div class="admin-management-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="admin-management-header">
 
         <div>
+            <span class="admin-management-eyebrow">
+                <i class="fa-solid fa-money-bill-wave"></i>
+                FINANCIAL MANAGEMENT
+            </span>
+
             <h1>Financial Management</h1>
 
-            <p class="text-muted">
-                Monitor membership payments and gym revenue.
+            <p>
+                Monitor membership payments, revenue and financial activity.
             </p>
         </div>
 
-        <a asp-action="Index"
-           class="btn btn-secondary">
-            ← Back to Dashboard
-        </a>
+        <div class="admin-management-header-icon">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
 
     </div>
 
+    <div class="admin-management-stats">
 
-    <!-- ============================================================
-         PAID REVENUE SUMMARY
-         ============================================================ -->
+        <div class="admin-management-stat">
 
-    <div class="row g-4 mb-4">
+            <div class="admin-management-stat-icon revenue-icon">
+                <i class="fa-solid fa-money-bill-trend-up"></i>
+            </div>
 
-        <!-- Paid Revenue -->
-
-        <div class="col-md-4">
-
-            <div class="card shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Paid Revenue
-                    </h6>
-
-                    <h2>
-                        R @Model.PaidRevenue.ToString("N2")
-                    </h2>
-
-                    <p class="mb-0">
-                        Revenue from completed payments
-                    </p>
-
-                </div>
-
+            <div>
+                <span>Paid Revenue</span>
+                <strong>R @Model.PaidRevenue.ToString("N2")</strong>
+                <small>Completed payments</small>
             </div>
 
         </div>
 
+        <div class="admin-management-stat">
 
-        <!-- Total Payments -->
+            <div class="admin-management-stat-icon payment-icon">
+                <i class="fa-solid fa-receipt"></i>
+            </div>
 
-        <div class="col-md-4">
-
-            <div class="card shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Total Payments
-                    </h6>
-
-                    <h2>
-                        @Model.TotalPayments
-                    </h2>
-
-                    <p class="mb-0">
-                        Completed membership payments
-                    </p>
-
-                </div>
-
+            <div>
+                <span>Total Payments</span>
+                <strong>@Model.TotalPayments</strong>
+                <small>Completed membership payments</small>
             </div>
 
         </div>
 
+        <div class="admin-management-stat">
 
-        <!-- Student + Staff Paid Revenue -->
+            <div class="admin-management-stat-icon collection-icon">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
 
-        <div class="col-md-4">
-
-            <div class="card shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Student + Staff Revenue
-                    </h6>
-
-                    <h2>
-                        R @((Model.StudentPaidRevenue + Model.StaffPaidRevenue).ToString("N2"))
-                    </h2>
-
-                    <p class="mb-0">
-                        Total collected revenue
-                    </p>
-
-                </div>
-
+            <div>
+                <span>Total Collected</span>
+                <strong>R @((Model.StudentPaidRevenue + Model.StaffPaidRevenue).ToString("N2"))</strong>
+                <small>Student + staff revenue</small>
             </div>
 
         </div>
 
     </div>
 
+    <div class="admin-management-card">
 
-    <!-- ============================================================
-         REVENUE BREAKDOWN
-         ============================================================ -->
+        <div class="admin-management-card-header">
 
-    <div class="card shadow-sm mb-4">
+            <div>
+                <span class="admin-section-label">
+                    REVENUE OVERVIEW
+                </span>
 
-        <div class="card-header">
+                <h2>Revenue Breakdown</h2>
 
-            <h5 class="mb-0">
-                Revenue Breakdown
-            </h5>
+                <p>
+                    Compare revenue generated from student and staff memberships.
+                </p>
+            </div>
+
+            <div class="admin-card-icon">
+                <i class="fa-solid fa-chart-pie"></i>
+            </div>
 
         </div>
 
-        <div class="card-body">
+        <div class="admin-breakdown-grid">
 
-            <div class="row">
+            <div class="admin-breakdown-item">
 
-                <!-- Student Revenue -->
-
-                <div class="col-md-6">
-
-                    <h6>
-                        Student Revenue
-                    </h6>
-
-                    <h3>
-                        R @Model.StudentPaidRevenue.ToString("N2")
-                    </h3>
-
-                    <p class="text-muted">
-                        Paid student memberships
-                    </p>
-
+                <div class="admin-breakdown-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
                 </div>
 
+                <div>
+                    <span>Student Revenue</span>
+                    <strong>R @Model.StudentPaidRevenue.ToString("N2")</strong>
+                    <small>Paid student memberships</small>
+                </div>
 
-                <!-- Staff Revenue -->
+            </div>
 
-                <div class="col-md-6">
+            <div class="admin-breakdown-item">
 
-                    <h6>
-                        Staff Revenue
-                    </h6>
+                <div class="admin-breakdown-icon">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
 
-                    <h3>
-                        R @Model.StaffPaidRevenue.ToString("N2")
-                    </h3>
-
-                    <p class="text-muted">
-                        Paid staff memberships
-                    </p>
-
+                <div>
+                    <span>Staff Revenue</span>
+                    <strong>R @Model.StaffPaidRevenue.ToString("N2")</strong>
+                    <small>Paid staff memberships</small>
                 </div>
 
             </div>
@@ -176,261 +134,173 @@
 
     </div>
 
+    <div class="admin-management-card">
 
-    <!-- ============================================================
-         ACTIVE MEMBERSHIP SUMMARY
-         ============================================================ -->
+        <div class="admin-management-card-header">
 
-    <div class="card shadow-sm mb-4">
+            <div>
+                <span class="admin-section-label">
+                    MEMBERSHIP VALUE
+                </span>
 
-        <div class="card-header">
+                <h2>Active Memberships</h2>
 
-            <h5 class="mb-0">
-                Active Memberships
-            </h5>
+                <p>
+                    Current membership activity and value.
+                </p>
+            </div>
+
+            <div class="admin-card-icon">
+                <i class="fa-solid fa-id-card"></i>
+            </div>
 
         </div>
 
-        <div class="card-body">
+        <div class="admin-mini-stats">
 
-            <div class="row g-4">
+            <div class="admin-mini-stat">
+                <span>Active Memberships</span>
+                <strong>@Model.ActiveMemberships</strong>
+                <small>Currently active</small>
+            </div>
 
-                <!-- Total Active -->
+            <div class="admin-mini-stat">
+                <span>Active Membership Value</span>
+                <strong>R @Model.ActiveMembershipValue.ToString("N2")</strong>
+                <small>Total active value</small>
+            </div>
 
-                <div class="col-md-3">
+            <div class="admin-mini-stat">
+                <span>Student Memberships</span>
+                <strong>@Model.ActiveStudentMemberships</strong>
+                <small>Active students</small>
+            </div>
 
-                    <div class="card h-100">
-
-                        <div class="card-body">
-
-                            <h6 class="text-muted">
-                                Active Memberships
-                            </h6>
-
-                            <h2>
-                                @Model.ActiveMemberships
-                            </h2>
-
-                            <p class="mb-0">
-                                Currently active memberships
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Active Value -->
-
-                <div class="col-md-3">
-
-                    <div class="card h-100">
-
-                        <div class="card-body">
-
-                            <h6 class="text-muted">
-                                Active Membership Value
-                            </h6>
-
-                            <h2>
-                                R @Model.ActiveMembershipValue.ToString("N2")
-                            </h2>
-
-                            <p class="mb-0">
-                                Total value of active memberships
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Active Students -->
-
-                <div class="col-md-3">
-
-                    <div class="card h-100">
-
-                        <div class="card-body">
-
-                            <h6 class="text-muted">
-                                Student Memberships
-                            </h6>
-
-                            <h2>
-                                @Model.ActiveStudentMemberships
-                            </h2>
-
-                            <p class="mb-0">
-                                Active student memberships
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Active Staff -->
-
-                <div class="col-md-3">
-
-                    <div class="card h-100">
-
-                        <div class="card-body">
-
-                            <h6 class="text-muted">
-                                Staff Memberships
-                            </h6>
-
-                            <h2>
-                                @Model.ActiveStaffMemberships
-                            </h2>
-
-                            <p class="mb-0">
-                                Active staff memberships
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+            <div class="admin-mini-stat">
+                <span>Staff Memberships</span>
+                <strong>@Model.ActiveStaffMemberships</strong>
+                <small>Active staff</small>
             </div>
 
         </div>
 
     </div>
 
+    <div class="admin-management-card admin-table-card">
 
-    <!-- ============================================================
-         COMPLETED PAYMENTS
-         ============================================================ -->
+        <div class="admin-management-card-header">
 
-    <div class="card shadow-sm mb-5">
+            <div>
+                <span class="admin-section-label">
+                    PAYMENT HISTORY
+                </span>
 
-        <div class="card-header">
+                <h2>Completed Payments</h2>
 
-            <h5 class="mb-0">
-                Completed Payments
-            </h5>
+                <p>
+                    Membership payments successfully recorded by the system.
+                </p>
+            </div>
+
+            <span class="admin-record-count">
+                @Model.TotalPayments
+            </span>
 
         </div>
 
-        <div class="card-body">
+        @if (Model.Payments == null || !Model.Payments.Any())
+        {
+            <div class="admin-empty-state">
 
-            @if (Model.Payments == null || !Model.Payments.Any())
-            {
-                <div class="alert alert-info mb-0">
-
-                    No completed payments have been recorded yet.
-
+                <div class="admin-empty-icon">
+                    <i class="fa-solid fa-receipt"></i>
                 </div>
-            }
-            else
-            {
-                <div class="table-responsive">
 
-                    <table class="table table-hover align-middle">
+                <h3>No Completed Payments</h3>
 
-                        <thead>
+                <p>
+                    Completed membership payments will appear here.
+                </p>
 
+            </div>
+        }
+        else
+        {
+            <div class="admin-table-wrapper">
+
+                <table class="admin-management-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Member</th>
+                            <th>Student/Staff No.</th>
+                            <th>Membership</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Reference</th>
+                            <th>Payment Date</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var payment in Model.Payments)
+                        {
                             <tr>
 
-                                <th>
-                                    Member
-                                </th>
+                                <td>
+                                    <div class="admin-member-name">
+                                        <strong>
+                                            @(payment.Member != null
+                                                ? $"{payment.Member.Name} {payment.Member.Surname}"
+                                                : "Unknown Member")
+                                        </strong>
+                                    </div>
+                                </td>
 
-                                <th>
-                                    Student/Staff No.
-                                </th>
+                                <td>
+                                    @(payment.Member?.StudentNumber ?? "N/A")
+                                </td>
 
-                                <th>
-                                    Membership
-                                </th>
+                                <td>
+                                    <span class="admin-type-badge">
+                                        @payment.MembershipType
+                                    </span>
+                                </td>
 
-                                <th>
-                                    Amount
-                                </th>
+                                <td>
+                                    <strong class="admin-price">
+                                        R @payment.Price.ToString("N2")
+                                    </strong>
+                                </td>
 
-                                <th>
-                                    Payment Method
-                                </th>
+                                <td>
+                                    @(payment.PaymentMethod ?? "N/A")
+                                </td>
 
-                                <th>
-                                    Payment Reference
-                                </th>
+                                <td>
+                                    <span class="admin-reference">
+                                        @(payment.PaymentReference ?? "N/A")
+                                    </span>
+                                </td>
 
-                                <th>
-                                    Payment Date
-                                </th>
+                                <td>
+                                    @(payment.PaymentDate.HasValue
+                                        ? payment.PaymentDate.Value.ToString("dd MMM yyyy HH:mm")
+                                        : "N/A")
+                                </td>
 
                             </tr>
+                        }
 
-                        </thead>
+                    </tbody>
 
+                </table>
 
-                        <tbody>
-
-                            @foreach (var payment in Model.Payments)
-                            {
-                                <tr>
-
-                                    <td>
-                                        @(payment.Member != null
-                                            ? $"{payment.Member.Name} {payment.Member.Surname}"
-                                            : "Unknown Member")
-                                    </td>
-
-                                    <td>
-                                        @(payment.Member?.StudentNumber ?? "N/A")
-                                    </td>
-
-                                    <td>
-                                        @payment.MembershipType
-                                    </td>
-
-                                    <td>
-
-                                        <strong>
-                                            R @payment.Price.ToString("N2")
-                                        </strong>
-
-                                    </td>
-
-                                    <td>
-                                        @(payment.PaymentMethod ?? "N/A")
-                                    </td>
-
-                                    <td>
-                                        @(payment.PaymentReference ?? "N/A")
-                                    </td>
-
-                                    <td>
-
-                                        @(payment.PaymentDate.HasValue
-                                            ? payment.PaymentDate.Value.ToString("dd MMM yyyy HH:mm")
-                                            : "N/A")
-
-                                    </td>
-
-                                </tr>
-                            }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-            }
-
-        </div>
+            </div>
+        }
 
     </div>
 

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
+using DUT_Campus_FIT_Gym.Services;
 
 namespace DUT_Campus_FIT_Gym.Controllers
 {
@@ -15,13 +16,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
     {
         private readonly GymDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly MonthlyLeaderboardService _monthlyLeaderboardService;
 
         public FitnessLeaderboardController(
-            GymDbContext context,
-            IConfiguration configuration)
+    GymDbContext context,
+    IConfiguration configuration,
+    MonthlyLeaderboardService monthlyLeaderboardService)
         {
             _context = context;
             _configuration = configuration;
+            _monthlyLeaderboardService =
+                monthlyLeaderboardService;
         }
 
         [HttpGet]
@@ -223,240 +228,25 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FinalizeMonth(
-            int year,
-            int month)
+    int year,
+    int month)
         {
-            if (month < 1 ||
-                month > 12)
+            var result =
+                await _monthlyLeaderboardService
+                    .FinalizeMonthAsync(
+                        year,
+                        month);
+
+            if (result.Success)
+            {
+                TempData["LeaderboardSuccess"] =
+                    result.Message;
+            }
+            else
             {
                 TempData["LeaderboardError"] =
-                    "Invalid month.";
-
-                return RedirectToAction(
-                    "Index",
-                    new
-                    {
-                        year,
-                        month
-                    });
+                    result.Message;
             }
-
-            DateTime startDate =
-                new DateTime(
-                    year,
-                    month,
-                    1);
-
-            DateTime endDate =
-                startDate.AddMonths(1);
-
-            bool alreadyFinalized =
-                await _context.MonthlyLeaderboards
-                    .AnyAsync(x =>
-                        x.Year == year &&
-                        x.Month == month);
-
-            if (alreadyFinalized)
-            {
-                TempData["LeaderboardError"] =
-                    "This month has already been finalized.";
-
-                return RedirectToAction(
-                    "Index",
-                    new
-                    {
-                        year,
-                        month
-                    });
-            }
-
-            var members =
-                await _context.Members
-                    .Where(m =>
-                        m.Role == "Student" ||
-                        m.Role == "Staff")
-                    .Select(m => new
-                    {
-                        m.MemberId,
-                        m.Name,
-                        m.Surname,
-                        m.Email,
-
-                        Points =
-                            _context.RewardPoints
-                                .Where(r =>
-                                    r.MemberId == m.MemberId &&
-                                    r.EarnedAt >= startDate &&
-                                    r.EarnedAt < endDate)
-                                .Select(r => (int?)r.Points)
-                                .Sum() ?? 0
-                    })
-                    .OrderByDescending(x => x.Points)
-                    .ThenBy(x => x.Surname)
-                    .ThenBy(x => x.Name)
-                    .ToListAsync();
-
-            if (!members.Any())
-            {
-                TempData["LeaderboardError"] =
-                    "There are no members to finalize.";
-
-                return RedirectToAction(
-                    "Index",
-                    new
-                    {
-                        year,
-                        month
-                    });
-            }
-
-            var finalEntries =
-                new List<MonthlyLeaderboard>();
-
-            for (int i = 0;
-                 i < members.Count;
-                 i++)
-            {
-                var member =
-                    members[i];
-
-                bool isTopThree =
-                    i < 3;
-
-                bool isBottom =
-                    i == members.Count - 1;
-
-                finalEntries.Add(
-                    new MonthlyLeaderboard
-                    {
-                        Year =
-                            year,
-
-                        Month =
-                            month,
-
-                        MemberId =
-                            member.MemberId,
-
-                        Rank =
-                            i + 1,
-
-                        Points =
-                            member.Points,
-
-                        Standing =
-                            isTopThree
-                                ? "Top 3"
-                                : isBottom
-                                    ? "Bottom"
-                                    : "Normal",
-
-                        GiftStatus =
-                            isTopThree
-                                ? "Pending"
-                                : "NotApplicable",
-
-                        NotificationSent =
-                            false,
-
-                        FinalizedAt =
-                            DateTime.Now
-                    });
-            }
-
-            _context.MonthlyLeaderboards.AddRange(
-                finalEntries);
-
-            await _context.SaveChangesAsync();
-
-            var topThree =
-                finalEntries
-                    .Where(x =>
-                        x.Rank <= 3)
-                    .ToList();
-
-            var bottom =
-                finalEntries
-                    .OrderByDescending(x =>
-                        x.Rank)
-                    .FirstOrDefault();
-
-            foreach (var entry in topThree)
-            {
-                var member =
-                    members.FirstOrDefault(
-                        x =>
-                            x.MemberId ==
-                            entry.MemberId);
-
-                if (member == null ||
-                    string.IsNullOrWhiteSpace(
-                        member.Email))
-                {
-                    continue;
-                }
-
-                try
-                {
-                    SendTopThreeEmail(
-                        member.Name ?? "Member",
-                        member.Email,
-                        year,
-                        month,
-                        entry.Rank,
-                        entry.Points);
-
-                    entry.NotificationSent =
-                        true;
-                }
-                catch
-                {
-                }
-            }
-
-            if (bottom != null &&
-                !topThree.Any(
-                    x =>
-                        x.MemberId ==
-                        bottom.MemberId))
-            {
-                var bottomMember =
-                    members.FirstOrDefault(
-                        x =>
-                            x.MemberId ==
-                            bottom.MemberId);
-
-                if (bottomMember != null &&
-                    !string.IsNullOrWhiteSpace(
-                        bottomMember.Email))
-                {
-                    try
-                    {
-                        SendBottomEmail(
-                            bottomMember.Name ??
-                                "Member",
-
-                            bottomMember.Email,
-
-                            year,
-
-                            month,
-
-                            bottom.Points);
-
-                        bottom.NotificationSent =
-                            true;
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-
-            await _context.SaveChangesAsync();
-
-            TempData["LeaderboardSuccess"] =
-                $"{startDate:MMMM yyyy} has been finalized successfully.";
 
             return RedirectToAction(
                 "Index",

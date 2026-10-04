@@ -102,6 +102,16 @@
         </div>
     }
 
+    @if (TempData["WorkoutFavouriteMessage"] != null)
+    {
+        <div class="workout-success-message">
+            <i class="fa-solid fa-heart"></i>
+            <span>
+                @TempData["WorkoutFavouriteMessage"]
+            </span>
+        </div>
+    }
+
     @if (programme == null)
     {
         <div class="workout-empty">
@@ -482,6 +492,55 @@
                 in your @completedFitnessLevel programme.
             </p>
 
+            @if (ViewBag.CompletedProgramme != null)
+            {
+                var completedProgramme =
+                    ViewBag.CompletedProgramme
+                    as DUT_Campus_FIT_Gym.Models.WorkoutProgramme;
+
+                if (completedProgramme != null)
+                {
+                    <div class="programme-result-actions">
+
+                        <a asp-controller="Workout"
+                           asp-action="ShareResult"
+                           asp-route-workoutProgrammeId="@completedProgramme.WorkoutProgrammeId"
+                           class="programme-share-result-btn">
+
+                            <i class="fa-solid fa-share-nodes"></i>
+
+                            Share Result
+
+                        </a>
+
+                        <form asp-controller="Workout"
+                              asp-action="ToggleFavourite"
+                              method="post"
+                              class="programme-favourite-form">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="workoutProgrammeId"
+                                   value="@completedProgramme.WorkoutProgrammeId" />
+
+                            <button type="submit"
+                                    class="programme-favourite-btn">
+
+                                <i class="fa-solid fa-heart"></i>
+
+                                @(completedProgramme.IsFavourite
+                                    ? "Remove from Favourites"
+                                    : "Save to Favourites")
+
+                            </button>
+
+                        </form>
+
+                    </div>
+                }
+            }
+
             @if (canAdvance)
             {
                 <div class="programme-advance-question">
@@ -553,7 +612,6 @@
 
     </div>
 }
-
 @section Styles {
     <link rel="stylesheet"
           href="~/css/workout.css"

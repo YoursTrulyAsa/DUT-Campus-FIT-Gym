@@ -26,8 +26,12 @@ namespace DUT_Campus_FIT_Gym.Models
 
         public DateTime? ResponseDate { get; set; }
 
+        [StringLength(500)]
+        public string? RejectionReason { get; set; }
+
         public DateTime? CompletionDate { get; set; }
 
+        
         [ForeignKey("StudentId")]
         public Member? Student { get; set; }
 

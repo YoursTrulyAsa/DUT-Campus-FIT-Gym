@@ -1,0 +1,197 @@
+﻿@{
+    ViewData["Title"] = "Book Trainer Session";
+    var request = ViewBag.TrainerRequest;
+}
+
+<div class="trainer-page">
+
+    <div class="trainer-page-header">
+
+        <div>
+
+            <span class="trainer-page-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Book Training Session
+            </h1>
+
+            <p>
+                Schedule a one-hour training session with your trainer.
+            </p>
+
+        </div>
+
+        <div class="trainer-header-icon">
+            <i class="bi bi-calendar-check-fill"></i>
+        </div>
+
+    </div>
+
+    <div class="trainer-form-card">
+
+        <div class="trainer-form-header">
+
+            <h2>
+                Session Details
+            </h2>
+
+            <p>
+                Choose a future date and time that works for your training session.
+            </p>
+
+        </div>
+
+        <div class="trainer-form-body">
+
+            @if (TempData["TrainerRequestError"] != null)
+            {
+                <div class="trainer-alert trainer-alert-danger">
+
+                    <i class="bi bi-exclamation-circle-fill"></i>
+
+                    @TempData["TrainerRequestError"]
+
+                </div>
+            }
+
+            <div class="trainer-info">
+
+                <span class="trainer-info-label">
+                    TRAINER
+                </span>
+
+                <div class="trainer-name">
+                    @request.Trainer.TrainerName
+                </div>
+
+            </div>
+
+            <div class="trainer-info">
+
+                <span class="trainer-info-label">
+                    TRAINING CATEGORY
+                </span>
+
+                <div class="trainer-info-value">
+                    @(request.Trainer.Category ?? "General Fitness")
+                </div>
+
+            </div>
+
+            <div class="trainer-info">
+
+                <span class="trainer-info-label">
+                    YOUR REQUEST
+                </span>
+
+                <div class="trainer-message">
+                    @request.RequestMessage
+                </div>
+
+            </div>
+
+            <form asp-controller="Member"
+                  asp-action="BookTrainerSession"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="requestId"
+                       value="@request.TrainerRequestId" />
+
+                <div class="mb-4">
+
+                    <label class="trainer-form-label">
+
+                        Session Date
+
+                        <span class="trainer-required">
+                            *
+                        </span>
+
+                    </label>
+
+                    <input type="date"
+                           name="sessionDate"
+                           class="trainer-form-control"
+                           min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                           required />
+
+                    <div class="trainer-help-text">
+                        Select a future date for your training session.
+                    </div>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="trainer-form-label">
+
+                        Start Time
+
+                        <span class="trainer-required">
+                            *
+                        </span>
+
+                    </label>
+
+                    <input type="time"
+                           name="startTime"
+                           class="trainer-form-control"
+                           required />
+
+                    <div class="trainer-help-text">
+                        Your session will last one hour.
+                    </div>
+
+                </div>
+
+                <div class="trainer-alert trainer-alert-success">
+
+                    <i class="bi bi-info-circle-fill"></i>
+
+                    Session duration: <strong>1 hour</strong>
+
+                </div>
+
+                <div class="trainer-form-actions">
+
+                    <button type="submit"
+                            class="trainer-button trainer-button-primary">
+
+                        <i class="bi bi-calendar-check-fill"></i>
+
+                        Confirm Booking
+
+                    </button>
+
+                    <a asp-controller="Member"
+                       asp-action="MyTrainerRequests"
+                       class="trainer-button trainer-button-secondary">
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        Back to Requests
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/trainer-requests.css"
+          asp-append-version="true" />
+
+}

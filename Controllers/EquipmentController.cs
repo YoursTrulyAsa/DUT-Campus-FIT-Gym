@@ -3,6 +3,7 @@ using DUT_Campus_FIT_Gym.Models;
 using DUT_Campus_FIT_Gym.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace DUT_Campus_FIT_Gym.Controllers
@@ -252,7 +253,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 DateTime.Now;
 
             var endTime =
-                startTime.AddMinutes(10);
+                startTime.AddMinutes(1);
 
             var reservation =
                 new Reservation
@@ -273,6 +274,9 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         "Reserved",
 
                     NotificationDismissed =
+                        false,
+
+                    PenaltyApplied =
                         false
                 };
 
@@ -458,7 +462,13 @@ namespace DUT_Campus_FIT_Gym.Controllers
             }
 
             if (reservation.Status !=
-                "Expired")
+                "Reserved")
+            {
+                return BadRequest();
+            }
+
+            if (DateTime.Now <
+                reservation.EndTime)
             {
                 return BadRequest();
             }
@@ -474,12 +484,205 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 return BadRequest();
             }
 
+            reservation.Status =
+                "Expired";
+
             reservation.NotificationDismissed =
                 true;
+
+            var equipment =
+                _context.Equipment
+                    .FirstOrDefault(e =>
+                        e.EquipmentID ==
+                        reservation.EquipmentID);
+
+            if (equipment != null &&
+                !equipment.IsRetired)
+            {
+                equipment.IsAvailable =
+                    true;
+            }
 
             _context.SaveChanges();
 
             return Ok();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Student,Staff")]
+        [ValidateAntiForgeryToken]
+        public IActionResult ProcessMissedReservationNotification(
+            int reservationId)
+        {
+            var memberIdClaim =
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(memberIdClaim) ||
+                !int.TryParse(
+                    memberIdClaim,
+                    out int memberId))
+            {
+                return Unauthorized();
+            }
+
+            var reservation =
+                _context.Reservations
+                    .FirstOrDefault(r =>
+                        r.ReservationID ==
+                            reservationId &&
+                        r.MemberID ==
+                            memberId);
+
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            if (reservation.PenaltyApplied)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    alreadyProcessed = true
+                });
+            }
+
+            if (DateTime.Now <
+                reservation.EndTime.AddMinutes(1))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message =
+                        "The reservation notification period has not ended yet."
+                });
+            }
+
+            if (reservation.Status ==
+                "Cancelled")
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message =
+                        "Cancelled reservations cannot receive a missed reservation penalty."
+                });
+            }
+
+            reservation.Status =
+                "Expired";
+
+            reservation.PenaltyApplied =
+                true;
+
+            var equipment =
+                _context.Equipment
+                    .FirstOrDefault(e =>
+                        e.EquipmentID ==
+                        reservation.EquipmentID);
+
+            if (equipment != null &&
+                !equipment.IsRetired)
+            {
+                equipment.IsAvailable =
+                    true;
+            }
+
+            var rewardPoint =
+                new RewardPoint
+                {
+                    MemberId =
+                        memberId,
+
+                    Points =
+                        -15,
+
+                    Reason =
+                        "Missed equipment reservation",
+
+                    EarnedAt =
+                        DateTime.Now
+                };
+
+            _context.RewardPoints.Add(
+                rewardPoint);
+
+            _context.SaveChanges();
+
+            var latestPenalty =
+                _context.EquipmentPenalties
+                    .Where(p =>
+                        p.MemberId == memberId)
+                    .OrderByDescending(
+                        p => p.PenaltyDate)
+                    .FirstOrDefault();
+
+            var missedReservationPointsQuery =
+                _context.RewardPoints
+                    .Where(r =>
+                        r.MemberId == memberId &&
+                        r.Reason ==
+                            "Missed equipment reservation");
+
+            if (latestPenalty != null)
+            {
+                missedReservationPointsQuery =
+                    missedReservationPointsQuery
+                        .Where(r =>
+                            r.EarnedAt >
+                            latestPenalty.PenaltyDate);
+            }
+
+            var missedReservationPoints =
+                missedReservationPointsQuery
+                    .Select(r => r.Points)
+                    .ToList()
+                    .Sum();
+
+            var penaltyCreated =
+                false;
+
+            if (missedReservationPoints <= -45)
+            {
+                var equipmentPenalty =
+                    new EquipmentPenalty
+                    {
+                        MemberId =
+                            memberId,
+
+                        ReservationId =
+                            reservation.ReservationID,
+
+                        Amount =
+                            50.00m,
+
+                        Status =
+                            "Outstanding",
+
+                        PenaltyDate =
+                            DateTime.Now
+                    };
+
+                _context.EquipmentPenalties.Add(
+                    equipmentPenalty);
+
+                penaltyCreated =
+                    true;
+
+                _context.SaveChanges();
+            }
+
+            return Ok(new
+            {
+                success = true,
+                pointsDeducted = 15,
+                penaltyCreated = penaltyCreated,
+                penaltyAmount =
+                    penaltyCreated
+                        ? 50
+                        : 0
+            });
         }
 
         private bool IsCheckedIn()

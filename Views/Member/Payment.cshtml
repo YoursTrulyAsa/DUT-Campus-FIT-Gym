@@ -14,6 +14,9 @@
                         "Completed",
                         StringComparison.OrdinalIgnoreCase))
         .Sum(p => p.Amount);
+
+    var outstandingPenalty =
+        ViewBag.OutstandingPenalty as DUT_Campus_FIT_Gym.Models.EquipmentPenalty;
 }
 
 @section Styles {
@@ -24,9 +27,7 @@
 
 }
 
-
 <div class="payment-history-page">
-
 
     <div class="payment-history-header">
 
@@ -45,7 +46,6 @@
             </p>
 
         </div>
-
 
         <a asp-controller="Member"
            asp-action="Dashboard"
@@ -79,6 +79,46 @@
         </div>
     }
 
+    @if (outstandingPenalty != null)
+    {
+        <div class="outstanding-penalty-card">
+
+            <div class="outstanding-penalty-content">
+
+                <div class="outstanding-penalty-icon">
+                    ⚠
+                </div>
+
+                <div>
+
+                    <span class="outstanding-penalty-label">
+                        OUTSTANDING EQUIPMENT PENALTY
+                    </span>
+
+                    <h2>
+                        R @outstandingPenalty.Amount.ToString("0.00")
+                    </h2>
+
+                    <p>
+                        You have an outstanding equipment reservation penalty.
+                        Please settle this payment before continuing to use the affected equipment.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <a asp-controller="Banking"
+               asp-action="PayPenalty"
+               asp-route-penaltyId="@outstandingPenalty.EquipmentPenaltyId"
+               class="penalty-pay-button">
+
+                Pay R @outstandingPenalty.Amount.ToString("0.00")
+
+            </a>
+
+        </div>
+    }
 
     @if (paymentList.Count == 0)
     {
@@ -96,7 +136,6 @@
                 You have not made any gym membership payments yet.
             </p>
 
-
             <a asp-controller="Member"
                asp-action="Membership"
                class="membership-button">
@@ -109,9 +148,7 @@
     }
     else
     {
-
         <div class="payment-summary">
-
 
             <div class="summary-card">
 
@@ -157,8 +194,6 @@
 
         <div class="payments-card">
 
-
-
             <div class="payments-card-header">
 
                 <div>
@@ -168,13 +203,12 @@
                     </h2>
 
                     <p>
-                        Your gym membership payment records.
+                        Your gym membership and equipment payment records.
                     </p>
 
                 </div>
 
             </div>
-
 
             <div class="table-responsive">
 
@@ -189,7 +223,7 @@
                             </th>
 
                             <th>
-                                Membership
+                                Payment
                             </th>
 
                             <th>
@@ -212,13 +246,11 @@
 
                     </thead>
 
-
                     <tbody>
 
                         @foreach (var payment in paymentList)
                         {
                             <tr>
-
 
                                 <td>
 
@@ -230,19 +262,26 @@
 
                                 <td>
 
-                                    @if (payment.Membership != null)
+                                    @if (payment.EquipmentPenalty != null)
                                     {
-                                        @payment.Membership.MembershipType
+                                        <span>
+                                            Equipment Penalty
+                                        </span>
+                                    }
+                                    else if (payment.Membership != null)
+                                    {
+                                        <span>
+                                            @payment.Membership.MembershipType Membership
+                                        </span>
                                     }
                                     else
                                     {
                                         <span>
-                                            Membership
+                                            Payment
                                         </span>
                                     }
 
                                 </td>
-
 
                                 <td>
 
@@ -252,28 +291,34 @@
 
                                 </td>
 
-
                                 <td>
 
                                     @(payment.PaymentMethod ?? "N/A")
 
                                 </td>
 
+                                <td>
+
+                                    @if (payment.PaymentDate != DateTime.MinValue)
+                                    {
+                                        @payment.PaymentDate.ToString(
+                                            "dd MMM yyyy, HH:mm")
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            Pending
+                                        </span>
+                                    }
+
+                                </td>
 
                                 <td>
 
-                                    @payment.PaymentDate.ToString(
-                                    "dd MMM yyyy, HH:mm")
-
-                        </td>
-
-
-                        <td>
-
-                            @if (string.Equals(
-                                                        payment.PaymentStatus,
-                                                        "Completed",
-                                                        StringComparison.OrdinalIgnoreCase))
+                                    @if (string.Equals(
+                                        payment.PaymentStatus,
+                                        "Completed",
+                                        StringComparison.OrdinalIgnoreCase))
                                     {
                                         <span class="payment-status paid">
 
@@ -282,9 +327,9 @@
                                         </span>
                                     }
                                     else if (string.Equals(
-                                    payment.PaymentStatus,
-                                    "Pending",
-                                    StringComparison.OrdinalIgnoreCase))
+                                        payment.PaymentStatus,
+                                        "Pending",
+                                        StringComparison.OrdinalIgnoreCase))
                                     {
                                         <span class="payment-status pending">
 
@@ -293,9 +338,9 @@
                                         </span>
                                     }
                                     else if (string.Equals(
-                                    payment.PaymentStatus,
-                                    "Failed",
-                                    StringComparison.OrdinalIgnoreCase))
+                                        payment.PaymentStatus,
+                                        "Failed",
+                                        StringComparison.OrdinalIgnoreCase))
                                     {
                                         <span class="payment-status failed">
 
@@ -324,7 +369,89 @@
             </div>
 
         </div>
-
     }
 
 </div>
+
+<style>
+    .outstanding-penalty-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 24px;
+        margin-bottom: 24px;
+        border-radius: 18px;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        background: linear-gradient(135deg, #fff7ed, #fffbeb);
+    }
+
+    .outstanding-penalty-content {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .outstanding-penalty-icon {
+        width: 52px;
+        height: 52px;
+        min-width: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: #f59e0b;
+        color: white;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .outstanding-penalty-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: #b45309;
+    }
+
+    .outstanding-penalty-card h2 {
+        margin: 4px 0;
+        font-size: 26px;
+        color: #92400e;
+    }
+
+    .outstanding-penalty-card p {
+        margin: 0;
+        color: #78350f;
+    }
+
+    .penalty-pay-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 20px;
+        border-radius: 10px;
+        background: #f59e0b;
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: 0.2s ease;
+    }
+
+    .penalty-pay-button:hover {
+        background: #d97706;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    @@media (max-width: 768px) {
+        .outstanding-penalty-card {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .penalty-pay-button {
+            width: 100%;
+        }
+    }
+</style>

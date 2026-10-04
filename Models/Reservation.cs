@@ -25,5 +25,7 @@ namespace DUT_Campus_FIT_Gym.Models
         public string Status { get; set; } = "Reserved";
 
         public bool NotificationDismissed { get; set; } = false;
+
+        public bool PenaltyApplied { get; set; } = false;
     }
 }

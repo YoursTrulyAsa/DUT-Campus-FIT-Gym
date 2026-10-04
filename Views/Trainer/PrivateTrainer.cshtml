@@ -1,0 +1,656 @@
+﻿@model List<DUT_Campus_FIT_Gym.Models.PrivateTrainerSubscription>
+
+@{
+    ViewData["Title"] = "Private Trainer";
+
+    var trainer =
+        ViewBag.Trainer as DUT_Campus_FIT_Gym.Models.Trainer;
+
+    var privateMemberCount =
+        (int)(ViewBag.PrivateMemberCount ?? 0);
+
+    var privateTrainerLimit =
+        (int)(ViewBag.PrivateTrainerLimit ?? 2);
+
+    var isFull =
+        privateMemberCount >= privateTrainerLimit;
+}
+
+<div class="trainer-private-page">
+
+    <div class="trainer-private-header">
+
+        <div>
+            <span class="trainer-private-eyebrow">
+                PRIVATE TRAINING
+            </span>
+
+            <h1>
+                Private Trainer
+            </h1>
+
+            <p>
+                Manage your dedicated private training members.
+            </p>
+        </div>
+
+        <div class="trainer-private-capacity @(isFull ? "full" : "")">
+
+            <div class="trainer-private-capacity-icon">
+                <i class="fa-solid fa-user-group"></i>
+            </div>
+
+            <div>
+                <span>PRIVATE MEMBERS</span>
+
+                <strong>
+                    @privateMemberCount / @privateTrainerLimit
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="trainer-private-alert success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="trainer-private-alert error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    <div class="trainer-private-profile">
+
+        <div class="trainer-private-avatar">
+
+            @if (trainer != null &&
+                 !string.IsNullOrWhiteSpace(trainer.ProfilePicture))
+            {
+                <img src="@trainer.ProfilePicture"
+                     alt="@trainer.TrainerName" />
+            }
+            else
+            {
+                <i class="fa-solid fa-user-tie"></i>
+            }
+
+        </div>
+
+        <div class="trainer-private-profile-info">
+
+            <span>YOUR PRIVATE TRAINER PROFILE</span>
+
+            <h2>
+                @trainer?.TrainerName
+            </h2>
+
+            <p>
+                @(string.IsNullOrWhiteSpace(trainer?.Category)
+                    ? "General Fitness"
+                    : trainer.Category)
+            </p>
+
+        </div>
+
+        <div class="trainer-private-status @(isFull ? "full" : "available")">
+
+            <i class="fa-solid @(isFull
+                ? "fa-lock"
+                : "fa-circle-check")"></i>
+
+            <div>
+
+                <strong>
+                    @(isFull ? "Fully Booked" : "Available")
+                </strong>
+
+                <span>
+                    @(isFull
+                        ? "You currently have 2 private members."
+                        : "You can accept another private member.")
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="trainer-private-section-header">
+
+        <div>
+            <span>YOUR MEMBERS</span>
+
+            <h2>
+                Private Training Members
+            </h2>
+        </div>
+
+        <div class="trainer-private-fee">
+            <span>MONTHLY FEE</span>
+            <strong>R145</strong>
+        </div>
+
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="trainer-private-empty">
+
+            <div class="trainer-private-empty-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+
+            <h3>
+                No Private Members Yet
+            </h3>
+
+            <p>
+                You currently don't have any active private
+                training members. Members can select you from
+                the Private Trainer section and subscribe for
+                monthly one-on-one training.
+            </p>
+
+        </div>
+    }
+    else
+    {
+        <div class="trainer-private-members">
+
+            @foreach (var subscription in Model)
+            {
+                var member = subscription.Member;
+
+                <div class="trainer-private-member-card">
+
+                    <div class="trainer-private-member-avatar">
+
+                        @if (member != null &&
+                             !string.IsNullOrWhiteSpace(member.ProfilePicture))
+                        {
+                            <img src="@member.ProfilePicture"
+                                 alt="@member.Name @member.Surname" />
+                        }
+                        else
+                        {
+                            <span>
+                                @(member?.Name?.FirstOrDefault().ToString().ToUpper() ?? "M")
+                            </span>
+                        }
+
+                    </div>
+
+                    <div class="trainer-private-member-info">
+
+                        <span>PRIVATE MEMBER</span>
+
+                        <h3>
+                            @member?.Name @member?.Surname
+                        </h3>
+
+                        <p>
+                            @(member?.Email ?? "No email available")
+                        </p>
+
+                    </div>
+
+                    <div class="trainer-private-member-details">
+
+                        <div>
+                            <span>START DATE</span>
+
+                            <strong>
+                                @subscription.StartDate.ToString("dd MMM yyyy")
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>END DATE</span>
+
+                            <strong>
+                                @subscription.EndDate.ToString("dd MMM yyyy")
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>MONTHLY FEE</span>
+
+                            <strong>
+                                R @subscription.Amount.ToString("0.00")
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="trainer-private-member-status">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        <span>
+                            Active
+                        </span>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+@section Styles {
+    <style>
+        .trainer-private-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .trainer-private-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .trainer-private-eyebrow {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #1597e5;
+            margin-bottom: 6px;
+        }
+
+        .trainer-private-header h1 {
+            margin: 0;
+            color: #071a33;
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .trainer-private-header p {
+            margin: 7px 0 0;
+            color: #64748b;
+        }
+
+        .trainer-private-capacity {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 190px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            background: #eef8ff;
+            border: 1px solid #ccecff;
+        }
+
+        .trainer-private-capacity.full {
+            background: #fff5f5;
+            border-color: #fecaca;
+        }
+
+        .trainer-private-capacity-icon {
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #1597e5;
+            color: white;
+            font-size: 18px;
+        }
+
+        .trainer-private-capacity.full
+        .trainer-private-capacity-icon {
+            background: #dc2626;
+        }
+
+        .trainer-private-capacity span {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #64748b;
+        }
+
+        .trainer-private-capacity strong {
+            display: block;
+            margin-top: 3px;
+            font-size: 21px;
+            color: #071a33;
+        }
+
+        .trainer-private-alert {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            margin-bottom: 22px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .trainer-private-alert.success {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
+        .trainer-private-alert.error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .trainer-private-profile {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 24px;
+            margin-bottom: 36px;
+            border-radius: 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+        }
+
+        .trainer-private-avatar {
+            width: 72px;
+            height: 72px;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #071a33;
+            color: white;
+            font-size: 25px;
+        }
+
+        .trainer-private-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .trainer-private-profile-info {
+            min-width: 0;
+        }
+
+        .trainer-private-profile-info > span,
+        .trainer-private-member-info > span {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #64748b;
+        }
+
+        .trainer-private-profile-info h2 {
+            margin: 4px 0 2px;
+            color: #071a33;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .trainer-private-profile-info p {
+            margin: 0;
+            color: #64748b;
+        }
+
+        .trainer-private-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 15px;
+            border-radius: 12px;
+        }
+
+        .trainer-private-status.available {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .trainer-private-status.full {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .trainer-private-status strong,
+        .trainer-private-status span {
+            display: block;
+        }
+
+        .trainer-private-status strong {
+            font-size: 13px;
+        }
+
+        .trainer-private-status span {
+            margin-top: 2px;
+            font-size: 11px;
+        }
+
+        .trainer-private-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        .trainer-private-section-header > div:first-child > span {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #64748b;
+        }
+
+        .trainer-private-section-header h2 {
+            margin: 4px 0 0;
+            color: #071a33;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .trainer-private-fee {
+            text-align: right;
+        }
+
+        .trainer-private-fee span {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #64748b;
+        }
+
+        .trainer-private-fee strong {
+            display: block;
+            margin-top: 2px;
+            font-size: 22px;
+            color: #1597e5;
+        }
+
+        .trainer-private-empty {
+            text-align: center;
+            padding: 55px 24px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 18px;
+            background: #f8fafc;
+        }
+
+        .trainer-private-empty-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #e0f2fe;
+            color: #1597e5;
+            font-size: 24px;
+        }
+
+        .trainer-private-empty h3 {
+            margin: 0 0 8px;
+            color: #071a33;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .trainer-private-empty p {
+            max-width: 600px;
+            margin: 0 auto;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .trainer-private-members {
+            display: grid;
+            gap: 16px;
+        }
+
+        .trainer-private-member-card {
+            display: grid;
+            grid-template-columns: auto minmax(180px, 1fr) minmax(300px, 1.4fr) auto;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: white;
+        }
+
+        .trainer-private-member-avatar {
+            width: 58px;
+            height: 58px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #071a33;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .trainer-private-member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .trainer-private-member-info h3 {
+            margin: 4px 0 3px;
+            color: #071a33;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .trainer-private-member-info p {
+            margin: 0;
+            color: #64748b;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .trainer-private-member-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .trainer-private-member-details span {
+            display: block;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #94a3b8;
+        }
+
+        .trainer-private-member-details strong {
+            display: block;
+            margin-top: 4px;
+            color: #071a33;
+            font-size: 13px;
+        }
+
+        .trainer-private-member-status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #ecfdf5;
+            color: #047857;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        @@media (max-width: 1000px) {
+            .trainer-private-member-card {
+                grid-template-columns: auto 1fr auto;
+            }
+
+            .trainer-private-member-details {
+                grid-column: 2 / -1;
+            }
+        }
+
+        @@media (max-width: 700px) {
+            .trainer-private-page {
+                padding: 20px;
+            }
+
+            .trainer-private-header,
+            .trainer-private-profile,
+            .trainer-private-section-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .trainer-private-status {
+                margin-left: 0;
+            }
+
+            .trainer-private-capacity {
+                width: 100%;
+            }
+
+            .trainer-private-fee {
+                text-align: left;
+            }
+
+            .trainer-private-member-card {
+                grid-template-columns: auto 1fr;
+            }
+
+            .trainer-private-member-details {
+                grid-column: 1 / -1;
+            }
+
+            .trainer-private-member-status {
+                grid-column: 1 / -1;
+                width: fit-content;
+            }
+        }
+    </style>
+}

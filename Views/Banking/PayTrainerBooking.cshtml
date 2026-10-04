@@ -1,0 +1,656 @@
+﻿@{
+    ViewData["Title"] = "Trainer Session Payment";
+
+    var trainerName = ViewBag.TrainerName?.ToString() ?? "Private Trainer";
+    var bookingId = ViewBag.BookingId;
+    var sessionDate = ViewBag.SessionDate;
+    var startTime = ViewBag.StartTime;
+    var endTime = ViewBag.EndTime;
+    var amount = ViewBag.Amount ?? 50m;
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/banking.css"
+          asp-append-version="true" />
+
+    <style>
+        .trainer-payment-page {
+            min-height: calc(100vh - 100px);
+            padding: 40px 20px 60px;
+        }
+
+        .trainer-payment-header {
+            max-width: 1100px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 25px;
+        }
+
+        .trainer-payment-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .trainer-payment-header h1 {
+            margin: 0;
+            font-size: 34px;
+            font-weight: 700;
+            color: #071a33;
+        }
+
+        .trainer-payment-header p {
+            margin: 10px 0 0;
+            color: #6c757d;
+            font-size: 15px;
+        }
+
+        .trainer-back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 46px;
+            padding: 0 18px;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #212529;
+            text-decoration: none;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: 0.2s ease;
+        }
+
+        .trainer-back-button:hover {
+            color: #212529;
+            background: #f8f9fa;
+            transform: translateY(-1px);
+        }
+
+        .trainer-payment-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+            gap: 25px;
+            align-items: start;
+        }
+
+        .trainer-payment-card,
+        .trainer-summary-card {
+            background: #ffffff;
+            border-radius: 22px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+        }
+
+        .trainer-payment-card {
+            padding: 35px;
+        }
+
+        .trainer-card-heading {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .trainer-card-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eef7ff;
+            color: #0d6efd;
+            font-size: 23px;
+            flex-shrink: 0;
+        }
+
+        .trainer-card-heading h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #071a33;
+        }
+
+        .trainer-card-heading p {
+            margin: 4px 0 0;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .trainer-session-box {
+            border: 1px solid #e9ecef;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .trainer-session-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 17px 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .trainer-session-row:last-child {
+            border-bottom: none;
+        }
+
+        .trainer-session-row span {
+            color: #6c757d;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .trainer-session-row strong {
+            color: #212529;
+            font-size: 15px;
+            text-align: right;
+        }
+
+        .payment-security-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+            padding: 17px;
+            border-radius: 14px;
+            background: #f4f8ff;
+            margin-bottom: 25px;
+        }
+
+        .payment-security-box i {
+            color: #0d6efd;
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .payment-security-box strong {
+            display: block;
+            color: #212529;
+            margin-bottom: 4px;
+        }
+
+        .payment-security-box p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .payfast-button {
+            width: 100%;
+            min-height: 54px;
+            border: none;
+            border-radius: 13px;
+            background: #0d6efd;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .payfast-button:hover {
+            color: #ffffff;
+            transform: translateY(-1px);
+            opacity: 0.95;
+        }
+
+        .cancel-payment-button {
+            width: 100%;
+            min-height: 48px;
+            margin-top: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 13px;
+            background: #ffffff;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .cancel-payment-button:hover {
+            color: #212529;
+            background: #f8f9fa;
+        }
+
+        .payment-note {
+            margin: 18px 0 0;
+            text-align: center;
+            color: #6c757d;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .trainer-summary-card {
+            padding: 30px;
+        }
+
+        .summary-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .summary-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eef7ff;
+            color: #0d6efd;
+            font-size: 22px;
+            margin-bottom: 18px;
+        }
+
+        .trainer-summary-card h2 {
+            margin: 0;
+            font-size: 23px;
+            font-weight: 700;
+            color: #071a33;
+        }
+
+        .trainer-summary-card > p {
+            margin: 8px 0 22px;
+            color: #6c757d;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .summary-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin-bottom: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .summary-row span {
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .summary-row strong {
+            color: #212529;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 0 5px;
+        }
+
+        .summary-total span {
+            color: #212529;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .summary-total strong {
+            color: #0d6efd;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .summary-security {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        .summary-security i {
+            color: #198754;
+        }
+
+        .summary-security p {
+            margin: 0;
+        }
+
+        @@media (max-width: 800px) {
+            .trainer-payment-content {
+                grid-template-columns: 1fr;
+            }
+
+            .trainer-payment-header {
+                flex-direction: column;
+            }
+
+            .trainer-back-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 500px) {
+            .trainer-payment-page {
+                padding: 25px 15px 45px;
+            }
+
+            .trainer-payment-header h1 {
+                font-size: 27px;
+            }
+
+            .trainer-payment-card,
+            .trainer-summary-card {
+                padding: 24px 20px;
+                border-radius: 18px;
+            }
+
+            .trainer-session-row {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .trainer-session-row strong {
+                text-align: left;
+            }
+        }
+    </style>
+}
+
+<div class="trainer-payment-page">
+
+    <div class="trainer-payment-header">
+
+        <div>
+            <span class="trainer-payment-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Complete Your Payment
+            </h1>
+
+            <p>
+                Secure your trainer session through PayFast.
+            </p>
+        </div>
+
+        <a asp-controller="Member"
+           asp-action="MyTrainerRequests"
+           class="trainer-back-button">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Trainer Requests
+        </a>
+
+    </div>
+
+
+    <div class="trainer-payment-content">
+
+        <div class="trainer-payment-card">
+
+            <div class="trainer-card-heading">
+
+                <div class="trainer-card-icon">
+                    <i class="fa-solid fa-person-chalkboard"></i>
+                </div>
+
+                <div>
+                    <h2>
+                        Trainer Session Payment
+                    </h2>
+
+                    <p>
+                        Review your session details before continuing.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="trainer-session-box">
+
+                <div class="trainer-session-row">
+
+                    <span>
+                        Trainer
+                    </span>
+
+                    <strong>
+                        @trainerName
+                    </strong>
+
+                </div>
+
+
+                <div class="trainer-session-row">
+
+                    <span>
+                        Session Date
+                    </span>
+
+                    <strong>
+                        @sessionDate
+                    </strong>
+
+                </div>
+
+
+                <div class="trainer-session-row">
+
+                    <span>
+                        Start Time
+                    </span>
+
+                    <strong>
+                        @startTime
+                    </strong>
+
+                </div>
+
+
+                <div class="trainer-session-row">
+
+                    <span>
+                        End Time
+                    </span>
+
+                    <strong>
+                        @endTime
+                    </strong>
+
+                </div>
+
+
+                <div class="trainer-session-row">
+
+                    <span>
+                        Booking ID
+                    </span>
+
+                    <strong>
+                        #@bookingId
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="payment-security-box">
+
+                <i class="fa-solid fa-shield-halved"></i>
+
+                <div>
+
+                    <strong>
+                        Secure PayFast Payment
+                    </strong>
+
+                    <p>
+                        You will be redirected to PayFast to complete
+                        your payment securely. DUT Campus FIT Gym
+                        does not store your card details.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <a asp-controller="Banking"
+               asp-action="PayTrainerBooking"
+               asp-route-bookingId="@bookingId"
+               class="payfast-button">
+
+                <i class="fa-solid fa-lock"></i>
+
+                <span>
+                    Pay R @(Convert.ToDecimal(amount).ToString("0.00")) with PayFast
+                </span>
+
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+
+            <a asp-controller="Banking"
+               asp-action="PaymentCancelledTrainerBooking"
+               asp-route-bookingId="@bookingId"
+               class="cancel-payment-button">
+
+                Cancel Payment
+
+            </a>
+
+
+            <p class="payment-note">
+                By continuing, you confirm that the trainer session
+                details and payment amount are correct.
+            </p>
+
+        </div>
+
+
+        <div class="trainer-summary-card">
+
+            <span class="summary-label">
+                TRAINER SESSION
+            </span>
+
+            <div class="summary-icon">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+
+            <h2>
+                Personal Trainer
+            </h2>
+
+            <p>
+                Your selected trainer session is ready for payment.
+                Once PayFast confirms the payment, your booking will
+                be activated.
+            </p>
+
+
+            <div class="summary-divider"></div>
+
+
+            <div class="summary-row">
+
+                <span>
+                    Trainer
+                </span>
+
+                <strong>
+                    @trainerName
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>
+                    Date
+                </span>
+
+                <strong>
+                    @sessionDate
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>
+                    Time
+                </span>
+
+                <strong>
+                    @startTime - @endTime
+                </strong>
+
+            </div>
+
+
+            <div class="summary-total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong>
+                    R @(Convert.ToDecimal(amount).ToString("0.00"))
+                </strong>
+
+            </div>
+
+
+            <div class="summary-security">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+                <p>
+                    Secure payment processing
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -247,14 +247,39 @@
                         }
                         else if (request.Status == "Accepted")
                         {
-                            <div class="trainer-status-message accepted">
+                           <div class="trainer-status-message accepted">
 
-                                <i class="bi bi-check-circle-fill"></i>
+    <i class="bi bi-check-circle-fill"></i>
 
-                                Your trainer request has been accepted.
-                                Your trainer can now assist you.
+    <div>
 
-                            </div>
+        <strong>
+            Your trainer request has been accepted.
+        </strong>
+
+        <div style="margin-top: 8px;">
+            Your trainer is ready to assist you.
+            You can now schedule a future training session.
+        </div>
+
+        <div style="margin-top: 14px;">
+
+            <a asp-controller="Member"
+               asp-action="BookTrainerSession"
+               asp-route-requestId="@request.TrainerRequestId"
+               class="trainer-button trainer-button-primary">
+
+                <i class="bi bi-calendar-plus"></i>
+
+                Book Training Session
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
                         }
                         else if (request.Status == "Rejected")
                         {
@@ -262,8 +287,21 @@
 
                                 <i class="bi bi-x-circle-fill"></i>
 
-                                Your trainer request was rejected.
-                                You may request another trainer.
+                                <div>
+                                    <strong>Your trainer request was rejected.</strong>
+
+                                    @if (!string.IsNullOrWhiteSpace(request.RejectionReason))
+                                    {
+                                        <div style="margin-top: 8px;">
+                                            <strong>Reason:</strong>
+                                            @request.RejectionReason
+                                        </div>
+                                    }
+
+                                    <div style="margin-top: 8px;">
+                                        You may request another trainer.
+                                    </div>
+                                </div>
 
                             </div>
                         }

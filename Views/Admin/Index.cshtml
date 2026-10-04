@@ -1,86 +1,58 @@
 ﻿@model DUT_Campus_FIT_Gym.ViewModels.AdminDashboardViewModel
 
 @{
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var maxDailyCheckIns =
+        Model.DailyCheckIns.Values.Any()
+            ? Model.DailyCheckIns.Values.Max()
+            : 1;
+
+    if (maxDailyCheckIns == 0)
+    {
+        maxDailyCheckIns = 1;
+    }
 }
+
+<link rel="stylesheet" href="~/css/admin-dashboard.css" />
 
 <div class="admin-dashboard">
 
-    
     <div class="admin-dashboard-header">
-
         <div>
-
-            <span class="admin-label">
-                DUT CAMPUS FIT GYM
-            </span>
-
-            <h1>
-                Admin Dashboard
-            </h1>
-
-            <p>
-                Manage members, memberships and gym operations.
-            </p>
-
+            <span class="admin-label">DUT CAMPUS FIT GYM</span>
+            <h1>Admin Dashboard</h1>
+            <p>Manage members, memberships and gym operations.</p>
         </div>
 
-
         <div class="admin-user-badge">
-
             <div class="admin-user-icon">
                 <i class="fa-solid fa-user-shield"></i>
             </div>
 
             <div>
-
-                <strong>
-                    Administrator
-                </strong>
-
-                <span>
-                    Gym Management
-                </span>
-
+                <strong>Administrator</strong>
+                <span>Gym Management</span>
             </div>
-
         </div>
-
     </div>
-
 
     @if (TempData["Success"] != null)
     {
         <div class="admin-alert admin-alert-success">
-
-            <i class="bi bi-check-circle-fill"></i>
-
-            <span>
-                @TempData["Success"]
-            </span>
-
+            <i class="fa-solid fa-circle-check"></i>
+            <span>@TempData["Success"]</span>
         </div>
     }
-
 
     @if (TempData["Error"] != null)
     {
         <div class="admin-alert admin-alert-error">
-
-            <i class="bi bi-exclamation-triangle-fill"></i>
-
-            <span>
-                @TempData["Error"]
-            </span>
-
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>@TempData["Error"]</span>
         </div>
     }
-
-
-    <!-- =====================================================
-     DASHBOARD STATISTICS
-     ===================================================== -->
 
     <div class="admin-stats">
 
@@ -93,112 +65,64 @@
             </div>
 
             <div class="admin-stat-content">
-
-                <span>
-                    TOTAL MEMBERS
-                </span>
-
-                <strong>
-                    @Model.TotalMembers
-                </strong>
-
-                <small>
-                    Registered members
-                </small>
-
+                <span>TOTAL MEMBERS</span>
+                <strong>@Model.TotalMembers</strong>
+                <small>@Model.StudentMembers students · @Model.StaffMembers staff</small>
             </div>
 
             <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
-
         </a>
-
 
         <a asp-controller="Admin"
            asp-action="MembershipApplications"
            class="admin-stat-card admin-stat-warning">
 
             <div class="admin-stat-icon">
-                <i class="fa-solid fa-file-circle-exclamation"></i>
+                <i class="fa-solid fa-file-circle-question"></i>
             </div>
 
             <div class="admin-stat-content">
-
-                <span>
-                    PENDING APPLICATIONS
-                </span>
-
-                <strong>
-                    @Model.PendingApplications
-                </strong>
-
-                <small>
-                    Awaiting review
-                </small>
-
+                <span>PENDING APPLICATIONS</span>
+                <strong>@Model.PendingApplications</strong>
+                <small>@Model.NewApplicationsThisMonth new this month</small>
             </div>
 
             <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
-
         </a>
-
 
         <a asp-controller="Admin"
            asp-action="Members"
            class="admin-stat-card admin-stat-active">
 
             <div class="admin-stat-icon">
-                <i class="fa-solid fa-circle-check"></i>
+                <i class="fa-solid fa-id-card"></i>
             </div>
 
             <div class="admin-stat-content">
-
-                <span>
-                    ACTIVE MEMBERSHIPS
-                </span>
-
-                <strong>
-                    @Model.ActiveMemberships
-                </strong>
-
-                <small>
-                    Currently active
-                </small>
-
+                <span>ACTIVE MEMBERSHIPS</span>
+                <strong>@Model.ActiveMemberships</strong>
+                <small>@Model.ExpiredMemberships expired</small>
             </div>
 
             <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
-
         </a>
-
 
         <a asp-controller="Admin"
            asp-action="Equipment"
-           class="admin-stat-card">
+           class="admin-stat-card admin-stat-active">
 
             <div class="admin-stat-icon">
                 <i class="fa-solid fa-dumbbell"></i>
             </div>
 
             <div class="admin-stat-content">
-
-                <span>
-                    AVAILABLE EQUIPMENT
-                </span>
-
-                <strong>
-                    @Model.AvailableEquipment
-                </strong>
-
-                <small>
-                    Ready for use
-                </small>
-
+                <span>AVAILABLE EQUIPMENT</span>
+                <strong>@Model.AvailableEquipment</strong>
+                <small>Ready for use</small>
             </div>
 
             <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
-
         </a>
-
 
         <a asp-controller="Admin"
            asp-action="Equipment"
@@ -209,25 +133,13 @@
             </div>
 
             <div class="admin-stat-content">
-
-                <span>
-                    UNAVAILABLE EQUIPMENT
-                </span>
-
-                <strong>
-                    @Model.UnavailableEquipment
-                </strong>
-
-                <small>
-                    Currently unavailable
-                </small>
-
+                <span>UNAVAILABLE EQUIPMENT</span>
+                <strong>@Model.UnavailableEquipment</strong>
+                <small>Currently unavailable</small>
             </div>
 
             <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
-
         </a>
-
 
         <a asp-controller="Admin"
            asp-action="Reservations"
@@ -238,209 +150,436 @@
             </div>
 
             <div class="admin-stat-content">
-
-                <span>
-                    ACTIVE RESERVATIONS
-                </span>
-
-                <strong>
-                    @Model.ActiveReservations
-                </strong>
-
-                <small>
-                    Equipment bookings
-                </small>
-
+                <span>ACTIVE RESERVATIONS</span>
+                <strong>@Model.ActiveReservations</strong>
+                <small>Equipment reservations</small>
             </div>
 
             <i class="fa-solid fa-chevron-right admin-stat-arrow"></i>
-
         </a>
 
     </div>
 
+    <div class="analytics-heading">
+        <div>
+            <span class="admin-label">SYSTEM OVERVIEW</span>
+            <h2>Analytics & Insights</h2>
+            <p>Monitor membership activity, gym usage, finances and workout engagement.</p>
+        </div>
 
-    <!-- =====================================================
-     PB18 + PB19
-     FINANCIAL MANAGEMENT AND REPORTING
-     ===================================================== -->
+        <div class="analytics-heading-icon">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+    </div>
 
-    <section class="admin-card mt-4">
+    <div class="analytics-stat-grid">
 
-        <div class="admin-card-heading">
+        <div class="analytics-stat-card">
+            <div class="analytics-icon analytics-blue">
+                <i class="fa-solid fa-user-group"></i>
+            </div>
 
             <div>
-
-                <span class="admin-card-label">
-                    MANAGEMENT & REPORTING
-                </span>
-
-                <h2>
-                    Financial Management & Reports
-                </h2>
-
-                <p>
-                    Monitor gym finances and generate membership
-                    and attendance reports.
-                </p>
-
+                <span>STUDENTS</span>
+                <strong>@Model.StudentMembers</strong>
+                <small>Registered members</small>
             </div>
-
-            <div class="admin-card-icon">
-                <i class="fa-solid fa-chart-line"></i>
-            </div>
-
         </div>
 
+        <div class="analytics-stat-card">
+            <div class="analytics-icon analytics-purple">
+                <i class="fa-solid fa-user-tie"></i>
+            </div>
 
-        <div class="admin-quick-actions">
-
-
-            <!-- FINANCIAL MANAGEMENT -->
-
-            <a asp-controller="Admin"
-               asp-action="FinancialManagement"
-               class="admin-quick-action">
-
-                <div class="admin-quick-icon">
-                    <i class="fa-solid fa-money-bill-wave"></i>
-                </div>
-
-                <div>
-
-                    <strong>
-                        Financial Management
-                    </strong>
-
-                    <span>
-                        Monitor payments and gym revenue
-                    </span>
-
-                </div>
-
-                <i class="fa-solid fa-arrow-right"></i>
-
-            </a>
-
-
-            <!-- ATTENDANCE REPORT -->
-
-            <a asp-controller="Admin"
-               asp-action="AttendanceReport"
-               class="admin-quick-action">
-
-                <div class="admin-quick-icon">
-                    <i class="fa-solid fa-chart-column"></i>
-                </div>
-
-                <div>
-
-                    <strong>
-                        Attendance Report
-                    </strong>
-
-                    <span>
-                        View member attendance and gym visits
-                    </span>
-
-                </div>
-
-                <i class="fa-solid fa-arrow-right"></i>
-
-            </a>
-
-
-            <!-- MEMBERSHIP REPORT -->
-
-            <a asp-controller="Admin"
-               asp-action="MembershipReport"
-               class="admin-quick-action">
-
-                <div class="admin-quick-icon">
-                    <i class="fa-solid fa-file-lines"></i>
-                </div>
-
-                <div>
-
-                    <strong>
-                        Membership Report
-                    </strong>
-
-                    <span>
-                        View active, expired and pending memberships
-                    </span>
-
-                </div>
-
-                <i class="fa-solid fa-arrow-right"></i>
-
-            </a>
-
+            <div>
+                <span>STAFF</span>
+                <strong>@Model.StaffMembers</strong>
+                <small>Registered staff</small>
+            </div>
         </div>
 
-    </section>
+        <div class="analytics-stat-card">
+            <div class="analytics-icon analytics-green">
+                <i class="fa-solid fa-right-to-bracket"></i>
+            </div>
 
+            <div>
+                <span>TODAY'S CHECK-INS</span>
+                <strong>@Model.TodayCheckIns</strong>
+                <small>Gym visits today</small>
+            </div>
+        </div>
 
-    <!-- =====================================================
-     EXISTING DASHBOARD CONTENT
-     ===================================================== -->
+        <div class="analytics-stat-card">
+            <div class="analytics-icon analytics-orange">
+                <i class="fa-solid fa-calendar-days"></i>
+            </div>
 
-    <div class="admin-dashboard-grid">
+            <div>
+                <span>MONTHLY CHECK-INS</span>
+                <strong>@Model.CurrentMonthCheckIns</strong>
+                <small>Visits this month</small>
+            </div>
+        </div>
 
-        <section class="admin-card quick-actions-card">
+        <div class="analytics-stat-card">
+            <div class="analytics-icon analytics-green">
+                <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+
+            <div>
+                <span>PAID REVENUE</span>
+                <strong>R @Model.TotalPaidRevenue.ToString("N2")</strong>
+                <small>All recorded payments</small>
+            </div>
+        </div>
+
+        <div class="analytics-stat-card">
+            <div class="analytics-icon analytics-blue">
+                <i class="fa-solid fa-chart-column"></i>
+            </div>
+
+            <div>
+                <span>MONTHLY REVENUE</span>
+                <strong>R @Model.CurrentMonthRevenue.ToString("N2")</strong>
+                <small>Payments this month</small>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="analytics-grid">
+
+        <div class="admin-card analytics-card">
 
             <div class="admin-card-heading">
-
                 <div>
-
-                    <span class="admin-card-label">
-                        QUICK ACCESS
-                    </span>
-
-                    <h2>
-                        Administration
-                    </h2>
-
-                    <p>
-                        Access the tools you use most.
-                    </p>
-
+                    <span class="admin-card-label">MEMBERSHIP</span>
+                    <h2>Membership Overview</h2>
+                    <p>Current membership distribution.</p>
                 </div>
 
                 <div class="admin-card-icon">
-                    <i class="fa-solid fa-bolt"></i>
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+            </div>
+
+            <div class="analytics-progress-list">
+
+                @foreach (var item in Model.MembershipStatusCounts)
+                {
+                    var percentage =
+                        Model.MembershipStatusCounts.Values.Sum() > 0
+                            ? (item.Value * 100.0 /
+                               Model.MembershipStatusCounts.Values.Sum())
+                            : 0;
+
+                    <div class="analytics-progress-item">
+
+                        <div class="analytics-progress-header">
+                            <span>@item.Key</span>
+                            <strong>@item.Value</strong>
+                        </div>
+
+                        <div class="analytics-progress-track">
+                            <div class="analytics-progress-fill"
+                                 style="width:@percentage.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%;">
+                            </div>
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+        <div class="admin-card analytics-card">
+
+            <div class="admin-card-heading">
+                <div>
+                    <span class="admin-card-label">APPLICATIONS</span>
+                    <h2>Application Status</h2>
+                    <p>Membership application breakdown.</p>
+                </div>
+
+                <div class="admin-card-icon">
+                    <i class="fa-solid fa-file-signature"></i>
+                </div>
+            </div>
+
+            <div class="analytics-mini-grid">
+
+                <div class="analytics-mini-card">
+                    <span>Pending</span>
+                    <strong>@Model.PendingApplications</strong>
+                    <small>Awaiting review</small>
+                </div>
+
+                <div class="analytics-mini-card">
+                    <span>Approved</span>
+                    <strong>@Model.ApprovedApplications</strong>
+                    <small>Applications approved</small>
+                </div>
+
+                <div class="analytics-mini-card">
+                    <span>Rejected</span>
+                    <strong>@Model.RejectedApplications</strong>
+                    <small>Applications rejected</small>
+                </div>
+
+                <div class="analytics-mini-card">
+                    <span>This Month</span>
+                    <strong>@Model.NewApplicationsThisMonth</strong>
+                    <small>New applications</small>
                 </div>
 
             </div>
 
+        </div>
+
+        <div class="admin-card analytics-card">
+
+            <div class="admin-card-heading">
+                <div>
+                    <span class="admin-card-label">GYM USAGE</span>
+                    <h2>Check-In Activity</h2>
+                    <p>Gym visits over the last seven days.</p>
+                </div>
+
+                <div class="admin-card-icon">
+                    <i class="fa-solid fa-chart-column"></i>
+                </div>
+            </div>
+
+            <div class="checkin-chart">
+
+                @foreach (var item in Model.DailyCheckIns)
+                {
+                    var height =
+                        item.Value > 0
+                            ? (item.Value * 100.0 / maxDailyCheckIns)
+                            : 4;
+
+                    <div class="checkin-column">
+
+                        <div class="checkin-value">
+                            @item.Value
+                        </div>
+
+                        <div class="checkin-bar-wrapper">
+                            <div class="checkin-bar"
+                                 style="height:@height.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%;">
+                            </div>
+                        </div>
+
+                        <span>@item.Key</span>
+
+                    </div>
+                }
+
+            </div>
+
+            <div class="analytics-summary-row">
+
+                <div>
+                    <span>Total Visits</span>
+                    <strong>@Model.TotalCheckIns</strong>
+                </div>
+
+                <div>
+                    <span>This Month</span>
+                    <strong>@Model.CurrentMonthCheckIns</strong>
+                </div>
+
+                <div>
+                    <span>Today</span>
+                    <strong>@Model.TodayCheckIns</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="admin-card analytics-card">
+
+            <div class="admin-card-heading">
+                <div>
+                    <span class="admin-card-label">FINANCIAL</span>
+                    <h2>Revenue Overview</h2>
+                    <p>Revenue from recorded paid memberships.</p>
+                </div>
+
+                <div class="admin-card-icon">
+                    <i class="fa-solid fa-coins"></i>
+                </div>
+            </div>
+
+            <div class="revenue-main">
+                <span>Total Paid Revenue</span>
+                <strong>R @Model.TotalPaidRevenue.ToString("N2")</strong>
+            </div>
+
+            <div class="revenue-breakdown">
+
+                <div class="revenue-item">
+                    <div class="revenue-item-icon">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+
+                    <div>
+                        <span>Student Revenue</span>
+                        <strong>R @Model.StudentRevenue.ToString("N2")</strong>
+                    </div>
+                </div>
+
+                <div class="revenue-item">
+                    <div class="revenue-item-icon">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+
+                    <div>
+                        <span>Staff Revenue</span>
+                        <strong>R @Model.StaffRevenue.ToString("N2")</strong>
+                    </div>
+                </div>
+
+                <div class="revenue-item">
+                    <div class="revenue-item-icon">
+                        <i class="fa-solid fa-calendar"></i>
+                    </div>
+
+                    <div>
+                        <span>This Month</span>
+                        <strong>R @Model.CurrentMonthRevenue.ToString("N2")</strong>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="admin-card analytics-card">
+
+            <div class="admin-card-heading">
+                <div>
+                    <span class="admin-card-label">WORKOUTS</span>
+                    <h2>Workout Engagement</h2>
+                    <p>Member workout programme activity.</p>
+                </div>
+
+                <div class="admin-card-icon">
+                    <i class="fa-solid fa-dumbbell"></i>
+                </div>
+            </div>
+
+            <div class="workout-analytics-grid">
+
+                <div class="workout-analytics-item">
+                    <i class="fa-solid fa-list-check"></i>
+                    <strong>@Model.TotalWorkoutProgrammes</strong>
+                    <span>Total Programmes</span>
+                </div>
+
+                <div class="workout-analytics-item">
+                    <i class="fa-solid fa-person-running"></i>
+                    <strong>@Model.ActiveWorkoutProgrammes</strong>
+                    <span>Active Programmes</span>
+                </div>
+
+                <div class="workout-analytics-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <strong>@Model.CompletedWorkoutProgrammes</strong>
+                    <span>Completed</span>
+                </div>
+
+                <div class="workout-analytics-item">
+                    <i class="fa-solid fa-heart"></i>
+                    <strong>@Model.FavouriteWorkoutProgrammes</strong>
+                    <span>Favourites</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="admin-card analytics-card">
+
+            <div class="admin-card-heading">
+                <div>
+                    <span class="admin-card-label">COMMUNITY</span>
+                    <h2>Community Engagement</h2>
+                    <p>Workout result sharing and saves.</p>
+                </div>
+
+                <div class="admin-card-icon">
+                    <i class="fa-solid fa-users-viewfinder"></i>
+                </div>
+            </div>
+
+            <div class="community-analytics">
+
+                <div class="community-main">
+                    <div class="community-icon">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </div>
+
+                    <div>
+                        <span>Shared Workout Results</span>
+                        <strong>@Model.SharedWorkoutResults</strong>
+                    </div>
+                </div>
+
+                <div class="community-main">
+                    <div class="community-icon">
+                        <i class="fa-solid fa-bookmark"></i>
+                    </div>
+
+                    <div>
+                        <span>Saved Results</span>
+                        <strong>@Model.SavedWorkoutResults</strong>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="admin-dashboard-grid">
+
+        <div class="admin-card">
+
+            <div class="admin-card-heading">
+                <div>
+                    <span class="admin-card-label">MANAGEMENT</span>
+                    <h2>Quick Access</h2>
+                    <p>Common administrative actions.</p>
+                </div>
+
+                <div class="admin-card-icon">
+                    <i class="fa-solid fa-grid-2"></i>
+                </div>
+            </div>
 
             <div class="admin-quick-actions">
-
 
                 <a asp-controller="Admin"
                    asp-action="MembershipApplications"
                    class="admin-quick-action">
 
                     <div class="admin-quick-icon">
-                        <i class="fa-solid fa-file-signature"></i>
+                        <i class="fa-solid fa-file-circle-check"></i>
                     </div>
 
                     <div>
-
-                        <strong>
-                            Membership Applications
-                        </strong>
-
-                        <span>
-                            Review student applications
-                        </span>
-
+                        <strong>Membership Applications</strong>
+                        <span>Review applications</span>
                     </div>
 
-                    <i class="fa-solid fa-arrow-right"></i>
-
+                    <i class="fa-solid fa-chevron-right"></i>
                 </a>
-
 
                 <a asp-controller="Admin"
                    asp-action="Members"
@@ -451,21 +590,12 @@
                     </div>
 
                     <div>
-
-                        <strong>
-                            Manage Members
-                        </strong>
-
-                        <span>
-                            View registered members
-                        </span>
-
+                        <strong>Manage Members</strong>
+                        <span>View member accounts</span>
                     </div>
 
-                    <i class="fa-solid fa-arrow-right"></i>
-
+                    <i class="fa-solid fa-chevron-right"></i>
                 </a>
-
 
                 <a asp-controller="Admin"
                    asp-action="Equipment"
@@ -476,21 +606,12 @@
                     </div>
 
                     <div>
-
-                        <strong>
-                            Manage Equipment
-                        </strong>
-
-                        <span>
-                            Add or remove equipment
-                        </span>
-
+                        <strong>Manage Equipment</strong>
+                        <span>Gym equipment</span>
                     </div>
 
-                    <i class="fa-solid fa-arrow-right"></i>
-
+                    <i class="fa-solid fa-chevron-right"></i>
                 </a>
-
 
                 <a asp-controller="Admin"
                    asp-action="Scanner"
@@ -501,21 +622,12 @@
                     </div>
 
                     <div>
-
-                        <strong>
-                            Member Check-In
-                        </strong>
-
-                        <span>
-                            Scan member gym cards
-                        </span>
-
+                        <strong>Member Check-In</strong>
+                        <span>Scan member barcode</span>
                     </div>
 
-                    <i class="fa-solid fa-arrow-right"></i>
-
+                    <i class="fa-solid fa-chevron-right"></i>
                 </a>
-
 
                 <a asp-controller="Admin"
                    asp-action="Reservations"
@@ -526,21 +638,12 @@
                     </div>
 
                     <div>
-
-                        <strong>
-                            Reservations
-                        </strong>
-
-                        <span>
-                            View equipment bookings
-                        </span>
-
+                        <strong>Reservations</strong>
+                        <span>View reservations</span>
                     </div>
 
-                    <i class="fa-solid fa-arrow-right"></i>
-
+                    <i class="fa-solid fa-chevron-right"></i>
                 </a>
-
 
                 <a asp-controller="Admin"
                    asp-action="AddTrainer"
@@ -551,115 +654,71 @@
                     </div>
 
                     <div>
-
-                        <strong>
-                            Add Trainer
-                        </strong>
-
-                        <span>
-                            Create a trainer account
-                        </span>
-
+                        <strong>Add Trainer</strong>
+                        <span>Create trainer account</span>
                     </div>
 
-                    <i class="fa-solid fa-arrow-right"></i>
-
+                    <i class="fa-solid fa-chevron-right"></i>
                 </a>
 
             </div>
 
-        </section>
+        </div>
 
-
-        <!-- =====================================================
-         RECENT APPLICATIONS
-         ===================================================== -->
-
-        <section class="admin-card recent-applications-card">
+        <div class="admin-card">
 
             <div class="admin-card-heading">
-
                 <div>
-
-                    <span class="admin-card-label">
-                        MEMBERSHIP MANAGEMENT
-                    </span>
-
-                    <h2>
-                        Recent Applications
-                    </h2>
-
-                    <p>
-                        Latest student membership applications.
-                    </p>
-
+                    <span class="admin-card-label">LATEST ACTIVITY</span>
+                    <h2>Recent Applications</h2>
+                    <p>Latest membership applications.</p>
                 </div>
 
                 <div class="admin-card-icon">
-                    <i class="fa-solid fa-file-lines"></i>
+                    <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
-
             </div>
 
-
-            @if (Model.RecentApplications != null &&
-                 Model.RecentApplications.Count > 0)
+            @if (Model.RecentApplications.Any())
             {
                 <div class="application-list">
 
                     @foreach (var application in Model.RecentApplications)
                     {
-                        string applicationStatus =
-                            application.Status ?? "Unknown";
-
-                        string statusClass =
-                            applicationStatus == "Pending"
-                            ? "pending"
-                            : applicationStatus == "Approved"
-                            ? "approved"
-                            : applicationStatus == "Rejected"
-                            ? "rejected"
-                            : "waiting";
-
+                        var statusClass =
+                            application.Status?.ToLower() switch
+                            {
+                                "pending" => "pending",
+                                "approved" => "approved",
+                                "rejected" => "rejected",
+                                "waitingforpayment" => "waiting",
+                                _ => ""
+                            };
 
                         <div class="application-item">
 
                             <div class="application-icon">
-
                                 <i class="fa-solid fa-user"></i>
-
                             </div>
-
 
                             <div class="application-info">
 
                                 <strong>
-
                                     @(application.Member != null
-                                        ? application.Member.Name + " " +
-                                          application.Member.Surname
+                                        ? $"{application.Member.Name} {application.Member.Surname}"
                                         : "Unknown Member")
-
                                 </strong>
 
                                 <span>
-
                                     @application.MembershipType
-
-                                    •
-
-                                    @application.ApplicationDate
-                                    .ToString("dd MMM yyyy")
-
+                                    ·
+                                    @application.ApplicationDate.ToString("dd MMM yyyy")
                                 </span>
 
                             </div>
 
-
                             <span class="application-status @statusClass">
-
-                                @applicationStatus
-
+                                @application.Status
                             </span>
 
                         </div>
@@ -667,15 +726,11 @@
 
                 </div>
 
-
                 <a asp-controller="Admin"
                    asp-action="MembershipApplications"
                    class="admin-view-all">
 
-                    <span>
-                        View All Applications
-                    </span>
-
+                    <span>View all applications</span>
                     <i class="fa-solid fa-arrow-right"></i>
 
                 </a>
@@ -685,35 +740,69 @@
                 <div class="admin-empty-state">
 
                     <div class="admin-empty-icon">
-
                         <i class="fa-solid fa-inbox"></i>
-
                     </div>
 
-                    <strong>
-                        No applications yet
-                    </strong>
-
-                    <span>
-                        New membership applications will appear here.
-                    </span>
+                    <strong>No applications yet</strong>
+                    <span>New membership applications will appear here.</span>
 
                 </div>
             }
 
-        </section>
+        </div>
 
     </div>
-    
+
+    <div class="admin-report-links">
+
+        <a asp-controller="Admin"
+           asp-action="FinancialManagement"
+           class="admin-report-link">
+
+            <div>
+                <i class="fa-solid fa-money-bill-trend-up"></i>
+            </div>
+
+            <span>
+                <strong>Financial Management</strong>
+                <small>Revenue and payment records</small>
+            </span>
+
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a asp-controller="Admin"
+           asp-action="AttendanceReport"
+           class="admin-report-link">
+
+            <div>
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+
+            <span>
+                <strong>Attendance Report</strong>
+                <small>Gym visit history</small>
+            </span>
+
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a asp-controller="Admin"
+           asp-action="MembershipReport"
+           class="admin-report-link">
+
+            <div>
+                <i class="fa-solid fa-chart-pie"></i>
+            </div>
+
+            <span>
+                <strong>Membership Report</strong>
+                <small>Membership statistics</small>
+            </span>
+
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+    </div>
 
 </div>
-
-@section Styles {
-
-    
-    <link rel="stylesheet"
-          href="~/css/admin-dashboard.css"
-          asp-append-version="true" />
-    
-
-}

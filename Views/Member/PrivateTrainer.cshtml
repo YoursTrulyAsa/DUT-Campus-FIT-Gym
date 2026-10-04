@@ -1,0 +1,267 @@
+﻿@using DUT_Campus_FIT_Gym.Models
+
+@{
+    ViewData["Title"] = "Private Trainer";
+
+    var activeSubscription = ViewBag.ActiveSubscription as PrivateTrainerSubscription;
+    var trainerAvailability = ViewBag.TrainerAvailability as IEnumerable<dynamic>;
+    var privateTrainerFee = ViewBag.PrivateTrainerFee ?? 145m;
+}
+
+<div class="private-trainer-page">
+
+    <div class="private-trainer-header">
+
+        <div>
+            <span class="private-trainer-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Private Trainer
+            </h1>
+
+            <p>
+                Get dedicated training support from one trainer for the whole month.
+            </p>
+        </div>
+
+        <div class="private-trainer-header-icon">
+            <i class="bi bi-person-badge-fill"></i>
+        </div>
+
+    </div>
+
+    @if (TempData["PrivateTrainerError"] != null)
+    {
+        <div class="private-trainer-alert private-trainer-alert-danger">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@TempData["PrivateTrainerError"]</span>
+        </div>
+    }
+
+    @if (activeSubscription != null)
+    {
+        <div class="private-trainer-active-card">
+
+            <div class="private-trainer-active-icon">
+                <i class="bi bi-person-check-fill"></i>
+            </div>
+
+            <div class="private-trainer-active-content">
+
+                <span class="private-trainer-status">
+                    ACTIVE PRIVATE TRAINER
+                </span>
+
+                <h2>
+                    @activeSubscription.Trainer?.TrainerName
+                </h2>
+
+                <p>
+                    @activeSubscription.Trainer?.Category
+                </p>
+
+                <div class="private-trainer-dates">
+
+                    <div>
+                        <span>START DATE</span>
+                        <strong>@activeSubscription.StartDate.ToString("dd MMM yyyy")</strong>
+                    </div>
+
+                    <div>
+                        <span>END DATE</span>
+                        <strong>@activeSubscription.EndDate.ToString("dd MMM yyyy")</strong>
+                    </div>
+
+                    <div>
+                        <span>MONTHLY FEE</span>
+                        <strong>R @activeSubscription.Amount.ToString("N2")</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="private-trainer-info-card">
+
+            <div class="private-trainer-info-icon">
+                <i class="bi bi-info-circle-fill"></i>
+            </div>
+
+            <div>
+                <strong>Private training is R @privateTrainerFee.ToString("N2") per month.</strong>
+
+                <p>
+                    Choose one trainer for dedicated training support throughout your subscription.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="private-trainer-section-header">
+
+            <div>
+                <span>AVAILABLE TRAINERS</span>
+                <h2>Choose Your Private Trainer</h2>
+            </div>
+
+            <div class="private-trainer-price">
+                <strong>R @privateTrainerFee.ToString("N2")</strong>
+                <span>per month</span>
+            </div>
+
+        </div>
+
+        @if (trainerAvailability != null && trainerAvailability.Any())
+        {
+            <div class="private-trainer-grid">
+
+                @foreach (var item in trainerAvailability)
+                {
+                    var trainer = item.Trainer;
+                    var memberCount = item.PrivateMemberCount;
+                    var isFull = item.IsFull;
+
+                    <div class="private-trainer-card">
+
+                        <div class="private-trainer-card-top">
+
+                            <div class="private-trainer-avatar">
+
+                                @if (!string.IsNullOrWhiteSpace(trainer.ProfilePicture))
+                                {
+                                    <img src="@trainer.ProfilePicture"
+                                         alt="@trainer.TrainerName" />
+                                }
+                                else
+                                {
+                                    <i class="bi bi-person-fill"></i>
+                                }
+
+                            </div>
+
+                            <div class="private-trainer-card-status @(isFull ? "full" : "available")">
+
+                                @if (isFull)
+                                {
+                                    <i class="bi bi-x-circle-fill"></i>
+                                    <span>FULL</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>AVAILABLE</span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                        <div class="private-trainer-card-content">
+
+                            <h3>
+                                @trainer.TrainerName
+                            </h3>
+
+                            <span class="private-trainer-category">
+                                @trainer.Category
+                            </span>
+
+                            <div class="private-trainer-capacity">
+
+                                <div>
+                                    <span>PRIVATE MEMBERS</span>
+                                    <strong>@memberCount / 2</strong>
+                                </div>
+
+                                <div class="private-trainer-capacity-bar">
+                                    <div style="width: @((memberCount * 50))%"></div>
+                                </div>
+
+                            </div>
+
+                            @if (isFull)
+                            {
+                                <button type="button"
+                                        class="private-trainer-button private-trainer-button-disabled"
+                                        disabled>
+
+                                    <i class="bi bi-lock-fill"></i>
+                                    Trainer Full
+
+                                </button>
+                            }
+                            else
+                            {
+                                <form asp-controller="Member"
+                                      asp-action="SelectPrivateTrainer"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="trainerId"
+                                           value="@trainer.TrainerId" />
+
+                                    <button type="submit"
+                                            class="private-trainer-button">
+
+                                        <i class="bi bi-person-check-fill"></i>
+                                        Choose Trainer
+
+                                    </button>
+
+                                </form>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="private-trainer-empty">
+
+                <i class="bi bi-person-x-fill"></i>
+
+                <h3>
+                    No Trainers Available
+                </h3>
+
+                <p>
+                    There are currently no trainers available for private training.
+                </p>
+
+            </div>
+        }
+    }
+
+    <div class="private-trainer-back">
+
+        <a asp-controller="Member"
+           asp-action="Dashboard">
+
+            <i class="bi bi-arrow-left"></i>
+            Back to Dashboard
+
+        </a>
+
+    </div>
+
+</div>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/private-trainer.css"
+          asp-append-version="true" />
+
+}

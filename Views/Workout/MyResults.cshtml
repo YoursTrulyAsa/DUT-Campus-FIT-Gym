@@ -1,0 +1,133 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.WorkoutResult>
+
+@{
+    ViewData["Title"] = "My Shared Results";
+}
+
+<div class="workout-result-page">
+
+    <div class="workout-result-header">
+
+        <span class="page-label">MY PROGRESS</span>
+
+        <h1>My Shared Results</h1>
+
+        <p>
+            View the workout results you have shared with the community.
+        </p>
+
+    </div>
+
+    @if (TempData["WorkoutResultMessage"] != null)
+    {
+        <div class="workout-result-message">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                @TempData["WorkoutResultMessage"]
+            </span>
+
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="workout-result-empty">
+
+            <i class="fa-solid fa-share-nodes"></i>
+
+            <h2>No Shared Results</h2>
+
+            <p>
+                Complete a workout programme and share your result with
+                the FIT Gym community.
+            </p>
+
+            <a asp-action="MyWorkout"
+               class="workout-result-submit">
+
+                View My Workout
+
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <div class="workout-result-grid">
+
+            @foreach (var result in Model)
+            {
+                <article class="workout-result-card">
+
+                    <div class="workout-result-card-header">
+
+                        <div>
+
+                            <span>
+                                Shared Result
+                            </span>
+
+                            <small>
+                                @result.SharedAt.ToString("dd MMM yyyy")
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="workout-result-images">
+
+                        <div>
+
+                            <span>BEFORE</span>
+
+                            <img src="@result.BeforePhoto"
+                                 alt="Workout result before photo" />
+
+                        </div>
+
+                        <div>
+
+                            <span>AFTER</span>
+
+                            <img src="@result.AfterPhoto"
+                                 alt="Workout result after photo" />
+
+                        </div>
+
+                    </div>
+
+                    <div class="workout-result-card-content">
+
+                        @if (result.WorkoutProgramme != null)
+                        {
+                            <h3>
+                                @result.WorkoutProgramme.ProgrammeName
+                            </h3>
+
+                            <span class="workout-result-level">
+                                @result.WorkoutProgramme.FitnessLevel
+                            </span>
+                        }
+
+                        <p>
+                            @result.Description
+                        </p>
+
+                    </div>
+
+                </article>
+            }
+
+        </div>
+    }
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/workout-results.css"
+          asp-append-version="true" />
+}

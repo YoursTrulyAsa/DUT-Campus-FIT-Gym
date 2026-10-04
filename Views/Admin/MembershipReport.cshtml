@@ -2,222 +2,250 @@
 
 @{
     ViewData["Title"] = "Membership Report";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="container mt-5">
+<link rel="stylesheet"
+      href="~/css/admin-management.css"
+      asp-append-version="true" />
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="admin-management-page">
+
+    <div class="admin-management-header">
 
         <div>
+            <span class="admin-management-eyebrow">
+                <i class="fa-solid fa-id-card"></i>
+                MEMBERSHIP REPORT
+            </span>
+
             <h1>Membership Report</h1>
 
-            <p class="text-muted">
-                Monitor gym memberships and their current status.
+            <p>
+                Monitor gym memberships, activity and payment status.
             </p>
         </div>
 
-        <a asp-action="Index"
-           class="btn btn-secondary">
-            ← Back to Dashboard
-        </a>
+        <div class="admin-management-header-icon">
+            <i class="fa-solid fa-chart-pie"></i>
+        </div>
 
     </div>
 
+    <div class="admin-management-stats">
 
-    <!-- Statistics -->
+        <div class="admin-management-stat">
 
-    <div class="row g-4 mb-4">
+            <div class="admin-management-stat-icon membership-icon">
+                <i class="fa-solid fa-id-card"></i>
+            </div>
 
-        <div class="col-md-3">
-
-            <div class="card shadow-sm">
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Total Memberships
-                    </h6>
-
-                    <h2>
-                        @Model.TotalMemberships
-                    </h2>
-
-                </div>
+            <div>
+                <span>Total Memberships</span>
+                <strong>@Model.TotalMemberships</strong>
+                <small>All membership records</small>
             </div>
 
         </div>
 
+        <div class="admin-management-stat">
 
-        <div class="col-md-3">
+            <div class="admin-management-stat-icon active-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Active
-                    </h6>
-
-                    <h2>
-                        @Model.ActiveMemberships
-                    </h2>
-
-                </div>
+            <div>
+                <span>Active</span>
+                <strong>@Model.ActiveMemberships</strong>
+                <small>Currently active</small>
             </div>
 
         </div>
 
+        <div class="admin-management-stat">
 
-        <div class="col-md-3">
+            <div class="admin-management-stat-icon expired-icon">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Expired
-                    </h6>
-
-                    <h2>
-                        @Model.ExpiredMemberships
-                    </h2>
-
-                </div>
+            <div>
+                <span>Expired</span>
+                <strong>@Model.ExpiredMemberships</strong>
+                <small>Expired memberships</small>
             </div>
 
         </div>
 
+        <div class="admin-management-stat">
 
-        <div class="col-md-3">
+            <div class="admin-management-stat-icon waiting-icon">
+                <i class="fa-solid fa-hourglass-half"></i>
+            </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Waiting for Payment
-                    </h6>
-
-                    <h2>
-                        @Model.WaitingForPayment
-                    </h2>
-
-                </div>
+            <div>
+                <span>Waiting for Payment</span>
+                <strong>@Model.WaitingForPayment</strong>
+                <small>Awaiting payment</small>
             </div>
 
         </div>
 
     </div>
 
+    <div class="admin-management-card admin-table-card">
 
-    <!-- Membership Table -->
+        <div class="admin-management-card-header">
 
-    <div class="card shadow-sm">
+            <div>
+                <span class="admin-section-label">
+                    MEMBERSHIP HISTORY
+                </span>
 
-        <div class="card-header">
-            <h5 class="mb-0">
-                Membership Records
-            </h5>
+                <h2>Membership Records</h2>
+
+                <p>
+                    Detailed membership information for registered gym members.
+                </p>
+            </div>
+
+            <span class="admin-record-count">
+                @Model.TotalMemberships
+            </span>
+
         </div>
 
-        <div class="card-body">
+        @if (!Model.Memberships.Any())
+        {
+            <div class="admin-empty-state">
 
-            @if (!Model.Memberships.Any())
-            {
-                <div class="alert alert-info">
-                    No membership records have been found.
+                <div class="admin-empty-icon">
+                    <i class="fa-solid fa-id-card"></i>
                 </div>
-            }
-            else
-            {
-                <div class="table-responsive">
 
-                    <table class="table table-hover align-middle">
+                <h3>No Membership Records</h3>
 
-                        <thead>
+                <p>
+                    Membership records will appear here once memberships are created.
+                </p>
 
+            </div>
+        }
+        else
+        {
+            <div class="admin-table-wrapper">
+
+                <table class="admin-management-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Member</th>
+                            <th>Student/Staff No.</th>
+                            <th>Membership Type</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Payment Status</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var membership in Model.Memberships)
+                        {
                             <tr>
-                                <th>Member</th>
-                                <th>Student/Staff No.</th>
-                                <th>Membership Type</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Payment Status</th>
-                            </tr>
 
-                        </thead>
+                                <td>
+                                    <div class="admin-member-name">
+                                        <strong>
+                                            @membership.Member?.Name
+                                            @membership.Member?.Surname
+                                        </strong>
+                                    </div>
+                                </td>
 
-                        <tbody>
+                                <td>
+                                    @membership.Member?.StudentNumber
+                                </td>
 
-                            @foreach (var membership in Model.Memberships)
-                            {
-                                <tr>
-
-                                    <td>
-                                        @membership.Member?.Name
-                                        @membership.Member?.Surname
-                                    </td>
-
-                                    <td>
-                                        @membership.Member?.StudentNumber
-                                    </td>
-
-                                    <td>
+                                <td>
+                                    <span class="admin-type-badge">
                                         @membership.MembershipType
-                                    </td>
+                                    </span>
+                                </td>
 
-                                    <td>
+                                <td>
+                                    <strong class="admin-price">
                                         R @membership.Price.ToString("N2")
-                                    </td>
+                                    </strong>
+                                </td>
 
-                                    <td>
+                                <td>
 
-                                        @if (membership.Status == "Active")
-                                        {
-                                            <span class="badge bg-success">
-                                                Active
-                                            </span>
-                                        }
-                                        else if (membership.Status == "WaitingForPayment")
-                                        {
-                                            <span class="badge bg-warning text-dark">
-                                                Waiting for Payment
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">
-                                                @membership.Status
-                                            </span>
-                                        }
+                                    @if (membership.Status == "Active")
+                                    {
+                                        <span class="admin-status-badge active">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            Active
+                                        </span>
+                                    }
+                                    else if (membership.Status == "WaitingForPayment")
+                                    {
+                                        <span class="admin-status-badge waiting">
+                                            <i class="fa-solid fa-hourglass-half"></i>
+                                            Waiting for Payment
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-status-badge">
+                                            @membership.Status
+                                        </span>
+                                    }
 
-                                    </td>
+                                </td>
 
-                                    <td>
-                                        @(membership.StartDate.HasValue
-                                            ? membership.StartDate.Value.ToString("dd MMM yyyy")
-                                            : "N/A")
-                                    </td>
+                                <td>
+                                    @(membership.StartDate.HasValue
+                                        ? membership.StartDate.Value.ToString("dd MMM yyyy")
+                                        : "N/A")
+                                </td>
 
-                                    <td>
-                                        @(membership.EndDate.HasValue
-                                            ? membership.EndDate.Value.ToString("dd MMM yyyy")
-                                            : "N/A")
-                                    </td>
+                                <td>
+                                    @(membership.EndDate.HasValue
+                                        ? membership.EndDate.Value.ToString("dd MMM yyyy")
+                                        : "N/A")
+                                </td>
 
-                                    <td>
-                                        @membership.PaymentStatus
-                                    </td>
+                                <td>
 
-                                </tr>
-                            }
+                                    @if (membership.PaymentStatus == "Paid")
+                                    {
+                                        <span class="admin-status-badge active">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            Paid
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-status-badge waiting">
+                                            @(membership.PaymentStatus ?? "N/A")
+                                        </span>
+                                    }
 
-                        </tbody>
+                                </td>
 
-                    </table>
+                            </tr>
+                        }
 
-                </div>
-            }
+                    </tbody>
 
-        </div>
+                </table>
+
+            </div>
+        }
 
     </div>
 

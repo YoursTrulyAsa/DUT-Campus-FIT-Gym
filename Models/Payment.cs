@@ -13,12 +13,25 @@ namespace DUT_Campus_FIT_Gym.Models
         [ForeignKey("MemberId")]
         public Member? Member { get; set; }
 
-
-        public int MembershipId { get; set; }
+        public int? MembershipId { get; set; }
 
         [ForeignKey("MembershipId")]
         public Membership? Membership { get; set; }
 
+        public int? EquipmentPenaltyId { get; set; }
+
+        [ForeignKey("EquipmentPenaltyId")]
+        public EquipmentPenalty? EquipmentPenalty { get; set; }
+
+        public int? PrivateTrainerSubscriptionId { get; set; }
+
+        [ForeignKey("PrivateTrainerSubscriptionId")]
+        public PrivateTrainerSubscription? PrivateTrainerSubscription { get; set; }
+
+        public int? TrainerBookingId { get; set; }
+
+        [ForeignKey("TrainerBookingId")]
+        public TrainerBooking? TrainerBooking { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }

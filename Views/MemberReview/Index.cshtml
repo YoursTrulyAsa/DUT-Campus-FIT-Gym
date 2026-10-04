@@ -1,0 +1,399 @@
+﻿@model List<DUT_Campus_FIT_Gym.Models.MemberReview>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Member Reviews";
+
+    var myReview = ViewBag.MyReview as DUT_Campus_FIT_Gym.Models.MemberReview;
+    var averageRating = (double)(ViewBag.AverageRating ?? 0);
+    var totalReviews = (int)(ViewBag.TotalReviews ?? 0);
+
+    var fiveStar = (int)(ViewBag.FiveStar ?? 0);
+    var fourStar = (int)(ViewBag.FourStar ?? 0);
+    var threeStar = (int)(ViewBag.ThreeStar ?? 0);
+    var twoStar = (int)(ViewBag.TwoStar ?? 0);
+    var oneStar = (int)(ViewBag.OneStar ?? 0);
+
+    var currentMemberId = int.TryParse(
+        User.FindFirstValue(ClaimTypes.NameIdentifier),
+        out var parsedMemberId
+    ) ? parsedMemberId : 0;
+
+    string StarClass(int rating, int currentRating)
+    {
+        return rating <= currentRating ? "review-star active" : "review-star";
+    }
+
+    string Initials(string? name, string? surname)
+    {
+        var first = !string.IsNullOrWhiteSpace(name) ? name.Trim()[0].ToString() : "";
+        var last = !string.IsNullOrWhiteSpace(surname) ? surname.Trim()[0].ToString() : "";
+        return (first + last).ToUpper();
+    }
+}
+
+<link rel="stylesheet" href="~/css/member-reviews.css" asp-append-version="true" />
+
+<div class="member-reviews-page">
+
+    <div class="reviews-header">
+        <div>
+            <span class="reviews-eyebrow">
+                <i class="bi bi-chat-square-heart-fill"></i>
+                COMMUNITY FEEDBACK
+            </span>
+
+            <h1>Member Reviews</h1>
+
+            <p>
+                Share your experience and see what other FIT Gym members have to say.
+            </p>
+        </div>
+
+        <div class="reviews-header-icon">
+            <i class="bi bi-stars"></i>
+        </div>
+    </div>
+
+    @if (TempData["ReviewSuccess"] != null)
+    {
+        <div class="review-alert success">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@TempData["ReviewSuccess"]</span>
+        </div>
+    }
+
+    @if (TempData["ReviewError"] != null)
+    {
+        <div class="review-alert error">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <span>@TempData["ReviewError"]</span>
+        </div>
+    }
+
+    <div class="reviews-summary-grid">
+
+        <div class="rating-summary-card">
+            <div class="summary-label">OVERALL RATING</div>
+
+            <div class="average-rating">
+                @averageRating.ToString("0.0")
+            </div>
+
+            <div class="summary-stars">
+                @for (var i = 1; i <= 5; i++)
+                {
+                    <i class="bi bi-star-fill"></i>
+                }
+            </div>
+
+            <div class="summary-count">
+                Based on @totalReviews review@(totalReviews == 1 ? "" : "s")
+            </div>
+        </div>
+
+        <div class="rating-breakdown-card">
+
+            <div class="breakdown-title">
+                Rating Breakdown
+            </div>
+
+            @{
+                var ratings = new[]
+                {
+                    new { Stars = 5, Count = fiveStar },
+                    new { Stars = 4, Count = fourStar },
+                    new { Stars = 3, Count = threeStar },
+                    new { Stars = 2, Count = twoStar },
+                    new { Stars = 1, Count = oneStar }
+                };
+            }
+
+            @foreach (var rating in ratings)
+            {
+                var percentage = totalReviews > 0
+                    ? (rating.Count * 100.0 / totalReviews)
+                    : 0;
+
+                <div class="breakdown-row">
+                    <span class="breakdown-stars">
+                        @rating.Stars <i class="bi bi-star-fill"></i>
+                    </span>
+
+                    <div class="breakdown-bar">
+                        <div class="breakdown-fill" style="width: @percentage.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                    </div>
+
+                    <span class="breakdown-count">
+                        @rating.Count
+                    </span>
+                </div>
+            }
+        </div>
+
+    </div>
+
+    <div class="review-content-grid">
+
+        <div class="review-form-card">
+
+            @if (myReview == null)
+            {
+                <div class="card-heading">
+                    <div class="heading-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+
+                    <div>
+                        <h2>Leave a Review</h2>
+                        <p>Tell us about your FIT Gym experience.</p>
+                    </div>
+                </div>
+
+                <form asp-action="Create" method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="rating-input-section">
+                        <label>Your Rating</label>
+
+                        <div class="interactive-stars">
+                            @for (var i = 1; i <= 5; i++)
+                            {
+                                <input type="radio"
+                                       id="rating-@i"
+                                       name="rating"
+                                       value="@i"
+                                       required />
+
+                                <label for="rating-@i">
+                                    <i class="bi bi-star-fill"></i>
+                                </label>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="review-input-group">
+                        <label for="reviewText">Your Review</label>
+
+                        <textarea id="reviewText"
+                                  name="reviewText"
+                                  maxlength="1000"
+                                  rows="6"
+                                  placeholder="Tell us about your experience at the FIT Gym..."
+                                  required></textarea>
+
+                        <div class="character-count">
+                            Maximum 1000 characters
+                        </div>
+                    </div>
+
+                    <button type="submit" class="review-submit-btn">
+                        <i class="bi bi-send-fill"></i>
+                        Submit Review
+                    </button>
+
+                </form>
+            }
+            else
+            {
+                <div class="card-heading">
+                    <div class="heading-icon">
+                        <i class="bi bi-person-heart"></i>
+                    </div>
+
+                    <div>
+                        <h2>Your Review</h2>
+                        <p>You can update your review at any time.</p>
+                    </div>
+                </div>
+
+                <form asp-action="Edit" method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="id"
+                           value="@myReview.MemberReviewId" />
+
+                    <div class="rating-input-section">
+                        <label>Your Rating</label>
+
+                        <div class="interactive-stars">
+                            @for (var i = 1; i <= 5; i++)
+                            {
+                                <input type="radio"
+                                       id="edit-rating-@i"
+                                       name="rating"
+                                       value="@i"
+                                       @(myReview.Rating == i ? "checked" : "")
+                                       required />
+
+                                <label for="edit-rating-@i">
+                                    <i class="bi bi-star-fill"></i>
+                                </label>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="review-input-group">
+                        <label for="editReviewText">Your Review</label>
+
+                        <textarea id="editReviewText"
+                                  name="reviewText"
+                                  maxlength="1000"
+                                  rows="6"
+                                  required>@myReview.ReviewText</textarea>
+
+                        <div class="character-count">
+                            Maximum 1000 characters
+                        </div>
+                    </div>
+
+                    <div class="review-action-row">
+
+                        <button type="submit" class="review-submit-btn">
+                            <i class="bi bi-check-lg"></i>
+                            Update Review
+                        </button>
+
+                        <button type="submit"
+                                formaction="@Url.Action("Delete", "MemberReview")"
+                                name="id"
+                                value="@myReview.MemberReviewId"
+                                class="review-delete-btn"
+                                onclick="return confirm('Are you sure you want to delete your review?');">
+                            <i class="bi bi-trash3"></i>
+                            Delete
+                        </button>
+
+                    </div>
+
+                </form>
+            }
+
+        </div>
+
+        <div class="reviews-list-card">
+
+            <div class="reviews-list-heading">
+                <div>
+                    <h2>Member Experiences</h2>
+                    <p>What our members are saying</p>
+                </div>
+
+                <span class="review-count-badge">
+                    @totalReviews
+                </span>
+            </div>
+
+            @if (Model.Any())
+            {
+                <div class="reviews-list">
+
+                    @foreach (var review in Model)
+                    {
+                        var isOwnReview = review.MemberId == currentMemberId;
+
+                        <div class="member-review-item @(isOwnReview ? "own-review" : "")">
+
+                            <div class="review-member-avatar">
+                                @if (!string.IsNullOrWhiteSpace(review.Member?.ProfilePicture))
+                                {
+                                    <img src="@review.Member.ProfilePicture"
+                                         alt="Member profile picture" />
+                                }
+                                else
+                                {
+                                    @Initials(review.Member?.Name, review.Member?.Surname)
+                                }
+                            </div>
+
+                            <div class="review-item-content">
+
+                                <div class="review-item-top">
+
+                                    <div>
+                                        <h3>
+                                            @(review.Member?.Name ?? "Member")
+                                            @(review.Member?.Surname ?? "")
+                                        </h3>
+
+                                        <span class="review-date">
+                                            @review.CreatedAt.ToString("dd MMM yyyy")
+                                            @if (review.UpdatedAt.HasValue)
+                                            {
+                                                <span> · Edited</span>
+                                            }
+                                        </span>
+                                    </div>
+
+                                    <div class="review-item-rating">
+                                        @for (var i = 1; i <= 5; i++)
+                                        {
+                                            <i class="bi @(i <= review.Rating ? "bi-star-fill" : "bi-star")"></i>
+                                        }
+                                    </div>
+
+                                </div>
+
+                                <p class="review-text">
+                                    @review.ReviewText
+                                </p>
+
+                                @if (isOwnReview)
+                                {
+                                    <span class="your-review-badge">
+                                        <i class="bi bi-person-check-fill"></i>
+                                        Your Review
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-reviews">
+                    <div class="empty-icon">
+                        <i class="bi bi-chat-square-heart"></i>
+                    </div>
+
+                    <h3>No reviews yet</h3>
+
+                    <p>
+                        Be the first member to share your FIT Gym experience.
+                    </p>
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const starInputs = document.querySelectorAll('.interactive-stars input');
+
+    starInputs.forEach(input => {
+        input.addEventListener('change', function () {
+            const container = this.closest('.interactive-stars');
+            const labels = container.querySelectorAll('label');
+
+            labels.forEach((label, index) => {
+                const icon = label.querySelector('i');
+
+                if (index < parseInt(this.value)) {
+                    icon.className = 'bi bi-star-fill';
+                } else {
+                    icon.className = 'bi bi-star';
+                }
+            });
+        });
+    });
+</script>

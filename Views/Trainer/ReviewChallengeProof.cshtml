@@ -1,0 +1,358 @@
+﻿@model DUT_Campus_FIT_Gym.Models.ChallengeProof
+
+@{
+    ViewData["Title"] = "Review Challenge Proof";
+
+    var memberName =
+        Model.Member != null
+            ? $"{Model.Member.Name} {Model.Member.Surname}".Trim()
+            : "Unknown Member";
+
+    var challenge =
+        Model.FitnessChallenge;
+
+    var isPending =
+        Model.Status.Equals(
+            "PendingReview",
+            StringComparison.OrdinalIgnoreCase);
+}
+
+<div class="trainer-page review-challenge-proof-page">
+
+    <div class="review-proof-header">
+
+        <div>
+
+            <a asp-controller="Trainer"
+               asp-action="ChallengeProofs"
+               class="review-proof-back">
+
+                <i class="fa-solid fa-arrow-left"></i>
+
+                Back to Challenge Proofs
+
+            </a>
+
+            <span class="review-proof-eyebrow">
+                CHALLENGE REVIEW
+            </span>
+
+            <h1>
+                Review Challenge Proof
+            </h1>
+
+            <p>
+                Watch the member's submitted video and decide whether the challenge has been completed.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="review-proof-grid">
+
+        <div class="review-proof-video-card">
+
+            <div class="review-proof-card-header">
+
+                <div>
+
+                    <span>
+                        VIDEO PROOF
+                    </span>
+
+                    <h2>
+                        @challenge?.Title
+                    </h2>
+
+                </div>
+
+                <span class="review-proof-status @Model.Status.ToLowerInvariant()">
+                    @Model.Status
+                </span>
+
+            </div>
+
+            <div class="review-proof-video-wrapper">
+
+                <video controls preload="metadata">
+
+                    <source src="@Model.VideoPath" />
+
+                    Your browser does not support video playback.
+
+                </video>
+
+            </div>
+
+        </div>
+
+        <div class="review-proof-info-card">
+
+            <div class="review-proof-info-header">
+
+                <i class="fa-solid fa-clipboard-check"></i>
+
+                <div>
+
+                    <span>
+                        SUBMISSION DETAILS
+                    </span>
+
+                    <h2>
+                        Challenge Information
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="review-proof-info-list">
+
+                <div class="review-proof-info-item">
+
+                    <span>
+                        <i class="fa-solid fa-user"></i>
+                        Member
+                    </span>
+
+                    <strong>
+                        @memberName
+                    </strong>
+
+                </div>
+
+                <div class="review-proof-info-item">
+
+                    <span>
+                        <i class="fa-solid fa-dumbbell"></i>
+                        Challenge
+                    </span>
+
+                    <strong>
+                        @challenge?.Title
+                    </strong>
+
+                </div>
+
+                <div class="review-proof-info-item">
+
+                    <span>
+                        <i class="fa-solid fa-layer-group"></i>
+                        Category
+                    </span>
+
+                    <strong>
+                        @challenge?.Category
+                    </strong>
+
+                </div>
+
+                <div class="review-proof-info-item">
+
+                    <span>
+                        <i class="fa-solid fa-signal"></i>
+                        Fitness Level
+                    </span>
+
+                    <strong>
+                        @challenge?.Level
+                    </strong>
+
+                </div>
+
+                <div class="review-proof-info-item">
+
+                    <span>
+                        <i class="fa-solid fa-bullseye"></i>
+                        Target
+                    </span>
+
+                    <strong>
+                        @challenge?.Target
+                    </strong>
+
+                </div>
+
+                <div class="review-proof-info-item">
+
+                    <span>
+                        <i class="fa-solid fa-star"></i>
+                        Reward
+                    </span>
+
+                    <strong>
+                        +@(challenge?.RewardPoints ?? 0) points
+                    </strong>
+
+                </div>
+
+                <div class="review-proof-info-item">
+
+                    <span>
+                        <i class="fa-solid fa-calendar"></i>
+                        Submitted
+                    </span>
+
+                    <strong>
+                        @Model.SubmittedAt.ToString("dd MMM yyyy, HH:mm")
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    @if (isPending)
+    {
+        <div class="review-proof-decision-card">
+
+            <div class="review-proof-decision-header">
+
+                <div>
+
+                    <span>
+                        TRAINER DECISION
+                    </span>
+
+                    <h2>
+                        Review this submission
+                    </h2>
+
+                </div>
+
+                <i class="fa-solid fa-gavel"></i>
+
+            </div>
+
+            <div class="review-proof-forms">
+
+                <form asp-controller="Trainer"
+                      asp-action="ApproveChallengeProof"
+                      method="post"
+                      class="review-proof-form approve-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.ChallengeProofId" />
+
+                    <label for="approveComment">
+                        Trainer Comment
+                    </label>
+
+                    <textarea id="approveComment"
+                              name="trainerComment"
+                              maxlength="500"
+                              rows="4"
+                              placeholder="Optional feedback for the member..."></textarea>
+
+                    <button type="submit"
+                            class="review-proof-approve-btn">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        Approve Challenge
+
+                    </button>
+
+                </form>
+
+                <form asp-controller="Trainer"
+                      asp-action="RejectChallengeProof"
+                      method="post"
+                      class="review-proof-form reject-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.ChallengeProofId" />
+
+                    <label for="rejectComment">
+                        Rejection Reason
+                    </label>
+
+                    <textarea id="rejectComment"
+                              name="trainerComment"
+                              maxlength="500"
+                              rows="4"
+                              required
+                              placeholder="Explain why the proof cannot be approved..."></textarea>
+
+                    <button type="submit"
+                            class="review-proof-reject-btn">
+
+                        <i class="fa-solid fa-circle-xmark"></i>
+
+                        Reject Proof
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="review-proof-result-card">
+
+            <div class="review-proof-result-icon">
+
+                @if (Model.Status.Equals(
+                    "Approved",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    <i class="fa-solid fa-circle-check"></i>
+                }
+                else
+                {
+                    <i class="fa-solid fa-circle-xmark"></i>
+                }
+
+            </div>
+
+            <div>
+
+                <span>
+                    REVIEW COMPLETED
+                </span>
+
+                <h2>
+                    Proof @Model.Status
+                </h2>
+
+                @if (!string.IsNullOrWhiteSpace(
+                    Model.TrainerComment))
+                {
+                    <p>
+                        @Model.TrainerComment
+                    </p>
+                }
+
+                @if (Model.ReviewedAt.HasValue)
+                {
+                    <small>
+                        Reviewed on
+                        @Model.ReviewedAt.Value.ToString("dd MMM yyyy, HH:mm")
+                    </small>
+                }
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/trainer-challenge-proofs.css"
+          asp-append-version="true" />
+}

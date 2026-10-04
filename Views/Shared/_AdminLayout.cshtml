@@ -257,6 +257,19 @@
 
                 </a>
 
+                <a asp-controller="Admin"
+                   asp-action="Reviews"
+                   class="admin-nav-item @(currentController == "Admin" && currentAction == "Reviews" ? "active" : "")">
+
+                    <span class="admin-nav-icon">
+                        <i class="fa-solid fa-star"></i>
+                    </span>
+
+                    <span class="admin-nav-text">
+                        Member Reviews
+                    </span>
+
+                </a>
 
                 <!-- Announcements -->
                 <a asp-controller="Admin"

@@ -1,0 +1,647 @@
+﻿.challenge-proofs-page,
+.review-challenge-proof-page {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 36px;
+}
+
+.challenge-proofs-header,
+.review-proof-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.challenge-proofs-eyebrow,
+.review-proof-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #1597e5;
+}
+
+.challenge-proofs-header h1,
+.review-proof-header h1 {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 800;
+    color: #071a33;
+}
+
+.challenge-proofs-header p,
+.review-proof-header p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    color: #64748b;
+}
+
+.challenge-proofs-count {
+    min-width: 190px;
+    padding: 18px 22px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 24px rgba(7, 26, 51, 0.06);
+}
+
+    .challenge-proofs-count > i {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e0f2fe;
+        color: #1597e5;
+        font-size: 19px;
+    }
+
+    .challenge-proofs-count strong {
+        display: block;
+        font-size: 24px;
+        line-height: 1;
+        color: #071a33;
+    }
+
+    .challenge-proofs-count span {
+        display: block;
+        margin-top: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+    }
+
+.challenge-proof-alert {
+    margin-bottom: 22px;
+    padding: 15px 18px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+    .challenge-proof-alert.success {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
+    }
+
+    .challenge-proof-alert.error {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+
+.challenge-proof-empty {
+    padding: 70px 30px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(7, 26, 51, 0.05);
+}
+
+.challenge-proof-empty-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ecfdf5;
+    color: #10b981;
+    font-size: 30px;
+}
+
+.challenge-proof-empty h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: #071a33;
+}
+
+.challenge-proof-empty p {
+    max-width: 520px;
+    margin: 10px auto 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.challenge-proof-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.challenge-proof-card {
+    padding: 20px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 24px rgba(7, 26, 51, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .challenge-proof-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(7, 26, 51, 0.09);
+    }
+
+.challenge-proof-card-icon {
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0f2fe;
+    color: #1597e5;
+    font-size: 22px;
+}
+
+.challenge-proof-card-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.challenge-proof-card-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.challenge-proof-category {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    color: #1597e5;
+    text-transform: uppercase;
+}
+
+.challenge-proof-card-heading h2 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 800;
+    color: #071a33;
+}
+
+.challenge-proof-status {
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #fff7ed;
+    color: #c2410c;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.challenge-proof-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 13px;
+}
+
+    .challenge-proof-details > div {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .challenge-proof-details i {
+        color: #1597e5;
+    }
+
+    .challenge-proof-details strong {
+        margin-right: 4px;
+        color: #334155;
+    }
+
+.challenge-proof-card-action {
+    flex: 0 0 auto;
+}
+
+.challenge-proof-review-btn {
+    min-width: 110px;
+    padding: 11px 17px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #071a33;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+    .challenge-proof-review-btn:hover {
+        background: #0b2d52;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+.review-proof-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+    .review-proof-back:hover {
+        color: #1597e5;
+    }
+
+.review-proof-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.85fr);
+    gap: 22px;
+    margin-bottom: 22px;
+}
+
+.review-proof-video-card,
+.review-proof-info-card,
+.review-proof-decision-card,
+.review-proof-result-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(7, 26, 51, 0.05);
+}
+
+.review-proof-video-card {
+    overflow: hidden;
+}
+
+.review-proof-card-header {
+    padding: 22px 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+    .review-proof-card-header > div > span,
+    .review-proof-decision-header span,
+    .review-proof-result-card span {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        color: #1597e5;
+    }
+
+    .review-proof-card-header h2 {
+        margin: 0;
+        font-size: 21px;
+        font-weight: 800;
+        color: #071a33;
+    }
+
+.review-proof-status {
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+    .review-proof-status.pendingreview {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .review-proof-status.approved {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .review-proof-status.rejected {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+.review-proof-video-wrapper {
+    width: 100%;
+    background: #020617;
+    aspect-ratio: 16 / 9;
+}
+
+    .review-proof-video-wrapper video {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: contain;
+    }
+
+.review-proof-info-card {
+    padding: 22px;
+}
+
+.review-proof-info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+    .review-proof-info-header > i {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e0f2fe;
+        color: #1597e5;
+    }
+
+    .review-proof-info-header span {
+        display: block;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #1597e5;
+    }
+
+    .review-proof-info-header h2 {
+        margin: 3px 0 0;
+        font-size: 17px;
+        font-weight: 800;
+        color: #071a33;
+    }
+
+.review-proof-info-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.review-proof-info-item {
+    padding: 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+    .review-proof-info-item:last-child {
+        border-bottom: 0;
+    }
+
+    .review-proof-info-item span {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+
+        .review-proof-info-item span i {
+            color: #1597e5;
+        }
+
+    .review-proof-info-item strong {
+        font-size: 13px;
+        color: #071a33;
+        line-height: 1.4;
+    }
+
+.review-proof-decision-card {
+    padding: 25px;
+}
+
+.review-proof-decision-header {
+    padding-bottom: 20px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+    .review-proof-decision-header h2 {
+        margin: 0;
+        font-size: 21px;
+        font-weight: 800;
+        color: #071a33;
+    }
+
+    .review-proof-decision-header > i {
+        font-size: 25px;
+        color: #1597e5;
+    }
+
+.review-proof-forms {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+}
+
+.review-proof-form {
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #e2e8f0;
+}
+
+    .review-proof-form label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        font-weight: 800;
+        color: #334155;
+    }
+
+    .review-proof-form textarea {
+        width: 100%;
+        min-height: 105px;
+        padding: 12px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        resize: vertical;
+        font-family: inherit;
+        font-size: 13px;
+        color: #334155;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .review-proof-form textarea:focus {
+            border-color: #1597e5;
+            box-shadow: 0 0 0 3px rgba(21, 151, 229, 0.1);
+        }
+
+.review-proof-approve-btn,
+.review-proof-reject-btn {
+    width: 100%;
+    margin-top: 13px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.review-proof-approve-btn {
+    background: #059669;
+    color: #ffffff;
+}
+
+.review-proof-reject-btn {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+    .review-proof-approve-btn:hover,
+    .review-proof-reject-btn:hover {
+        transform: translateY(-1px);
+        opacity: 0.92;
+    }
+
+.review-proof-result-card {
+    padding: 25px;
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+}
+
+.review-proof-result-icon {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 22px;
+}
+
+.review-proof-result-card:has(.fa-circle-xmark) .review-proof-result-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.review-proof-result-card h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #071a33;
+}
+
+.review-proof-result-card p {
+    margin: 8px 0 4px;
+    color: #475569;
+    font-size: 14px;
+}
+
+.review-proof-result-card small {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+@media (max-width: 1000px) {
+    .review-proof-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .review-proof-forms {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .challenge-proofs-page,
+    .review-challenge-proof-page {
+        padding: 22px 16px;
+    }
+
+    .challenge-proofs-header,
+    .review-proof-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .challenge-proofs-count {
+        width: 100%;
+    }
+
+    .challenge-proof-card {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .challenge-proof-card-main {
+        width: calc(100% - 78px);
+    }
+
+    .challenge-proof-card-action {
+        width: 100%;
+        padding-left: 78px;
+    }
+
+    .challenge-proof-review-btn {
+        width: 100%;
+    }
+
+    .challenge-proof-card-heading {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .challenge-proof-details {
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .review-proof-card-header {
+        flex-direction: column;
+    }
+
+    .review-proof-status {
+        align-self: flex-start;
+    }
+}

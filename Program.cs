@@ -4,12 +4,18 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DUT_Campus_FIT_Gym.Services;
+using FFMpegCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient();
+
+GlobalFFOptions.Configure(new FFOptions
+{
+    BinaryFolder = Path.Combine(builder.Environment.ContentRootPath, "ffmpeg")
+});
 builder.Services.AddHttpClient<NgrokService>();
 
 builder.Services.Configure<PayFastSettings>(
@@ -36,6 +42,8 @@ builder.Services.AddDbContext<GymDbContext>(options =>
 
 builder.Services.AddScoped<MembershipPricingService>();
 builder.Services.AddScoped<RewardService>();
+builder.Services.AddScoped<MonthlyLeaderboardService>();
+builder.Services.AddHostedService<MonthlyLeaderboardBackgroundService>();
 builder.Services.AddHostedService<ReservationBackgroundService>();
 
 var app = builder.Build();

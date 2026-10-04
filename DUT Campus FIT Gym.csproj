@@ -9,8 +9,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ffmpeg\ffmpeg.exe" />
+    <None Remove="ffmpeg\ffprobe.exe" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ffmpeg\ffmpeg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ffmpeg\ffprobe.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="BarcodeLib" Version="3.1.5" />
+    <PackageReference Include="FFMpegCore" Version="5.5.0" />
     <PackageReference Include="MailKit" Version="4.17.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />

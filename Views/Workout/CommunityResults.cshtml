@@ -1,0 +1,198 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.WorkoutResult>
+
+@{
+    ViewData["Title"] = "Community Results";
+
+    var savedResultIds =
+        ViewBag.SavedResultIds
+        as HashSet<int>
+        ?? new HashSet<int>();
+
+    int currentMemberId =
+        ViewBag.CurrentMemberId ?? 0;
+}
+
+<div class="workout-result-page">
+
+    <div class="workout-result-header">
+
+        <span class="page-label">FITNESS COMMUNITY</span>
+
+        <h1>Community Results</h1>
+
+        <p>
+            Explore workout experiences shared by FIT Gym members.
+        </p>
+
+    </div>
+
+    @if (TempData["WorkoutResultMessage"] != null)
+    {
+        <div class="workout-result-message">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <span>
+                @TempData["WorkoutResultMessage"]
+            </span>
+
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="workout-result-empty">
+
+            <i class="fa-solid fa-users"></i>
+
+            <h2>No Results Yet</h2>
+
+            <p>
+                Be the first member to share a completed workout result.
+            </p>
+
+        </div>
+    }
+    else
+    {
+        <div class="workout-result-grid">
+
+            @foreach (var result in Model)
+            {
+                var isSaved =
+                    savedResultIds.Contains(
+                        result.WorkoutResultId);
+
+                <article class="workout-result-card">
+
+                    <div class="workout-result-card-header">
+
+                        <div>
+
+                            <span>
+                                @(result.Member?.Name ?? "FIT Gym Member")
+                            </span>
+
+                            <small>
+                                @result.SharedAt.ToString("dd MMM yyyy")
+                            </small>
+
+                        </div>
+
+                        <form asp-action="ToggleSaveResult"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="workoutResultId"
+                                   value="@result.WorkoutResultId" />
+
+                            <button type="submit"
+                                    class="workout-result-save">
+
+                                <i class="fa-solid fa-bookmark"></i>
+
+                                @(isSaved ? "Saved" : "Save")
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="workout-result-images">
+
+                        <div>
+
+                            <span>BEFORE</span>
+
+                            <img src="@result.BeforePhoto"
+                                 alt="Workout result before photo" />
+
+                        </div>
+
+                        <div>
+
+                            <span>AFTER</span>
+
+                            <img src="@result.AfterPhoto"
+                                 alt="Workout result after photo" />
+
+                        </div>
+
+                    </div>
+
+                    <div class="workout-result-card-content">
+
+                        @if (result.WorkoutProgramme != null)
+                        {
+                            <h3>
+                                @result.WorkoutProgramme.ProgrammeName
+                            </h3>
+
+                            <span class="workout-result-level">
+                                @result.WorkoutProgramme.FitnessLevel
+                            </span>
+                        }
+
+                        <p>
+                            @result.Description
+                        </p>
+
+                    </div>
+
+                    @if (result.WorkoutProgramme != null)
+                    {
+                        <div class="workout-result-card-action">
+
+                            @if (result.MemberId != currentMemberId)
+                            {
+                                <form asp-action="DoThisWorkout"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="workoutResultId"
+                                           value="@result.WorkoutResultId" />
+
+                                    <button type="submit"
+                                            class="workout-result-do-btn">
+
+                                        <i class="fa-solid fa-dumbbell"></i>
+
+                                        Do This Workout
+
+                                    </button>
+
+                                </form>
+                            }
+                            else
+                            {
+                                <a asp-action="MyResults"
+                                   class="workout-result-own-btn">
+
+                                    <i class="fa-solid fa-share-nodes"></i>
+
+                                    View My Result
+
+                                </a>
+                            }
+
+                        </div>
+                    }
+
+                </article>
+            }
+
+        </div>
+    }
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/workout-results.css"
+          asp-append-version="true" />
+}

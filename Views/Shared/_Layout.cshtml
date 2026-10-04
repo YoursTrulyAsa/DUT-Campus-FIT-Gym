@@ -256,7 +256,7 @@
 
                     <a asp-controller="Workout"
                        asp-action="MyWorkout"
-                       class="sidebar-link @(controller == "Workout" ? "active" : "")">
+                       class="sidebar-link @(controller == "Workout" && action == "MyWorkout" ? "active" : "")">
 
                         <span class="sidebar-icon">
                             <i class="fa-solid fa-person-running"></i>
@@ -264,6 +264,62 @@
 
                         <span>
                             Workout Plan
+                        </span>
+
+                    </a>
+
+                    <a asp-controller="Workout"
+                       asp-action="FavouriteProgrammes"
+                       class="sidebar-link @(controller == "Workout" && action == "FavouriteProgrammes" ? "active" : "")">
+
+                        <span class="sidebar-icon">
+                            <i class="fa-solid fa-heart"></i>
+                        </span>
+
+                        <span>
+                            Favourite Programmes
+                        </span>
+
+                    </a>
+
+                    <a asp-controller="Workout"
+                       asp-action="CommunityResults"
+                       class="sidebar-link @(controller == "Workout" && action == "CommunityResults" ? "active" : "")">
+
+                        <span class="sidebar-icon">
+                            <i class="fa-solid fa-users"></i>
+                        </span>
+
+                        <span>
+                            Community Results
+                        </span>
+
+                    </a>
+
+                    <a asp-controller="MemberReview"
+                       asp-action="Index"
+                       class="sidebar-link @(controller == "MemberReview" && action == "Index" ? "active" : "")">
+
+                        <span class="sidebar-icon">
+                            <i class="fa-solid fa-star"></i>
+                        </span>
+
+                        <span>
+                            Member Reviews
+                        </span>
+
+                    </a>
+
+                    <a asp-controller="Workout"
+                       asp-action="MyResults"
+                       class="sidebar-link @(controller == "Workout" && action == "MyResults" ? "active" : "")">
+
+                        <span class="sidebar-icon">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </span>
+
+                        <span>
+                            My Results
                         </span>
 
                     </a>
@@ -278,6 +334,21 @@
 
                         <span>
                             Workout Profile
+                        </span>
+
+                    </a>
+
+                    <a asp-controller="Member"
+                       asp-action="PrivateTrainer"
+                       class="sidebar-link @(controller == "Member" && action == "PrivateTrainer" ? "active" : "")"
+                       title="Private Trainer">
+
+                        <span class="sidebar-icon">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </span>
+
+                        <span>
+                            Private Trainer
                         </span>
 
                     </a>

@@ -708,42 +708,88 @@
 
         if (remaining <= 0) {
 
-            if (timer) {
+    if (timer) {
+        timer.textContent = "00:00";
+    }
 
-                timer.textContent =
-                    "00:00";
+    if (dismissButton) {
+        dismissButton.disabled = true;
+        dismissButton.textContent = "Processing...";
+        dismissButton.style.background = "#6c757d";
+        dismissButton.style.cursor = "not-allowed";
+    }
 
+    stopExpirySound();
+
+    if (notificationInterval) {
+        clearInterval(notificationInterval);
+        notificationInterval = null;
+    }
+
+    const token =
+        document.querySelector(
+            "#dismissNotificationForm input[name='__RequestVerificationToken']");
+
+    if (!token || !currentReservationId) {
+        return;
+    }
+
+    const reservationId =
+        currentReservationId;
+
+    fetch(
+        "@Url.Action("ProcessMissedReservationNotification", "Equipment")",
+        {
+            method: "POST",
+
+            headers:
+            {
+                "Content-Type":
+                    "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+
+            body:
+                "reservationId=" +
+                encodeURIComponent(reservationId) +
+                "&__RequestVerificationToken=" +
+                encodeURIComponent(token.value)
+        })
+        .then(function(response) {
+
+            if (!response.ok) {
+                throw new Error(
+                    "Penalty processing failed.");
             }
+
+            return response.json();
+        })
+        .then(function(result) {
 
             if (dismissButton) {
-
-                dismissButton.disabled =
-                    true;
-
                 dismissButton.textContent =
-                    "Penalty Applied";
-
-                dismissButton.style.background =
-                    "#6c757d";
-
-                dismissButton.style.cursor =
-                    "not-allowed";
-
+                    result.penaltyCreated
+                        ? "R50 Penalty Applied"
+                        : "15 Points Deducted";
             }
 
-            stopExpirySound();
+            setTimeout(function() {
+                window.location.reload();
+            }, 1500);
 
-            if (notificationInterval) {
+        })
+        .catch(function(error) {
 
-                clearInterval(
-                    notificationInterval);
+            console.error(
+                "Unable to process missed reservation:",
+                error);
 
-                notificationInterval =
-                    null;
-
+            if (dismissButton) {
+                dismissButton.textContent =
+                    "Processing Failed";
             }
 
-        }
+        });
+}
 
     }
 

@@ -26,38 +26,289 @@ namespace DUT_Campus_FIT_Gym.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            var today = DateTime.Today;
+            var now = DateTime.Now;
+
+            var firstDayOfMonth =
+                new DateTime(
+                    today.Year,
+                    today.Month,
+                    1);
+
+            var firstDayOfNextMonth =
+                firstDayOfMonth.AddMonths(1);
+
+            var members = await _context.Members
+                .AsNoTracking()
+                .ToListAsync();
+
+            var memberships = await _context.Memberships
+                .AsNoTracking()
+                .Include(m => m.Member)
+                .ToListAsync();
+
+            var applications = await _context.MembershipApplications
+                .AsNoTracking()
+                .Include(a => a.Member)
+                .ToListAsync();
+
+            var attendances = await _context.Attendances
+                .AsNoTracking()
+                .ToListAsync();
+
+            var workoutProgrammes = await _context.WorkoutProgrammes
+                .AsNoTracking()
+                .ToListAsync();
+
+            var workoutResults = await _context.WorkoutResults
+                .AsNoTracking()
+                .ToListAsync();
+
+            var savedWorkoutResults = await _context.SavedWorkoutResults
+                .AsNoTracking()
+                .ToListAsync();
+
+            var activeReservations =
+                await _context.Reservations
+                    .AsNoTracking()
+                    .CountAsync(r =>
+                        r.Status == "Active" ||
+                        (r.Status == "Reserved" &&
+                         r.EndTime > now));
+
+            var availableEquipment =
+                await _context.Equipment
+                    .AsNoTracking()
+                    .CountAsync(e =>
+                        !e.IsRetired &&
+                        e.IsAvailable);
+
+            var unavailableEquipment =
+                await _context.Equipment
+                    .AsNoTracking()
+                    .CountAsync(e =>
+                        !e.IsRetired &&
+                        !e.IsAvailable);
+
+            var activeMemberships = memberships
+                .Count(m =>
+                    m.Status == "Active" &&
+                    m.EndDate.HasValue &&
+                    m.EndDate.Value.Date >= today);
+
+            var expiredMemberships = memberships
+                .Count(m =>
+                    m.EndDate.HasValue &&
+                    m.EndDate.Value.Date < today);
+
+            var waitingForPayment = memberships
+                .Count(m =>
+                    m.Status == "WaitingForPayment");
+
+            var paidMemberships = memberships
+                .Where(m =>
+                    m.PaymentStatus == "Completed" &&
+                    m.PaymentDate.HasValue)
+                .ToList();
+
+            var currentMonthPaidMemberships =
+                paidMemberships
+                    .Where(m =>
+                        m.PaymentDate!.Value >= firstDayOfMonth &&
+                        m.PaymentDate.Value < firstDayOfNextMonth)
+                    .ToList();
+
+            var studentRevenue = paidMemberships
+                .Where(m =>
+                    m.Member != null &&
+                    m.Member.Role == "Student")
+                .Sum(m => m.Price);
+
+            var staffRevenue = paidMemberships
+                .Where(m =>
+                    m.Member != null &&
+                    m.Member.Role == "Staff")
+                .Sum(m => m.Price);
+
+            var membershipTypeCounts =
+                memberships
+                    .GroupBy(m =>
+                        string.IsNullOrWhiteSpace(
+                            m.MembershipType)
+                            ? "Unknown"
+                            : m.MembershipType)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Count());
+
+            var applicationStatusCounts =
+                applications
+                    .GroupBy(a =>
+                        string.IsNullOrWhiteSpace(a.Status)
+                            ? "Unknown"
+                            : a.Status)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Count());
+
+            var membershipStatusCounts =
+                memberships
+                    .GroupBy(m =>
+                    {
+                        if (m.Status == "Active" &&
+                            m.EndDate.HasValue &&
+                            m.EndDate.Value.Date >= today)
+                        {
+                            return "Active";
+                        }
+
+                        if (m.Status == "WaitingForPayment")
+                        {
+                            return "Waiting for Payment";
+                        }
+
+                        if (m.EndDate.HasValue &&
+                            m.EndDate.Value.Date < today)
+                        {
+                            return "Expired";
+                        }
+
+                        return string.IsNullOrWhiteSpace(m.Status)
+                            ? "Unknown"
+                            : m.Status;
+                    })
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Count());
+
+            var dailyCheckIns =
+                new Dictionary<string, int>();
+
+            for (var date = today.AddDays(-6);
+                 date <= today;
+                 date = date.AddDays(1))
+            {
+                var dateKey =
+                    date.ToString("ddd");
+
+                dailyCheckIns[dateKey] =
+                    attendances.Count(a =>
+                        a.CheckInTime.Date == date);
+            }
+
+            var recentApplications =
+                applications
+                    .OrderByDescending(a =>
+                        a.ApplicationDate)
+                    .Take(5)
+                    .ToList();
+
             var model = new AdminDashboardViewModel
             {
-                TotalMembers = await _context.Members
-                    .CountAsync(),
+                TotalMembers = members.Count,
 
-                PendingApplications = await _context.MembershipApplications
-                    .CountAsync(a => a.Status == "Pending"),
+                PendingApplications =
+                    applications.Count(a =>
+                        a.Status == "Pending"),
 
-                ActiveMemberships = await _context.Memberships
-                    .CountAsync(m =>
-                        m.Status == "Active" &&
-                        m.EndDate.HasValue &&
-                        m.EndDate.Value.Date >= DateTime.Today),
+                ActiveMemberships =
+                    activeMemberships,
 
-                AvailableEquipment = await _context.Equipment
-                        .CountAsync(e =>
-                        !e.IsRetired &&
-                        e.IsAvailable),
+                AvailableEquipment =
+                    availableEquipment,
 
-                UnavailableEquipment = await _context.Equipment
-                         .CountAsync(e =>
-                        !e.IsRetired &&
-                        !e.IsAvailable),
+                UnavailableEquipment =
+                    unavailableEquipment,
 
-                ActiveReservations = await _context.Reservations
-                    .CountAsync(r => r.Status == "Active"),
+                ActiveReservations =
+                    activeReservations,
 
-                RecentApplications = await _context.MembershipApplications
-                    .Include(a => a.Member)
-                    .OrderByDescending(a => a.ApplicationDate)
-                    .Take(5)
-                    .ToListAsync()
+                RecentApplications =
+                    recentApplications,
+
+                StudentMembers =
+                    members.Count(m =>
+                        m.Role == "Student"),
+
+                StaffMembers =
+                    members.Count(m =>
+                        m.Role == "Staff"),
+
+                ExpiredMemberships =
+                    expiredMemberships,
+
+                WaitingForPayment =
+                    waitingForPayment,
+
+                ApprovedApplications =
+                    applications.Count(a =>
+                        a.Status == "Approved"),
+
+                RejectedApplications =
+                    applications.Count(a =>
+                        a.Status == "Rejected"),
+
+                NewApplicationsThisMonth =
+                    applications.Count(a =>
+                        a.ApplicationDate >= firstDayOfMonth &&
+                        a.ApplicationDate < firstDayOfNextMonth),
+
+                TotalCheckIns =
+                    attendances.Count,
+
+                TodayCheckIns =
+                    attendances.Count(a =>
+                        a.CheckInTime.Date == today),
+
+                CurrentMonthCheckIns =
+                    attendances.Count(a =>
+                        a.CheckInTime >= firstDayOfMonth &&
+                        a.CheckInTime < firstDayOfNextMonth),
+
+                TotalPaidRevenue =
+                    paidMemberships.Sum(m => m.Price),
+
+                CurrentMonthRevenue =
+                    currentMonthPaidMemberships.Sum(m => m.Price),
+
+                StudentRevenue =
+                    studentRevenue,
+
+                StaffRevenue =
+                    staffRevenue,
+
+                TotalWorkoutProgrammes =
+                    workoutProgrammes.Count,
+
+                ActiveWorkoutProgrammes =
+                    workoutProgrammes.Count(p =>
+                        !p.IsCompleted),
+
+                CompletedWorkoutProgrammes =
+                    workoutProgrammes.Count(p =>
+                        p.IsCompleted),
+
+                FavouriteWorkoutProgrammes =
+                    workoutProgrammes.Count(p =>
+                        p.IsFavourite),
+
+                SharedWorkoutResults =
+                    workoutResults.Count,
+
+                SavedWorkoutResults =
+                    savedWorkoutResults.Count,
+
+                MembershipTypeCounts =
+                    membershipTypeCounts,
+
+                ApplicationStatusCounts =
+                    applicationStatusCounts,
+
+                DailyCheckIns =
+                    dailyCheckIns,
+
+                MembershipStatusCounts =
+                    membershipStatusCounts
             };
 
             return View(model);
@@ -240,7 +491,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
             var checkInTime = DateTime.Now;
 
             var checkInReward =
-                   _rewardService.GetCheckInReward();
+                _rewardService.GetCheckInReward();
 
             var attendance = new Attendance
             {
@@ -260,7 +511,7 @@ namespace DUT_Campus_FIT_Gym.Controllers
                     member.MemberId,
 
                 Points =
-                     checkInReward,
+                    checkInReward,
 
                 Reason =
                     "Gym check-in",
@@ -538,7 +789,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
             return View(reservations);
         }
 
-        
         [HttpGet]
         public IActionResult AddEquipment()
         {
@@ -563,11 +813,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
             {
                 var allowedExtensions = new[]
                 {
-            ".jpg",
-            ".jpeg",
-            ".png",
-            ".webp"
-        };
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".webp"
+                };
 
                 var extension =
                     Path.GetExtension(imageFile.FileName)
@@ -616,8 +866,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return RedirectToAction(nameof(Equipment));
         }
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -827,16 +1075,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 nameof(Announcements));
         }
 
-        // ============================================================
-        // PB18 - FINANCIAL MANAGEMENT
-        // ============================================================
-
         [HttpGet]
         public async Task<IActionResult> FinancialManagement()
         {
             var today = DateTime.Today;
 
-            // Get all active memberships
             var activeMemberships = await _context.Memberships
                 .Where(m =>
                     m.Status == "Active" &&
@@ -846,18 +1089,17 @@ namespace DUT_Campus_FIT_Gym.Controllers
                 .OrderByDescending(m => m.MembershipId)
                 .ToListAsync();
 
-            // Get memberships recorded as paid
             var paidMemberships = await _context.Memberships
-                .Where(m => m.PaymentStatus == "Paid")
+                .Where(m =>
+                    m.PaymentStatus == "Completed" &&
+                    m.PaymentDate.HasValue)
                 .Include(m => m.Member)
                 .OrderByDescending(m => m.PaymentDate)
                 .ToListAsync();
 
             var model = new FinancialManagementViewModel
             {
-                // Financial totals based on active memberships
                 PaidRevenue = activeMemberships.Sum(m => m.Price),
-
                 TotalPayments = activeMemberships.Count,
 
                 StudentPaidRevenue = activeMemberships
@@ -872,7 +1114,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         m.Member.Role == "Staff")
                     .Sum(m => m.Price),
 
-                // Active membership totals
                 ActiveMemberships = activeMemberships.Count,
 
                 ActiveMembershipValue = activeMemberships
@@ -888,17 +1129,11 @@ namespace DUT_Campus_FIT_Gym.Controllers
                         m.Member != null &&
                         m.Member.Role == "Staff"),
 
-                // Keep the completed payment list
                 Payments = paidMemberships
             };
 
             return View(model);
         }
-
-
-        // ============================================================
-        // PB19 - ATTENDANCE REPORT
-        // ============================================================
 
         [HttpGet]
         public async Task<IActionResult> AttendanceReport()
@@ -928,11 +1163,6 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(model);
         }
-
-
-        // ============================================================
-        // PB19 - MEMBERSHIP REPORT
-        // ============================================================
 
         [HttpGet]
         public async Task<IActionResult> MembershipReport()
@@ -968,6 +1198,53 @@ namespace DUT_Campus_FIT_Gym.Controllers
 
             return View(model);
         }
-    }
 
+        [HttpGet]
+        public async Task<IActionResult> Reviews()
+                {
+                    var reviews = await _context.MemberReviews
+                        .Include(r => r.Member)
+                        .OrderByDescending(r => r.CreatedAt)
+                        .AsNoTracking()
+                        .ToListAsync();
+
+                    var totalReviews = reviews.Count;
+
+                    ViewBag.TotalReviews = totalReviews;
+                    ViewBag.AverageRating = totalReviews > 0
+                        ? reviews.Average(r => r.Rating)
+                        : 0;
+
+                    ViewBag.FiveStar = reviews.Count(r => r.Rating == 5);
+                    ViewBag.FourStar = reviews.Count(r => r.Rating == 4);
+                    ViewBag.ThreeStar = reviews.Count(r => r.Rating == 3);
+                    ViewBag.TwoStar = reviews.Count(r => r.Rating == 2);
+                    ViewBag.OneStar = reviews.Count(r => r.Rating == 1);
+
+                    return View("~/Views/Admin/Reviews.cshtml", reviews);
+                }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteReview(int id)
+        {
+            var review = await _context.MemberReviews
+                .FirstOrDefaultAsync(r => r.MemberReviewId == id);
+
+            if (review == null)
+            {
+                TempData["Error"] = "Review was not found.";
+                return RedirectToAction(nameof(Reviews));
+            }
+
+            _context.MemberReviews.Remove(review);
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Review deleted successfully.";
+
+            return RedirectToAction(nameof(Reviews));
+        }
+
+    }
 }

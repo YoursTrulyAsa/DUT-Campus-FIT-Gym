@@ -1,0 +1,195 @@
+﻿@model DUT_Campus_FIT_Gym.Models.PrivateTrainerSubscription
+
+@{
+    ViewData["Title"] = "Private Trainer Payment";
+}
+
+<div class="private-payment-page">
+
+    <div class="private-payment-header">
+
+        <div>
+            <span class="private-payment-label">
+                DUT CAMPUS FIT GYM
+            </span>
+
+            <h1>
+                Private Trainer Payment
+            </h1>
+
+            <p>
+                Review your private trainer subscription before continuing to payment.
+            </p>
+        </div>
+
+        <div class="private-payment-header-icon">
+            <i class="bi bi-credit-card-fill"></i>
+        </div>
+
+    </div>
+
+    <div class="private-payment-layout">
+
+        <div class="private-payment-card">
+
+            <div class="private-payment-card-header">
+                <span>PRIVATE TRAINER</span>
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+
+            <div class="private-payment-trainer">
+
+                <div class="private-payment-avatar">
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Trainer?.ProfilePicture))
+                    {
+                        <img src="@Model.Trainer.ProfilePicture"
+                             alt="@Model.Trainer.TrainerName" />
+                    }
+                    else
+                    {
+                        <i class="bi bi-person-fill"></i>
+                    }
+
+                </div>
+
+                <div>
+                    <h2>
+                        @Model.Trainer?.TrainerName
+                    </h2>
+
+                    <p>
+                        @Model.Trainer?.Category
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="private-payment-divider"></div>
+
+            <div class="private-payment-details">
+
+                <div>
+                    <span>SUBSCRIPTION</span>
+                    <strong>Private Trainer</strong>
+                </div>
+
+                <div>
+                    <span>DURATION</span>
+                    <strong>1 Month</strong>
+                </div>
+
+                <div>
+                    <span>START DATE</span>
+                    <strong>@Model.StartDate.ToString("dd MMM yyyy")</strong>
+                </div>
+
+                <div>
+                    <span>END DATE</span>
+                    <strong>@Model.EndDate.ToString("dd MMM yyyy")</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="private-payment-summary">
+
+            <div class="private-payment-summary-header">
+                <h2>
+                    Payment Summary
+                </h2>
+            </div>
+
+            <div class="private-payment-summary-row">
+
+                <span>
+                    Private Trainer
+                </span>
+
+                <strong>
+                    R @Model.Amount.ToString("N2")
+                </strong>
+
+            </div>
+
+            <div class="private-payment-summary-row">
+
+                <span>
+                    Duration
+                </span>
+
+                <strong>
+                    1 Month
+                </strong>
+
+            </div>
+
+            <div class="private-payment-summary-total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong>
+                    R @Model.Amount.ToString("N2")
+                </strong>
+
+            </div>
+
+            <div class="private-payment-notice">
+
+                <i class="bi bi-shield-check"></i>
+
+                <span>
+                    Your private trainer will only become active after your payment has been successfully confirmed.
+                </span>
+
+            </div>
+
+            <form asp-controller="Banking"
+      asp-action="PayPrivateTrainer"
+      method="get">
+
+    <input type="hidden"
+           name="subscriptionId"
+           value="@Model.PrivateTrainerSubscriptionId" />
+
+    <button type="submit"
+            class="private-payment-button">
+
+        <i class="bi bi-lock-fill"></i>
+
+        Continue to Secure Payment
+
+    </button>
+
+</form>
+
+            <a asp-controller="Member"
+               asp-action="PrivateTrainer"
+               class="private-payment-cancel">
+
+                <i class="bi bi-arrow-left"></i>
+
+                Choose Another Trainer
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/private-trainer.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/private-trainer-payment.css"
+          asp-append-version="true" />
+
+}

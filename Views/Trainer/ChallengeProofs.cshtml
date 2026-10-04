@@ -1,0 +1,186 @@
+﻿@model IEnumerable<DUT_Campus_FIT_Gym.Models.ChallengeProof>
+
+@{
+    ViewData["Title"] = "Challenge Proofs";
+
+    var proofs =
+        Model?.ToList() ??
+        new List<DUT_Campus_FIT_Gym.Models.ChallengeProof>();
+
+    var pendingCount = proofs.Count;
+}
+
+<div class="trainer-page challenge-proofs-page">
+
+    <div class="challenge-proofs-header">
+
+        <div>
+            <span class="challenge-proofs-eyebrow">
+                CHALLENGE REVIEW
+            </span>
+
+            <h1>
+                Challenge Proofs
+            </h1>
+
+            <p>
+                Review member video submissions and verify completed fitness challenges.
+            </p>
+        </div>
+
+        <div class="challenge-proofs-count">
+
+            <i class="fa-solid fa-video"></i>
+
+            <div>
+                <strong>@pendingCount</strong>
+                <span>Pending Review</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="challenge-proof-alert success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="challenge-proof-alert error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    @if (!proofs.Any())
+    {
+        <div class="challenge-proof-empty">
+
+            <div class="challenge-proof-empty-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <h2>
+                No Pending Proofs
+            </h2>
+
+            <p>
+                There are currently no challenge videos waiting for review.
+            </p>
+
+        </div>
+    }
+    else
+    {
+        <div class="challenge-proof-list">
+
+            @foreach (var proof in proofs)
+            {
+                var memberName =
+                    proof.Member != null
+                        ? $"{proof.Member.Name} {proof.Member.Surname}".Trim()
+                        : "Unknown Member";
+
+                var challengeTitle =
+                    proof.FitnessChallenge?.Title ?? "Fitness Challenge";
+
+                var challengeCategory =
+                    proof.FitnessChallenge?.Category ?? "Challenge";
+
+                var level =
+                    proof.FitnessChallenge?.Level ?? "Beginner";
+
+                <div class="challenge-proof-card">
+
+                    <div class="challenge-proof-card-icon">
+                        <i class="fa-solid fa-video"></i>
+                    </div>
+
+                    <div class="challenge-proof-card-main">
+
+                        <div class="challenge-proof-card-heading">
+
+                            <div>
+
+                                <span class="challenge-proof-category">
+                                    @challengeCategory
+                                </span>
+
+                                <h2>
+                                    @challengeTitle
+                                </h2>
+
+                            </div>
+
+                            <span class="challenge-proof-status">
+                                Pending Review
+                            </span>
+
+                        </div>
+
+                        <div class="challenge-proof-details">
+
+                            <div>
+                                <i class="fa-solid fa-user"></i>
+
+                                <span>
+                                    <strong>Member</strong>
+                                    @memberName
+                                </span>
+                            </div>
+
+                            <div>
+                                <i class="fa-solid fa-signal"></i>
+
+                                <span>
+                                    <strong>Level</strong>
+                                    @level
+                                </span>
+                            </div>
+
+                            <div>
+                                <i class="fa-solid fa-calendar"></i>
+
+                                <span>
+                                    <strong>Submitted</strong>
+                                    @proof.SubmittedAt.ToString("dd MMM yyyy, HH:mm")
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="challenge-proof-card-action">
+
+                        <a asp-controller="Trainer"
+                           asp-action="ReviewChallengeProof"
+                           asp-route-id="@proof.ChallengeProofId"
+                           class="challenge-proof-review-btn">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                            Review
+
+                        </a>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/trainer-challenge-proofs.css"
+          asp-append-version="true" />
+}

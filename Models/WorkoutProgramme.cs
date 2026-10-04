@@ -34,6 +34,8 @@ namespace DUT_Campus_FIT_Gym.Models
 
         public bool IsCompleted { get; set; } = false;
 
+        public bool IsFavourite { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }
